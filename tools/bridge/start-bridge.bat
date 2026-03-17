@@ -1,0 +1,3 @@
+@echo off
+echo Starting CC Bridge Server...
+node bridge-server.js

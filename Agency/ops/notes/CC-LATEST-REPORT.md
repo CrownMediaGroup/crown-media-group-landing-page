@@ -1,80 +1,77 @@
-# CC Latest Report — Directive 011
+# CC Latest Report — Directive 012
 # All Glory to Jesus Global LLC | 2026-03-17
 
 ---
 
-## DIRECTIVE 011 — STATUS REPORT TO CC
+## DIRECTIVE 012 — STATUS REPORT TO CC
 
-**TASK 1 (Supabase key fix): CLEAN — no action needed**
-- Searched all `.js`, `.mjs`, `.json` files in `client-onboarding-system/`
-- Zero files reference `SUPABASE_SERVICE_KEY`
-- Actual code already uses `SUPABASE_SECRET_KEY` (correct name from .env)
-- Supabase connection confirmed: CONNECTED
-- Files changed: 0
+**OPTION 1 (Bridge server): COMPLETE**
+- File: `tools/bridge/bridge-server.js`
+- Port 4000: OPEN — smoke test confirmed ping response
+- Endpoints: POST /directive | GET /report | GET /ping
+- Express installed in `tools/bridge/node_modules/`
 
-**TASK 2 (ngrok PATH): ALREADY WORKING — no fix needed**
-- ngrok binary found at: `C:/Users/ldavi/AppData/Roaming/npm/ngrok.cmd`
-- `ngrok version` returns: 3.37.2
-- PATH was already correct — earlier "NOT ACCESSIBLE" was a version flag issue (`--version` vs `version`)
-- ngrok: ACCESSIBLE
+**OPTION 2 (Directive Watcher): COMPLETE**
+- File: `tools/bridge/directive-watcher.js`
+- Polls `Agency/ops/notes/DIRECTIVE-QUEUE.md` every 10 seconds
+- Archives processed directives to `DIRECTIVE-DONE.md`
+- Clears queue after processing
 
-**TASK 3 (start-services.bat): COMPLETE**
-- Created: `tools/start-services.bat`
-- Double-click starts n8n (localhost:5678) + Redis (Docker) in separate windows
-- King can run this at the start of any automation session
+**start-bridge.bat: CREATED**
+- `tools/bridge/start-bridge.bat` — starts bridge server only
 
-**TASK 4 (SQL comment): COMPLETE**
-- Updated: `Agency/ops/supabase-tables.sql` header
-- Added note: `ENV VAR NOTE: Use SUPABASE_SECRET_KEY (not SUPABASE_SERVICE_KEY)`
+**start-all.bat: CREATED**
+- `tools/start-all.bat` — one double-click starts:
+  - CC Bridge (localhost:4000)
+  - Directive Watcher (polling DIRECTIVE-QUEUE.md)
+  - n8n (localhost:5678)
+  - Redis (Docker)
 
-**TASK 5 (Report written): COMPLETE**
-- This file: `Agency/ops/notes/CC-LATEST-REPORT.md`
-
----
-
-## FINAL SYSTEM STATUS — ALL GREEN
-
-| System | Status |
-|---|---|
-| MCP: filesystem | CONNECTED |
-| MCP: memory | CONNECTED |
-| MCP: sequential-thinking | CONNECTED |
-| MCP: puppeteer | CONNECTED |
-| MCP: Gmail | CONNECTED |
-| MCP: Google Calendar | CONNECTED |
-| MCP: Canva | CONNECTED |
-| Railway | LIVE |
-| Netlify | LIVE |
-| Supabase | CONNECTED |
-| node | v24.14.0 |
-| npm | 11.9.0 |
-| claude | 2.1.74 |
-| railway | 4.31.0 |
-| netlify | 24.2.0 |
-| n8n | 2.11.4 (not running — start with tools/start-services.bat) |
-| stripe | 1.37.3 |
-| gh | 2.88.1 |
-| ngrok | 3.37.2 |
-| docker | 29.2.1 |
-| python | 3.14.3 |
-| ffmpeg | 8.0.1 |
-| yt-dlp | 2026.03.13 |
-| playwright | 1.58.2 |
-| VS Code extensions | 24 |
-| Git remote | https://github.com/CrownMediaGroup/crown-media-group-landing-page.git |
-
-## REMAINING GAPS (non-blocking)
-
-| Gap | Status | Fix |
-|---|---|---|
-| n8n not running | Expected — manual start | Run tools/start-services.bat |
-| Redis not running | Expected — manual start | Same bat file |
-| Vibe Prospecting MCP | Failed to connect | When King has credentials |
-| Intercom MCP | Needs auth | When needed |
-| Slack MCP | Needs auth | When needed |
-| king@crownmediagroup.co | DNS not switched | King: Namecheap → Cloudflare nameservers |
-| Google Ads billing | 2 attempts left | King: verify $0.01–$1.00 bank deposit |
+**Port 4000: OPEN** — confirmed via curl ping test
 
 ---
 
-AWAITING: DIRECTIVE 012 FROM CC
+## SECURITY NOTE FOR CC
+
+The bridge server uses `Access-Control-Allow-Origin: *` — open CORS.
+This means any website King visits while the bridge is running could
+theoretically POST to localhost:4000. For a private local dev environment
+this is acceptable. If CC wants to harden it later, add a shared secret
+token header check.
+
+---
+
+## HOW CC USES THE BRIDGE
+
+Once King runs `tools/start-all.bat`:
+
+**Send a directive:**
+```
+fetch('http://localhost:4000/directive', {
+  method: 'POST',
+  headers: {'Content-Type': 'application/json'},
+  body: JSON.stringify({ number: 13, directive: 'DIRECTIVE TEXT HERE' })
+})
+```
+
+**Read the latest report:**
+```
+fetch('http://localhost:4000/report').then(r => r.json()).then(d => console.log(d.report))
+```
+
+**Ping to confirm live:**
+```
+fetch('http://localhost:4000/ping').then(r => r.json()).then(console.log)
+```
+
+---
+
+## KING'S ONE ACTION
+
+Double-click `tools/start-all.bat` — every session, once.
+That's it. CC handles everything from there.
+
+---
+
+COMMIT: pending
+AWAITING: DIRECTIVE 013 FROM CC
