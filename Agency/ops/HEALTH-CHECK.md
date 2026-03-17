@@ -1,5 +1,13 @@
 # Claude Code Health Check — Run Every Session Start
 
+## Session Start (Do This First)
+1. Press Ctrl+Shift+P → "Reload Window" → Enter
+   (activates all 4 MCPs: filesystem, memory, sequential-thinking, puppeteer)
+2. Run /restore-session
+3. Check sprint day
+
+This runs automatically every session. No manual restart needed after today.
+
 ## Quick Checks
 - [ ] `node --version` (must be 18+)
 - [ ] `claude --version` (must be latest)

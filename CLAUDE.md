@@ -213,7 +213,7 @@ Before building: simplest approach? Reusable? Works in 6 months untouched? If no
 
 ## 10. SESSION START PROTOCOL (runs on every session open)
 
-1. Read this file silently
+1. VS Code reloaded (Ctrl+Shift+P → Reload Window) — MCPs active
 2. Read MEMORY.md — use it, don't announce it
 3. Read most recent SESSION-NOTES-*.md in Agency/ops/notes/
 4. Check Agency/ops/sprint/10-day-sprint.md for current day
