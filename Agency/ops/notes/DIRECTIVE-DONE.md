@@ -1,4 +1,4 @@
-# Directive TEST — 2026-03-17T16:14:55.420Z
+# Directive TEST-CC — 2026-03-17T17:03:40.668Z
 
-EXEC: git status --short
-EXEC: node --version
+EXEC: echo "CC Bridge test — All Glory to Jesus"
+EXEC: git log --oneline -3
