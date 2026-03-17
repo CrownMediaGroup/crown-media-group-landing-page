@@ -1,0 +1,556 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Seeking the Lord's Face — All Glory to Jesus</title>
+<meta name="description" content="13 declarations for seeking the face of God. AMP scripture + personal declaration. All Glory to Jesus Global LLC."/>
+<meta property="og:title" content="Seeking the Lord's Face"/>
+<meta property="og:description" content="13 declarations for seeking the face of God. Speak them aloud."/>
+<meta property="og:type" content="website"/>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400;1,600&family=Cinzel:wght@400;600&display=swap');
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --gold: #c9a84c;
+    --gold-dim: rgba(201,168,76,0.3);
+    --gold-glow: rgba(201,168,76,0.12);
+    --cream: #f0e6cc;
+    --cream-dim: rgba(240,230,204,0.5);
+    --dark: #080810;
+    --dark2: #0d1020;
+    --card-bg: rgba(255,255,255,0.03);
+    --card-border: rgba(255,255,255,0.07);
+  }
+
+  body {
+    min-height: 100vh;
+    background: radial-gradient(ellipse at 50% 30%, #111828 0%, #080810 70%);
+    font-family: 'Cormorant Garamond', Georgia, serif;
+    color: var(--cream);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    overflow-x: hidden;
+  }
+
+  .particles { position: fixed; inset: 0; pointer-events: none; z-index: 0; overflow: hidden; }
+  .particle {
+    position: absolute;
+    border-radius: 50%;
+    animation: floatUp linear infinite;
+  }
+  @keyframes floatUp {
+    0%   { transform: translateY(0) scale(1);   opacity: 0; }
+    10%  { opacity: 1; }
+    90%  { opacity: 0.6; }
+    100% { transform: translateY(-100vh) scale(0.5); opacity: 0; }
+  }
+
+  .glow-orb {
+    position: fixed;
+    top: 25%; left: 50%;
+    transform: translate(-50%, -50%);
+    width: 700px; height: 700px;
+    background: radial-gradient(ellipse, rgba(201,168,76,0.07) 0%, transparent 70%);
+    pointer-events: none; z-index: 0;
+    animation: breathe 6s ease-in-out infinite;
+  }
+  @keyframes breathe {
+    0%,100% { transform: translate(-50%,-50%) scale(1); opacity:0.7; }
+    50%      { transform: translate(-50%,-50%) scale(1.15); opacity:1; }
+  }
+
+  .wrapper {
+    position: relative; z-index: 1;
+    width: 100%; max-width: 700px;
+    padding: 0 20px 40px;
+    display: flex; flex-direction: column; align-items: center;
+  }
+
+  .header { text-align: center; padding: 40px 0 20px; }
+  .eyebrow {
+    font-family: 'Cinzel', serif;
+    font-size: 10px; letter-spacing: 5px;
+    color: var(--gold); opacity: 0.7;
+    text-transform: uppercase; margin-bottom: 10px;
+  }
+  .title {
+    font-family: 'Cinzel', serif;
+    font-size: clamp(20px, 4vw, 30px);
+    font-weight: 600; color: var(--cream);
+    letter-spacing: 1px; line-height: 1.3;
+  }
+  .subtitle {
+    font-size: 12px; letter-spacing: 3px;
+    color: rgba(240,230,204,0.35); margin-top: 6px;
+    text-transform: uppercase;
+  }
+
+  .progress-wrap { width: 100%; margin: 16px 0 6px; }
+  .progress-bar-bg {
+    height: 1px; background: rgba(201,168,76,0.12);
+    border-radius: 1px; overflow: hidden;
+  }
+  .progress-bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #7a5a1a, #c9a84c);
+    border-radius: 1px;
+    transition: width 0.5s ease;
+  }
+  .progress-labels {
+    display: flex; justify-content: space-between;
+    margin-top: 5px;
+    font-size: 10px; letter-spacing: 1px;
+    color: rgba(201,168,76,0.4); font-family: 'Cinzel', serif;
+  }
+
+  .dots {
+    display: flex; flex-wrap: wrap; gap: 8px;
+    justify-content: center; margin: 14px 0 0;
+  }
+  .dot {
+    width: 9px; height: 9px; border-radius: 50%; border: none;
+    cursor: pointer; transition: all 0.25s;
+    background: rgba(255,255,255,0.1);
+  }
+  .dot.active   { background: var(--gold); box-shadow: 0 0 8px var(--gold-dim); outline: 2px solid rgba(201,168,76,0.35); outline-offset: 2px; }
+  .dot.declared { background: rgba(201,168,76,0.4); }
+  .dot:hover    { transform: scale(1.5); }
+
+  .card {
+    width: 100%; margin-top: 24px;
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 4px;
+    padding: clamp(24px, 5vw, 48px);
+    backdrop-filter: blur(12px);
+    transition: border-color 0.4s ease, box-shadow 0.4s ease;
+  }
+  .card.declaration-mode {
+    border-color: rgba(201,168,76,0.35);
+    box-shadow: 0 0 40px rgba(201,168,76,0.06);
+  }
+
+  .ref-tag {
+    display: inline-block;
+    border: 1px solid var(--gold-dim);
+    color: var(--gold);
+    font-family: 'Cinzel', serif;
+    font-size: 11px; letter-spacing: 3px;
+    padding: 5px 14px; text-transform: uppercase;
+    margin-bottom: 28px;
+  }
+
+  .content-area { animation: fadeIn 0.4s ease forwards; }
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(12px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .verse-wrap { position: relative; padding-left: 8px; }
+  .big-quote {
+    position: absolute; top: -14px; left: -12px;
+    font-size: 72px; color: rgba(201,168,76,0.1);
+    font-family: Georgia, serif; line-height: 1;
+    pointer-events: none; user-select: none;
+  }
+  .verse-text {
+    font-size: clamp(16px, 2.5vw, 20px);
+    line-height: 1.85; font-style: italic;
+    color: var(--cream); position: relative; z-index: 1;
+  }
+
+  .decl-label {
+    font-family: 'Cinzel', serif;
+    font-size: 11px; letter-spacing: 4px;
+    color: var(--gold); text-transform: uppercase;
+    margin-bottom: 18px; opacity: 0.85;
+  }
+  .decl-text {
+    font-size: clamp(15px, 2.3vw, 18px);
+    line-height: 1.95; color: #f5edd8;
+  }
+
+  .actions { margin-top: 36px; display: flex; flex-direction: column; align-items: center; gap: 16px; }
+
+  .btn-declare {
+    background: linear-gradient(135deg, #b8922a 0%, #e0be6a 50%, #b8922a 100%);
+    background-size: 200% auto;
+    color: #080810;
+    border: none; padding: 15px 40px;
+    font-family: 'Cinzel', serif;
+    font-size: 13px; font-weight: 600;
+    letter-spacing: 2px; text-transform: uppercase;
+    cursor: pointer; border-radius: 2px;
+    transition: all 0.3s;
+    animation: pulseGold 2.5s ease-in-out infinite;
+  }
+  .btn-declare:hover { background-position: right center; transform: scale(1.04); }
+  @keyframes pulseGold {
+    0%,100% { box-shadow: 0 0 0 0 rgba(201,168,76,0); }
+    50%      { box-shadow: 0 0 24px 4px rgba(201,168,76,0.2); }
+  }
+
+  .nav-row { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; justify-content: center; }
+
+  .btn-nav {
+    background: transparent;
+    border: 1px solid var(--gold-dim);
+    color: var(--gold); padding: 10px 24px;
+    font-family: 'Cinzel', serif;
+    font-size: 12px; letter-spacing: 1.5px;
+    text-transform: uppercase; cursor: pointer;
+    border-radius: 2px; transition: all 0.2s;
+  }
+  .btn-nav:hover:not(:disabled) { background: rgba(201,168,76,0.1); border-color: var(--gold); }
+  .btn-nav:disabled { opacity: 0.2; cursor: not-allowed; }
+
+  .btn-next-main {
+    background: linear-gradient(135deg, #b8922a, #e0be6a, #b8922a);
+    background-size: 200% auto;
+    color: #080810; border: none;
+    padding: 10px 26px;
+    font-family: 'Cinzel', serif;
+    font-size: 12px; font-weight: 600;
+    letter-spacing: 1.5px; text-transform: uppercase;
+    cursor: pointer; border-radius: 2px; transition: all 0.3s;
+  }
+  .btn-next-main:hover { background-position: right center; }
+
+  .btn-share {
+    background: transparent;
+    border: 1px solid rgba(201,168,76,0.2);
+    color: rgba(201,168,76,0.6); padding: 8px 20px;
+    font-family: 'Cinzel', serif;
+    font-size: 11px; letter-spacing: 2px;
+    text-transform: uppercase; cursor: pointer;
+    border-radius: 2px; transition: all 0.2s;
+  }
+  .btn-share:hover { border-color: var(--gold); color: var(--gold); background: rgba(201,168,76,0.05); }
+
+  .share-toast {
+    position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%);
+    background: rgba(201,168,76,0.15); border: 1px solid var(--gold-dim);
+    color: var(--gold); padding: 10px 24px;
+    font-family: 'Cinzel', serif; font-size: 11px; letter-spacing: 2px;
+    border-radius: 2px; opacity: 0; pointer-events: none;
+    transition: opacity 0.3s; z-index: 999;
+  }
+  .share-toast.show { opacity: 1; }
+
+  .complete-msg {
+    font-family: 'Cinzel', serif;
+    font-size: 12px; color: var(--gold);
+    letter-spacing: 2px;
+  }
+
+  .reset-row {
+    margin-top: 8px;
+  }
+  .btn-reset {
+    background: transparent; border: none;
+    color: rgba(240,230,204,0.2);
+    font-family: 'Cinzel', serif;
+    font-size: 9px; letter-spacing: 2px;
+    text-transform: uppercase; cursor: pointer;
+    transition: color 0.2s;
+  }
+  .btn-reset:hover { color: rgba(240,230,204,0.5); }
+
+  .footer {
+    margin-top: 28px; text-align: center;
+    font-family: 'Cinzel', serif;
+    font-size: 9px; letter-spacing: 3px;
+    color: rgba(201,168,76,0.2); text-transform: uppercase;
+  }
+</style>
+</head>
+<body>
+
+<div class="particles" id="particles"></div>
+<div class="glow-orb"></div>
+<div class="share-toast" id="shareToast">Link Copied</div>
+
+<div class="wrapper">
+  <header class="header">
+    <div class="eyebrow">All Glory to Jesus</div>
+    <h1 class="title">Seeking the Lord's Face</h1>
+    <div class="subtitle">13 Declarations · AMP</div>
+  </header>
+
+  <div class="progress-wrap">
+    <div class="progress-bar-bg">
+      <div class="progress-bar-fill" id="progressFill" style="width:0%"></div>
+    </div>
+    <div class="progress-labels">
+      <span id="declaredCount">0 Declared</span>
+      <span id="verseCount">1 / 13</span>
+    </div>
+  </div>
+
+  <div class="dots" id="dots"></div>
+
+  <div class="card" id="card">
+    <div class="ref-tag" id="refTag"></div>
+    <div class="content-area" id="contentArea"></div>
+    <div class="actions" id="actions"></div>
+  </div>
+
+  <div class="reset-row">
+    <button class="btn-reset" onclick="resetProgress()">Reset Progress</button>
+  </div>
+
+  <footer class="footer">Seek His Face · All Glory to Jesus Global LLC</footer>
+</div>
+
+<script>
+const verses = [
+  {
+    ref: "Psalm 27:8",
+    verse: "When You said, 'Seek My face [in prayer, require My presence as your greatest need],' my heart said to You, 'Your face, O Lord, I will seek [on the authority of Your word].'",
+    declaration: "I am a seeker of Your face, Lord. Not Your hand — Your FACE. Your presence is my greatest need, and I position myself before You now. Every room I walk into in Columbia, SC — my home, my business, my ministry — is a room where Your presence is welcomed and enthroned."
+  },
+  {
+    ref: "Jeremiah 29:13",
+    verse: "Then you will seek Me, inquire for, and require Me [as a vital necessity] and find Me when you search for Me with all your heart.",
+    declaration: "I seek You with my WHOLE heart — not halfway, not casually. You are a vital necessity in my life. Because I seek You fully, I FIND You fully. Every gap in my life is filled by Your presence. Every assignment You've given me is navigated by Your wisdom."
+  },
+  {
+    ref: "2 Chronicles 7:14",
+    verse: "If My people, who are called by My name, humble themselves, and pray and seek My face and turn from their wicked ways, then I will hear from heaven, heal their land.",
+    declaration: "I humble myself before You right now. I pray. I seek Your face. I turn from every distraction and every way that doesn't honor You. Lord, I am calling on You to heal my land — my family, my city, my generation. What You promised, You perform. Hear from heaven and act on my behalf."
+  },
+  {
+    ref: "Psalm 105:4",
+    verse: "Seek the Lord and His strength; seek His face continually [longing to be in His presence].",
+    declaration: "I don't just seek You once — I seek You CONTINUALLY. Your strength is flowing into me right now. Your presence is my atmosphere. I declare that weakness has no place in me because I am continuously drawing from Your strength. What I'm building is sustained by Your power, not mine."
+  },
+  {
+    ref: "Isaiah 55:6",
+    verse: "Seek the Lord while He may be found; call upon Him while He is near.",
+    declaration: "I take this moment seriously. I call on You NOW, while You are near. I don't delay, I don't postpone, I don't let busyness steal this sacred time. Lord, I am calling. Respond to my cry. Draw close to me as I draw close to You. The territory You've given me is activated by this moment of seeking."
+  },
+  {
+    ref: "Matthew 6:33",
+    verse: "But first and most importantly seek (aim at, strive after) His kingdom and His righteousness [His way of doing and being right — the attitude and character of God], and all these things will be given to you also.",
+    declaration: "I put Your Kingdom FIRST — before clients, before revenue, before content, before everything. And because I put You first, all these things are added to me. The agency, the provision, the influence — they follow the seeker. I am a Kingdom-first man, and my life reflects that priority."
+  },
+  {
+    ref: "Lamentations 3:25",
+    verse: "The Lord is good to those who wait [confidently] for Him, to those who seek Him [on the authority of God's word].",
+    declaration: "The Lord is GOOD to me. I wait on You with confidence — not anxiety, not doubt, not frustration. I am not behind. I am not forgotten. I am on Your timeline, and Your timing is perfect. Every promise You've spoken over my life is coming to pass because I seek You and wait on You."
+  },
+  {
+    ref: "Psalm 63:1",
+    verse: "O God, You are my God; with deepest longing I will seek You; my soul [my life, my very self] thirsts for You, my flesh longs and sighs for You, in a dry and weary land where there is no water.",
+    declaration: "My soul thirsts for YOU — not for likes, not for validation, not for temporary success. In any dry season, in any waiting room, my longing is fixed on You. I declare that my inner man is nourished even when the outer world looks dry. You are the water my soul craves, and I drink deeply from You today."
+  },
+  {
+    ref: "Amos 5:4",
+    verse: "For thus says the Lord to the house of Israel, 'Seek Me [search diligently for Me and long for My presence] so that you may live.'",
+    declaration: "Seeking You is LIFE. It's not a religious activity — it's the source of everything that's alive in me. I declare life over every area of my existence — my body, my mind, my creativity, my business, my relationships, my ministry. I search diligently for You, Lord, and because I do, I live fully."
+  },
+  {
+    ref: "Psalm 34:10",
+    verse: "The young lions lack food and suffer hunger; but they who seek the Lord will not lack any good thing.",
+    declaration: "Those who seek the Lord lack NOTHING good. I reject lack. I reject the spirit of scarcity. Every good thing I need — resources, connections, open doors, creativity, favor — is available to me because I am a seeker of the Lord. My table is full. My territory is provided for. Overflow in Jesus' name."
+  },
+  {
+    ref: "Hebrews 11:6",
+    verse: "But without faith it is impossible to [walk with God and] please Him, for whoever comes [near] to God must [necessarily] believe that God exists and that He rewards those who [earnestly and diligently] seek Him.",
+    declaration: "I come to You in FAITH. I believe You exist. I believe You SEE me seeking You right now, and I believe You REWARD it. My faith is the key that unlocks everything You have for me. I declare that my reward is coming — spiritually, physically, financially, and relationally — because I seek You earnestly."
+  },
+  {
+    ref: "Psalm 9:10",
+    verse: "And those who know Your name [who have experienced Your mercy and loving grace] will put their confident trust in You, for You, O Lord, have not abandoned those who seek You.",
+    declaration: "You have NOT abandoned me. Every time it felt like You were silent, You were still there. Every time the path looked uncertain, You were still leading. I declare that I am NOT abandoned — I am held, I am guided, I am covered. My trust is in Your name. El Shaddai. Jehovah Jireh. The God who never leaves."
+  },
+  {
+    ref: "Psalm 16:11",
+    verse: "You will show me the path of life; in Your presence is fullness of joy; in Your right hand there are pleasures forevermore.",
+    declaration: "In Your PRESENCE is fullness of joy — not partial joy, not temporary happiness — FULLNESS. I declare that joy is my portion right now. You are showing me the path of my life — the next step for the agency, for ministry, for everything. I am in Your right hand. Held in the place of eternal pleasures. Forever."
+  }
+];
+
+const STORAGE_KEY = 'seeking-lords-face-progress';
+
+let current = 0;
+let phase = "verse";
+let declared = new Set();
+
+// Load saved progress
+function loadProgress() {
+  try {
+    const saved = localStorage.getItem(STORAGE_KEY);
+    if (saved) {
+      const data = JSON.parse(saved);
+      current = data.current || 0;
+      phase = data.phase || 'verse';
+      declared = new Set(data.declared || []);
+    }
+  } catch(e) {}
+}
+
+function saveProgress() {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({
+      current,
+      phase,
+      declared: [...declared]
+    }));
+  } catch(e) {}
+}
+
+function resetProgress() {
+  current = 0;
+  phase = 'verse';
+  declared = new Set();
+  localStorage.removeItem(STORAGE_KEY);
+  buildDots();
+  render();
+}
+
+// Build particles
+const pContainer = document.getElementById('particles');
+for (let i = 0; i < 20; i++) {
+  const p = document.createElement('div');
+  p.className = 'particle';
+  const size = Math.random() * 5 + 2;
+  p.style.cssText = `
+    width:${size}px; height:${size}px;
+    left:${Math.random()*100}%;
+    bottom:${Math.random()*20-10}%;
+    background:${i%3===0?'#c9a84c':i%3===1?'rgba(255,255,255,0.15)':'rgba(201,168,76,0.3)'};
+    opacity:${Math.random()*0.5+0.1};
+    animation-duration:${Math.random()*10+8}s;
+    animation-delay:${Math.random()*8}s;
+  `;
+  pContainer.appendChild(p);
+}
+
+function buildDots() {
+  const container = document.getElementById('dots');
+  container.innerHTML = '';
+  verses.forEach((_, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'dot' + (i === current ? ' active' : '') + (declared.has(i) && i !== current ? ' declared' : '');
+    btn.setAttribute('aria-label', `Verse ${i+1}`);
+    btn.onclick = () => { current = i; phase = 'verse'; saveProgress(); render(); };
+    container.appendChild(btn);
+  });
+}
+
+function showToast(msg) {
+  const t = document.getElementById('shareToast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+function shareLink() {
+  const url = window.location.href.split('?')[0];
+  if (navigator.share) {
+    navigator.share({ title: "Seeking the Lord's Face", text: "13 declarations for seeking God — speak them aloud.", url });
+  } else {
+    navigator.clipboard.writeText(url).then(() => showToast('Link Copied'));
+  }
+}
+
+function render() {
+  const v = verses[current];
+
+  const card = document.getElementById('card');
+  card.className = 'card' + (phase === 'declaration' ? ' declaration-mode' : '');
+
+  document.getElementById('refTag').textContent = v.ref;
+
+  const prog = ((current + (phase === 'declaration' ? 0.5 : 0)) / verses.length) * 100;
+  document.getElementById('progressFill').style.width = prog + '%';
+  document.getElementById('declaredCount').textContent = declared.size + ' Declared';
+  document.getElementById('verseCount').textContent = (current + 1) + ' / 13';
+
+  const area = document.getElementById('contentArea');
+  area.style.animation = 'none';
+  area.offsetHeight;
+  area.style.animation = '';
+  area.className = 'content-area';
+
+  if (phase === 'verse') {
+    area.innerHTML = `
+      <div class="verse-wrap">
+        <span class="big-quote">"</span>
+        <p class="verse-text">${v.verse}</p>
+      </div>`;
+  } else {
+    area.innerHTML = `
+      <div class="decl-label">Declaration</div>
+      <p class="decl-text">${v.declaration}</p>`;
+  }
+
+  const actions = document.getElementById('actions');
+  actions.innerHTML = '';
+
+  if (phase === 'verse') {
+    const btn = document.createElement('button');
+    btn.className = 'btn-declare';
+    btn.textContent = 'Speak This Declaration';
+    btn.onclick = () => {
+      declared.add(current);
+      phase = 'declaration';
+      saveProgress();
+      buildDots();
+      render();
+    };
+    actions.appendChild(btn);
+  }
+
+  const navRow = document.createElement('div');
+  navRow.className = 'nav-row';
+
+  const prev = document.createElement('button');
+  prev.className = 'btn-nav';
+  prev.textContent = '← Prev';
+  prev.disabled = current === 0;
+  prev.onclick = () => { if (current > 0) { current--; phase = 'verse'; saveProgress(); buildDots(); render(); } };
+  navRow.appendChild(prev);
+
+  if (phase === 'declaration' && current < verses.length - 1) {
+    const nextMain = document.createElement('button');
+    nextMain.className = 'btn-next-main';
+    nextMain.textContent = 'Next Verse →';
+    nextMain.onclick = () => { current++; phase = 'verse'; saveProgress(); buildDots(); render(); };
+    navRow.appendChild(nextMain);
+  } else if (phase === 'declaration' && current === verses.length - 1) {
+    const msg = document.createElement('span');
+    msg.className = 'complete-msg';
+    msg.textContent = '— All 13 Declared —';
+    navRow.appendChild(msg);
+  }
+
+  const next = document.createElement('button');
+  next.className = 'btn-nav';
+  next.textContent = 'Next →';
+  next.disabled = current === verses.length - 1;
+  next.onclick = () => { if (current < verses.length - 1) { current++; phase = 'verse'; saveProgress(); buildDots(); render(); } };
+  navRow.appendChild(next);
+
+  actions.appendChild(navRow);
+
+  // Share button
+  const shareBtn = document.createElement('button');
+  shareBtn.className = 'btn-share';
+  shareBtn.textContent = 'Share with Your Group';
+  shareBtn.onclick = shareLink;
+  actions.appendChild(shareBtn);
+
+  buildDots();
+}
+
+loadProgress();
+render();
+</script>
+</body>
+</html>
