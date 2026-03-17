@@ -1,0 +1,798 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Crown Media Group — Full Pitch Deck</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  @page { size: letter; margin: 0; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    background: #fff;
+    color: #0A0A0A;
+  }
+
+  /* Each page prints as one sheet */
+  .page {
+    width: 8.5in;
+    height: 11in;
+    padding: 0.55in 0.65in;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    page-break-after: always;
+    overflow: hidden;
+  }
+  .page:last-child { page-break-after: auto; }
+  .page-dark { background: #0A0A0A; color: #fff; }
+  .page-white { background: #fff; color: #0A0A0A; }
+  .page-gold { background: #CA8A04; color: #fff; }
+
+  /* TYPOGRAPHY */
+  .eyebrow {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    opacity: 0.5;
+    margin-bottom: 12px;
+  }
+  .page-dark .eyebrow, .page-gold .eyebrow { color: #fff; }
+
+  h1 {
+    font-size: 48px;
+    font-weight: 900;
+    line-height: 1.05;
+    letter-spacing: -1.5px;
+  }
+  h2 {
+    font-size: 36px;
+    font-weight: 900;
+    line-height: 1.1;
+    letter-spacing: -1px;
+    margin-bottom: 10px;
+  }
+  h3 {
+    font-size: 16px;
+    font-weight: 700;
+    margin-bottom: 6px;
+  }
+  .lead {
+    font-size: 15px;
+    line-height: 1.65;
+    opacity: 0.75;
+    max-width: 560px;
+    margin-top: 14px;
+  }
+  .gold { color: #CA8A04; }
+  .page-dark .gold { color: #CA8A04; }
+
+  /* PAGE FOOTER */
+  .page-footer {
+    margin-top: auto;
+    padding-top: 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-top: 1px solid rgba(255,255,255,0.12);
+    font-size: 9px;
+    opacity: 0.4;
+  }
+  .page-white .page-footer { border-top-color: rgba(0,0,0,0.1); }
+
+  /* ===== PAGE 1: COVER ===== */
+  .cover-content {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    flex: 1;
+  }
+  .cover-logo {
+    font-size: 13px;
+    font-weight: 800;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 60px;
+    color: #CA8A04;
+  }
+  .cover-title {
+    font-size: 58px;
+    font-weight: 900;
+    line-height: 1.0;
+    letter-spacing: -2px;
+    color: #fff;
+    max-width: 600px;
+    margin-bottom: 24px;
+  }
+  .cover-subtitle {
+    font-size: 16px;
+    color: rgba(255,255,255,0.5);
+    max-width: 480px;
+    line-height: 1.6;
+    margin-bottom: 50px;
+  }
+  .cover-meta {
+    display: flex;
+    gap: 40px;
+  }
+  .cover-meta-item {
+    display: flex;
+    flex-direction: column;
+  }
+  .cover-meta-label {
+    font-size: 9px;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: rgba(255,255,255,0.35);
+    margin-bottom: 3px;
+  }
+  .cover-meta-value {
+    font-size: 12px;
+    font-weight: 600;
+    color: rgba(255,255,255,0.8);
+  }
+
+  /* ===== PAGE 2: THE PROBLEM ===== */
+  .problem-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-top: 28px;
+    flex: 1;
+  }
+  .problem-item {
+    border: 1.5px solid #E5E5E5;
+    border-radius: 8px;
+    padding: 22px;
+  }
+  .problem-item-number {
+    font-size: 40px;
+    font-weight: 900;
+    color: #E5E5E5;
+    line-height: 1;
+    margin-bottom: 10px;
+  }
+  .problem-item h3 { font-size: 14px; margin-bottom: 6px; }
+  .problem-item p { font-size: 12px; color: #555; line-height: 1.6; }
+  .problem-close {
+    margin-top: 24px;
+    background: #0A0A0A;
+    color: #fff;
+    border-radius: 8px;
+    padding: 18px 24px;
+    font-size: 14px;
+    font-weight: 600;
+    line-height: 1.5;
+  }
+  .problem-close span { color: #CA8A04; }
+
+  /* ===== PAGE 3: WHY US ===== */
+  .edges-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-top: 28px;
+    flex: 1;
+  }
+  .edge-card {
+    background: #0A0A0A;
+    border-radius: 10px;
+    padding: 28px;
+    display: flex;
+    flex-direction: column;
+  }
+  .edge-number {
+    font-size: 48px;
+    font-weight: 900;
+    color: #CA8A04;
+    line-height: 1;
+    margin-bottom: 14px;
+  }
+  .edge-card h3 {
+    font-size: 16px;
+    font-weight: 800;
+    color: #fff;
+    margin-bottom: 8px;
+  }
+  .edge-card p {
+    font-size: 12px;
+    color: rgba(255,255,255,0.55);
+    line-height: 1.65;
+  }
+
+  /* ===== PAGE 4: HOW IT WORKS ===== */
+  .steps {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    margin-top: 28px;
+    flex: 1;
+  }
+  .step {
+    display: grid;
+    grid-template-columns: 80px 1fr;
+    gap: 24px;
+    padding: 28px 0;
+    border-bottom: 1.5px solid #E5E5E5;
+    align-items: start;
+  }
+  .step:last-child { border-bottom: none; }
+  .step-num {
+    font-size: 56px;
+    font-weight: 900;
+    color: #E5E5E5;
+    line-height: 1;
+  }
+  .step-content h3 { font-size: 18px; font-weight: 800; margin-bottom: 8px; }
+  .step-content p { font-size: 13px; color: #555; line-height: 1.65; max-width: 480px; }
+  .step-tag {
+    display: inline-block;
+    background: #CA8A04;
+    color: #fff;
+    font-size: 9px;
+    font-weight: 700;
+    padding: 3px 8px;
+    border-radius: 3px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-top: 10px;
+  }
+
+  /* ===== PAGE 5: SERVICES & PRICING ===== */
+  .pricing-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 16px;
+    margin-top: 28px;
+  }
+  .tier {
+    border: 1.5px solid #E5E5E5;
+    border-radius: 10px;
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+  }
+  .tier.popular {
+    border-color: #CA8A04;
+    background: #FFFBF0;
+  }
+  .tier-badge {
+    background: #CA8A04;
+    color: #fff;
+    font-size: 9px;
+    font-weight: 700;
+    padding: 3px 8px;
+    border-radius: 3px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    display: inline-block;
+    margin-bottom: 12px;
+    width: fit-content;
+  }
+  .tier-name {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: #888;
+    margin-bottom: 4px;
+  }
+  .tier-price {
+    font-size: 36px;
+    font-weight: 900;
+    color: #0A0A0A;
+    line-height: 1;
+  }
+  .tier-period {
+    font-size: 11px;
+    color: #888;
+    margin-bottom: 4px;
+  }
+  .tier-setup {
+    font-size: 10px;
+    color: #CA8A04;
+    font-weight: 600;
+    margin-bottom: 18px;
+  }
+  .tier-features {
+    list-style: none;
+    font-size: 11px;
+    line-height: 1.9;
+    color: #444;
+    flex: 1;
+  }
+  .tier-features li::before { content: "✓  "; color: #CA8A04; font-weight: 700; }
+  .addons-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 12px;
+    margin-top: 16px;
+  }
+  .addon {
+    background: #F5F5F5;
+    border-radius: 6px;
+    padding: 12px;
+    font-size: 11px;
+  }
+  .addon strong { display: block; margin-bottom: 3px; font-size: 12px; }
+  .addon span { color: #CA8A04; font-weight: 700; }
+
+  /* ===== PAGE 6: PORTFOLIO ===== */
+  .portfolio-header {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-top: 24px;
+    margin-bottom: 16px;
+  }
+  .portfolio-client-card {
+    background: #F9F5EC;
+    border-radius: 10px;
+    padding: 20px;
+  }
+  .portfolio-client-card.dark {
+    background: #0A0A0A;
+    color: #fff;
+  }
+  .client-label {
+    font-size: 9px;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: #CA8A04;
+    font-weight: 700;
+    margin-bottom: 6px;
+  }
+  .client-biz-name { font-size: 20px; font-weight: 800; margin-bottom: 4px; }
+  .portfolio-client-card.dark .client-biz-name { color: #fff; }
+  .client-desc { font-size: 11px; color: #666; line-height: 1.6; }
+  .portfolio-client-card.dark .client-desc { color: rgba(255,255,255,0.5); }
+  .samples-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 12px;
+  }
+  .sample-card {
+    border: 1.5px solid #E5E5E5;
+    border-radius: 8px;
+    padding: 14px;
+  }
+  .sample-type {
+    font-size: 9px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: #CA8A04;
+    font-weight: 700;
+    margin-bottom: 8px;
+  }
+  .sample-text {
+    font-size: 11px;
+    color: #333;
+    line-height: 1.6;
+    font-style: italic;
+  }
+  .sample-platform {
+    margin-top: 8px;
+    font-size: 9px;
+    color: #888;
+    font-weight: 600;
+  }
+
+  /* ===== PAGE 7: ABOUT KING ===== */
+  .about-layout {
+    display: grid;
+    grid-template-columns: 1fr 1.6fr;
+    gap: 40px;
+    margin-top: 28px;
+    flex: 1;
+    align-items: start;
+  }
+  .about-photo-block {
+    background: #F5F5F5;
+    border-radius: 10px;
+    aspect-ratio: 3/4;
+    display: flex;
+    align-items: flex-end;
+    padding: 16px;
+    min-height: 320px;
+    overflow: hidden;
+  }
+  .about-photo-block img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 8px;
+  }
+  .about-name-block {
+    background: #0A0A0A;
+    border-radius: 6px;
+    padding: 10px 14px;
+    width: 100%;
+  }
+  .about-name { font-size: 14px; font-weight: 800; color: #fff; }
+  .about-handle { font-size: 10px; color: #CA8A04; margin-top: 2px; }
+  .about-copy { display: flex; flex-direction: column; gap: 16px; }
+  .about-copy p { font-size: 13px; color: #444; line-height: 1.7; }
+  .about-pillars {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-top: 8px;
+  }
+  .pillar {
+    background: #F5F5F5;
+    border-radius: 6px;
+    padding: 12px;
+    font-size: 11px;
+  }
+  .pillar strong { display: block; font-size: 12px; margin-bottom: 3px; }
+  .pillar span { color: #555; line-height: 1.5; }
+
+  /* ===== PAGE 8: NEXT STEP ===== */
+  .next-content {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    flex: 1;
+    max-width: 640px;
+  }
+  .next-steps-list {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    margin: 32px 0;
+  }
+  .next-step-item {
+    display: grid;
+    grid-template-columns: 40px 1fr;
+    gap: 16px;
+    align-items: start;
+  }
+  .next-step-dot {
+    width: 36px;
+    height: 36px;
+    background: #CA8A04;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    font-weight: 800;
+    color: #fff;
+    flex-shrink: 0;
+  }
+  .next-step-text h4 { font-size: 13px; font-weight: 700; color: #fff; margin-bottom: 3px; }
+  .next-step-text p { font-size: 11px; color: rgba(255,255,255,0.5); line-height: 1.5; }
+  .contact-block {
+    background: rgba(255,255,255,0.07);
+    border: 1.5px solid rgba(255,255,255,0.1);
+    border-radius: 10px;
+    padding: 20px 24px;
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 20px;
+  }
+  .contact-item-label {
+    font-size: 9px;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: rgba(255,255,255,0.35);
+    margin-bottom: 4px;
+  }
+  .contact-item-value {
+    font-size: 13px;
+    font-weight: 600;
+    color: #CA8A04;
+  }
+</style>
+</head>
+<body>
+
+<!-- ===== PAGE 1: COVER ===== -->
+<div class="page page-dark">
+  <div class="cover-content">
+    <div class="cover-logo">Crown Media Group</div>
+    <div class="cover-title">Marketing that <span class="gold">moves</span> your business.</div>
+    <div class="cover-subtitle">AI-powered content, paid ads, and social media management for Columbia SC businesses ready to grow.</div>
+    <div class="cover-meta">
+      <div class="cover-meta-item">
+        <span class="cover-meta-label">Prepared for</span>
+        <span class="cover-meta-value">Your Business</span>
+      </div>
+      <div class="cover-meta-item">
+        <span class="cover-meta-label">Prepared by</span>
+        <span class="cover-meta-value">DavidKing — Crown Media Group</span>
+      </div>
+      <div class="cover-meta-item">
+        <span class="cover-meta-label">Website</span>
+        <span class="cover-meta-value">crownmediagroup.co</span>
+      </div>
+    </div>
+  </div>
+  <div class="page-footer">
+    <span>Crown Media Group © 2026</span>
+    <span>All Glory to Jesus Global LLC</span>
+    <span>crownmediagroup.co</span>
+  </div>
+</div>
+
+<!-- ===== PAGE 2: THE PROBLEM ===== -->
+<div class="page page-white">
+  <div class="eyebrow">The Challenge</div>
+  <h2>Your business deserves more customers.<br>Your marketing isn't helping.</h2>
+  <div class="problem-grid">
+    <div class="problem-item">
+      <div class="problem-item-number">01</div>
+      <h3>No Time to Post</h3>
+      <p>You're running the business. Creating content, writing captions, editing videos — there's no time left. So nothing gets posted and your page looks abandoned.</p>
+    </div>
+    <div class="problem-item">
+      <div class="problem-item-number">02</div>
+      <h3>Inconsistent Presence</h3>
+      <p>A post here, a post there. No strategy, no consistency. Customers check your Instagram and see nothing recent — so they go to your competitor instead.</p>
+    </div>
+    <div class="problem-item">
+      <div class="problem-item-number">03</div>
+      <h3>Wasted Ad Budget</h3>
+      <p>Boosting posts without strategy burns money fast. Without proper targeting and creative, your ad spend reaches the wrong people and produces zero results.</p>
+    </div>
+    <div class="problem-item">
+      <div class="problem-item-number">04</div>
+      <h3>Invisible Online</h3>
+      <p>If a customer searches for your service in Columbia SC and you don't show up — you don't exist to them. Your competition is capturing customers you should have.</p>
+    </div>
+  </div>
+  <div class="problem-close">We built Crown Media Group to solve exactly this — <span>for local businesses who are great at what they do but need help telling the world about it.</span></div>
+  <div class="page-footer" style="border-top-color: rgba(0,0,0,0.1); opacity:0.4; color:#000;">
+    <span>Crown Media Group</span><span>The Challenge</span><span>02</span>
+  </div>
+</div>
+
+<!-- ===== PAGE 3: WHY CROWN MEDIA GROUP ===== -->
+<div class="page page-white">
+  <div class="eyebrow">Our Edge</div>
+  <h2>4 reasons we're different<br>from every other agency.</h2>
+  <div class="edges-grid">
+    <div class="edge-card">
+      <div class="edge-number">01</div>
+      <h3>AI-Powered</h3>
+      <p>We use the latest AI tools to produce professional content at speed — videos, graphics, copy, and ads that used to cost 10x more. Your competition doesn't have access to this yet.</p>
+    </div>
+    <div class="edge-card">
+      <div class="edge-number">02</div>
+      <h3>Faith-Aligned</h3>
+      <p>We're not just an agency. We're a Kingdom business. Every client we serve, we serve with integrity, honesty, and a standard the industry doesn't expect. You can trust our work.</p>
+    </div>
+    <div class="edge-card">
+      <div class="edge-number">03</div>
+      <h3>Local & Personal</h3>
+      <p>We're Columbia SC. We know this city, these neighborhoods, these customers. You're not a ticket in a queue — you work directly with DavidKing, the founder, every step of the way.</p>
+    </div>
+    <div class="edge-card">
+      <div class="edge-number">04</div>
+      <h3>Results in 30 Days</h3>
+      <p>No 90-day onboarding. No 6-month contracts before you see results. We deliver within 30 days or we don't deserve your money. That's the Crown Media Group guarantee.</p>
+    </div>
+  </div>
+  <div class="page-footer" style="border-top-color: rgba(0,0,0,0.1); opacity:0.4; color:#000;">
+    <span>Crown Media Group</span><span>Our Edge</span><span>03</span>
+  </div>
+</div>
+
+<!-- ===== PAGE 4: HOW IT WORKS ===== -->
+<div class="page page-white">
+  <div class="eyebrow">The Process</div>
+  <h2>Simple. Fast. Done right.</h2>
+  <div class="steps">
+    <div class="step">
+      <div class="step-num">01</div>
+      <div class="step-content">
+        <h3>Onboard — We learn your brand in 48 hours</h3>
+        <p>We gather your story, your voice, your goals, and your customers. One intake form. One discovery call. After that, we never need to ask you for content again — we handle it all.</p>
+        <span class="step-tag">Week 1</span>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">02</div>
+      <div class="step-content">
+        <h3>Build — We create your content engine</h3>
+        <p>We build your content calendar, design your brand assets, write your captions, produce your Reels, and launch your ad campaigns. Everything is ready before we post a single thing — you approve first.</p>
+        <span class="step-tag">Week 2–3</span>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">03</div>
+      <div class="step-content">
+        <h3>Grow — We scale what's working</h3>
+        <p>We track every metric — reach, engagement, leads, sales. Every month we send you a full report. What's working gets doubled. What isn't gets cut. Your results only go in one direction: up.</p>
+        <span class="step-tag">Month 1 → ongoing</span>
+      </div>
+    </div>
+  </div>
+  <div class="page-footer" style="border-top-color: rgba(0,0,0,0.1); opacity:0.4; color:#000;">
+    <span>Crown Media Group</span><span>The Process</span><span>04</span>
+  </div>
+</div>
+
+<!-- ===== PAGE 5: SERVICES & PRICING ===== -->
+<div class="page page-white">
+  <div class="eyebrow">Pricing</div>
+  <h2>Choose the plan that fits<br>where you are right now.</h2>
+  <div class="pricing-grid">
+    <div class="tier">
+      <div class="tier-name">Starter</div>
+      <div class="tier-price">$750</div>
+      <div class="tier-period">/month</div>
+      <div class="tier-setup">+ $250 one-time setup</div>
+      <ul class="tier-features">
+        <li>Social media management</li>
+        <li>12 posts/month (3/week)</li>
+        <li>AI content creation</li>
+        <li>Caption copywriting</li>
+        <li>Monthly performance report</li>
+        <li>Email support</li>
+      </ul>
+    </div>
+    <div class="tier popular">
+      <div class="tier-badge">Most Popular</div>
+      <div class="tier-name">Growth</div>
+      <div class="tier-price">$1,200</div>
+      <div class="tier-period">/month</div>
+      <div class="tier-setup">+ $400 one-time setup</div>
+      <ul class="tier-features">
+        <li>Everything in Starter</li>
+        <li>20 posts/month + Reels</li>
+        <li>Facebook + Instagram ads</li>
+        <li>Ad creative + copywriting</li>
+        <li>Weekly check-in calls</li>
+        <li>Priority support</li>
+      </ul>
+    </div>
+    <div class="tier">
+      <div class="tier-name">Premium</div>
+      <div class="tier-price">$3,500</div>
+      <div class="tier-period">/month</div>
+      <div class="tier-setup">+ $1,000 one-time setup</div>
+      <ul class="tier-features">
+        <li>Everything in Growth</li>
+        <li>Unlimited content creation</li>
+        <li>Landing page build</li>
+        <li>Full ad campaign management</li>
+        <li>Email marketing sequences</li>
+        <li>Dedicated account manager</li>
+      </ul>
+    </div>
+  </div>
+  <div class="addons-row">
+    <div class="addon"><strong>Ad Management</strong>Add-on to any plan<br><span>10–15% of ad spend</span></div>
+    <div class="addon"><strong>Landing Page Build</strong>Standalone or add-on<br><span>$300–$800 one-time</span></div>
+    <div class="addon"><strong>Marketing Audit</strong>One-time deep dive<br><span>$97–$197 flat</span></div>
+  </div>
+  <div class="page-footer" style="border-top-color: rgba(0,0,0,0.1); opacity:0.4; color:#000;">
+    <span>Crown Media Group</span><span>Pricing</span><span>05</span>
+  </div>
+</div>
+
+<!-- ===== PAGE 6: PORTFOLIO ===== -->
+<div class="page page-white">
+  <div class="eyebrow">Portfolio</div>
+  <h2>Content we create.<br>Results we deliver.</h2>
+  <div class="portfolio-header">
+    <div class="portfolio-client-card">
+      <div class="client-label">Active Client — Columbia, SC</div>
+      <div class="client-biz-name">Shatiea's Juices</div>
+      <div class="client-desc">Faith-based Fruit of the Spirit juice business. Full brand identity, social media management, content creation, and e-commerce setup. Transformed from no digital presence to a complete, professional brand.</div>
+    </div>
+    <div class="portfolio-client-card dark">
+      <div class="client-label">What We Built</div>
+      <div class="client-biz-name" style="color:#fff;">Complete Brand System</div>
+      <div class="client-desc">Logo design · Brand identity · Instagram + Facebook setup · Content calendar · Daily posting · Caption copywriting · AI-generated Reels · E-commerce integration</div>
+    </div>
+  </div>
+  <div class="samples-grid">
+    <div class="sample-card">
+      <div class="sample-type">Instagram Caption — Juice</div>
+      <div class="sample-text">"Your body is a temple — and the fruit of the Spirit starts from within. Freshly pressed, faith-fueled, made with love for this community. Order yours today."</div>
+      <div class="sample-platform">Instagram · Faith + Product</div>
+    </div>
+    <div class="sample-card">
+      <div class="sample-type">Instagram Caption — Restaurant</div>
+      <div class="sample-text">"Every plate tells a story. Fresh ingredients, real flavors, the kind of meal that brings people back every time. Come taste what made this neighborhood fall in love with us."</div>
+      <div class="sample-platform">Instagram · Story + Invite</div>
+    </div>
+    <div class="sample-card">
+      <div class="sample-type">Instagram Caption — Barber</div>
+      <div class="sample-text">"A fresh cut changes everything. Walk in, walk out feeling like a new person. Book your appointment today — spots are limited and you deserve to look your best."</div>
+      <div class="sample-platform">Instagram · Confidence + CTA</div>
+    </div>
+  </div>
+  <div class="page-footer" style="border-top-color: rgba(0,0,0,0.1); opacity:0.4; color:#000;">
+    <span>Crown Media Group</span><span>Portfolio</span><span>06</span>
+  </div>
+</div>
+
+<!-- ===== PAGE 7: ABOUT KING ===== -->
+<div class="page page-white">
+  <div class="eyebrow">Who You're Working With</div>
+  <h2>You work directly<br>with the founder.</h2>
+  <div class="about-layout">
+    <div style="display:flex;flex-direction:column;gap:16px;">
+      <div class="about-photo-block" style="background:#0A0A0A; border-radius:10px; padding:0; overflow:hidden;">
+        <img src="../../../landing-page/david-king.png" alt="DavidKing" style="width:100%;height:100%;object-fit:cover;" onerror="this.parentElement.innerHTML='<div style=\'width:100%;height:100%;display:flex;align-items:center;justify-content:center;color:#CA8A04;font-size:48px;font-weight:900;\'>DK</div>'">
+      </div>
+      <div class="about-name-block">
+        <div class="about-name">DavidKing</div>
+        <div class="about-handle">@mkdavidking · Columbia, SC</div>
+      </div>
+    </div>
+    <div class="about-copy">
+      <p>I'm DavidKing — CEO and Founder of Crown Media Group, based right here in Columbia, SC. I started this agency because I saw too many great local businesses stay invisible online while their competitors grew — simply because they didn't have time or resources for marketing.</p>
+      <p>I use AI tools, proven marketing strategy, and a deep commitment to doing things right to give your business the marketing edge it deserves. When you work with Crown Media Group, you're not handed off to a junior employee or lost in a client queue. You work with me, directly.</p>
+      <p>Faith drives everything I do. That means honesty, accountability, and results — not empty promises.</p>
+      <div class="about-pillars">
+        <div class="pillar"><strong>AI-Powered Tools</strong><span>Content produced faster and better than traditional agencies</span></div>
+        <div class="pillar"><strong>Local & Invested</strong><span>Columbia SC is my city. Your growth is personal to me.</span></div>
+        <div class="pillar"><strong>Transparent Reporting</strong><span>You see every number, every result, every month</span></div>
+        <div class="pillar"><strong>Kingdom Standard</strong><span>Integrity and excellence in everything we build</span></div>
+      </div>
+    </div>
+  </div>
+  <div class="page-footer" style="border-top-color: rgba(0,0,0,0.1); opacity:0.4; color:#000;">
+    <span>Crown Media Group</span><span>About</span><span>07</span>
+  </div>
+</div>
+
+<!-- ===== PAGE 8: NEXT STEP ===== -->
+<div class="page page-dark">
+  <div class="next-content">
+    <div class="eyebrow" style="color:rgba(255,255,255,0.4);">Ready to Start</div>
+    <h2 style="color:#fff;">Here's what happens<br>when you say <span class="gold">yes.</span></h2>
+    <div class="next-steps-list">
+      <div class="next-step-item">
+        <div class="next-step-dot">1</div>
+        <div class="next-step-text">
+          <h4>We book a free 20-minute discovery call</h4>
+          <p>No pitch, no pressure. We learn your business, your goals, and your challenges. You decide what fits.</p>
+        </div>
+      </div>
+      <div class="next-step-item">
+        <div class="next-step-dot">2</div>
+        <div class="next-step-text">
+          <h4>You choose your plan and we collect setup</h4>
+          <p>Pick the tier that fits right now. Setup fee collected upfront. Work begins within 24 hours of payment.</p>
+        </div>
+      </div>
+      <div class="next-step-item">
+        <div class="next-step-dot">3</div>
+        <div class="next-step-text">
+          <h4>We deliver your first content within 48 hours</h4>
+          <p>Your social media is transformed in 30 days. You approve everything. Zero guesswork, zero surprises.</p>
+        </div>
+      </div>
+    </div>
+    <div class="contact-block">
+      <div>
+        <div class="contact-item-label">Website</div>
+        <div class="contact-item-value">crownmediagroup.co</div>
+      </div>
+      <div>
+        <div class="contact-item-label">Call or Text</div>
+        <div class="contact-item-value">(908) 848-1436</div>
+      </div>
+      <div>
+        <div class="contact-item-label">Email</div>
+        <div class="contact-item-value">king@crownmediagroup.co</div>
+      </div>
+    </div>
+  </div>
+  <div class="page-footer">
+    <span>Crown Media Group © 2026</span>
+    <span>All Glory to Jesus Global LLC · Columbia, SC</span>
+    <span>08</span>
+  </div>
+</div>
+
+</body>
+</html>

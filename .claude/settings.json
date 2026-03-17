@@ -1,0 +1,25 @@
+{
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 C:/Users/ldavi/Documents/AllGloryAgency/tools/hooks/post-file-change.py"
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 C:/Users/ldavi/Documents/AllGloryAgency/tools/hooks/session-stop.py"
+          }
+        ]
+      }
+    ]
+  }
+}

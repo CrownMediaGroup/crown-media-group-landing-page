@@ -1,0 +1,32 @@
+# Claude ignore — stops Claude from reading unnecessary files
+# Saves tokens every session
+
+# Dependencies
+client-onboarding-system/node_modules/
+node_modules/
+
+# Lock files
+*.lock
+package-lock.json
+yarn.lock
+
+# Build output
+dist/
+build/
+.next/
+
+# Logs
+*.log
+logs/
+
+# Environment files (never read these)
+.env
+.env.*
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Session notes and temp files
+SESSION-NOTES-*.md
+*.tmp

@@ -1,0 +1,585 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Crown Media Group — One-Pager</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;0,700;1,300;1,400;1,600;1,700&family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --white:       #FFFFFF;
+    --cream:       #FDFBF7;
+    --warm:        #F9F5EE;
+    --gold:        #C9981A;
+    --gold-light:  #E8B832;
+    --gold-deep:   #9A720D;
+    --gold-pale:   #F5E6B8;
+    --royal:       #1A1A3E;
+    --royal-mid:   #2D2D5A;
+    --text:        #1A1A2E;
+    --text-mid:    #4A4A6A;
+    --text-light:  #8A8AAA;
+    --border:      rgba(201,152,26,0.18);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  @page { size: letter; margin: 0.36in 0.46in; }
+
+  body {
+    font-family: 'Inter', sans-serif;
+    background: var(--cream);
+    color: var(--text);
+    font-size: 10px;
+    line-height: 1.6;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  /* ══════════════════════════════════
+     1. HEADER
+  ══════════════════════════════════ */
+  .header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    padding-bottom: 11px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 20px;
+  }
+  .brand-name {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 24px;
+    font-weight: 700;
+    letter-spacing: 0.01em;
+    color: var(--text);
+    line-height: 1;
+  }
+  .brand-name em { font-style: italic; color: var(--gold); }
+  .brand-sub {
+    font-size: 7.5px;
+    font-weight: 600;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-top: 4px;
+  }
+  .header-contact {
+    text-align: right;
+    font-size: 9px;
+    color: var(--text-light);
+    line-height: 1.75;
+    margin-right: 18px;
+  }
+  .header-contact strong { color: var(--text-mid); font-weight: 600; }
+
+  /* ══════════════════════════════════
+     2. HERO
+  ══════════════════════════════════ */
+  .hero {
+    display: grid;
+    grid-template-columns: 1fr 196px;
+    gap: 26px;
+    align-items: center;
+    margin-bottom: 20px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid var(--border);
+  }
+  .eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--gold-pale);
+    color: var(--gold-deep);
+    font-size: 7px;
+    font-weight: 700;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    padding: 5px 11px;
+    border-radius: 2px;
+    border: 1px solid var(--border);
+    margin-bottom: 12px;
+  }
+  .eyebrow-dot { width: 4px; height: 4px; border-radius: 50%; background: var(--gold); flex-shrink: 0; }
+  .hero-headline {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 44px;
+    font-weight: 700;
+    line-height: 1.0;
+    color: var(--text);
+    letter-spacing: -0.02em;
+    margin-bottom: 10px;
+  }
+  .hero-headline em { font-style: italic; color: var(--gold); }
+  .hero-body {
+    font-size: 10.5px;
+    color: var(--text-mid);
+    line-height: 1.7;
+    max-width: 420px;
+  }
+
+  /* Stats grid — right side of hero */
+  .stats {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2px;
+  }
+  .stat {
+    background: var(--warm);
+    padding: 11px 8px;
+    text-align: center;
+  }
+  .stat-num {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 26px;
+    font-weight: 700;
+    color: var(--gold);
+    line-height: 1;
+    display: block;
+  }
+  .stat-lbl {
+    font-size: 7.5px;
+    color: var(--text-light);
+    font-weight: 500;
+    line-height: 1.35;
+    margin-top: 3px;
+  }
+
+  /* ══════════════════════════════════
+     SECTION LABEL
+  ══════════════════════════════════ */
+  .label {
+    font-size: 7px;
+    font-weight: 700;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 9px;
+    display: block;
+  }
+
+  /* ══════════════════════════════════
+     3. SERVICES
+  ══════════════════════════════════ */
+  .services {
+    margin-bottom: 18px;
+  }
+  .services-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 2px;
+  }
+  .scard {
+    background: var(--white);
+    padding: 11px 13px 13px;
+    position: relative;
+    overflow: hidden;
+  }
+  .scard::after {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, var(--gold-deep), var(--gold-light));
+  }
+  .snum {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 28px;
+    font-weight: 300;
+    color: var(--gold-pale);
+    line-height: 1;
+    margin-bottom: 6px;
+  }
+  .scard h3 {
+    font-size: 10.5px;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 4px;
+    letter-spacing: 0.01em;
+  }
+  .scard p {
+    font-size: 9.5px;
+    color: var(--text-light);
+    line-height: 1.55;
+  }
+
+  /* ══════════════════════════════════
+     4. PROOF
+  ══════════════════════════════════ */
+  .proof {
+    background: var(--warm);
+    padding: 13px;
+    margin-bottom: 18px;
+  }
+  .proof-inner {
+    display: grid;
+    grid-template-columns: 1.35fr 1fr;
+    gap: 10px;
+    margin-top: 4px;
+  }
+  .proof-featured {
+    padding: 12px 14px;
+    background: var(--white);
+    border-left: 2px solid var(--gold);
+  }
+  .proof-client {
+    font-size: 7.5px;
+    font-weight: 700;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 5px;
+  }
+  .proof-quote {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 12.5px;
+    font-style: italic;
+    color: var(--text);
+    line-height: 1.6;
+    margin-bottom: 7px;
+  }
+  .proof-tag {
+    font-size: 7.5px;
+    color: var(--text-light);
+    font-weight: 500;
+  }
+  .proof-right {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .proof-founder {
+    background: var(--royal);
+    padding: 11px 13px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+  .founder-quote {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 11px;
+    font-style: italic;
+    color: rgba(255,255,255,0.82);
+    line-height: 1.6;
+    margin-bottom: 6px;
+  }
+  .founder-name {
+    font-size: 7.5px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--gold);
+  }
+  .proof-sample-card {
+    background: var(--white);
+    padding: 9px 11px;
+    border-left: 2px solid var(--border);
+  }
+  .proof-sample-body {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 10.5px;
+    font-style: italic;
+    color: var(--text-mid);
+    line-height: 1.5;
+    margin-top: 3px;
+  }
+  .hero-logo-center img {
+    filter: drop-shadow(0 4px 18px rgba(201,152,26,0.18));
+  }
+
+  /* ══════════════════════════════════
+     5. PRICING
+  ══════════════════════════════════ */
+  .pricing {
+    margin-bottom: 18px;
+  }
+  .pricing-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    border: 1px solid var(--border);
+  }
+  .pcard {
+    padding: 13px 12px;
+    border-right: 1px solid var(--border);
+    position: relative;
+  }
+  .pcard:last-child { border-right: none; }
+  .pcard.featured { background: var(--royal); }
+  .feat-bar {
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, var(--gold-deep), var(--gold-light), var(--gold-deep));
+  }
+  .ptier {
+    font-size: 7px;
+    font-weight: 700;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--text-light);
+    margin-bottom: 5px;
+  }
+  .pcard.featured .ptier { color: var(--gold-light); }
+  .pamount {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 34px;
+    font-weight: 700;
+    color: var(--text);
+    line-height: 1;
+    letter-spacing: -0.01em;
+  }
+  .pcard.featured .pamount { color: var(--white); }
+  .pperiod {
+    font-size: 8.5px;
+    color: var(--text-light);
+    margin-bottom: 2px;
+  }
+  .psetup {
+    font-size: 8px;
+    color: var(--gold);
+    font-weight: 600;
+    margin-bottom: 9px;
+  }
+  .pfeatures {
+    list-style: none;
+    font-size: 9px;
+    line-height: 1.9;
+    color: var(--text-mid);
+  }
+  .pcard.featured .pfeatures { color: rgba(255,255,255,0.55); }
+  .pfeatures li::before {
+    content: '— ';
+    color: var(--gold);
+    font-weight: 700;
+  }
+  .pricing-note {
+    font-size: 7.5px;
+    color: var(--text-light);
+    margin-top: 5px;
+    font-style: italic;
+  }
+
+  /* ══════════════════════════════════
+     6. CTA FOOTER
+  ══════════════════════════════════ */
+  .cta {
+    background: var(--royal);
+    padding: 15px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 20px;
+  }
+  .cta-headline {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 27px;
+    font-weight: 700;
+    color: var(--white);
+    line-height: 1.05;
+    letter-spacing: -0.01em;
+    margin-bottom: 5px;
+  }
+  .cta-headline em { font-style: italic; color: var(--gold-light); }
+  .cta-sub {
+    font-size: 9.5px;
+    color: rgba(255,255,255,0.5);
+    max-width: 320px;
+    line-height: 1.55;
+  }
+  .cta-right { text-align: right; flex-shrink: 0; }
+  .cta-url {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--gold-light);
+    display: block;
+    letter-spacing: 0.01em;
+    margin-bottom: 5px;
+  }
+  .cta-phone {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 15px;
+    font-weight: 700;
+    color: rgba(255,255,255,0.85);
+    display: block;
+    margin-bottom: 3px;
+    letter-spacing: 0.02em;
+  }
+  .cta-details {
+    font-size: 8.5px;
+    color: rgba(255,255,255,0.38);
+    line-height: 1.8;
+  }
+</style>
+</head>
+<body>
+
+<!-- 1. HEADER -->
+<div class="header">
+  <div style="display:flex;align-items:center;gap:13px;">
+    <img src="../../../assets/brand/crown-media-group-logo.png" alt="Crown Media Group" style="height:48px;width:auto;border-radius:7px;">
+    <div>
+      <div class="brand-name">Crown <em>Media</em> Group</div>
+      <div class="brand-sub">AI-Powered Marketing · Columbia, SC</div>
+    </div>
+  </div>
+  <div class="header-contact">
+    <strong>David King</strong> — CEO & Founder<br>
+    king@crownmediagroup.co &nbsp;·&nbsp; (908) 848-1436
+  </div>
+</div>
+
+<!-- 2. HERO -->
+<div class="hero">
+  <div>
+    <div class="eyebrow"><span class="eyebrow-dot"></span>Faith-Driven · AI-Powered · Columbia, SC</div>
+    <div class="hero-headline">Crown Your Brand.<br><em>Own Your Market.</em></div>
+    <div class="hero-body">AI-powered marketing that puts your business in a class of its own. Content, ads, brand — delivered in 48 hours.</div>
+  </div>
+  <div class="stats">
+    <div class="stat">
+      <span class="stat-num">30</span>
+      <div class="stat-lbl">Day full transformation</div>
+    </div>
+    <div class="stat">
+      <span class="stat-num">0</span>
+      <div class="stat-lbl">Hours from you on content</div>
+    </div>
+    <div class="stat">
+      <span class="stat-num">80%</span>
+      <div class="stat-lbl">Faster with AI</div>
+    </div>
+    <div class="stat">
+      <span class="stat-num">48h</span>
+      <div class="stat-lbl">First deliverable</div>
+    </div>
+  </div>
+</div>
+
+<!-- 3. SERVICES -->
+<div class="services">
+  <span class="label">What We Do</span>
+  <div class="services-grid">
+    <div class="scard">
+      <div class="snum">01</div>
+      <h3>Content Production</h3>
+      <p>Daily content, captions, and scheduling — your brand stays active and consistent without you lifting a finger.</p>
+    </div>
+    <div class="scard">
+      <div class="snum">02</div>
+      <h3>Brand Systems</h3>
+      <p>Logo design, color palette, and typography that make your business look like it belongs at the top of the market.</p>
+    </div>
+    <div class="scard">
+      <div class="snum">03</div>
+      <h3>Performance Marketing</h3>
+      <p>Meta and Google Ads built, launched, and optimized to reach your exact customers in Columbia SC and beyond.</p>
+    </div>
+    <div class="scard">
+      <div class="snum">04</div>
+      <h3>AI Video Studio</h3>
+      <p>Reels, video ads, and promos produced with AI tools — studio-quality content at a fraction of traditional cost.</p>
+    </div>
+    <div class="scard">
+      <div class="snum">05</div>
+      <h3>Online Store Setup</h3>
+      <p>Product listings, online store, and checkout flows so your business sells around the clock — no tech headaches.</p>
+    </div>
+    <div class="scard">
+      <div class="snum">06</div>
+      <h3>Growth Intelligence</h3>
+      <p>Monthly strategy calls and performance reports — know exactly what's working and where to scale next.</p>
+    </div>
+  </div>
+</div>
+
+<!-- 4. PROOF -->
+<div class="proof">
+  <span class="label">Client Results</span>
+  <div class="proof-inner">
+    <div class="proof-featured">
+      <div class="proof-client">Shatiea's Juices · Fruit of the Spirit · Columbia, SC</div>
+      <div class="proof-quote">"Crown Media Group transformed our brand from the ground up — delivered in under 30 days."</div>
+      <div class="proof-tag">Brand identity &nbsp;·&nbsp; Social content &nbsp;·&nbsp; E-commerce &nbsp;·&nbsp; AI video &nbsp;·&nbsp; Paid ads &nbsp;·&nbsp; Account rebrand</div>
+    </div>
+    <div class="proof-right">
+      <div class="proof-founder">
+        <div class="founder-quote">"Local businesses deserve enterprise-level marketing without enterprise-level price tags."</div>
+        <div class="founder-name">David King · CEO & Founder</div>
+      </div>
+      <div class="proof-sample-card">
+        <div class="proof-client">Restaurant Sample · Columbia, SC</div>
+        <div class="proof-sample-body">"Every plate tells a story. Fresh ingredients, real flavors — the kind of meal that brings people back every time."</div>
+      </div>
+      <div class="proof-sample-card">
+        <div class="proof-client">Barber & Salon Sample</div>
+        <div class="proof-sample-body">"A fresh cut changes everything. Walk in, walk out a new person. Book now — spots filling fast."</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 5. PRICING -->
+<div class="pricing">
+  <span class="label">Simple, Transparent Pricing</span>
+  <div class="pricing-grid">
+    <div class="pcard">
+      <div class="ptier">Starter</div>
+      <div class="pamount">$750</div>
+      <div class="pperiod">/month</div>
+      <div class="psetup">+ $250 one-time setup</div>
+      <ul class="pfeatures">
+        <li>3x/week social content</li>
+        <li>Instagram & Facebook mgmt</li>
+        <li>Monthly report & call</li>
+        <li>Brand voice guide</li>
+      </ul>
+    </div>
+    <div class="pcard featured">
+      <div class="feat-bar"></div>
+      <div class="ptier">Growth &nbsp;★ Most Popular</div>
+      <div class="pamount">$1,200</div>
+      <div class="pperiod">/month</div>
+      <div class="psetup">+ $400 one-time setup</div>
+      <ul class="pfeatures">
+        <li>Everything in Starter</li>
+        <li>Paid ads + AI video</li>
+        <li>E-commerce support</li>
+        <li>Bi-weekly strategy calls</li>
+      </ul>
+    </div>
+    <div class="pcard">
+      <div class="ptier">Premium</div>
+      <div class="pamount">$3,500</div>
+      <div class="pperiod">/month</div>
+      <div class="psetup">+ $1,000 one-time setup</div>
+      <ul class="pfeatures">
+        <li>Full marketing management</li>
+        <li>Daily content + video suite</li>
+        <li>Full ad budget mgmt</li>
+        <li>Dedicated weekly support</li>
+      </ul>
+    </div>
+  </div>
+  <div class="pricing-note">Ad spend billed separately · 10–15% management fee · Month-to-month, no contracts.</div>
+</div>
+
+<!-- 6. CTA -->
+<div class="cta">
+  <div>
+    <div class="cta-headline">Book Your Free<br><em>Strategy Call.</em></div>
+    <div class="cta-sub">No pressure — just a real conversation about what your business needs to get more customers in Columbia SC.</div>
+  </div>
+  <div class="cta-right">
+    <span class="cta-url">crownmediagroup.co</span>
+    <span class="cta-phone">(908) 848-1436</span>
+    <div class="cta-details">
+      king@crownmediagroup.co<br>
+      @mkdavidking
+    </div>
+  </div>
+</div>
+
+</body>
+</html>
