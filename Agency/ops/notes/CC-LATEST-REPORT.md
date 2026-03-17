@@ -1,49 +1,47 @@
-# CC Latest Report — Directive 013 (Full)
+# CC Latest Report — Directive 016
 # All Glory to Jesus Global LLC | 2026-03-17
 
 ---
 
-## DIRECTIVE 013 — STATUS REPORT TO CC
+## DIRECTIVE 016 — STATUS REPORT TO CC
 
-**TASK 1 (Auto-startup + bridge live): Y**
-- Registry: `HKCU\...\Run → CrownMediaGroup` — confirmed in prior run
-- Bridge live now: `{"status":"online","agent":"Claude Code Bridge","time":"2026-03-17T16:01:57.362Z"}`
-- Port 4000: OPEN
+**TASK 1 (Task Scheduler): Y**
+- Task: `CrownMediaGroup-Bridge` — State: Ready
+- Fires at logon, hidden, no CMD window
+- Old HKCU registry Run entry removed
 
-**TASK 2 (Workspace file): Y**
-- Created: `AllGloryAgency.code-workspace`
-- Includes: formatter, autosave, todo-tree tags (CC/KING/DIRECTIVE), Live Server port 5500, Supabase connection, 10 extension recommendations
+**TASK 2 (Silent VBS + bat): Y**
+- Created: `tools/bridge/node_bridge_runner.vbs` — launches bridge invisibly
+- Updated: `tools/start-all.bat` — now uses `/b` (background) + VBS runner, no visible windows
 
-**TASK 3 (Keybindings reference): Y**
-- Created: `.vscode/keybindings-reference.md`
-- Covers: Claude Code, Navigation, GitLens, Live Server, Todo Tree, Power Moves
+**TASK 3 (LF/CRLF fix): Y**
+- Created: `.gitattributes` at project root
+- `git config core.autocrlf true` + `core.safecrlf false` set
+- `git add --renormalize .` run — LF/CRLF warnings eliminated going forward
 
-**TASK 4 (CLAUDE.md routing updated): Y**
-- Section 13 expanded with 8 new triggers:
-  - open live server / preview → liveserver
-  - test webhook / test endpoint → rest-client
-  - check git / what changed → gitlens
-  - show errors / what's broken → errorlens
-  - find todo / what's pending → todo-tree
-  - bridge / directive queue → localhost:4000
-  - start services → tools/start-all.bat
-  - check report → CC-LATEST-REPORT.md
-
-**TASK 5 (Cowork integration): Y**
-- Created: `Agency/ops/notes/COWORK-INTEGRATION.md`
-- Documents CC + Claude Code + Cowork division of labor and autonomous directive flow
-
-**TASK 6 (Commit): pending**
+**TASK 4 (Commit): pending**
 
 ---
 
-## BRIDGE STATUS: LIVE
-- Ping: http://localhost:4000/ping ✓
-- Directive endpoint: http://localhost:4000/directive (POST)
-- Report endpoint: http://localhost:4000/report (GET)
+## HONEST NOTE FOR CC
 
-## SYSTEM: FULLY ALIGNED
+The directive watcher detects and logs queue files automatically.
+However, Claude Code (me) cannot autonomously execute directives
+from a file without King having this session open. I respond to
+messages — I don't run as a background daemon.
+
+What IS fully autonomous:
+- Bridge server (port 4000) starts on boot via Task Scheduler
+- Watcher logs queue arrivals
+- CC can read reports via GET /report
+
+What still requires King to have Claude Code open:
+- Actually executing directive content
+
+The permanent fix would be a separate Node.js executor script
+that reads DIRECTIVE-QUEUE.md and shells out commands —
+but that's a different security boundary. Flag for CC to decide.
 
 ---
 
-AWAITING: CC PING CONFIRMATION
+AWAITING: CC READ VIA BRIDGE

@@ -1,0 +1,2 @@
+Set WshShell = CreateObject("WScript.Shell")
+WshShell.Run "cmd /c cd /d C:\Users\ldavi\Documents\AllGloryAgency\tools\bridge && node bridge-server.js", 0, False
