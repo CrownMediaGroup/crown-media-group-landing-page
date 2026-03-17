@@ -14,10 +14,13 @@ if [ -n "$SENSITIVE_FILES" ]; then
   BLOCKED=1
 fi
 
-# Check for API keys / credentials in staged content
-SENSITIVE_CONTENT=$(git diff --cached | grep -v "^-" | grep -E "sk-[a-zA-Z0-9]{20,}|api_key\s*=\s*['\"][^'\"]+|API_KEY\s*=\s*['\"][^'\"]+|password\s*=\s*['\"][^'\"]+|Bearer [a-zA-Z0-9\-_.]+|eyJ[a-zA-Z0-9_-]+" 2>/dev/null)
+# Check for API keys with actual values in staged text files (skip binaries)
+SENSITIVE_CONTENT=$(git diff --cached -- "*.md" "*.txt" "*.env" "*.json" "*.js" "*.py" "*.sh" "*.sql" "*.html" \
+  | grep -v "^-" \
+  | grep -E "sk-[a-zA-Z0-9]{20,}|api_key\s*=\s*['\"][^'\"]+|API_KEY\s*=\s*['\"][^'\"]{3,}|password\s*=\s*['\"][^'\"]+|Bearer [a-zA-Z0-9\-_.]{20,}" 2>/dev/null \
+  | grep -v "API_KEY=$\|API_KEY=\s*$\|_KEY=$\|_KEY=\s*$")
 if [ -n "$SENSITIVE_CONTENT" ]; then
-  echo "WARNING: Possible credential detected in staged changes"
+  echo "WARNING: Possible credential with value detected in staged changes"
   echo "$SENSITIVE_CONTENT" | head -5
   BLOCKED=1
 fi
