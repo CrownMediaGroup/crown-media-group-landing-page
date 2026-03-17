@@ -1,0 +1,9 @@
+@echo off
+echo Starting Crown Media Group services...
+echo Starting n8n...
+start "n8n" cmd /k "n8n"
+echo Starting Redis...
+start "Redis" cmd /k "docker start redis 2>nul || docker run -d -p 6379:6379 --name redis redis:alpine"
+echo All services started.
+echo n8n: http://localhost:5678
+echo Redis: localhost:6379

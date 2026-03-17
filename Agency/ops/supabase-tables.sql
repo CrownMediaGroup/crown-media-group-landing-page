@@ -1,6 +1,7 @@
 -- Crown Media Group — Supabase Tables
 -- Run this in: https://pcikjtzvruvavaduawes.supabase.co → SQL Editor → New Query → Run
 -- All Glory to Jesus Global LLC | 2026-03-17
+-- ENV VAR NOTE: Use SUPABASE_SECRET_KEY (not SUPABASE_SERVICE_KEY) — that is the correct name in .env
 
 -- ============================================
 -- TABLE: clients
