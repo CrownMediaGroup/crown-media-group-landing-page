@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>CC → Claude Code Bridge</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: monospace; background: #0d1117; color: #c9d1d9; padding: 24px; }
+  h1 { color: #58a6ff; font-size: 16px; margin-bottom: 4px; }
+  p { font-size: 12px; color: #8b949e; margin-bottom: 20px; }
+  label { font-size: 12px; color: #8b949e; display: block; margin-bottom: 6px; }
+  input, textarea {
+    width: 100%; background: #161b22; border: 1px solid #30363d;
+    color: #c9d1d9; padding: 10px; border-radius: 6px;
+    font-family: monospace; font-size: 13px; margin-bottom: 14px;
+  }
+  textarea { height: 200px; resize: vertical; }
+  button {
+    background: #238636; color: #fff; border: none; padding: 10px 24px;
+    border-radius: 6px; font-size: 14px; cursor: pointer; font-weight: 600;
+  }
+  button:hover { background: #2ea043; }
+  #status {
+    margin-top: 16px; padding: 12px; border-radius: 6px;
+    font-size: 13px; display: none;
+  }
+  #status.ok { background: #0d4429; border: 1px solid #238636; color: #3fb950; }
+  #status.err { background: #3d1515; border: 1px solid #da3633; color: #f85149; }
+  #report {
+    margin-top: 20px; background: #161b22; border: 1px solid #30363d;
+    border-radius: 6px; padding: 14px; font-size: 12px;
+    white-space: pre-wrap; max-height: 300px; overflow-y: auto; display: none;
+  }
+</style>
+</head>
+<body>
+
+<h1>CC → Claude Code Bridge</h1>
+<p>Crown Media Group | All Glory to Jesus Global LLC</p>
+
+<label>Directive Number</label>
+<input type="text" id="num" placeholder="e.g. 017" />
+
+<label>Directive Content (use EXEC: prefix for commands)</label>
+<textarea id="directive" placeholder="EXEC: git status&#10;EXEC: node --version"></textarea>
+
+<button onclick="send()">Send Directive</button>
+<button onclick="readReport()" style="background:#1f6feb; margin-left:10px;">Read Report</button>
+
+<div id="status"></div>
+<div id="report"></div>
+
+<script>
+const BASE = 'http://localhost:4000';
+
+async function send() {
+  const number = document.getElementById('num').value.trim();
+  const directive = document.getElementById('directive').value.trim();
+  const status = document.getElementById('status');
+  if (!directive) { showStatus('Enter a directive first.', 'err'); return; }
+  try {
+    const res = await fetch(`${BASE}/directive`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ number, directive })
+    });
+    const data = await res.json();
+    showStatus(`Queued — Directive ${data.directive} at ${data.timestamp}`, 'ok');
+  } catch(e) {
+    showStatus('Bridge offline — start tools/start-all.bat', 'err');
+  }
+}
+
+async function readReport() {
+  const report = document.getElementById('report');
+  try {
+    const res = await fetch(`${BASE}/report`);
+    const data = await res.json();
+    report.style.display = 'block';
+    report.textContent = data.report;
+  } catch(e) {
+    showStatus('Bridge offline — start tools/start-all.bat', 'err');
+  }
+}
+
+function showStatus(msg, type) {
+  const el = document.getElementById('status');
+  el.textContent = msg;
+  el.className = type;
+  el.style.display = 'block';
+}
+
+// Auto-ping on load
+fetch(`${BASE}/ping`)
+  .then(r => r.json())
+  .then(d => showStatus(`Bridge online — ${d.time}`, 'ok'))
+  .catch(() => showStatus('Bridge offline — start tools/start-all.bat', 'err'));
+</script>
+</body>
+</html>
