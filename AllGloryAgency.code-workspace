@@ -1,0 +1,39 @@
+{
+  "folders": [{"path": "."}],
+  "settings": {
+    "editor.formatOnSave": true,
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "editor.fontSize": 14,
+    "editor.tabSize": 2,
+    "files.autoSave": "afterDelay",
+    "files.autoSaveDelay": 1000,
+    "todo-tree.general.tags": ["TODO","FIXME","CC","KING","URGENT","DIRECTIVE"],
+    "todo-tree.highlights.defaultHighlight": {"type": "tag"},
+    "liveServer.settings.port": 5500,
+    "liveServer.settings.donotShowInfoMsg": true,
+    "errorLens.enabledDiagnosticLevels": ["error","warning"],
+    "gitlens.hovers.currentLine.over": "line",
+    "sqltools.connections": [{
+      "name": "Supabase",
+      "driver": "PostgreSQL",
+      "server": "pcikjtzvruvavaduawes.supabase.co",
+      "port": 5432,
+      "database": "postgres",
+      "username": "postgres"
+    }]
+  },
+  "extensions": {
+    "recommendations": [
+      "anthropic.claude-code",
+      "esbenp.prettier-vscode",
+      "eamodio.gitlens",
+      "usernamehw.errorlens",
+      "gruntfuggly.todo-tree",
+      "ritwickdey.liveserver",
+      "humao.rest-client",
+      "mtxr.sqltools",
+      "mikestead.dotenv",
+      "PKief.material-icon-theme"
+    ]
+  }
+}

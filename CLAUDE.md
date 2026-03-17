@@ -260,6 +260,14 @@ Apply matching skill knowledge automatically — no slash commands needed.
 | research, find out, look up, analyze | deep-research + account-research |
 | proposal, contract, pitch deck, scope | sales-proposal + copywriting + professional-proofreader |
 | sprint, what's next, today's tasks | ceo-advisor + executing-plans |
+| open live server, preview | ritwickdey.liveserver — open HTML file in browser |
+| test webhook, test endpoint | humao.rest-client — fire .http request |
+| check git, what changed | eamodio.gitlens — show recent changes |
+| show errors, what's broken | usernamehw.errorlens — surface all errors |
+| find todo, what's pending | gruntfuggly.todo-tree — open todo panel |
+| bridge, directive queue | http://localhost:4000 — CC bridge |
+| start services | tools/start-all.bat |
+| check report | Read Agency/ops/notes/CC-LATEST-REPORT.md |
 
 ---
 
