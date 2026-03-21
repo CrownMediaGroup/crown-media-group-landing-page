@@ -107,7 +107,7 @@ nav.scrolled{box-shadow:0 4px 30px rgba(201,152,26,.08)}
 .nav-logo-text{font-family:'Cormorant Garamond',serif;font-size:1.15rem;font-weight:700;color:var(--text);letter-spacing:.02em}
 .nav-links{display:flex;align-items:center;gap:36px;list-style:none}
 .nav-links a{color:var(--text-mid);text-decoration:none;font-size:.88rem;font-weight:500;transition:color .2s;letter-spacing:.02em}
-.nav-links a:hover{color:var(--gold)}
+.nav-links a:hover{color:var(--gold)}.nav-link-gold{color:var(--gold)!important;font-weight:700!important}
 .btn-royal{background:var(--royal);color:var(--gold-light);border:none;padding:12px 28px;border-radius:4px;font-size:.85rem;font-weight:600;letter-spacing:.06em;text-transform:uppercase;text-decoration:none;display:inline-block;transition:background .2s,transform .2s,box-shadow .2s;cursor:pointer}
 .btn-royal:hover{background:var(--royal-mid);transform:translateY(-2px);box-shadow:0 8px 24px rgba(26,26,62,.25)}
 .btn-outline{background:transparent;color:var(--text);border:1.5px solid var(--border);padding:12px 28px;border-radius:4px;font-size:.85rem;font-weight:600;letter-spacing:.06em;text-transform:uppercase;text-decoration:none;display:inline-block;transition:border-color .2s,color .2s,transform .2s}
@@ -264,7 +264,8 @@ footer{background:#0F0F28;padding:56px 64px;display:flex;align-items:center;just
 .footer-links a:hover{color:rgba(255,255,255,.8)}
 .footer-copy{color:rgba(255,255,255,.25);font-size:.78rem}
 @media(max-width:1024px){.services-grid{grid-template-columns:repeat(2,1fr)}.steps{grid-template-columns:repeat(2,1fr)}.pricing-grid{grid-template-columns:1fr;border:none}.price-card{border-right:none;border-bottom:1px solid rgba(201,152,26,.15)}.price-card:last-child{border-bottom:none}}
-@media(max-width:768px){nav{padding:16px 24px}.nav-links,.nav-cta{display:none}.hamburger{display:flex}#about,#services,#proof,#ai,#process,#pricing,#serve,#cta-final{padding:80px 24px}#proof-bar{padding:24px}.proof-inner{gap:24px;justify-content:flex-start}.about-grid,.ai-grid,.serve-grid{grid-template-columns:1fr;gap:60px}.about-visual{height:280px}.crown-orb{width:220px;height:220px}.orb-crown{font-size:3.5rem}.services-header{grid-template-columns:1fr;gap:24px}.services-grid,.steps{grid-template-columns:1fr}.city-name{font-size:4rem}footer{flex-direction:column;text-align:center;padding:48px 24px}.footer-links{justify-content:center}.case-card{padding:40px 24px}}
+@media(max-width:768px){nav{padding:16px 24px}.nav-links,.nav-cta{display:none}.hamburger{display:flex}#about,#services,#proof,#ai,#process,#pricing,#serve,#cta-final{padding:80px 24px}#proof-bar{padding:24px}.proof-inner{gap:24px;justify-content:flex-start}.about-grid,.ai-grid,.serve-grid{grid-template-columns:1fr;gap:60px}.about-visual{height:280px}.crown-orb{width:220px;height:220px}.orb-crown{font-size:3.5rem}.orb-crown img{width:180px;height:180px}.services-header{grid-template-columns:1fr;gap:24px}.services-grid,.steps{grid-template-columns:1fr}.service-card{padding:32px 24px}.step{padding:36px 24px}.price-card{padding:40px 24px}.city-name{font-size:4rem}.hero-light{display:none}.cta-glow{display:none}footer{flex-direction:column;text-align:center;padding:48px 24px}.footer-links{justify-content:center}.case-card{padding:40px 24px}}
+@media(max-width:480px){.hero-headline{font-size:2.8rem}.sh{font-size:2rem}.city-name{font-size:3rem}.proof-inner{flex-direction:column;gap:16px}.footer-links{flex-direction:column;gap:16px;align-items:center}}
 </style>
 </head>
 <body>
@@ -281,6 +282,7 @@ footer{background:#0F0F28;padding:56px 64px;display:flex;align-items:center;just
     <li><a href="#process">Process</a></li>
     <li><a href="#pricing">Pricing</a></li>
     <li><a href="#serve">Columbia SC</a></li>
+    <li><a href="/ai-tools.html" class="nav-link-gold">AI Tools</a></li>
   </ul>
   <a href="https://calendly.com/davidkinghub" target="_blank" class="btn-royal nav-cta">Book a Call</a>
   <div class="hamburger"><span></span><span></span><span></span></div>
@@ -408,7 +410,7 @@ footer{background:#0F0F28;padding:56px 64px;display:flex;align-items:center;just
   <div class="process-inner">
     <div class="reveal"><span class="label">How It Works</span><h2 class="prsh">From zero to growth <span class="grad-gold">in 4 steps.</span></h2></div>
     <div class="steps">
-      <div class="step reveal"><div class="step-num">01</div><h3>Discovery Call</h3><p>30 minutes, free, no pressure. We learn your business, your goals, and your biggest challenges.</p></div>
+      <div class="step reveal"><div class="step-num">01</div><h3>Discovery Call</h3><p>15 minutes, free, no pressure. We learn your business, your goals, and your biggest challenges.</p></div>
       <div class="step reveal"><div class="step-num">02</div><h3>Custom Strategy</h3><p>A real plan built around your specific business &mdash; not a template. Content pillars, ad targets, 30-day roadmap.</p></div>
       <div class="step reveal"><div class="step-num">03</div><h3>Content + Ads Live</h3><p>Delivered in 48 hours. Content running, ads live, brand looking elite within days of signing.</p></div>
       <div class="step reveal"><div class="step-num">04</div><h3>Scale + Report</h3><p>Monthly strategy calls, real data, and continuous optimization. Your growth is always the goal.</p></div>
@@ -500,7 +502,7 @@ footer{background:#0F0F28;padding:56px 64px;display:flex;align-items:center;just
   <div class="reveal">
     <span class="label">Get Started</span>
     <h2 class="cta-headline">Ready to <em style="color:var(--gold-light)">reign</em><br>in your market?</h2>
-    <p class="cta-sub">30 minutes. No pressure. Real strategy. Free.</p>
+    <p class="cta-sub">15 minutes. No pressure. Real strategy. Free.</p>
     <a href="https://calendly.com/davidkinghub" target="_blank" class="btn-gold-large">Book Your Free Strategy Call</a>
     <span class="cta-email">Or email: <a href="mailto:king@crownmediagroup.co">king@crownmediagroup.co</a></span>
   </div>

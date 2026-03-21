@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Logo & Banner Generator — Crown Media Group</title>
+<meta name="description" content="Generate professional AI logos and social media banners instantly. PNG + SVG vector files. Powered by Crown Media Group.">
+<link rel="canonical" href="https://crownmediagroup.co/ai-tools.html">
+<link rel="icon" type="image/png" href="logo.png">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --gold: #c9a84c;
+    --dark: #0d0d14;
+    --dark2: #15151f;
+    --dark3: #1e1e2e;
+    --border: rgba(201,168,76,0.2);
+    --text: #e8e8f0;
+    --muted: #8888aa;
+    --green: #22c55e;
+    --red: #ef4444;
+  }
+
+  body { background: var(--dark); color: var(--text); font-family: -apple-system, 'Segoe UI', sans-serif; min-height: 100vh; }
+
+  /* NAV */
+  nav { display: flex; align-items: center; justify-content: space-between; padding: 16px 40px; border-bottom: 1px solid var(--border); background: var(--dark); position: sticky; top: 0; z-index: 100; }
+  nav img { height: 32px; }
+  nav a { color: var(--muted); text-decoration: none; font-size: 14px; transition: color .2s; }
+  nav a:hover { color: var(--gold); }
+  nav .nav-cta { background: var(--gold); color: #000; padding: 8px 20px; border-radius: 6px; font-weight: 700; font-size: 13px; }
+  nav .nav-cta:hover { opacity: .9; color: #000; }
+
+  /* HERO */
+  .hero { text-align: center; padding: 80px 20px 60px; }
+  .hero .badge { display: inline-block; background: rgba(201,168,76,.12); border: 1px solid var(--border); color: var(--gold); font-size: 12px; font-weight: 600; letter-spacing: 1.5px; text-transform: uppercase; padding: 6px 16px; border-radius: 100px; margin-bottom: 24px; }
+  .hero h1 { font-size: clamp(32px, 6vw, 64px); font-weight: 800; line-height: 1.1; margin-bottom: 20px; }
+  .hero h1 span { color: var(--gold); }
+  .hero p { font-size: 18px; color: var(--muted); max-width: 600px; margin: 0 auto 40px; line-height: 1.7; }
+
+  /* TABS */
+  .tabs { display: flex; gap: 8px; justify-content: center; margin-bottom: 60px; }
+  .tab { padding: 10px 28px; border-radius: 8px; border: 1px solid var(--border); background: transparent; color: var(--muted); font-size: 14px; font-weight: 600; cursor: pointer; transition: all .2s; }
+  .tab.active { background: var(--gold); color: #000; border-color: var(--gold); }
+  .tab:hover:not(.active) { border-color: var(--gold); color: var(--text); }
+
+  /* PRODUCT CARDS */
+  .products { max-width: 900px; margin: 0 auto; padding: 0 20px 80px; }
+  .product-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(380px, 1fr)); gap: 24px; }
+  .card { background: var(--dark2); border: 1px solid var(--border); border-radius: 16px; padding: 32px; transition: border-color .2s; }
+  .card:hover { border-color: var(--gold); }
+  .card.featured { border-color: var(--gold); position: relative; }
+  .card.featured::before { content: 'MOST POPULAR'; position: absolute; top: -12px; left: 50%; transform: translateX(-50%); background: var(--gold); color: #000; font-size: 10px; font-weight: 800; letter-spacing: 2px; padding: 4px 14px; border-radius: 100px; }
+  .card-label { font-size: 11px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--gold); margin-bottom: 10px; }
+  .card-name { font-size: 22px; font-weight: 800; margin-bottom: 6px; }
+  .card-desc { font-size: 14px; color: var(--muted); margin-bottom: 24px; line-height: 1.6; }
+  .card-price { font-size: 48px; font-weight: 900; color: var(--gold); line-height: 1; margin-bottom: 6px; }
+  .card-price span { font-size: 18px; font-weight: 400; color: var(--muted); }
+  .card-features { list-style: none; margin-bottom: 28px; }
+  .card-features li { font-size: 14px; color: var(--muted); padding: 6px 0; display: flex; align-items: center; gap: 10px; }
+  .card-features li::before { content: '✓'; color: var(--green); font-weight: 800; flex-shrink: 0; }
+  .btn { display: block; width: 100%; padding: 14px; border-radius: 8px; border: none; font-size: 15px; font-weight: 700; cursor: pointer; transition: all .2s; text-align: center; }
+  .btn-gold { background: var(--gold); color: #000; }
+  .btn-gold:hover { opacity: .9; }
+  .btn-outline { background: transparent; border: 1px solid var(--border); color: var(--text); }
+  .btn-outline:hover { border-color: var(--gold); color: var(--gold); }
+
+  /* FORM MODAL */
+  .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.8); z-index: 200; align-items: center; justify-content: center; padding: 20px; }
+  .modal-overlay.open { display: flex; }
+  .modal { background: var(--dark2); border: 1px solid var(--border); border-radius: 16px; padding: 40px; width: 100%; max-width: 520px; }
+  .modal h2 { font-size: 22px; font-weight: 800; margin-bottom: 6px; }
+  .modal p { font-size: 14px; color: var(--muted); margin-bottom: 28px; }
+  .form-group { margin-bottom: 18px; }
+  .form-group label { display: block; font-size: 13px; font-weight: 600; margin-bottom: 6px; color: var(--muted); text-transform: uppercase; letter-spacing: .5px; }
+  .form-group input, .form-group select { width: 100%; background: var(--dark3); border: 1px solid var(--border); border-radius: 8px; padding: 12px 14px; color: var(--text); font-size: 15px; outline: none; transition: border-color .2s; }
+  .form-group input:focus, .form-group select:focus { border-color: var(--gold); }
+  .form-group select option { background: var(--dark3); }
+  .modal-actions { display: flex; gap: 12px; margin-top: 24px; }
+  .modal-actions .btn { flex: 1; }
+
+  /* SUCCESS / STATUS */
+  .status-section { max-width: 600px; margin: 0 auto; padding: 80px 20px; text-align: center; display: none; }
+  .status-section.active { display: block; }
+  .status-icon { font-size: 64px; margin-bottom: 24px; }
+  .status-section h2 { font-size: 28px; font-weight: 800; margin-bottom: 12px; }
+  .status-section p { font-size: 16px; color: var(--muted); margin-bottom: 32px; line-height: 1.7; }
+  .progress-bar { background: var(--dark3); border-radius: 100px; height: 8px; overflow: hidden; margin-bottom: 16px; }
+  .progress-fill { height: 100%; background: var(--gold); border-radius: 100px; transition: width 1s ease; }
+  .progress-label { font-size: 13px; color: var(--muted); margin-bottom: 32px; }
+
+  /* DELIVERY GALLERY */
+  .delivery-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 16px; text-align: left; margin-bottom: 32px; }
+  .asset-card { background: var(--dark3); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
+  .asset-card img { width: 100%; aspect-ratio: 1; object-fit: contain; background: #fff; padding: 16px; }
+  .asset-card .asset-info { padding: 12px; }
+  .asset-card .asset-label { font-size: 12px; font-weight: 700; color: var(--gold); text-transform: uppercase; letter-spacing: .5px; }
+  .asset-card .asset-name { font-size: 13px; color: var(--muted); margin-top: 2px; }
+  .asset-card a { display: block; margin: 10px 12px 12px; background: var(--gold); color: #000; font-size: 12px; font-weight: 700; padding: 8px 12px; border-radius: 6px; text-align: center; text-decoration: none; }
+
+  /* SECTION LABELS */
+  .section-label { text-align: center; margin-bottom: 12px; }
+  .section-label h2 { font-size: 32px; font-weight: 800; margin-bottom: 8px; }
+  .section-label p { color: var(--muted); font-size: 15px; }
+
+  /* HIDE/SHOW */
+  .panel { display: none; }
+  .panel.active { display: block; }
+
+  @media (max-width: 640px) {
+    nav { padding: 14px 20px; }
+    .product-grid { grid-template-columns: 1fr; }
+    .modal { padding: 28px 20px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a href="/"><img src="logo.png" alt="Crown Media Group"></a>
+  <div style="display:flex;gap:24px;align-items:center">
+    <a href="/">Home</a>
+    <a href="/#pricing">Services</a>
+    <a href="mailto:king@crownmediagroup.co" class="nav-cta">Book a Call</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="badge">AI-Powered Design Tools</div>
+  <h1>Professional <span>Logos & Banners</span><br>Generated by AI. Delivered in minutes.</h1>
+  <p>Get SVG vector logos and social media banners custom-built for your brand. No design experience needed. Real files you own forever.</p>
+</div>
+
+<!-- TABS -->
+<div class="tabs">
+  <button class="tab active" onclick="switchTab('logos')">Logos</button>
+  <button class="tab" onclick="switchTab('banners')">Banners</button>
+</div>
+
+<!-- MAIN CONTENT (hidden when on success page) -->
+<div id="main-content">
+
+  <!-- LOGOS PANEL -->
+  <div id="panel-logos" class="panel active">
+    <div class="products">
+      <div class="section-label" style="margin-bottom:36px">
+        <h2>AI Logo Packages</h2>
+        <p>SVG vector files + PNG. Scales to any size. Delivered to your inbox.</p>
+      </div>
+      <div class="product-grid">
+        <div class="card">
+          <div class="card-label">Starter</div>
+          <div class="card-name">AI Logo — Starter</div>
+          <div class="card-desc">4 unique AI logo concepts, 4 style variations (minimalist, modern, classic, bold). PNG + SVG vector files.</div>
+          <div class="card-price">$25<span>/one-time</span></div>
+          <ul class="card-features">
+            <li>4 logo concepts generated</li>
+            <li>SVG vector + PNG files</li>
+            <li>All 4 style variations</li>
+            <li>Delivered within minutes</li>
+          </ul>
+          <button class="btn btn-outline" onclick="openModal('logo-basic')">Get Started</button>
+        </div>
+        <div class="card featured">
+          <div class="card-label">Premium</div>
+          <div class="card-name">AI Logo — Premium</div>
+          <div class="card-desc">8 logo concepts across every style. More variations, more options, more to work with. PNG + SVG source files.</div>
+          <div class="card-price">$100<span>/one-time</span></div>
+          <ul class="card-features">
+            <li>8 logo concepts generated</li>
+            <li>SVG vector + PNG files</li>
+            <li>Full style range covered</li>
+            <li>Delivered within minutes</li>
+            <li>Best value for rebrand</li>
+          </ul>
+          <button class="btn btn-gold" onclick="openModal('logo-premium')">Get Premium Logos</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- BANNERS PANEL -->
+  <div id="panel-banners" class="panel">
+    <div class="products">
+      <div class="section-label" style="margin-bottom:36px">
+        <h2>AI Banner Packages</h2>
+        <p>Platform-optimized banners for Facebook, Instagram, LinkedIn, and Twitter.</p>
+      </div>
+      <div class="product-grid">
+        <div class="card">
+          <div class="card-label">Starter</div>
+          <div class="card-name">AI Banner — Starter</div>
+          <div class="card-desc">4 Instagram-sized banners (1080×1080) custom-built for your brand. Perfect for posts and profile content.</div>
+          <div class="card-price">$15<span>/one-time</span></div>
+          <ul class="card-features">
+            <li>4 Instagram banners (1080×1080)</li>
+            <li>PNG high-resolution files</li>
+            <li>Brand-matched design</li>
+            <li>Delivered within minutes</li>
+          </ul>
+          <button class="btn btn-outline" onclick="openModal('banner-basic')">Get Started</button>
+        </div>
+        <div class="card featured">
+          <div class="card-label">Full Pack</div>
+          <div class="card-name">AI Banner — Full Pack</div>
+          <div class="card-desc">Complete banner set for every platform. Facebook, Instagram, LinkedIn, Twitter — all sized correctly, all on-brand.</div>
+          <div class="card-price">$50<span>/one-time</span></div>
+          <ul class="card-features">
+            <li>Facebook cover (820×312)</li>
+            <li>Instagram post (1080×1080)</li>
+            <li>LinkedIn banner (1584×396)</li>
+            <li>Twitter/X header (1500×500)</li>
+            <li>All PNG high-resolution</li>
+          </ul>
+          <button class="btn btn-gold" onclick="openModal('banner-pack')">Get Full Banner Pack</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /main-content -->
+
+<!-- STATUS SECTION (shown after payment) -->
+<div class="status-section" id="status-section">
+  <div class="status-icon" id="status-icon">⏳</div>
+  <h2 id="status-title">Generating your assets...</h2>
+  <p id="status-desc">Our AI is building your custom files right now. This usually takes 2–4 minutes. Don't close this tab.</p>
+  <div class="progress-bar"><div class="progress-fill" id="progress-fill" style="width:10%"></div></div>
+  <div class="progress-label" id="progress-label">Starting generation...</div>
+  <div class="delivery-grid" id="delivery-grid"></div>
+  <a href="mailto:king@crownmediagroup.co" style="color:var(--muted);font-size:13px">Questions? Email king@crownmediagroup.co</a>
+</div>
+
+<!-- FORM MODAL -->
+<div class="modal-overlay" id="modal">
+  <div class="modal">
+    <h2 id="modal-title">Tell us about your brand</h2>
+    <p id="modal-subtitle">We'll generate AI assets tailored to your business.</p>
+    <div class="form-group">
+      <label>Business Name</label>
+      <input type="text" id="field-business" placeholder="e.g. Shatiea's Juice Bar" maxlength="80">
+    </div>
+    <div class="form-group">
+      <label>Industry</label>
+      <select id="field-industry">
+        <option value="food & beverage">Food & Beverage</option>
+        <option value="health & wellness">Health & Wellness</option>
+        <option value="retail">Retail</option>
+        <option value="real estate">Real Estate</option>
+        <option value="faith & ministry">Faith & Ministry</option>
+        <option value="beauty & salon">Beauty & Salon</option>
+        <option value="fitness">Fitness</option>
+        <option value="professional services">Professional Services</option>
+        <option value="tech & marketing">Tech & Marketing</option>
+        <option value="general">General / Other</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label>Design Style</label>
+      <select id="field-style">
+        <option value="modern">Modern & Clean</option>
+        <option value="bold">Bold & Energetic</option>
+        <option value="minimalist">Minimalist</option>
+        <option value="classic">Classic & Professional</option>
+        <option value="faith-driven">Faith-Driven</option>
+        <option value="luxury">Luxury & Premium</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label>Your Email (for delivery)</label>
+      <input type="email" id="field-email" placeholder="you@yourbusiness.com">
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-outline" onclick="closeModal()">Cancel</button>
+      <button class="btn btn-gold" id="checkout-btn" onclick="startCheckout()">Proceed to Payment</button>
+    </div>
+    <p id="modal-error" style="color:var(--red);font-size:13px;margin-top:14px;display:none"></p>
+  </div>
+</div>
+
+<script>
+let selectedProduct = null;
+
+// ── Tab switch ───────────────────────────────────────────────────────────────
+function switchTab(tab) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelector(`.tab[onclick="switchTab('${tab}')"]`).classList.add('active');
+  document.getElementById(`panel-${tab}`).classList.add('active');
+}
+
+// ── Modal ────────────────────────────────────────────────────────────────────
+function openModal(productId) {
+  selectedProduct = productId;
+  const names = {
+    'logo-basic':   'AI Logo — Starter ($25)',
+    'logo-premium': 'AI Logo — Premium ($100)',
+    'banner-basic': 'AI Banner — Starter ($15)',
+    'banner-pack':  'AI Banner — Full Pack ($50)',
+  };
+  document.getElementById('modal-title').textContent = names[productId];
+  document.getElementById('modal-subtitle').textContent = 'Tell us about your brand so we can personalize your AI assets.';
+  document.getElementById('modal-error').style.display = 'none';
+  document.getElementById('modal').classList.add('open');
+}
+
+function closeModal() {
+  document.getElementById('modal').classList.remove('open');
+  selectedProduct = null;
+}
+
+document.getElementById('modal').addEventListener('click', (e) => {
+  if (e.target === document.getElementById('modal')) closeModal();
+});
+
+// ── Checkout ─────────────────────────────────────────────────────────────────
+async function startCheckout() {
+  const businessName = document.getElementById('field-business').value.trim();
+  const email = document.getElementById('field-email').value.trim();
+  const industry = document.getElementById('field-industry').value;
+  const style = document.getElementById('field-style').value;
+  const errEl = document.getElementById('modal-error');
+
+  if (!businessName) { showErr('Enter your business name.'); return; }
+  if (!email || !email.includes('@')) { showErr('Enter a valid email address.'); return; }
+
+  const btn = document.getElementById('checkout-btn');
+  btn.textContent = 'Redirecting to payment...';
+  btn.disabled = true;
+  errEl.style.display = 'none';
+
+  try {
+    const res = await fetch('/api/create-checkout', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ productId: selectedProduct, customerEmail: email, businessName, style, industry }),
+    });
+    const data = await res.json();
+    if (data.error) { showErr(data.error); btn.textContent = 'Proceed to Payment'; btn.disabled = false; return; }
+    window.location.href = data.url;
+  } catch {
+    showErr('Something went wrong. Try again or email king@crownmediagroup.co');
+    btn.textContent = 'Proceed to Payment';
+    btn.disabled = false;
+  }
+}
+
+function showErr(msg) {
+  const el = document.getElementById('modal-error');
+  el.textContent = msg;
+  el.style.display = 'block';
+}
+
+// ── Post-payment status polling ───────────────────────────────────────────────
+const params = new URLSearchParams(window.location.search);
+if (params.get('success') === '1' && params.get('session_id')) {
+  const sessionId = params.get('session_id');
+  document.getElementById('main-content').style.display = 'none';
+  document.querySelector('.hero').style.display = 'none';
+  document.querySelector('.tabs').style.display = 'none';
+  document.getElementById('status-section').classList.add('active');
+  pollStatus(sessionId);
+}
+
+async function pollStatus(sessionId) {
+  const fillEl = document.getElementById('progress-fill');
+  const labelEl = document.getElementById('progress-label');
+  const titleEl = document.getElementById('status-title');
+  const descEl = document.getElementById('status-desc');
+  const iconEl = document.getElementById('status-icon');
+
+  let orderId = null;
+  let progress = 10;
+
+  // First get the order ID from session
+  for (let i = 0; i < 30; i++) {
+    await sleep(3000);
+    try {
+      const res = await fetch(`/api/check-order-status?session_id=${sessionId}`);
+      const data = await res.json();
+      if (data.orderId) { orderId = data.orderId; break; }
+    } catch {}
+  }
+
+  if (!orderId) {
+    iconEl.textContent = '⚠️';
+    titleEl.textContent = 'Something went wrong';
+    descEl.textContent = 'Email king@crownmediagroup.co with your order confirmation and we will deliver your files manually.';
+    return;
+  }
+
+  // Now poll for completion
+  labelEl.textContent = 'AI is generating your files...';
+  const stages = ['Starting AI generation...', 'Building logo concepts...', 'Applying style variations...', 'Finalizing vector files...', 'Almost done...'];
+  let stage = 0;
+
+  for (let i = 0; i < 60; i++) {
+    await sleep(5000);
+    progress = Math.min(90, progress + 4);
+    fillEl.style.width = progress + '%';
+    if (stage < stages.length - 1) labelEl.textContent = stages[Math.floor(i / 4)];
+
+    try {
+      const res = await fetch(`/api/check-order-status?session_id=${sessionId}`);
+      const data = await res.json();
+
+      if (data.status === 'completed') {
+        fillEl.style.width = '100%';
+        labelEl.textContent = 'Complete! Loading your files...';
+        await loadDelivery(orderId);
+        return;
+      }
+      if (data.status === 'failed') {
+        iconEl.textContent = '⚠️';
+        titleEl.textContent = 'Generation failed';
+        descEl.textContent = 'Email king@crownmediagroup.co — we will regenerate and deliver manually within 1 hour.';
+        return;
+      }
+    } catch {}
+  }
+
+  // Timeout fallback
+  iconEl.textContent = '⏰';
+  titleEl.textContent = 'Taking longer than expected';
+  descEl.textContent = 'Your files are still being generated. Check your email — we will send your download link directly within 15 minutes.';
+}
+
+async function loadDelivery(orderId) {
+  const res = await fetch(`/api/get-delivery-urls?order_id=${orderId}`);
+  const data = await res.json();
+
+  document.getElementById('status-icon').textContent = '🎉';
+  document.getElementById('status-title').textContent = 'Your files are ready!';
+  document.getElementById('status-desc').textContent = 'Download your AI-generated assets below. Links are active for 2 hours — save your files now.';
+
+  const grid = document.getElementById('delivery-grid');
+  grid.innerHTML = '';
+
+  (data.assets || []).forEach(asset => {
+    const label = asset.asset_type === 'logo'
+      ? `Logo — ${asset.style}`
+      : `Banner — ${asset.platform || ''} ${asset.width ? `(${asset.width}×${asset.height})` : ''}`;
+    const ext = asset.storage_path.endsWith('.svg') ? 'SVG Vector' : 'PNG';
+    const card = document.createElement('div');
+    card.className = 'asset-card';
+    card.innerHTML = `
+      <img src="${asset.downloadUrl}" alt="${label}" loading="lazy">
+      <div class="asset-info">
+        <div class="asset-label">${ext}</div>
+        <div class="asset-name">${label}</div>
+      </div>
+      <a href="${asset.downloadUrl}" download>Download ${ext}</a>`;
+    grid.appendChild(card);
+  });
+}
+
+const sleep = ms => new Promise(r => setTimeout(r, ms));
+</script>
+</body>
+</html>
