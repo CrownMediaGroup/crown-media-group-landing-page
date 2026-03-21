@@ -107,6 +107,10 @@
   /* HIDE/SHOW */
   .panel { display: none; }
   .panel.active { display: block; }
+  .product-single { grid-template-columns: 1fr; max-width: 480px; margin: 0 auto; }
+  .banner-label { margin-bottom: 36px; }
+  .progress-init { width: 10%; }
+  .support-link { color: var(--muted); font-size: 13px; }
 
   @media (max-width: 640px) {
     nav { padding: 14px 20px; }
@@ -146,36 +150,23 @@
   <!-- LOGOS PANEL -->
   <div id="panel-logos" class="panel active">
     <div class="products">
-      <div class="section-label" style="margin-bottom:36px">
-        <h2>AI Logo Packages</h2>
+      <div class="section-label banner-label">
+        <h2>AI Logo Design</h2>
         <p>SVG vector files + PNG. Scales to any size. Delivered to your inbox.</p>
       </div>
-      <div class="product-grid">
-        <div class="card">
-          <div class="card-label">Starter</div>
-          <div class="card-name">AI Logo — Starter</div>
-          <div class="card-desc">3 AI logo concepts built for your brand. PNG + transparent background. Delivered in 24 hours.</div>
-          <div class="card-price">$47<span>/one-time</span></div>
+      <div class="product-grid product-single">
+        <div class="card featured">
+          <div class="card-name">AI Logo Design</div>
+          <div class="card-desc">Professional AI-generated logo built for your brand. Multiple concepts, SVG vector + PNG files. Faster and more affordable than any local designer.</div>
+          <div class="card-price">$97<span>/one-time</span></div>
           <ul class="card-features">
-            <li>3 unique logo concepts</li>
-            <li>PNG + transparent background</li>
+            <li>4 unique logo concepts</li>
+            <li>SVG vector + PNG files</li>
+            <li>Transparent background included</li>
             <li>4 style variations</li>
             <li>Delivered in 24 hours</li>
           </ul>
-          <button class="btn btn-outline" onclick="openModal('logo-basic')">Get My Logo</button>
-        </div>
-        <div class="card featured">
-          <div class="card-label">Premium</div>
-          <div class="card-name">AI Logo — Premium</div>
-          <div class="card-desc">8 logo concepts with SVG vector files included. Scale to any size, forever. Delivered in 48 hours.</div>
-          <div class="card-price">$97<span>/one-time</span></div>
-          <ul class="card-features">
-            <li>8 logo concepts</li>
-            <li>SVG vector + PNG files</li>
-            <li>All style variations</li>
-            <li>Delivered in 48 hours</li>
-          </ul>
-          <button class="btn btn-gold" onclick="openModal('logo-premium')">Get Premium Logo</button>
+          <button type="button" class="btn btn-gold" onclick="openModal('logo-basic')">Get My Logo</button>
         </div>
       </div>
     </div>
@@ -184,37 +175,24 @@
   <!-- BANNERS PANEL -->
   <div id="panel-banners" class="panel">
     <div class="products">
-      <div class="section-label" style="margin-bottom:36px">
-        <h2>AI Banner Packages</h2>
+      <div class="section-label banner-label">
+        <h2>AI Banner Design</h2>
         <p>Platform-optimized banners for Facebook, Instagram, LinkedIn, and Twitter.</p>
       </div>
-      <div class="product-grid">
-        <div class="card">
-          <div class="card-label">Starter</div>
-          <div class="card-name">AI Banner — Starter</div>
-          <div class="card-desc">4 Instagram-sized banners (1080×1080) custom-built for your brand. Perfect for posts and profile content.</div>
-          <div class="card-price">$15<span>/one-time</span></div>
-          <ul class="card-features">
-            <li>4 Instagram banners (1080×1080)</li>
-            <li>PNG high-resolution files</li>
-            <li>Brand-matched design</li>
-            <li>Delivered within minutes</li>
-          </ul>
-          <button class="btn btn-outline" onclick="openModal('banner-basic')">Get Started</button>
-        </div>
+      <div class="product-grid product-single">
         <div class="card featured">
-          <div class="card-label">Full Pack</div>
-          <div class="card-name">AI Banner — Full Pack</div>
-          <div class="card-desc">Complete banner set for every platform. Facebook, Instagram, LinkedIn, Twitter — all sized correctly, all on-brand.</div>
-          <div class="card-price">$50<span>/one-time</span></div>
+          <div class="card-name">AI Banner Set</div>
+          <div class="card-desc">Complete banner set for every platform — sized correctly, on-brand, and ready to upload. Faster and cheaper than any local designer.</div>
+          <div class="card-price">$97<span>/one-time</span></div>
           <ul class="card-features">
             <li>Facebook cover (820×312)</li>
             <li>Instagram post (1080×1080)</li>
             <li>LinkedIn banner (1584×396)</li>
             <li>Twitter/X header (1500×500)</li>
-            <li>All PNG high-resolution</li>
+            <li>PNG high-resolution files</li>
+            <li>Delivered in 24 hours</li>
           </ul>
-          <button class="btn btn-gold" onclick="openModal('banner-pack')">Get Full Banner Pack</button>
+          <button type="button" class="btn btn-gold" onclick="openModal('banner-pack')">Get My Banners</button>
         </div>
       </div>
     </div>
@@ -227,10 +205,10 @@
   <div class="status-icon" id="status-icon">⏳</div>
   <h2 id="status-title">Generating your assets...</h2>
   <p id="status-desc">Our AI is building your custom files right now. This usually takes 2–4 minutes. Don't close this tab.</p>
-  <div class="progress-bar"><div class="progress-fill" id="progress-fill" style="width:10%"></div></div>
+  <div class="progress-bar"><div class="progress-fill progress-init" id="progress-fill"></div></div>
   <div class="progress-label" id="progress-label">Starting generation...</div>
   <div class="delivery-grid" id="delivery-grid"></div>
-  <a href="mailto:king@crownmediagroup.co" style="color:var(--muted);font-size:13px">Questions? Email king@crownmediagroup.co</a>
+  <a href="mailto:king@crownmediagroup.co" class="support-link">Questions? Email king@crownmediagroup.co</a>
 </div>
 
 <!-- FORM MODAL -->
@@ -295,10 +273,8 @@ function switchTab(tab) {
 function openModal(productId) {
   selectedProduct = productId;
   const names = {
-    'logo-basic':   'AI Logo — Starter ($47)',
-    'logo-premium': 'AI Logo — Premium ($97)',
-    'banner-basic': 'AI Banner — Starter ($47)',
-    'banner-pack':  'AI Banner — Full Pack ($97)',
+    'logo-basic':  'AI Logo Design — $97',
+    'banner-pack': 'AI Banner Set — $97',
   };
   document.getElementById('modal-title').textContent = names[productId];
   document.getElementById('modal-subtitle').textContent = 'Tell us about your brand so we can personalize your AI assets.';
