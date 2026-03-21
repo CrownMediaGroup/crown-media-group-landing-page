@@ -6,6 +6,8 @@ const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SER
 const resend = new Resend(process.env.RESEND_API_KEY);
 
 // Nano Banana Pro — Logo & Branding prompt formula
+const LOGO_STYLES = ['minimalist', 'modern', 'classic', 'bold'];
+
 const LOGO_PROMPTS = {
   minimalist: (name, industry) => `Minimalist professional logo for "${name}", ${industry} brand, clean geometric shapes, white background, negative space composition, Swiss design principles, vector style, no gradients, single color mark`,
   modern: (name, industry) => `Modern professional logo for "${name}", ${industry} company, bold sans-serif wordmark, dynamic geometric icon, contemporary design, flat vector style, white background, scalable mark`,
