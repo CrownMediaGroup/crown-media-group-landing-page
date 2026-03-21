@@ -3,8 +3,8 @@ import Stripe from 'stripe';
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 
 const PRODUCTS = {
-  'logo-basic':   { name: 'Logo Starter Pack',    amount: 4700,  desc: '3 AI logo concepts, PNG + transparent BG, color palette, font pairing' },
-  'logo-premium': { name: 'Full Brand Identity Kit', amount: 9700, desc: 'Logo concepts + SVG vector + social headers + brand guidelines PDF' },
+  'logo-basic':   { name: 'AI Logo — Starter',  amount: 4700, desc: '3 AI logo concepts, PNG + transparent background' },
+  'logo-premium': { name: 'AI Logo — Premium',  amount: 9700, desc: '8 logo concepts, SVG vector + PNG files, all style variations' },
   'banner-basic': { name: 'AI Banner — Starter',  amount: 4700,  desc: '4 AI banners optimized for your platform' },
   'banner-pack':  { name: 'AI Banner — Full Pack', amount: 9700, desc: 'Full banner set: Facebook, Instagram, LinkedIn, Twitter' },
 };

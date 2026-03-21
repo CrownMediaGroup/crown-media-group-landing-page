@@ -153,31 +153,29 @@
       <div class="product-grid">
         <div class="card">
           <div class="card-label">Starter</div>
-          <div class="card-name">Logo Starter Pack</div>
-          <div class="card-desc">3 AI logo concepts built for your brand. PNG files with transparent background, color palette, and font pairing. Ready in 24 hours.</div>
+          <div class="card-name">AI Logo — Starter</div>
+          <div class="card-desc">3 AI logo concepts built for your brand. PNG + transparent background. Delivered in 24 hours.</div>
           <div class="card-price">$47<span>/one-time</span></div>
           <ul class="card-features">
             <li>3 unique logo concepts</li>
             <li>PNG + transparent background</li>
-            <li>Color palette (3 colors)</li>
-            <li>Font pairing included</li>
+            <li>4 style variations</li>
             <li>Delivered in 24 hours</li>
           </ul>
           <button class="btn btn-outline" onclick="openModal('logo-basic')">Get My Logo</button>
         </div>
         <div class="card featured">
-          <div class="card-label">Brand Identity Kit</div>
-          <div class="card-name">Full Brand Identity</div>
-          <div class="card-desc">Everything in Starter plus SVG vector files, social media headers for every platform, and a 1-page brand guidelines PDF. Delivered in 48 hours.</div>
+          <div class="card-label">Premium</div>
+          <div class="card-name">AI Logo — Premium</div>
+          <div class="card-desc">8 logo concepts with SVG vector files included. Scale to any size, forever. Delivered in 48 hours.</div>
           <div class="card-price">$97<span>/one-time</span></div>
           <ul class="card-features">
-            <li>3 logo concepts + SVG vector files</li>
-            <li>Instagram, Facebook & LinkedIn headers</li>
-            <li>1-page brand guidelines PDF</li>
-            <li>Business card layout</li>
+            <li>8 logo concepts</li>
+            <li>SVG vector + PNG files</li>
+            <li>All style variations</li>
             <li>Delivered in 48 hours</li>
           </ul>
-          <button class="btn btn-gold" onclick="openModal('logo-premium')">Get Full Brand Kit</button>
+          <button class="btn btn-gold" onclick="openModal('logo-premium')">Get Premium Logo</button>
         </div>
       </div>
     </div>
@@ -297,10 +295,10 @@ function switchTab(tab) {
 function openModal(productId) {
   selectedProduct = productId;
   const names = {
-    'logo-basic':   'Logo Starter Pack — $47',
-    'logo-premium': 'Full Brand Identity Kit — $97',
-    'banner-basic': 'AI Banner Starter — $47',
-    'banner-pack':  'AI Banner Full Pack — $97',
+    'logo-basic':   'AI Logo — Starter ($47)',
+    'logo-premium': 'AI Logo — Premium ($97)',
+    'banner-basic': 'AI Banner — Starter ($47)',
+    'banner-pack':  'AI Banner — Full Pack ($97)',
   };
   document.getElementById('modal-title').textContent = names[productId];
   document.getElementById('modal-subtitle').textContent = 'Tell us about your brand so we can personalize your AI assets.';
