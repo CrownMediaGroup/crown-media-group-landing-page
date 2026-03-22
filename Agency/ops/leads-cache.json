@@ -1,0 +1,19 @@
+[
+  {
+    "id": "fd56b5d5-acf3-4067-b110-16749bf20488",
+    "created_at": "2026-03-21T21:14:30.069+00:00",
+    "business_name": "Test Business",
+    "contact_name": null,
+    "contact_method": null,
+    "platform": null,
+    "status": "closed_lost",
+    "notes": "test entry - delete",
+    "follow_up_date": null,
+    "contact": "@testhandle",
+    "method": "dm",
+    "ig_username": null,
+    "source": "manual",
+    "updated_at": "2026-03-21T21:14:39.937+00:00",
+    "sent_at": null
+  }
+]

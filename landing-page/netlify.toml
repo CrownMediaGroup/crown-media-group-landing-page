@@ -9,3 +9,7 @@
   from = "/api/*"
   to = "/.netlify/functions/:splat"
   status = 200
+
+[[triggers]]
+  event = "submission-created"
+  functions = ["form-submission"]

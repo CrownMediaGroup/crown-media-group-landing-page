@@ -1,0 +1,31 @@
+{
+  "scripts": {
+    "leads": "node Agency/tools/lead-tracker.js",
+    "pipeline": "node Agency/tools/lead-tracker.js",
+    "proposal": "node Agency/tools/proposal-generator.js",
+    "schedule": "node Agency/tools/content-scheduler.js",
+    "post": "node Agency/tools/social-post.js",
+    "dm": "node Agency/tools/instagram-dm.js",
+    "linkedin": "node Agency/tools/linkedin-outreach.js",
+    "runner": "node tools/standalone-runner.js",
+    "start": "node tools/standalone-runner.js",
+    "resize": "node tools/resize-image.js"
+  },
+  "devDependencies": {
+    "playwright": "^1.58.2"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.79.0",
+    "axios": "^1.13.6",
+    "dotenv": "^17.3.1",
+    "elevenlabs": "^1.59.0",
+    "inquirer": "^8.2.7",
+    "instagram-private-api": "^1.46.1",
+    "node-windows": "^1.0.0-beta.8",
+    "playwright-extra": "^4.3.6",
+    "playwright-extra-plugin-stealth": "^0.0.1",
+    "puppeteer-extra-plugin-stealth": "^2.11.2",
+    "sharp": "^0.34.5",
+    "twilio": "^5.13.0"
+  }
+}

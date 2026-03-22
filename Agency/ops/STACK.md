@@ -123,7 +123,7 @@ SUPABASE_SERVICE_KEY=
 
 # Email
 RESEND_API_KEY=
-GMAIL_USER=ldavid226@gmail.com
+GMAIL_USER=king@crownmediagroup.co
 
 # SMS
 TWILIO_ACCOUNT_SID=

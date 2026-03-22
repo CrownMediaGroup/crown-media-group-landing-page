@@ -197,6 +197,25 @@ nav.scrolled{box-shadow:0 4px 30px rgba(201,152,26,.08)}
 .banner-label-gold-text{color:#1A1A3E;font-size:13px;letter-spacing:1.5px}
 .banner-label-dark-text{color:rgba(232,184,50,.9);font-size:11px;letter-spacing:2px}
 .dots-row{display:flex;gap:8px;justify-content:center;margin-top:20px}
+/* Logo background utilities */
+.logo-white{background:#fff}
+.logo-parchment{background:#f5efe0}
+.logo-img{object-fit:contain;padding:20px;width:160px;height:160px}
+/* CTA contact icon override */
+.contact-method-cta .contact-method-icon{color:var(--gold-light)}
+
+/* PROOF BAR */
+.proof-bar{background:var(--royal);padding:20px 64px}
+.proof-inner{max-width:1200px;margin:0 auto;display:flex;align-items:center;justify-content:center;gap:40px;flex-wrap:wrap}
+.proof-item{font-size:.74rem;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:rgba(255,255,255,.6);display:flex;align-items:center;gap:8px}
+.proof-item .star{display:flex}
+
+/* GUARANTEE STRIP */
+.guarantee-strip{background:var(--cream);padding:48px 64px;border-top:1px solid var(--border-soft);border-bottom:1px solid var(--border-soft)}
+.guarantee-inner{max-width:760px;margin:0 auto;display:flex;align-items:center;gap:28px;justify-content:center;text-align:center;flex-wrap:wrap}
+.guarantee-badge{width:72px;height:72px;flex-shrink:0;background:linear-gradient(135deg,var(--gold-deep),var(--gold-light));border-radius:50%;display:flex;align-items:center;justify-content:center}
+.guarantee-text h3{font-family:'Cormorant Garamond',serif;font-size:1.35rem;font-weight:700;margin-bottom:4px}
+.guarantee-text p{color:var(--text-mid);font-size:.88rem;line-height:1.6;max-width:480px}
 
 /* Contact section */
 .contact-section{background:var(--warm);padding:120px 64px;border-top:1px solid var(--border-soft)}
@@ -212,16 +231,36 @@ nav.scrolled{box-shadow:0 4px 30px rgba(201,152,26,.08)}
 .form-row{display:grid;grid-template-columns:1fr 1fr;gap:16px}
 .contact-submit{width:100%;margin-top:8px}
 .contact-success{display:none;background:var(--gold-pale);border:1px solid var(--border);padding:20px 24px;text-align:center;font-weight:600;color:var(--gold-deep);margin-top:20px;border-radius:2px}
-.contact-direct{margin-top:40px;padding-top:32px;border-top:1px solid var(--border-soft);display:flex;gap:32px;justify-content:center;flex-wrap:wrap}
-.contact-method{display:flex;align-items:center;gap:10px;text-decoration:none;color:var(--text-mid);font-size:.9rem;font-weight:500;transition:color .2s}
-.contact-method:hover{color:var(--gold)}
-.contact-method-icon{width:36px;height:36px;background:var(--white);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;border-radius:2px;font-size:1rem;flex-shrink:0}
+.contact-direct{margin-top:40px;padding-top:32px;border-top:1px solid var(--border-soft);display:flex;gap:16px;justify-content:center;flex-wrap:wrap}
+.contact-method{display:inline-flex;align-items:center;gap:10px;text-decoration:none;color:var(--text-mid);font-size:.8rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;padding:14px 24px;border:1.5px solid var(--border);background:var(--white);border-radius:4px;transition:border-color .2s,color .2s,transform .2s,box-shadow .2s}
+.contact-method:hover{color:var(--gold);border-color:var(--gold);transform:translateY(-2px);box-shadow:0 6px 20px rgba(201,152,26,.12)}
+.contact-method-icon{width:20px;height:20px;display:flex;align-items:center;justify-content:center;flex-shrink:0;color:var(--gold)}
+.contact-method-cta{background:var(--royal);color:var(--gold-light);border-color:var(--royal)}
+.contact-method-cta:hover{background:var(--royal-mid);color:var(--gold-light);border-color:var(--royal-mid);box-shadow:0 6px 20px rgba(26,26,62,.25)}
 
+/* FOOTER */
+.site-footer{background:#0F0F28;padding:56px 64px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:24px}
+.footer-brand{display:flex;align-items:center;gap:14px}
+.footer-brand img{height:34px;width:34px;object-fit:contain;border-radius:6px}
+.footer-name{font-family:'Cormorant Garamond',serif;font-size:1rem;font-weight:700;color:var(--white);display:block}
+.footer-tagline{font-size:.72rem;color:var(--gold);letter-spacing:.08em;font-style:italic}
+.footer-links{display:flex;gap:32px;list-style:none}
+.footer-links a{color:rgba(255,255,255,.4);font-size:.82rem;text-decoration:none;transition:color .2s}
+.footer-links a:hover{color:rgba(255,255,255,.8)}
+.footer-copy{color:rgba(255,255,255,.25);font-size:.78rem}
+
+/* SCROLL REVEAL */
+.reveal{opacity:0;transform:translateY(28px);transition:opacity .7s ease,transform .7s ease}
+.reveal.visible{opacity:1;transform:translateY(0)}
+
+@media(max-width:768px){nav{padding:16px 24px}.nav-links,.nav-cta{display:none}.hamburger{display:flex;z-index:1001;position:relative}}
 @media(max-width:960px){
   nav{padding:20px 28px}
   .nav-links{display:none}
   .hamburger{display:flex}
   .hero{padding:120px 28px 80px}
+  .proof-bar{padding:16px 28px}
+  .proof-inner{gap:20px}
   .tab-bar{padding:20px 28px}
   .products-section{padding:72px 28px}
   .showcase{padding:80px 28px}
@@ -229,6 +268,10 @@ nav.scrolled{box-shadow:0 4px 30px rgba(201,152,26,.08)}
   .ba-after{border-left:none;border-top:1px solid rgba(201,152,26,.2)}
   .ba-side{padding:36px 28px;min-height:320px}
   .status-wrap{padding:120px 28px 80px}
+  .contact-section{padding:80px 28px}
+  .guarantee-strip{padding:40px 28px}
+  .site-footer{padding:40px 28px;flex-direction:column;text-align:center}
+  .footer-links{flex-wrap:wrap;justify-content:center;gap:20px}
 }
 @media(max-width:600px){
   .product-grid{grid-template-columns:1fr}
@@ -236,6 +279,11 @@ nav.scrolled{box-shadow:0 4px 30px rgba(201,152,26,.08)}
   .modal{padding:36px 24px}
   .modal-actions{flex-direction:column}
   .hero-ctas{flex-direction:column;align-items:center}
+  .contact-direct{flex-direction:column;align-items:stretch}
+  .contact-method{justify-content:center}
+  .proof-inner{flex-direction:column;gap:12px}
+  .proof-item{justify-content:center}
+  .form-row{grid-template-columns:1fr}
 }
 </style>
 </head>
@@ -252,8 +300,8 @@ nav.scrolled{box-shadow:0 4px 30px rgba(201,152,26,.08)}
     <li><a href="/#services">Services</a></li>
     <li><a href="/#pricing">Pricing</a></li>
     <li><a href="/ai-tools.html" class="nav-link-gold">AI Tools</a></li>
-    <li><a href="https://calendly.com/crownmediagroupco" target="_blank" rel="noopener" class="btn-royal">Book a Call</a></li>
   </ul>
+  <a href="https://calendly.com/crownmediagroupco" target="_blank" rel="noopener" class="btn-royal nav-cta">Book a Call</a>
   <button type="button" class="hamburger" id="hamburger" aria-label="Menu">
     <span></span><span></span><span></span>
   </button>
@@ -277,10 +325,21 @@ nav.scrolled{box-shadow:0 4px 30px rgba(201,152,26,.08)}
   </div>
 </div>
 
+<!-- PROOF BAR -->
+<div class="proof-bar">
+  <div class="proof-inner">
+    <div class="proof-item"><span class="star"><svg xmlns="http://www.w3.org/2000/svg" width="8" height="8" viewBox="0 0 8 8"><polygon points="4,0 5,3 8,4 5,5 4,8 3,5 0,4 3,3" fill="#E8B832"/></svg></span> Delivered in 24 Hours</div>
+    <div class="proof-item"><span class="star"><svg xmlns="http://www.w3.org/2000/svg" width="8" height="8" viewBox="0 0 8 8"><polygon points="4,0 5,3 8,4 5,5 4,8 3,5 0,4 3,3" fill="#E8B832"/></svg></span> SVG Vector Files Included</div>
+    <div class="proof-item"><span class="star"><svg xmlns="http://www.w3.org/2000/svg" width="8" height="8" viewBox="0 0 8 8"><polygon points="4,0 5,3 8,4 5,5 4,8 3,5 0,4 3,3" fill="#E8B832"/></svg></span> Powered by Recraft AI + Gemini</div>
+    <div class="proof-item"><span class="star"><svg xmlns="http://www.w3.org/2000/svg" width="8" height="8" viewBox="0 0 8 8"><polygon points="4,0 5,3 8,4 5,5 4,8 3,5 0,4 3,3" fill="#E8B832"/></svg></span> Files You Own Forever</div>
+    <div class="proof-item"><span class="star"><svg xmlns="http://www.w3.org/2000/svg" width="8" height="8" viewBox="0 0 8 8"><polygon points="4,0 5,3 8,4 5,5 4,8 3,5 0,4 3,3" fill="#E8B832"/></svg></span> Crown Media Group</div>
+  </div>
+</div>
+
 <!-- ── BEFORE / AFTER SHOWCASE ─────────────────────────────────────────────── -->
 <section class="showcase">
   <div class="showcase-inner">
-    <div class="showcase-header">
+    <div class="showcase-header reveal">
       <span class="label">Real Results</span>
       <div class="divider"></div>
       <h2 class="showcase-h">Before Crown Media.<br>After Crown Media.</h2>
@@ -296,30 +355,94 @@ nav.scrolled{box-shadow:0 4px 30px rgba(201,152,26,.08)}
             <div class="ba-side ba-before">
               <span class="ba-tag ba-tag-before">Before</span>
               <div class="ba-visual">
-                <div class="logo-after" style="background:#fff">
-                  <img src="assets/showcase/before-juice.png" alt="Generic juice logo before" style="width:180px;height:180px;object-fit:contain;padding:16px">
+                <div class="logo-after logo-white">
+                  <!-- Bad generic juice logo — clip-art style -->
+                  <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" width="190" height="190">
+                    <rect width="200" height="200" fill="#fff"/>
+                    <!-- Crude circle border -->
+                    <circle cx="100" cy="90" r="72" fill="#e8f5e9" stroke="#a5d6a7" stroke-width="4"/>
+                    <!-- Clip-art lemon -->
+                    <ellipse cx="78" cy="80" rx="22" ry="28" fill="#fff176" stroke="#f9a825" stroke-width="2.5"/>
+                    <line x1="78" y1="52" x2="78" y2="108" stroke="#f9a825" stroke-width="1.5"/>
+                    <line x1="56" y1="80" x2="100" y2="80" stroke="#f9a825" stroke-width="1.5"/>
+                    <!-- Clip-art orange -->
+                    <circle cx="118" cy="78" r="20" fill="#ffb74d" stroke="#e65100" stroke-width="2.5"/>
+                    <line x1="118" y1="58" x2="118" y2="98" stroke="#e65100" stroke-width="1.5"/>
+                    <line x1="98" y1="78" x2="138" y2="78" stroke="#e65100" stroke-width="1.5"/>
+                    <!-- Leaf -->
+                    <path d="M95 58 Q108 44 118 55 Q108 66 95 58Z" fill="#66bb6a" stroke="#388e3c" stroke-width="1"/>
+                    <!-- WordArt-style text -->
+                    <text x="100" y="130" text-anchor="middle" font-family="Comic Sans MS,Arial,sans-serif" font-size="13" font-weight="bold" fill="#2e7d32" letter-spacing="1">Shatiea's</text>
+                    <text x="100" y="147" text-anchor="middle" font-family="Comic Sans MS,Arial,sans-serif" font-size="10" fill="#f57f17">Fresh Juice</text>
+                    <text x="100" y="161" text-anchor="middle" font-family="Arial,sans-serif" font-size="7.5" fill="#999" letter-spacing=".5">est. 2022</text>
+                  </svg>
                 </div>
               </div>
-              <div class="ba-client">Shatiea &mdash; Faith Juice Brand</div>
-              <p class="ba-desc">Generic clip art. No identity, no story. Customers scrolled right past it. Nothing about this says faith, quality, or brand.</p>
+              <div class="ba-client">Shatiea &mdash; Fruit of the Spirit Juice</div>
+              <p class="ba-desc">Generic clip-art lemon and orange. Comic Sans font. No faith, no story, no brand. Looked like a school project — not a real business.</p>
             </div>
             <div class="ba-side ba-after">
               <span class="ba-tag ba-tag-after">After Crown Media</span>
               <div class="ba-visual">
-                <div class="logo-after">
-                  <svg viewBox="0 0 160 160" xmlns="http://www.w3.org/2000/svg" width="160" height="160">
-                    <circle cx="80" cy="80" r="76" fill="#0d1a0d"/>
-                    <circle cx="80" cy="80" r="64" fill="none" stroke="#4a7c59" stroke-width=".8" stroke-dasharray="3 5"/>
-                    <path d="M80 26 C96 48 114 64 80 112 C46 64 64 48 80 26Z" fill="#4a7c59" opacity=".9"/>
-                    <path d="M80 26 L80 112" stroke="#c9981a" stroke-width="1.2" fill="none"/>
-                    <ellipse cx="80" cy="88" rx="9" ry="12" fill="#c9981a" opacity=".9"/>
-                    <text x="80" y="133" text-anchor="middle" font-family="Georgia,serif" font-size="10" font-weight="700" letter-spacing="3.5" fill="#c9981a">SHATIEA</text>
-                    <text x="80" y="145" text-anchor="middle" font-family="Georgia,serif" font-size="5.5" letter-spacing="2.8" fill="rgba(255,255,255,.45)">FRUIT OF THE SPIRIT</text>
+                <div class="logo-after logo-parchment">
+                  <!-- Fruit of the Spirit Juice medallion logo recreation -->
+                  <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" width="200" height="200">
+                    <defs>
+                      <radialGradient id="goldRing" cx="50%" cy="50%" r="50%">
+                        <stop offset="0%" stop-color="#e8c96a"/>
+                        <stop offset="40%" stop-color="#c9981a"/>
+                        <stop offset="70%" stop-color="#9a720d"/>
+                        <stop offset="100%" stop-color="#c9981a"/>
+                      </radialGradient>
+                      <radialGradient id="bgBlue" cx="50%" cy="50%" r="50%">
+                        <stop offset="0%" stop-color="#1a3a7a"/>
+                        <stop offset="100%" stop-color="#0d1f4a"/>
+                      </radialGradient>
+                    </defs>
+                    <!-- Outer medallion ring -->
+                    <circle cx="100" cy="100" r="96" fill="url(#goldRing)"/>
+                    <circle cx="100" cy="100" r="83" fill="url(#bgBlue)"/>
+                    <circle cx="100" cy="100" r="80" fill="none" stroke="#e8c96a" stroke-width=".8" opacity=".5"/>
+                    <!-- Ornate border dots -->
+                    <circle cx="100" cy="17" r="3.5" fill="#4a6fa0" stroke="#c9981a" stroke-width=".8"/>
+                    <circle cx="183" cy="100" r="3.5" fill="#7a3a3a" stroke="#c9981a" stroke-width=".8"/>
+                    <circle cx="17" cy="100" r="3.5" fill="#7a3a3a" stroke="#c9981a" stroke-width=".8"/>
+                    <!-- Arced text "FRUIT OF THE SPIRIT JUICE" -->
+                    <path id="topArc" d="M 26,100 A 74,74 0 0,1 174,100" fill="none"/>
+                    <text font-family="Georgia,serif" font-size="9" font-weight="700" fill="#c9981a" letter-spacing="2.8">
+                      <textPath href="#topArc" startOffset="3%">FRUIT OF THE SPIRIT JUICE</textPath>
+                    </text>
+                    <!-- Angel wings — left -->
+                    <path d="M100,60 C80,55 55,65 48,88 C58,82 70,78 82,82 C75,70 80,62 100,60Z" fill="#c9981a" opacity=".9"/>
+                    <path d="M100,65 C84,62 65,70 58,88 C66,84 76,81 86,85Z" fill="#e8c96a" opacity=".6"/>
+                    <!-- Angel wings — right -->
+                    <path d="M100,60 C120,55 145,65 152,88 C142,82 130,78 118,82 C125,70 120,62 100,60Z" fill="#c9981a" opacity=".9"/>
+                    <path d="M100,65 C116,62 135,70 142,88 C134,84 124,81 114,85Z" fill="#e8c96a" opacity=".6"/>
+                    <!-- Figure/angel body -->
+                    <ellipse cx="100" cy="96" rx="13" ry="18" fill="#3a5c9a" opacity=".9"/>
+                    <!-- Halo -->
+                    <circle cx="100" cy="72" r="10" fill="none" stroke="#e8c96a" stroke-width="1.5" opacity=".8"/>
+                    <!-- Head -->
+                    <circle cx="100" cy="72" r="7.5" fill="#8B5E3C"/>
+                    <!-- Hair afro -->
+                    <ellipse cx="100" cy="67" rx="9" ry="7" fill="#3d2010"/>
+                    <!-- Praying hands -->
+                    <ellipse cx="100" cy="105" rx="5" ry="7" fill="#8B5E3C" opacity=".9"/>
+                    <!-- Cornucopia / fruits at bottom -->
+                    <path d="M72,122 Q90,115 100,120 Q110,115 128,122 Q118,135 100,138 Q82,135 72,122Z" fill="#9a720d" opacity=".7"/>
+                    <!-- Fruit dots -->
+                    <circle cx="88" cy="128" r="5" fill="#c0392b"/>
+                    <circle cx="100" cy="131" r="4.5" fill="#8e44ad"/>
+                    <circle cx="112" cy="128" r="5" fill="#e74c3c"/>
+                    <circle cx="94" cy="123" r="3.5" fill="#27ae60"/>
+                    <circle cx="106" cy="123" r="3.5" fill="#f39c12"/>
+                    <!-- Bottom ornament -->
+                    <path d="M88,155 Q100,148 112,155" fill="none" stroke="#c9981a" stroke-width="1" opacity=".7"/>
                   </svg>
                 </div>
               </div>
-              <div class="ba-client">Shatiea &mdash; Faith Juice Brand</div>
-              <p class="ba-desc"><strong>SVG vector logo.</strong> Faith-driven leaf + drop mark, gold wordmark, scripture-inspired tagline. Every element has purpose.</p>
+              <div class="ba-client">Shatiea &mdash; Fruit of the Spirit Juice</div>
+              <p class="ba-desc"><strong>Medallion seal logo.</strong> Angel figure, gold wings, fruit of abundance, faith-centered design. Customers stopped scrolling. This brand has a soul.</p>
             </div>
           </div>
         </div>
@@ -330,7 +453,7 @@ nav.scrolled{box-shadow:0 4px 30px rgba(201,152,26,.08)}
             <div class="ba-side ba-before">
               <span class="ba-tag ba-tag-before">Before</span>
               <div class="ba-visual">
-                <div class="logo-after" style="background:#fff">
+                <div class="logo-after logo-white">
                   <img src="assets/showcase/before-barber.png" alt="Generic barbershop logo before" style="width:180px;height:180px;object-fit:contain;padding:16px">
                 </div>
               </div>
@@ -362,7 +485,7 @@ nav.scrolled{box-shadow:0 4px 30px rgba(201,152,26,.08)}
             <div class="ba-side ba-before">
               <span class="ba-tag ba-tag-before">Before</span>
               <div class="ba-visual">
-                <div class="logo-after" style="background:#fff">
+                <div class="logo-after logo-white">
                   <img src="assets/showcase/before-wellness.png" alt="Generic wellness logo before" style="width:180px;height:180px;object-fit:contain;padding:16px">
                 </div>
               </div>
@@ -398,7 +521,7 @@ nav.scrolled{box-shadow:0 4px 30px rgba(201,152,26,.08)}
             <div class="ba-side ba-before">
               <span class="ba-tag ba-tag-before">Before</span>
               <div class="ba-visual">
-                <div class="logo-after" style="background:#fff">
+                <div class="logo-after logo-white">
                   <img src="assets/showcase/before-realty.png" alt="Generic real estate logo before" style="width:180px;height:180px;object-fit:contain;padding:16px">
                 </div>
               </div>
@@ -427,13 +550,50 @@ nav.scrolled{box-shadow:0 4px 30px rgba(201,152,26,.08)}
           </div>
         </div>
 
+        <!-- SLIDE 5 — Logo: Crown Media Group -->
+        <div class="slide">
+          <div class="ba-card">
+            <div class="ba-side ba-before">
+              <span class="ba-tag ba-tag-before">Before</span>
+              <div class="ba-visual">
+                <div class="logo-after logo-white">
+                  <!-- Bad generic crown clip-art SVG -->
+                  <svg viewBox="0 0 180 180" xmlns="http://www.w3.org/2000/svg" width="180" height="180">
+                    <rect width="180" height="180" fill="#fff"/>
+                    <!-- Blocky amateurish crown -->
+                    <polygon points="20,130 20,80 45,100 90,40 135,100 160,80 160,130" fill="#cccccc" stroke="#999" stroke-width="3"/>
+                    <rect x="20" y="128" width="140" height="14" fill="#cccccc" stroke="#999" stroke-width="2" rx="0"/>
+                    <!-- dots on top -->
+                    <circle cx="20" cy="80" r="6" fill="#aaa"/>
+                    <circle cx="90" cy="40" r="8" fill="#aaa"/>
+                    <circle cx="160" cy="80" r="6" fill="#aaa"/>
+                    <text x="90" y="160" text-anchor="middle" font-family="Arial,sans-serif" font-size="10" fill="#666666" letter-spacing="1">Crown Media</text>
+                  </svg>
+                </div>
+              </div>
+              <div class="ba-client">Crown Media Group &mdash; Agency</div>
+              <p class="ba-desc">Generic grey clip-art crown. No personality, no brand story. Looks like every other "media company" template downloaded from a free site.</p>
+            </div>
+            <div class="ba-side ba-after">
+              <span class="ba-tag ba-tag-after">After Crown Media</span>
+              <div class="ba-visual">
+                <div class="logo-after logo-white">
+                  <img src="logo.png" alt="Crown Media Group logo" class="logo-img">
+                </div>
+              </div>
+              <div class="ba-client">Crown Media Group &mdash; Agency</div>
+              <p class="ba-desc"><strong>Crown with cross mark.</strong> Faith-forward, gold on white. Commands authority immediately. This is what a real brand identity looks like.</p>
+            </div>
+          </div>
+        </div>
+
       </div><!-- /slides-track -->
     </div>
 
     <!-- Slide Controls -->
     <div class="slide-nav">
       <button type="button" class="slide-arrow" id="prev-slide" aria-label="Previous">&larr;</button>
-      <span class="slide-count" id="slide-count">1 / 4</span>
+      <span class="slide-count" id="slide-count">1 / 5</span>
       <button type="button" class="slide-arrow" id="next-slide" aria-label="Next">&rarr;</button>
     </div>
     <div class="dots-row" id="dots"></div>
@@ -447,19 +607,32 @@ nav.scrolled{box-shadow:0 4px 30px rgba(201,152,26,.08)}
   <button type="button" class="tab-btn" id="tab-banners" onclick="switchTab('banners')">Banners</button>
 </div>
 
+<!-- GUARANTEE -->
+<div class="guarantee-strip">
+  <div class="guarantee-inner reveal">
+    <div class="guarantee-badge">
+      <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#1A1A3E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><polyline points="9 12 11 14 15 10"/></svg>
+    </div>
+    <div class="guarantee-text">
+      <h3>Satisfaction Guaranteed</h3>
+      <p>If you&rsquo;re not happy with your files, King will personally review your order and make it right &mdash; or refund you. No questions asked.</p>
+    </div>
+  </div>
+</div>
+
 <!-- PRODUCTS -->
 <div class="products-section" id="products-section">
   <div class="products-inner" id="main-content">
 
     <!-- LOGOS -->
     <div id="panel-logos" class="panel active">
-      <div class="section-header">
+      <div class="section-header reveal">
         <span class="label">AI Logo Design</span>
         <div class="divider"></div>
         <h2>A professional logo,<br>built for your brand</h2>
         <p>SVG vector + PNG files delivered to your inbox. Scales perfectly to any size &mdash; business cards to billboards.</p>
       </div>
-      <div class="product-grid">
+      <div class="product-grid reveal">
         <div class="product-card featured">
           <div class="card-tier">Most Popular</div>
           <div class="card-name">AI Logo Design</div>
@@ -482,13 +655,13 @@ nav.scrolled{box-shadow:0 4px 30px rgba(201,152,26,.08)}
 
     <!-- BANNERS -->
     <div id="panel-banners" class="panel">
-      <div class="section-header">
+      <div class="section-header reveal">
         <span class="label">AI Banner Design</span>
         <div class="divider"></div>
         <h2>Every platform.<br>Every size. Done.</h2>
         <p>Platform-optimized banners for Facebook, Instagram, LinkedIn, and Twitter &mdash; sized correctly, on-brand, and ready to upload.</p>
       </div>
-      <div class="product-grid">
+      <div class="product-grid reveal">
         <div class="product-card featured">
           <div class="card-tier">Complete Set</div>
           <div class="card-name">AI Banner Set</div>
@@ -512,52 +685,21 @@ nav.scrolled{box-shadow:0 4px 30px rgba(201,152,26,.08)}
   </div>
 </div>
 
-<!-- CONTACT -->
-<section class="contact-section" id="contact">
-  <div class="contact-inner">
-    <span class="label">Get in Touch</span>
-    <div class="divider"></div>
-    <h2 class="contact-h">Have a question?<br>We&rsquo;ll get back to you today.</h2>
-    <p class="contact-sub">Not sure which product is right for you? Send us a message and King will respond personally within a few hours.</p>
-    <form class="contact-form" name="contact" method="POST" data-netlify="true" id="contact-form">
-      <input type="hidden" name="form-name" value="contact">
-      <div class="form-row">
-        <div class="form-group">
-          <label for="cf-name">Your Name</label>
-          <input type="text" id="cf-name" name="name" placeholder="First Last" required>
-        </div>
-        <div class="form-group">
-          <label for="cf-email">Your Email</label>
-          <input type="email" id="cf-email" name="email" placeholder="you@business.com" required>
-        </div>
-      </div>
-      <div class="form-group">
-        <label for="cf-business">Business Name</label>
-        <input type="text" id="cf-business" name="business" placeholder="e.g. Shatiea's Juice Bar">
-      </div>
-      <div class="form-group">
-        <label for="cf-message">Message</label>
-        <textarea id="cf-message" name="message" placeholder="Tell us what you need..." required></textarea>
-      </div>
-      <button type="submit" class="btn-gold-large contact-submit">Send Message</button>
-      <div class="contact-success" id="contact-success">Message sent! King will reply within a few hours.</div>
-    </form>
-    <div class="contact-direct">
-      <a href="mailto:king@crownmediagroup.co" class="contact-method">
-        <span class="contact-method-icon">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><polyline points="2,4 12,13 22,4"/></svg>
-        </span>
-        king@crownmediagroup.co
-      </a>
-      <a href="https://calendly.com/crownmediagroupco" target="_blank" rel="noopener" class="contact-method">
-        <span class="contact-method-icon">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-        </span>
-        Book a Free Call
-      </a>
-    </div>
+
+<!-- FOOTER -->
+<footer class="site-footer">
+  <div class="footer-brand">
+    <img src="logo.png" alt="Crown Media Group logo">
+    <div><span class="footer-name">Crown Media Group</span><span class="footer-tagline">All Glory to Jesus</span></div>
   </div>
-</section>
+  <ul class="footer-links">
+    <li><a href="/">Home</a></li>
+    <li><a href="/#services">Services</a></li>
+    <li><a href="/#pricing">Pricing</a></li>
+    <li><a href="/ai-tools.html">AI Tools</a></li>
+  </ul>
+  <div class="footer-copy">&copy; 2026 Crown Media Group &middot; Columbia, SC &middot; All Glory to Jesus</div>
+</footer>
 
 <!-- STATUS (post-payment) -->
 <div class="status-wrap" id="status-section">
@@ -624,8 +766,19 @@ nav.scrolled{box-shadow:0 4px 30px rgba(201,152,26,.08)}
 window.addEventListener('scroll', () => {
   document.getElementById('nav').classList.toggle('scrolled', window.scrollY > 20);
 });
-document.getElementById('hamburger').addEventListener('click', () => {
-  document.getElementById('mobile-menu').classList.toggle('open');
+const hamburgerBtn = document.getElementById('hamburger');
+const mobileMenu   = document.getElementById('mobile-menu');
+hamburgerBtn.addEventListener('click', (e) => {
+  e.stopPropagation();
+  mobileMenu.classList.toggle('open');
+});
+document.addEventListener('click', (e) => {
+  if (!mobileMenu.contains(e.target) && e.target !== hamburgerBtn) {
+    mobileMenu.classList.remove('open');
+  }
+});
+mobileMenu.querySelectorAll('a').forEach(a => {
+  a.addEventListener('click', () => mobileMenu.classList.remove('open'));
 });
 
 // ── Tabs ──────────────────────────────────────────────────────────────────────
@@ -746,6 +899,14 @@ function showErr(msg) {
   el.style.display  = 'block';
 }
 
+// ── Scroll reveal ─────────────────────────────────────────────────────────────
+(function() {
+  const obs = new IntersectionObserver((entries) => {
+    entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); obs.unobserve(e.target); } });
+  }, { threshold: 0.12 });
+  document.querySelectorAll('.reveal').forEach(el => obs.observe(el));
+})();
+
 // ── Post-payment status ────────────────────────────────────────────────────────
 const params = new URLSearchParams(window.location.search);
 if (params.get('success') === '1' && params.get('session_id')) {
@@ -834,24 +995,6 @@ async function loadDelivery(orderId) {
 
 const sleep = ms => new Promise(r => setTimeout(r, ms));
 
-// Contact form
-const contactForm = document.getElementById('contact-form');
-if (contactForm) {
-  contactForm.addEventListener('submit', async e => {
-    e.preventDefault();
-    const btn = contactForm.querySelector('button[type="submit"]');
-    btn.textContent = 'Sending...';
-    btn.disabled = true;
-    try {
-      await fetch('/', { method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, body: new URLSearchParams(new FormData(contactForm)).toString() });
-      document.getElementById('contact-success').style.display = 'block';
-      contactForm.reset();
-    } catch {
-      btn.textContent = 'Send Message';
-      btn.disabled = false;
-    }
-  });
-}
 </script>
 </body>
 </html>

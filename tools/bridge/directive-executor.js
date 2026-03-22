@@ -31,7 +31,7 @@ function execute(directive) {
     try {
       const out = execSync(cmd, {
         cwd: path.join(__dirname, '../..'),
-        shell: 'bash',
+        shell: true,
         timeout: 30000,
         encoding: 'utf8'
       });

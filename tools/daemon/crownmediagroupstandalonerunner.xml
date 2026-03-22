@@ -1,0 +1,30 @@
+<service>
+	<id>crownmediagroupstandalonerunner.exe</id>
+	<name>CrownMediaGroup-StandaloneRunner</name>
+	<description>Crown Media Group 24/7 directive queue runner</description>
+	<executable>C:\Program Files\nodejs\node.exe</executable>
+	<argument>C:\Users\ldavi\Documents\AllGloryAgency\node_modules\node-windows\lib\wrapper.js</argument>
+	<argument>--file</argument>
+	<argument>C:\Users\ldavi\Documents\AllGloryAgency\tools\standalone-runner.js</argument>
+	<argument>--scriptoptions=</argument>
+	<argument>--log</argument>
+	<argument>CrownMediaGroup-StandaloneRunner wrapper</argument>
+	<argument>--grow</argument>
+	<argument>0.25</argument>
+	<argument>--wait</argument>
+	<argument>1</argument>
+	<argument>--maxrestarts</argument>
+	<argument>3</argument>
+	<argument>--abortonerror</argument>
+	<argument>n</argument>
+	<argument>--stopparentfirst</argument>
+	<argument>undefined</argument>
+	<logmode>rotate</logmode>
+	<stoptimeout>30sec</stoptimeout>
+	<serviceaccount>
+		<domain>DAVIDKING</domain>
+		<user>LocalSystem</user>
+		<password></password>
+	</serviceaccount>
+	<workingdirectory>C:\Users\ldavi\Documents\AllGloryAgency</workingdirectory>
+</service>
