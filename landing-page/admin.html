@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Orders — Crown Media Group</title>
+<meta name="robots" content="noindex, nofollow">
+<link rel="icon" type="image/png" href="logo.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--white:#FFFFFF;--cream:#FDFBF7;--warm:#F9F5EE;--gold:#C9981A;--gold-light:#E8B832;--gold-deep:#9A720D;--gold-pale:#F5E6B8;--royal:#1A1A3E;--royal-mid:#2D2D5A;--text:#1A1A2E;--text-mid:#4A4A6A;--text-light:#8A8AAA;--border:rgba(201,152,26,0.2);--green:#16a34a;--red:#dc2626;--amber:#d97706}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--cream);color:var(--text);font-family:'Inter',sans-serif;min-height:100vh}
+
+/* LOGIN */
+.login-wrap{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px}
+.login-box{background:var(--white);border:1px solid var(--border);border-top:3px solid var(--gold);padding:52px 48px;width:100%;max-width:420px}
+.login-logo{display:flex;align-items:center;gap:12px;margin-bottom:40px}
+.login-logo img{height:36px;width:36px;object-fit:contain;border-radius:6px}
+.login-logo span{font-family:'Cormorant Garamond',serif;font-size:1.1rem;font-weight:700;color:var(--text)}
+.login-box h1{font-family:'Cormorant Garamond',serif;font-size:1.8rem;font-weight:700;margin-bottom:6px}
+.login-box p{color:var(--text-mid);font-size:.88rem;margin-bottom:32px}
+.login-box label{display:block;font-size:.7rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--text-mid);margin-bottom:8px}
+.login-box input{width:100%;background:var(--cream);border:1px solid var(--border);padding:12px 16px;color:var(--text);font-family:'Inter',sans-serif;font-size:.95rem;outline:none;transition:border-color .2s;border-radius:2px;margin-bottom:20px}
+.login-box input:focus{border-color:var(--gold)}
+.login-btn{width:100%;background:var(--royal);color:var(--gold-light);border:none;padding:14px;font-family:'Inter',sans-serif;font-size:.85rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;cursor:pointer;transition:background .2s}
+.login-btn:hover{background:var(--royal-mid)}
+.login-error{color:var(--red);font-size:.82rem;margin-top:14px;display:none}
+
+/* DASHBOARD */
+.dashboard{display:none;min-height:100vh}
+.dash-nav{background:var(--royal);padding:0 48px;display:flex;align-items:center;justify-content:space-between;height:68px;border-bottom:1px solid rgba(201,152,26,.2)}
+.dash-logo{display:flex;align-items:center;gap:12px;text-decoration:none}
+.dash-logo img{height:32px;width:32px;object-fit:contain;border-radius:6px}
+.dash-logo span{font-family:'Cormorant Garamond',serif;font-size:1rem;font-weight:700;color:var(--white)}
+.dash-nav-right{display:flex;align-items:center;gap:20px}
+.dash-tag{font-size:.72rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:rgba(255,255,255,.4)}
+.logout-btn{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);color:rgba(255,255,255,.7);padding:7px 16px;border-radius:2px;font-size:.75rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase;cursor:pointer;transition:background .2s}
+.logout-btn:hover{background:rgba(255,255,255,.15)}
+
+.dash-body{max-width:1280px;margin:0 auto;padding:48px 48px 80px}
+
+/* SUMMARY CARDS */
+.summary-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:2px;margin-bottom:48px}
+.sum-card{background:var(--white);padding:32px 28px;border:1px solid rgba(201,152,26,.12)}
+.sum-label{font-size:.68rem;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--text-light);margin-bottom:12px}
+.sum-value{font-family:'Cormorant Garamond',serif;font-size:2.8rem;font-weight:700;color:var(--text);line-height:1;margin-bottom:4px}
+.sum-value.gold{color:var(--gold-deep)}
+.sum-value.green{color:var(--green)}
+.sum-value.amber{color:var(--amber)}
+.sum-value.red{color:var(--red)}
+.sum-sub{font-size:.78rem;color:var(--text-light)}
+
+/* FILTERS */
+.filters{display:flex;align-items:center;gap:12px;margin-bottom:24px;flex-wrap:wrap}
+.filter-btn{padding:8px 20px;background:transparent;border:1px solid var(--border);font-family:'Inter',sans-serif;font-size:.78rem;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--text-mid);cursor:pointer;transition:all .2s;border-radius:2px}
+.filter-btn.active{background:var(--royal);border-color:var(--royal);color:var(--gold-light)}
+.filter-btn:hover:not(.active){border-color:var(--gold);color:var(--text)}
+.refresh-btn{margin-left:auto;padding:8px 20px;background:var(--gold-pale);border:1px solid var(--border);font-family:'Inter',sans-serif;font-size:.78rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--gold-deep);cursor:pointer;border-radius:2px;transition:opacity .2s}
+.refresh-btn:hover{opacity:.8}
+.export-btn{padding:8px 20px;background:var(--royal);border:none;font-family:'Inter',sans-serif;font-size:.78rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--gold-light);cursor:pointer;border-radius:2px;transition:background .2s}
+.export-btn:hover{background:var(--royal-mid)}
+
+/* TABLE */
+.table-wrap{background:var(--white);border:1px solid rgba(201,152,26,.12);overflow-x:auto}
+.orders-table{width:100%;border-collapse:collapse;font-size:.85rem}
+.orders-table th{text-align:left;padding:14px 20px;font-size:.68rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--text-light);border-bottom:1px solid var(--border);white-space:nowrap;background:var(--warm)}
+.orders-table td{padding:16px 20px;border-bottom:1px solid rgba(201,152,26,.06);vertical-align:middle}
+.orders-table tr:last-child td{border-bottom:none}
+.orders-table tr:hover td{background:var(--cream)}
+.badge{display:inline-block;padding:3px 10px;border-radius:2px;font-size:.7rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase}
+.badge-completed{background:#dcfce7;color:#15803d}
+.badge-pending{background:#fef3c7;color:#92400e}
+.badge-failed{background:#fee2e2;color:#991b1b}
+.amount-cell{font-family:'Cormorant Garamond',serif;font-size:1.1rem;font-weight:700;color:var(--gold-deep)}
+.date-cell{color:var(--text-light);font-size:.82rem;white-space:nowrap}
+.product-pill{display:inline-block;background:var(--gold-pale);color:var(--gold-deep);font-size:.7rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:3px 10px;border-radius:2px}
+.email-cell{color:var(--text-mid)}
+.empty-state{text-align:center;padding:64px 20px;color:var(--text-light)}
+.empty-state h3{font-family:'Cormorant Garamond',serif;font-size:1.6rem;font-weight:700;color:var(--text-mid);margin-bottom:8px}
+.loading-state{text-align:center;padding:48px;color:var(--text-light)}
+
+/* MONTH TOTALS */
+.month-section{margin-top:48px}
+.month-h{font-family:'Cormorant Garamond',serif;font-size:1.4rem;font-weight:700;margin-bottom:20px;color:var(--text)}
+.month-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:2px}
+.month-card{background:var(--white);border:1px solid rgba(201,152,26,.12);padding:24px 20px}
+.month-name{font-size:.72rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--text-light);margin-bottom:8px}
+.month-rev{font-family:'Cormorant Garamond',serif;font-size:1.8rem;font-weight:700;color:var(--gold-deep)}
+.month-count{font-size:.78rem;color:var(--text-light);margin-top:4px}
+
+@media(max-width:768px){
+  .dash-body{padding:28px 20px 60px}
+  .dash-nav{padding:0 20px}
+  .summary-grid{grid-template-columns:1fr 1fr}
+  .filters{gap:8px}
+}
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div class="login-wrap" id="login-wrap">
+  <div class="login-box">
+    <div class="login-logo">
+      <img src="logo.png" alt="Crown Media Group">
+      <span>Crown Media Group</span>
+    </div>
+    <h1>Orders Dashboard</h1>
+    <p>For King &amp; CPA use only. Enter your admin token to continue.</p>
+    <label for="token-input">Admin Token</label>
+    <input type="password" id="token-input" placeholder="Enter token..." onkeydown="if(event.key==='Enter')login()">
+    <button type="button" class="login-btn" onclick="login()">Access Dashboard</button>
+    <p class="login-error" id="login-error">Invalid token. Try again.</p>
+  </div>
+</div>
+
+<!-- DASHBOARD -->
+<div class="dashboard" id="dashboard">
+  <nav class="dash-nav">
+    <a href="/" class="dash-logo">
+      <img src="logo.png" alt="Crown Media Group">
+      <span>Crown Media Group</span>
+    </a>
+    <div class="dash-nav-right">
+      <span class="dash-tag">Orders Dashboard</span>
+      <button type="button" class="logout-btn" onclick="logout()">Log Out</button>
+    </div>
+  </nav>
+
+  <div class="dash-body">
+
+    <!-- SUMMARY -->
+    <div class="summary-grid" id="summary-grid">
+      <div class="sum-card"><div class="sum-label">Total Revenue</div><div class="sum-value gold" id="sum-revenue">--</div><div class="sum-sub">Completed orders</div></div>
+      <div class="sum-card"><div class="sum-label">Completed Orders</div><div class="sum-value green" id="sum-completed">--</div><div class="sum-sub">Successfully delivered</div></div>
+      <div class="sum-card"><div class="sum-label">Pending</div><div class="sum-value amber" id="sum-pending">--</div><div class="sum-sub">In progress</div></div>
+      <div class="sum-card"><div class="sum-label">Total Orders</div><div class="sum-value" id="sum-total">--</div><div class="sum-sub">All time</div></div>
+    </div>
+
+    <!-- FILTERS -->
+    <div class="filters">
+      <button type="button" class="filter-btn active" onclick="setFilter('all',this)">All</button>
+      <button type="button" class="filter-btn" onclick="setFilter('completed',this)">Completed</button>
+      <button type="button" class="filter-btn" onclick="setFilter('pending',this)">Pending</button>
+      <button type="button" class="filter-btn" onclick="setFilter('failed',this)">Failed</button>
+      <button type="button" class="refresh-btn" onclick="loadOrders()">Refresh</button>
+      <button type="button" class="export-btn" onclick="exportCSV()">Export CSV</button>
+    </div>
+
+    <!-- TABLE -->
+    <div class="table-wrap">
+      <table class="orders-table">
+        <thead>
+          <tr>
+            <th>Date</th>
+            <th>Business</th>
+            <th>Email</th>
+            <th>Product</th>
+            <th>Amount</th>
+            <th>Status</th>
+            <th>Stripe Session</th>
+          </tr>
+        </thead>
+        <tbody id="orders-body">
+          <tr><td colspan="7" class="loading-state">Loading orders...</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- MONTHLY BREAKDOWN -->
+    <div class="month-section">
+      <h2 class="month-h">Monthly Revenue</h2>
+      <div class="month-grid" id="month-grid"></div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+let allOrders = [];
+let currentFilter = 'all';
+let adminToken = '';
+
+// ── Login ─────────────────────────────────────────────────────────────────────
+function login() {
+  const t = document.getElementById('token-input').value.trim();
+  if (!t) return;
+  adminToken = t;
+  loadOrders();
+}
+
+function logout() {
+  adminToken = '';
+  allOrders = [];
+  document.getElementById('token-input').value = '';
+  document.getElementById('login-error').style.display = 'none';
+  document.getElementById('login-wrap').style.display  = 'flex';
+  document.getElementById('dashboard').style.display   = 'none';
+}
+
+// ── Load ──────────────────────────────────────────────────────────────────────
+async function loadOrders() {
+  document.getElementById('orders-body').innerHTML = '<tr><td colspan="7" class="loading-state">Loading orders...</td></tr>';
+
+  const res = await fetch('/api/admin-orders', {
+    headers: { 'x-admin-token': adminToken },
+  }).catch(() => null);
+
+  if (!res || res.status === 401) {
+    document.getElementById('login-error').style.display = 'block';
+    return;
+  }
+
+  const data = await res.json();
+  allOrders = data.orders || [];
+  renderSummary(data.summary || {});
+  renderTable(allOrders);
+  renderMonthly(allOrders);
+
+  document.getElementById('login-wrap').style.display  = 'none';
+  document.getElementById('dashboard').style.display   = 'block';
+}
+
+// ── Summary ───────────────────────────────────────────────────────────────────
+function renderSummary(s) {
+  document.getElementById('sum-revenue').textContent   = '$' + ((s.total_revenue || 0) / 100).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  document.getElementById('sum-completed').textContent = s.completed_orders || 0;
+  document.getElementById('sum-pending').textContent   = s.pending_orders   || 0;
+  document.getElementById('sum-total').textContent     = s.total_orders     || 0;
+}
+
+// ── Table ─────────────────────────────────────────────────────────────────────
+function setFilter(f, btn) {
+  currentFilter = f;
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderTable(allOrders);
+}
+
+function renderTable(orders) {
+  const filtered = currentFilter === 'all' ? orders : orders.filter(o => o.status === currentFilter);
+  const tbody = document.getElementById('orders-body');
+
+  if (!filtered.length) {
+    tbody.innerHTML = '<tr><td colspan="7" class="empty-state"><h3>No orders yet</h3><p>Orders will appear here after first payment.</p></td></tr>';
+    return;
+  }
+
+  tbody.innerHTML = filtered.map(o => {
+    const date    = new Date(o.created_at).toLocaleDateString('en-US', { month:'short', day:'numeric', year:'numeric' });
+    const amount  = '$' + ((o.amount || 0) / 100).toFixed(2);
+    const product = o.product_type === 'logo-basic' ? 'AI Logo' : o.product_type === 'banner-pack' ? 'AI Banners' : o.product_type || '--';
+    const badge   = o.status === 'completed' ? 'badge-completed' : o.status === 'pending' ? 'badge-pending' : 'badge-failed';
+    const session = o.stripe_session_id ? '<span title="' + o.stripe_session_id + '">' + o.stripe_session_id.slice(-12) + '</span>' : '--';
+    return `<tr>
+      <td class="date-cell">${date}</td>
+      <td><strong>${o.business_name || '--'}</strong></td>
+      <td class="email-cell">${o.email || '--'}</td>
+      <td><span class="product-pill">${product}</span></td>
+      <td class="amount-cell">${amount}</td>
+      <td><span class="badge ${badge}">${o.status}</span></td>
+      <td class="date-cell">${session}</td>
+    </tr>`;
+  }).join('');
+}
+
+// ── Monthly breakdown ─────────────────────────────────────────────────────────
+function renderMonthly(orders) {
+  const byMonth = {};
+  orders.filter(o => o.status === 'completed').forEach(o => {
+    const d   = new Date(o.created_at);
+    const key = d.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+    if (!byMonth[key]) byMonth[key] = { rev: 0, count: 0 };
+    byMonth[key].rev   += (o.amount || 0);
+    byMonth[key].count += 1;
+  });
+
+  const grid = document.getElementById('month-grid');
+  const entries = Object.entries(byMonth);
+  if (!entries.length) {
+    grid.innerHTML = '<div class="month-card"><div class="month-name">No revenue yet</div><div class="month-rev">$0.00</div></div>';
+    return;
+  }
+  grid.innerHTML = entries.map(([month, d]) =>
+    `<div class="month-card">
+      <div class="month-name">${month}</div>
+      <div class="month-rev">$${(d.rev / 100).toLocaleString('en-US', { minimumFractionDigits: 2 })}</div>
+      <div class="month-count">${d.count} order${d.count !== 1 ? 's' : ''}</div>
+    </div>`
+  ).join('');
+}
+
+// ── CSV Export ────────────────────────────────────────────────────────────────
+function exportCSV() {
+  const rows = [['Date','Business','Email','Product','Amount (USD)','Status','Stripe Session']];
+  allOrders.forEach(o => {
+    rows.push([
+      new Date(o.created_at).toLocaleDateString('en-US'),
+      o.business_name || '',
+      o.email || '',
+      o.product_type || '',
+      ((o.amount || 0) / 100).toFixed(2),
+      o.status || '',
+      o.stripe_session_id || '',
+    ]);
+  });
+  const csv  = rows.map(r => r.map(v => '"' + String(v).replace(/"/g, '""') + '"').join(',')).join('\n');
+  const blob = new Blob([csv], { type: 'text/csv' });
+  const a    = document.createElement('a');
+  a.href     = URL.createObjectURL(blob);
+  a.download = 'crown-media-orders-' + new Date().toISOString().slice(0, 10) + '.csv';
+  a.click();
+}
+</script>
+</body>
+</html>
