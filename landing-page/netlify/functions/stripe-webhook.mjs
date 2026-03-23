@@ -19,12 +19,10 @@ const FORM_ENTRY = {
 };
 
 // ── Website intake form pre-fill ───────────────────────────────────────────────
-// TODO: Create Google Form for website intake, then replace the placeholders below
-// Steps: 3-dot menu → "Get pre-filled link" → fill each field → "Get link" → copy entry IDs
 const WEBSITE_FORM_ID    = '1IFzJoYN0ogTpPhxoQ4xjcDDkJ6PGPwfiBOitFTUAuXU';
 const WEBSITE_FORM_ENTRY = {
-  business: '1481453274',  // "Business Name"
-  email:    '208138928',   // "Email Address"
+  business: '1481453274',  // "What's your business name?"
+  email:    '208138928',   // "Your email address"
   orderRef: '1584328223',  // "Order Reference"
 };
 
@@ -40,11 +38,9 @@ function buildFormUrl(businessName, email, sessionId, productId) {
 
 function buildWebsiteFormUrl(businessName, email, sessionId) {
   let url = `https://docs.google.com/forms/d/${WEBSITE_FORM_ID}/viewform?embedded=true`;
-  if (WEBSITE_FORM_ENTRY.business !== 'ENTRY_BUSINESS_ID') {
-    url += `&entry.${WEBSITE_FORM_ENTRY.business}=${encodeURIComponent(businessName)}`;
-    url += `&entry.${WEBSITE_FORM_ENTRY.email}=${encodeURIComponent(email)}`;
-    url += `&entry.${WEBSITE_FORM_ENTRY.orderRef}=${encodeURIComponent(sessionId)}`;
-  }
+  url += `&entry.${WEBSITE_FORM_ENTRY.business}=${encodeURIComponent(businessName)}`;
+  url += `&entry.${WEBSITE_FORM_ENTRY.email}=${encodeURIComponent(email)}`;
+  url += `&entry.${WEBSITE_FORM_ENTRY.orderRef}=${encodeURIComponent(sessionId)}`;
   return url;
 }
 
@@ -133,7 +129,7 @@ export default async (req) => {
           html: `<div style="font-family:sans-serif;max-width:560px;margin:0 auto;padding:40px 20px;background:#0d0d14;color:#e8e8f0">
             <img src="https://crownmediagroup.co/logo.png" alt="Crown Media Group" style="height:40px;margin-bottom:32px">
             <h1 style="font-size:24px;font-weight:800;margin-bottom:12px">Payment confirmed${businessName ? `, ${businessName}` : ''}.</h1>
-            <p style="color:#8888aa;margin-bottom:28px;line-height:1.7">One last step — fill out your website brief so we can build your custom site. Takes 3 minutes. Your site will be live within 10 minutes of submitting.</p>
+            <p style="color:#8888aa;margin-bottom:28px;line-height:1.7">One last step — fill out your website brief so we can build your custom site. Takes 3 minutes. Your site will be live within 24 hours of submitting.</p>
             <a href="${websiteFormUrl}" style="display:inline-block;background:#c9a84c;color:#000;font-weight:700;padding:14px 28px;border-radius:8px;text-decoration:none;margin-bottom:32px">Fill Out Website Brief</a>
             <p style="color:#555;font-size:13px">Your website will be live and delivered to this email within minutes of submitting the brief. Questions? Reply to this email.</p>
             <p style="color:#333;font-size:12px;margin-top:24px">Crown Media Group &middot; Columbia, SC &middot; crownmediagroup.co</p>

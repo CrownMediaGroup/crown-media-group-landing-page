@@ -5,7 +5,7 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 const PRODUCTS = {
   'logo-basic':    { name: 'AI Logo Design',  amount: 9700,  desc: '4 logo concepts, SVG vector + PNG, transparent background, 4 style variations' },
   'banner-pack':   { name: 'AI Banner Set',   amount: 9700,  desc: 'Full banner set: Facebook, Instagram, LinkedIn, Twitter — all platform sizes' },
-  'website-basic': { name: 'AI Website',      amount: 19700, desc: '1-page service business website — deployed live to your own URL in under 10 minutes' },
+  'website-basic': { name: 'AI Website',      amount: 19700, desc: '1-page service business website — deployed live to your own URL within 24 hours' },
 };
 
 export default async (req) => {

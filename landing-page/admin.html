@@ -145,6 +145,7 @@ body{background:var(--cream);color:var(--text);font-family:'Inter',sans-serif;mi
       <button type="button" class="filter-btn" onclick="setFilter('completed',this)">Completed</button>
       <button type="button" class="filter-btn" onclick="setFilter('pending',this)">Pending</button>
       <button type="button" class="filter-btn" onclick="setFilter('failed',this)">Failed</button>
+      <button type="button" class="filter-btn" onclick="setFilter('websites',this)">Websites</button>
       <button type="button" class="refresh-btn" onclick="loadOrders()">Refresh</button>
       <button type="button" class="export-btn" onclick="exportCSV()">Export CSV</button>
     </div>
@@ -161,10 +162,11 @@ body{background:var(--cream);color:var(--text);font-family:'Inter',sans-serif;mi
             <th>Amount</th>
             <th>Status</th>
             <th>Stripe Session</th>
+            <th>Live Site</th>
           </tr>
         </thead>
         <tbody id="orders-body">
-          <tr><td colspan="7" class="loading-state">Loading orders...</td></tr>
+          <tr><td colspan="8" class="loading-state">Loading orders...</td></tr>
         </tbody>
       </table>
     </div>
@@ -202,7 +204,7 @@ function logout() {
 
 // ── Load ──────────────────────────────────────────────────────────────────────
 async function loadOrders() {
-  document.getElementById('orders-body').innerHTML = '<tr><td colspan="7" class="loading-state">Loading orders...</td></tr>';
+  document.getElementById('orders-body').innerHTML = '<tr><td colspan="8" class="loading-state">Loading orders...</td></tr>';
 
   const res = await fetch('/api/admin-orders', {
     headers: { 'x-admin-token': adminToken },
@@ -240,20 +242,23 @@ function setFilter(f, btn) {
 }
 
 function renderTable(orders) {
-  const filtered = currentFilter === 'all' ? orders : orders.filter(o => o.status === currentFilter);
+  const filtered = currentFilter === 'all'      ? orders
+                 : currentFilter === 'websites'  ? orders.filter(o => o.product_type === 'website-basic')
+                 : orders.filter(o => o.status === currentFilter);
   const tbody = document.getElementById('orders-body');
 
   if (!filtered.length) {
-    tbody.innerHTML = '<tr><td colspan="7" class="empty-state"><h3>No orders yet</h3><p>Orders will appear here after first payment.</p></td></tr>';
+    tbody.innerHTML = '<tr><td colspan="8" class="empty-state"><h3>No orders yet</h3><p>Orders will appear here after first payment.</p></td></tr>';
     return;
   }
 
   tbody.innerHTML = filtered.map(o => {
     const date    = new Date(o.created_at).toLocaleDateString('en-US', { month:'short', day:'numeric', year:'numeric' });
     const amount  = '$' + ((o.amount || 0) / 100).toFixed(2);
-    const product = o.product_type === 'logo-basic' ? 'AI Logo' : o.product_type === 'banner-pack' ? 'AI Banners' : o.product_type || '--';
+    const product = o.product_type === 'logo-basic' ? 'AI Logo' : o.product_type === 'banner-pack' ? 'AI Banners' : o.product_type === 'website-basic' ? 'AI Website' : o.product_type || '--';
     const badge   = o.status === 'completed' ? 'badge-completed' : o.status === 'pending' ? 'badge-pending' : 'badge-failed';
     const session = o.stripe_session_id ? '<span title="' + o.stripe_session_id + '">' + o.stripe_session_id.slice(-12) + '</span>' : '--';
+    const liveUrl = o.website_url ? `<a href="${o.website_url}" target="_blank" rel="noopener" style="color:var(--gold-deep);font-size:.8rem;font-weight:600">View Site</a>` : '--';
     return `<tr>
       <td class="date-cell">${date}</td>
       <td><strong>${o.business_name || '--'}</strong></td>
@@ -262,6 +267,7 @@ function renderTable(orders) {
       <td class="amount-cell">${amount}</td>
       <td><span class="badge ${badge}">${o.status}</span></td>
       <td class="date-cell">${session}</td>
+      <td>${liveUrl}</td>
     </tr>`;
   }).join('');
 }
@@ -294,7 +300,7 @@ function renderMonthly(orders) {
 
 // ── CSV Export ────────────────────────────────────────────────────────────────
 function exportCSV() {
-  const rows = [['Date','Business','Email','Product','Amount (USD)','Status','Stripe Session']];
+  const rows = [['Date','Business','Email','Product','Amount (USD)','Status','Stripe Session','Live Site URL']];
   allOrders.forEach(o => {
     rows.push([
       new Date(o.created_at).toLocaleDateString('en-US'),
@@ -304,6 +310,7 @@ function exportCSV() {
       ((o.amount || 0) / 100).toFixed(2),
       o.status || '',
       o.stripe_session_id || '',
+      o.website_url || '',
     ]);
   });
   const csv  = rows.map(r => r.map(v => '"' + String(v).replace(/"/g, '""') + '"').join(',')).join('\n');

@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>AI Logo, Banner & Website Generator — Crown Media Group</title>
-<meta name="description" content="Generate professional AI logos and social media banners instantly. PNG + SVG vector files. Powered by Crown Media Group.">
+<meta name="description" content="Generate professional AI logos, banners, and websites instantly. PNG + SVG vector files. Live websites in 24 hours. Powered by Crown Media Group.">
 <meta name="robots" content="index, follow">
 <link rel="canonical" href="https://crownmediagroup.co/ai-tools.html">
 <link rel="icon" type="image/png" href="logo.png">
@@ -49,7 +49,7 @@ nav.scrolled{box-shadow:0 4px 30px rgba(201,152,26,.08)}
 .hamburger span{width:24px;height:2px;background:var(--text);border-radius:2px}
 
 /* HERO */
-.hero{padding:160px 64px 100px;text-align:center;background:var(--white);border-bottom:1px solid var(--border-soft)}
+.hero{padding:160px 64px 100px;text-align:center;background:linear-gradient(180deg,#fff 0%,var(--cream) 100%);border-bottom:none}
 .hero-eyebrow{display:inline-flex;align-items:center;gap:10px;background:var(--gold-pale);color:var(--gold-deep);font-size:.72rem;font-weight:700;letter-spacing:.18em;text-transform:uppercase;padding:8px 20px;border-radius:2px;border:1px solid var(--border);margin-bottom:32px}
 .eyebrow-dot{width:6px;height:6px;border-radius:50%;background:var(--gold);flex-shrink:0}
 .hero h1{font-family:'Cormorant Garamond',serif;font-size:clamp(3rem,6vw,5.5rem);font-weight:700;line-height:1.05;color:var(--text);margin-bottom:24px;letter-spacing:-.02em}
@@ -60,10 +60,10 @@ nav.scrolled{box-shadow:0 4px 30px rgba(201,152,26,.08)}
 .label{font-size:.7rem;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:var(--gold);display:block;margin-bottom:16px}
 
 /* TABS */
-.tab-bar{background:var(--warm);padding:24px 64px;display:flex;align-items:center;gap:2px;border-bottom:1px solid var(--border-soft)}
-.tab-btn{padding:10px 32px;background:transparent;border:none;font-family:'Inter',sans-serif;font-size:.82rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--text-mid);cursor:pointer;transition:all .2s;border-bottom:2px solid transparent}
-.tab-btn.active{color:var(--gold);border-bottom-color:var(--gold)}
-.tab-btn:hover:not(.active){color:var(--text)}
+.tab-bar{background:var(--royal);padding:0 64px;display:flex;align-items:center;gap:4px;border-bottom:1px solid rgba(201,152,26,.15)}
+.tab-btn{padding:18px 32px;background:transparent;border:none;font-family:'Inter',sans-serif;font-size:.82rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.4);cursor:pointer;transition:all .2s;border-bottom:2px solid transparent;position:relative}
+.tab-btn.active{color:var(--gold-light);border-bottom-color:var(--gold)}
+.tab-btn:hover:not(.active){color:rgba(255,255,255,.7)}
 
 /* PRODUCTS */
 .products-section{background:var(--cream);padding:100px 64px}
@@ -71,11 +71,21 @@ nav.scrolled{box-shadow:0 4px 30px rgba(201,152,26,.08)}
 .section-header{text-align:center;margin-bottom:64px}
 .section-header h2{font-family:'Cormorant Garamond',serif;font-size:clamp(2.2rem,4vw,3.5rem);font-weight:700;margin-bottom:16px;line-height:1.1}
 .section-header p{color:var(--text-mid);font-size:1rem;max-width:520px;margin:0 auto;line-height:1.7}
-.product-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(340px,1fr));gap:2px;max-width:760px;margin:0 auto}
+.product-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:2px;max-width:1100px;margin:0 auto}
 .product-card{background:var(--white);padding:52px 44px;border:1px solid rgba(201,152,26,.15);position:relative;transition:background .3s,transform .3s}
 .product-card:hover{background:var(--warm);transform:translateY(-4px)}
 .product-card.featured{border-color:var(--gold)}
 .product-card.featured::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--gold-deep),var(--gold-light),var(--gold-deep))}
+.product-card.premium{background:var(--royal);border-color:var(--gold)}
+.product-card.premium:hover{background:#222250;transform:translateY(-4px)}
+.product-card.premium .card-tier{color:var(--gold-light)}
+.product-card.premium .card-name{color:var(--white)}
+.product-card.premium .card-desc{color:rgba(255,255,255,.6)}
+.product-card.premium .card-price{color:var(--white)}
+.product-card.premium .card-price-note{color:rgba(255,255,255,.35)}
+.product-card.premium .card-divider{background:rgba(201,152,26,.2)}
+.product-card.premium .card-features li{color:rgba(255,255,255,.65)}
+.product-card.premium .card-features li::before{color:var(--gold-light)}
 .card-tier{font-size:.7rem;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:var(--gold);margin-bottom:20px}
 .card-name{font-family:'Cormorant Garamond',serif;font-size:1.8rem;font-weight:700;margin-bottom:12px;line-height:1.1}
 .card-desc{color:var(--text-mid);font-size:.9rem;line-height:1.65;margin-bottom:28px}
@@ -205,9 +215,9 @@ nav.scrolled{box-shadow:0 4px 30px rgba(201,152,26,.08)}
 .contact-method-cta .contact-method-icon{color:var(--gold-light)}
 
 /* PROOF BAR */
-.proof-bar{background:var(--royal);padding:20px 64px}
+.proof-bar{background:var(--royal);padding:20px 64px;border-top:1px solid rgba(201,152,26,.25);border-bottom:1px solid rgba(201,152,26,.15)}
 .proof-inner{max-width:1200px;margin:0 auto;display:flex;align-items:center;justify-content:center;gap:40px;flex-wrap:wrap}
-.proof-item{font-size:.74rem;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:rgba(255,255,255,.6);display:flex;align-items:center;gap:8px}
+.proof-item{font-size:.74rem;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:rgba(255,255,255,.75);display:flex;align-items:center;gap:8px}
 .proof-item .star{display:flex}
 
 /* GUARANTEE STRIP */
@@ -261,7 +271,8 @@ nav.scrolled{box-shadow:0 4px 30px rgba(201,152,26,.08)}
   .hero{padding:120px 28px 80px}
   .proof-bar{padding:16px 28px}
   .proof-inner{gap:20px}
-  .tab-bar{padding:20px 28px}
+  .tab-bar{padding:0 28px}
+  .tab-btn{padding:16px 20px;font-size:.75rem}
   .products-section{padding:72px 28px}
   .showcase{padding:80px 28px}
   .ba-card{grid-template-columns:1fr}
@@ -317,11 +328,12 @@ nav.scrolled{box-shadow:0 4px 30px rgba(201,152,26,.08)}
 <!-- HERO -->
 <div class="hero" id="main-hero">
   <div class="hero-eyebrow"><span class="eyebrow-dot"></span>AI-Powered Design Tools<span class="eyebrow-dot"></span></div>
-  <h1>Professional <em>Logos & Banners</em><br>Built by AI. Delivered in minutes.</h1>
+  <h1>Professional <em>Logos</em>, <span style="color:var(--text)">Banners</span><br>&amp; <em>Websites.</em> Built by AI.</h1>
   <p class="hero-sub">Real vector files, custom-built for your brand. No design experience needed. Files you own forever.</p>
   <div class="hero-ctas">
-    <button type="button" class="btn-royal" onclick="document.getElementById('products-section').scrollIntoView({behavior:'smooth'})">Get My Logo &mdash; $97</button>
+    <button type="button" class="btn-royal" onclick="switchTab('logos');document.getElementById('products-section').scrollIntoView({behavior:'smooth'})">Get My Logo &mdash; $97</button>
     <button type="button" class="btn-outline" onclick="switchTab('banners');document.getElementById('products-section').scrollIntoView({behavior:'smooth'})">Get My Banners &mdash; $97</button>
+    <button type="button" class="btn-gold-large" onclick="switchTab('websites');document.getElementById('products-section').scrollIntoView({behavior:'smooth'})">Get My Website &mdash; $197</button>
   </div>
 </div>
 
@@ -688,11 +700,11 @@ nav.scrolled{box-shadow:0 4px 30px rgba(201,152,26,.08)}
       <div class="section-header reveal">
         <span class="label">AI Website Design</span>
         <div class="divider"></div>
-        <h2>A real website,<br>live in 10 minutes.</h2>
-        <p>One-page service business site deployed to its own URL. Mobile responsive. Built and live before you finish your coffee.</p>
+        <h2>A real website,<br>live in 24 hours.</h2>
+        <p>One-page service business site deployed to its own URL. Mobile responsive. Fill out a 3-minute brief and your site is live within 24 hours.</p>
       </div>
       <div class="product-grid reveal">
-        <div class="product-card featured">
+        <div class="product-card featured premium">
           <div class="card-tier">Most Popular &mdash; New</div>
           <div class="card-name">AI Website</div>
           <div class="card-desc">Complete 1-page business landing page &mdash; hero, services, about, contact. Deployed live to your own URL. No monthly hosting fee, no setup required.</div>
@@ -704,7 +716,7 @@ nav.scrolled{box-shadow:0 4px 30px rgba(201,152,26,.08)}
             <li>Hero, Services, About &amp; Contact sections</li>
             <li>Your brand colors applied automatically</li>
             <li>Mobile responsive out of the box</li>
-            <li>Deployed live in under 10 minutes</li>
+            <li>Deployed live within 24 hours</li>
             <li>Crown Media Group credit in footer</li>
           </ul>
           <button type="button" class="btn-gold-large btn-full" onclick="openModal('website-basic')">Get My Website</button>
@@ -750,7 +762,7 @@ nav.scrolled{box-shadow:0 4px 30px rgba(201,152,26,.08)}
     <div id="view-website-brief" style="display:none">
       <div class="status-icon-lg">&#10003;</div>
       <h2 class="status-h">Payment confirmed.</h2>
-      <p class="status-p">Fill out your website brief below &mdash; takes 3 minutes. Your site will be live within 10 minutes of submitting.</p>
+      <p class="status-p">Fill out your website brief below &mdash; takes 3 minutes. Your site will be live within 24 hours of submitting.</p>
       <p style="font-size:.8rem;color:var(--text-mid);margin-bottom:32px">A link was also sent to your email in case you need to return later.</p>
       <div style="width:100%;max-width:640px;margin:0 auto">
         <iframe id="website-brief-iframe" src="" width="100%" height="1100" frameborder="0" marginheight="0" marginwidth="0" style="border:1px solid var(--border);border-radius:4px;background:#fff">Loading&hellip;</iframe>
@@ -973,11 +985,9 @@ function buildFormUrl(businessName, email, sessionId, productId) {
 
 function buildWebsiteFormUrl(businessName, email, sessionId) {
   let url = 'https://docs.google.com/forms/d/' + WEBSITE_FORM_ID + '/viewform?embedded=true';
-  if (WEBSITE_FORM_ENTRY.business !== 'ENTRY_BUSINESS_ID') {
-    url += '&entry.' + WEBSITE_FORM_ENTRY.business + '=' + encodeURIComponent(businessName);
-    url += '&entry.' + WEBSITE_FORM_ENTRY.email    + '=' + encodeURIComponent(email);
-    url += '&entry.' + WEBSITE_FORM_ENTRY.orderRef + '=' + encodeURIComponent(sessionId);
-  }
+  url += '&entry.' + WEBSITE_FORM_ENTRY.business + '=' + encodeURIComponent(businessName);
+  url += '&entry.' + WEBSITE_FORM_ENTRY.email    + '=' + encodeURIComponent(email);
+  url += '&entry.' + WEBSITE_FORM_ENTRY.orderRef + '=' + encodeURIComponent(sessionId);
   return url;
 }
 
@@ -1004,8 +1014,10 @@ if (params.get('success') === '1' && params.get('session_id')) {
   const email        = sessionStorage.getItem('order_email') || '';
   const productId    = sessionStorage.getItem('order_product') || 'logo-basic';
   ['main-hero','main-tabs'].forEach(id => { document.getElementById(id).style.display = 'none'; });
-  document.querySelector('.showcase').style.display        = 'none';
+  document.querySelector('.showcase').style.display         = 'none';
   document.querySelector('.products-section').style.display = 'none';
+  document.querySelector('.proof-bar').style.display        = 'none';
+  document.querySelector('.guarantee-strip').style.display  = 'none';
   document.getElementById('status-section').classList.add('active');
   if (productId === 'logo-basic') {
     showBriefForm(sessionId, businessName, email, productId);
@@ -1022,8 +1034,10 @@ if (params.get('success') === '1' && params.get('session_id')) {
 if (params.get('order_id')) {
   const orderId = params.get('order_id');
   ['main-hero','main-tabs'].forEach(id => { document.getElementById(id).style.display = 'none'; });
-  document.querySelector('.showcase').style.display        = 'none';
+  document.querySelector('.showcase').style.display         = 'none';
   document.querySelector('.products-section').style.display = 'none';
+  document.querySelector('.proof-bar').style.display        = 'none';
+  document.querySelector('.guarantee-strip').style.display  = 'none';
   document.getElementById('status-section').classList.add('active');
   document.getElementById('view-brief').style.display      = 'none';
   document.getElementById('view-processing').style.display = 'block';

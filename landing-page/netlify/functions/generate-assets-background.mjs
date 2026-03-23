@@ -155,6 +155,22 @@ export default async (req) => {
 
     // Send delivery email
     const deliveryUrl = `${process.env.URL || 'https://crownmediagroup.co'}/ai-tools.html?order_id=${orderId}`;
+    const productLabel = order.product_type.startsWith('logo') ? 'AI Logo' : 'AI Banner Set';
+    const amountDollars = ((order.amount || 0) / 100).toFixed(2);
+    resend.emails.send({
+      from: 'Crown Media Group <king@crownmediagroup.co>',
+      to: 'king@crownmediagroup.co',
+      subject: `Delivered: ${productLabel} — ${order.business_name}`,
+      html: `<div style="font-family:sans-serif;max-width:480px;padding:32px;background:#0d0d14;color:#e8e8f0">
+        <h2 style="color:#C9981A;margin-bottom:16px">Assets Delivered</h2>
+        <p><strong>Product:</strong> ${productLabel}</p>
+        <p><strong>Business:</strong> ${order.business_name}</p>
+        <p><strong>Customer:</strong> ${order.email}</p>
+        <p><strong>Assets:</strong> ${assets.length} files generated</p>
+        <p style="color:#555;font-size:13px;margin-top:24px">Delivery email sent to client. Check <a href="https://crownmediagroup.co/admin" style="color:#C9981A">admin dashboard</a>.</p>
+      </div>`,
+    }).catch(console.error);
+
     await resend.emails.send({
       from: 'Crown Media Group <king@crownmediagroup.co>',
       to: order.email,
