@@ -21,11 +21,11 @@ const FORM_ENTRY = {
 // ── Website intake form pre-fill ───────────────────────────────────────────────
 // TODO: Create Google Form for website intake, then replace the placeholders below
 // Steps: 3-dot menu → "Get pre-filled link" → fill each field → "Get link" → copy entry IDs
-const WEBSITE_FORM_ID    = 'YOUR_WEBSITE_FORM_ID_HERE';
+const WEBSITE_FORM_ID    = '1IFzJoYN0ogTpPhxoQ4xjcDDkJ6PGPwfiBOitFTUAuXU';
 const WEBSITE_FORM_ENTRY = {
-  business: 'ENTRY_BUSINESS_ID',  // "Business Name"
-  email:    'ENTRY_EMAIL_ID',     // "Email Address"
-  orderRef: 'ENTRY_ORDER_REF_ID', // "Order Reference"
+  business: '1481453274',  // "Business Name"
+  email:    '208138928',   // "Email Address"
+  orderRef: '1584328223',  // "Order Reference"
 };
 
 function buildFormUrl(businessName, email, sessionId, productId) {
