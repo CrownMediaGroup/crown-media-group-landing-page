@@ -1,0 +1,995 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Crown Media Group — Government & Faith Contracts Guide</title>
+<style>
+  :root {
+    --gold: #C9A84C;
+    --gold-light: #E8C96A;
+    --gold-dark: #A07830;
+    --black: #0A0A0A;
+    --dark: #111111;
+    --card: #1A1A1A;
+    --border: #2A2A2A;
+    --text: #E8E8E8;
+    --muted: #888888;
+    --green: #2ECC71;
+    --red: #E74C3C;
+    --blue: #3498DB;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: var(--black); color: var(--text); font-family: 'Segoe UI', system-ui, sans-serif; line-height: 1.6; }
+
+  /* HEADER */
+  .header { background: linear-gradient(135deg, #0A0A0A 0%, #1A1400 50%, #0A0A0A 100%); border-bottom: 1px solid var(--gold-dark); padding: 40px 24px; text-align: center; position: relative; overflow: hidden; }
+  .header::before { content: ''; position: absolute; inset: 0; background: radial-gradient(ellipse at 50% 0%, rgba(201,168,76,0.08) 0%, transparent 70%); }
+  .header-crown { font-size: 32px; margin-bottom: 8px; }
+  .header h1 { font-size: clamp(20px, 4vw, 32px); font-weight: 800; color: var(--gold); letter-spacing: 1px; position: relative; }
+  .header h2 { font-size: 14px; color: var(--muted); font-weight: 400; margin-top: 6px; letter-spacing: 2px; text-transform: uppercase; position: relative; }
+  .header-verse { font-style: italic; color: var(--gold-dark); font-size: 13px; margin-top: 16px; max-width: 600px; margin-left: auto; margin-right: auto; position: relative; }
+
+  /* NAV TABS */
+  .nav { display: flex; overflow-x: auto; background: var(--dark); border-bottom: 1px solid var(--border); padding: 0 16px; gap: 4px; scrollbar-width: none; }
+  .nav::-webkit-scrollbar { display: none; }
+  .nav-tab { padding: 14px 20px; font-size: 13px; font-weight: 600; cursor: pointer; border-bottom: 3px solid transparent; color: var(--muted); white-space: nowrap; transition: all 0.2s; user-select: none; }
+  .nav-tab:hover { color: var(--text); }
+  .nav-tab.active { color: var(--gold); border-bottom-color: var(--gold); }
+
+  /* DASHBOARD */
+  .dashboard { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; padding: 20px; }
+  .stat-card { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 16px; text-align: center; }
+  .stat-card .stat-value { font-size: 24px; font-weight: 800; color: var(--gold); }
+  .stat-card .stat-label { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; margin-top: 4px; }
+  .progress-bar-wrap { padding: 0 20px 20px; }
+  .progress-label { display: flex; justify-content: space-between; font-size: 12px; color: var(--muted); margin-bottom: 6px; }
+  .progress-bar { background: var(--border); border-radius: 99px; height: 8px; overflow: hidden; }
+  .progress-fill { background: linear-gradient(90deg, var(--gold-dark), var(--gold)); height: 100%; border-radius: 99px; transition: width 0.5s ease; }
+
+  /* SECTIONS */
+  .section { display: none; padding: 20px; }
+  .section.active { display: block; }
+
+  /* LEVEL CARDS */
+  .level { margin-bottom: 28px; }
+  .level-header { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
+  .level-badge { padding: 4px 14px; border-radius: 99px; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; }
+  .badge-now { background: rgba(46,204,113,0.15); color: var(--green); border: 1px solid rgba(46,204,113,0.3); }
+  .badge-easy { background: rgba(52,152,219,0.15); color: var(--blue); border: 1px solid rgba(52,152,219,0.3); }
+  .badge-medium { background: rgba(201,168,76,0.15); color: var(--gold); border: 1px solid rgba(201,168,76,0.3); }
+  .badge-hard { background: rgba(231,76,60,0.2); color: #FF6B6B; border: 1px solid rgba(231,76,60,0.3); }
+  .badge-longplay { background: rgba(155,89,182,0.15); color: #BB8FCE; border: 1px solid rgba(155,89,182,0.3); }
+  .level-title { font-size: 18px; font-weight: 700; }
+  .level-sub { font-size: 12px; color: var(--muted); margin-top: 2px; }
+  .level-revenue { font-size: 13px; font-weight: 600; color: var(--gold); margin-left: auto; }
+
+  /* TASK CARDS */
+  .task-grid { display: grid; gap: 10px; }
+  .task-card { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 16px; transition: border-color 0.2s; cursor: pointer; }
+  .task-card:hover { border-color: var(--gold-dark); }
+  .task-card.done { border-color: rgba(46,204,113,0.3); background: rgba(46,204,113,0.03); }
+  .task-card.done .task-title { text-decoration: line-through; color: var(--muted); }
+  .task-top { display: flex; align-items: flex-start; gap: 12px; }
+  .task-check { width: 22px; height: 22px; border-radius: 6px; border: 2px solid var(--border); flex-shrink: 0; display: flex; align-items: center; justify-content: center; margin-top: 1px; transition: all 0.2s; }
+  .task-card.done .task-check { background: var(--green); border-color: var(--green); }
+  .task-check-icon { color: white; font-size: 13px; display: none; }
+  .task-card.done .task-check-icon { display: block; }
+  .task-body { flex: 1; }
+  .task-title { font-size: 15px; font-weight: 600; }
+  .task-desc { font-size: 13px; color: var(--muted); margin-top: 4px; line-height: 1.5; }
+  .task-links { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+  .task-link { display: inline-flex; align-items: center; gap: 5px; padding: 5px 12px; background: rgba(201,168,76,0.1); border: 1px solid rgba(201,168,76,0.25); border-radius: 6px; color: var(--gold); font-size: 12px; font-weight: 600; text-decoration: none; transition: all 0.2s; }
+  .task-link:hover { background: rgba(201,168,76,0.2); }
+  .task-link.blue { background: rgba(52,152,219,0.1); border-color: rgba(52,152,219,0.25); color: var(--blue); }
+  .task-link.green { background: rgba(46,204,113,0.1); border-color: rgba(46,204,113,0.25); color: var(--green); }
+  .task-time { font-size: 11px; color: var(--muted); margin-top: 8px; }
+  .task-warning { background: rgba(231,76,60,0.08); border: 1px solid rgba(231,76,60,0.2); border-radius: 6px; padding: 8px 12px; font-size: 12px; color: #FF6B6B; margin-top: 10px; }
+  .task-tip { background: rgba(201,168,76,0.06); border-left: 3px solid var(--gold-dark); padding: 8px 12px; font-size: 12px; color: var(--muted); margin-top: 10px; border-radius: 0 6px 6px 0; }
+
+  /* TARGET CARDS */
+  .target-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 12px; }
+  .target-card { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 16px; }
+  .target-card.priority { border-color: var(--gold-dark); }
+  .target-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; margin-bottom: 10px; }
+  .target-name { font-size: 15px; font-weight: 700; }
+  .target-type { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; padding: 3px 8px; border-radius: 4px; }
+  .type-church { background: rgba(201,168,76,0.15); color: var(--gold); }
+  .type-nonprofit { background: rgba(52,152,219,0.15); color: var(--blue); }
+  .type-gov { background: rgba(46,204,113,0.15); color: var(--green); }
+  .type-federal { background: rgba(155,89,182,0.15); color: #BB8FCE; }
+  .target-row { display: flex; gap: 8px; margin-bottom: 4px; font-size: 12px; color: var(--muted); align-items: flex-start; }
+  .target-row strong { color: var(--text); min-width: 70px; }
+  .priority-star { color: var(--gold); font-size: 14px; }
+  .target-pitch { background: rgba(201,168,76,0.05); border-left: 3px solid var(--gold-dark); padding: 8px 10px; margin-top: 10px; font-size: 12px; color: var(--muted); border-radius: 0 4px 4px 0; }
+  .contact-btn { display: inline-block; margin-top: 10px; padding: 6px 14px; background: var(--gold-dark); color: var(--black); border-radius: 6px; font-size: 12px; font-weight: 700; text-decoration: none; }
+
+  /* PITCH BUILDER */
+  .pitch-section { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 20px; margin-bottom: 20px; }
+  .pitch-section h3 { font-size: 16px; font-weight: 700; color: var(--gold); margin-bottom: 12px; }
+  .pitch-template { background: var(--dark); border: 1px solid var(--border); border-radius: 8px; padding: 16px; font-size: 13px; line-height: 1.7; color: var(--text); white-space: pre-wrap; cursor: pointer; transition: border-color 0.2s; }
+  .pitch-template:hover { border-color: var(--gold-dark); }
+  .pitch-copy-btn { display: inline-flex; align-items: center; gap: 6px; margin-top: 10px; padding: 8px 16px; background: rgba(201,168,76,0.15); border: 1px solid var(--gold-dark); border-radius: 8px; color: var(--gold); font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.2s; }
+  .pitch-copy-btn:hover { background: rgba(201,168,76,0.25); }
+
+  /* RESOURCES */
+  .resource-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 12px; }
+  .resource-card { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 16px; }
+  .resource-name { font-size: 14px; font-weight: 700; margin-bottom: 4px; }
+  .resource-desc { font-size: 12px; color: var(--muted); margin-bottom: 10px; }
+  .resource-free { color: var(--green); font-size: 11px; font-weight: 700; }
+  .resource-paid { color: #FF6B6B; font-size: 11px; font-weight: 700; }
+
+  /* SCRIPTURE SIDEBAR */
+  .verse-block { background: rgba(201,168,76,0.05); border: 1px solid rgba(201,168,76,0.15); border-radius: 10px; padding: 16px; margin-bottom: 20px; }
+  .verse-text { font-style: italic; font-size: 14px; color: var(--gold-light); line-height: 1.6; }
+  .verse-ref { font-size: 12px; color: var(--gold-dark); margin-top: 6px; font-weight: 600; }
+
+  /* MISC */
+  .section-intro { font-size: 14px; color: var(--muted); margin-bottom: 20px; line-height: 1.6; }
+  .divider { border: none; border-top: 1px solid var(--border); margin: 24px 0; }
+  .tag { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; margin-left: 6px; }
+  .tag-free { background: rgba(46,204,113,0.15); color: var(--green); }
+  .tag-paid { background: rgba(231,76,60,0.15); color: #FF6B6B; }
+  .tag-hot { background: rgba(255,165,0,0.15); color: orange; }
+
+  @media (max-width: 600px) {
+    .dashboard { grid-template-columns: repeat(2, 1fr); }
+    .target-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-crown">👑</div>
+  <h1>GOVERNMENT & FAITH CONTRACTS GUIDE</h1>
+  <h2>Crown Media Group | All Glory to Jesus Global LLC | Columbia, SC</h2>
+  <div class="header-verse">"Commit to the Lord whatever you do, and he will establish your plans." — Proverbs 16:3</div>
+</div>
+
+<nav class="nav">
+  <div class="nav-tab active" onclick="showTab('overview')">Overview</div>
+  <div class="nav-tab" onclick="showTab('roadmap')">Roadmap</div>
+  <div class="nav-tab" onclick="showTab('churches')">Churches & Nonprofits</div>
+  <div class="nav-tab" onclick="showTab('federal')">Federal Agencies</div>
+  <div class="nav-tab" onclick="showTab('pitches')">Pitch Templates</div>
+  <div class="nav-tab" onclick="showTab('resources')">Resources</div>
+</nav>
+
+<!-- OVERVIEW TAB -->
+<div id="overview" class="section active">
+  <div class="dashboard">
+    <div class="stat-card"><div class="stat-value">$1.8B</div><div class="stat-label">Federal Marketing/yr</div></div>
+    <div class="stat-card"><div class="stat-value">$35K+</div><div class="stat-label">Yr 1 Gov Target</div></div>
+    <div class="stat-card"><div class="stat-value">585</div><div class="stat-label">Christian Orgs (Columbia)</div></div>
+    <div class="stat-card"><div class="stat-value">$4.5M</div><div class="stat-label">8(a) Sole-Source Cap</div></div>
+    <div class="stat-card"><div class="stat-value" id="complete-count">0</div><div class="stat-label">Steps Completed</div></div>
+    <div class="stat-card"><div class="stat-value">FREE</div><div class="stat-label">SAM.gov Registration</div></div>
+  </div>
+
+  <div class="progress-bar-wrap">
+    <div class="progress-label"><span>Contract Pipeline Progress</span><span id="progress-pct">0%</span></div>
+    <div class="progress-bar"><div class="progress-fill" id="progress-fill" style="width:0%"></div></div>
+  </div>
+
+  <div style="padding: 0 20px;">
+    <div class="verse-block">
+      <div class="verse-text">"The plans of the diligent lead to profit as surely as haste leads to poverty."</div>
+      <div class="verse-ref">— Proverbs 21:5 | This is your approach: systematic, diligent, faith-first.</div>
+    </div>
+
+    <div class="level">
+      <div class="level-header">
+        <span class="level-badge badge-now">The Big Picture</span>
+      </div>
+      <p class="section-intro">Crown Media Group is positioned to serve three distinct markets that perfectly align with your mission: <strong style="color:var(--gold)">federal/state government agencies</strong> that buy marketing services, <strong style="color:var(--gold)">churches and faith-based nonprofits</strong> that desperately need what you build, and <strong style="color:var(--gold)">CDBG-funded orgs</strong> (government grants flowing to faith orgs with marketing budget lines).<br><br>This guide takes you from zero to contracts, easiest to hardest. Check off each step as you complete it — your progress is saved.</p>
+
+      <div class="task-grid">
+        <div class="task-card" id="task-hubzone" onclick="toggleTask('hubzone')">
+          <div class="task-top">
+            <div class="task-check"><span class="task-check-icon">✓</span></div>
+            <div class="task-body">
+              <div class="task-title">Check HUBZone Eligibility <span class="tag tag-free">FREE</span> <span class="tag tag-hot">DO TODAY</span></div>
+              <div class="task-desc">If your 29229 address is in a HUBZone, you get a 10% price advantage over large businesses on federal contracts. As a solo founder, 100% of your "employees" are automatically in the zone. This could change everything.</div>
+              <div class="task-links">
+                <a href="https://maps.certify.sba.gov/hubzone/map" target="_blank" class="task-link">Check HUBZone Map →</a>
+              </div>
+              <div class="task-tip">Enter your exact home address. Screenshot the result. If it says "HUBZone Designated" — apply immediately.</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="task-card" id="task-ein" onclick="toggleTask('ein')">
+          <div class="task-top">
+            <div class="task-check"><span class="task-check-icon">✓</span></div>
+            <div class="task-body">
+              <div class="task-title">Get Your EIN <span class="tag tag-free">FREE</span> <span class="tag tag-hot">10 MIN</span></div>
+              <div class="task-desc">Federal Employer Identification Number — required for SAM.gov. Apply online at IRS.gov. Use the LLC's EIN, not your SSN. Instant approval.</div>
+              <div class="task-links">
+                <a href="https://www.irs.gov/businesses/small-businesses-self-employed/apply-for-an-employer-identification-number-ein-online" target="_blank" class="task-link">Apply at IRS.gov →</a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ROADMAP TAB -->
+<div id="roadmap" class="section">
+  <div style="padding: 0;">
+
+    <!-- LEVEL 1 -->
+    <div class="level">
+      <div class="level-header" style="padding: 0 20px;">
+        <div>
+          <span class="level-badge badge-now">Level 1 — Do This Week</span>
+          <div class="level-title">Free Accounts & Portals</div>
+          <div class="level-sub">Zero cost. Zero barriers. Maximum upside.</div>
+        </div>
+        <div class="level-revenue">$0 cost → opens $35K–$150K pipeline</div>
+      </div>
+      <div class="task-grid" style="padding: 0 20px;">
+
+        <div class="task-card" id="task-sam" onclick="toggleTask('sam')">
+          <div class="task-top">
+            <div class="task-check"><span class="task-check-icon">✓</span></div>
+            <div class="task-body">
+              <div class="task-title">Register on SAM.gov <span class="tag tag-free">FREE</span></div>
+              <div class="task-desc">The federal government's vendor database. You MUST be registered here to receive any federal contract award. Self-certify as small business and check the SDB (Small Disadvantaged Business) box during registration — it takes 30 seconds and unlocks additional preferences. Allow 10 business days to activate.</div>
+              <div class="task-links">
+                <a href="https://sam.gov" target="_blank" class="task-link">Open SAM.gov →</a>
+                <a href="https://login.gov" target="_blank" class="task-link blue">Create Login.gov First →</a>
+              </div>
+              <div class="task-tip">NAICS codes to register: 541810 (Advertising), 541613 (Marketing Consulting), 541511 (Custom Programming). Register all three.</div>
+              <div class="task-warning">⚠ The name must match your IRS records exactly: "All Glory to Jesus Global LLC" — no comma, no punctuation variations.</div>
+              <div class="task-time">Time: 2–3 hours | Activates in: 10 business days</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="task-card" id="task-scbo" onclick="toggleTask('scbo')">
+          <div class="task-top">
+            <div class="task-check"><span class="task-check-icon">✓</span></div>
+            <div class="task-body">
+              <div class="task-title">Register on SCBO — SC State Contracts <span class="tag tag-free">FREE</span></div>
+              <div class="task-desc">South Carolina Business Opportunities — the state's SAM.gov equivalent. Every SC state agency marketing contract over the threshold is posted here. Register as a vendor and set email alerts for your NAICS codes.</div>
+              <div class="task-links">
+                <a href="https://scbo.sc.gov" target="_blank" class="task-link">Register at SCBO →</a>
+                <a href="https://procurement.sc.gov" target="_blank" class="task-link blue">SC Procurement Portal →</a>
+              </div>
+              <div class="task-time">Time: 30 minutes</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="task-card" id="task-ptac" onclick="toggleTask('ptac')">
+          <div class="task-top">
+            <div class="task-check"><span class="task-check-icon">✓</span></div>
+            <div class="task-body">
+              <div class="task-title">Contact SC PTAC — Free Contracting Counselors <span class="tag tag-free">FREE</span></div>
+              <div class="task-desc">The SC Procurement Technical Assistance Center gives free one-on-one counseling to help small businesses win government contracts. They'll review your SAM registration, help find solicitations, and review your proposals — at no cost. This is the single most underused free resource in SC government contracting.</div>
+              <div class="task-links">
+                <a href="https://scptac.com" target="_blank" class="task-link">SC PTAC →</a>
+                <a href="https://sbdc.sc.edu" target="_blank" class="task-link blue">SC SBDC (USC) →</a>
+              </div>
+              <div class="task-tip">Call SC SBDC: (803) 777-4907 — they have a dedicated government contracting advisor in Columbia.</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="task-card" id="task-usc" onclick="toggleTask('usc')">
+          <div class="task-top">
+            <div class="task-check"><span class="task-check-icon">✓</span></div>
+            <div class="task-body">
+              <div class="task-title">Register at USC Supplier Portal <span class="tag tag-free">FREE</span></div>
+              <div class="task-desc">USC Columbia outsources enrollment marketing, athletics promotion, and alumni outreach. Register as a vendor to receive solicitation notifications. Far less red tape than federal contracting.</div>
+              <div class="task-links">
+                <a href="https://supplier.ps.sc.edu" target="_blank" class="task-link">USC Supplier Portal →</a>
+              </div>
+              <div class="task-time">Time: 20 minutes</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="task-card" id="task-columbia" onclick="toggleTask('columbia')">
+          <div class="task-top">
+            <div class="task-check"><span class="task-check-icon">✓</span></div>
+            <div class="task-body">
+              <div class="task-title">Register as City of Columbia Vendor <span class="tag tag-free">FREE</span></div>
+              <div class="task-desc">Columbia issues contracts for tourism promotion, parks events, economic development campaigns. Much more accessible than federal. Lower dollar amounts but faster path to first contract.</div>
+              <div class="task-links">
+                <a href="https://www.columbiasc.gov/doing-business/business-opportunities" target="_blank" class="task-link">Columbia Vendor Registration →</a>
+                <a href="https://www.richlandonline.com" target="_blank" class="task-link blue">Richland County →</a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <hr class="divider" style="margin: 0 20px 24px;">
+
+    <!-- LEVEL 2 -->
+    <div class="level">
+      <div class="level-header" style="padding: 0 20px;">
+        <div>
+          <span class="level-badge badge-easy">Level 2 — Month 1</span>
+          <div class="level-title">Foundation Setup</div>
+          <div class="level-sub">Capability statement + insurance + first contacts</div>
+        </div>
+        <div class="level-revenue">Unlocks: bids up to $350K</div>
+      </div>
+      <div class="task-grid" style="padding: 0 20px;">
+
+        <div class="task-card" id="task-capstat" onclick="toggleTask('capstat')">
+          <div class="task-top">
+            <div class="task-check"><span class="task-check-icon">✓</span></div>
+            <div class="task-body">
+              <div class="task-title">Build Your Capability Statement</div>
+              <div class="task-desc">Your 1-page PDF that replaces a resume in government contracting. Must include: company overview, UEI number, CAGE code, NAICS codes, core competencies, past performance (Shatiea results with metrics), differentiators, contact info. Design in Canva. This is your most important prospecting document.</div>
+              <div class="task-tip">Faith differentiator: "AI-powered marketing agency rooted in faith-driven excellence. We bring Kingdom-quality work to every engagement." — use this language.</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="task-card" id="task-insurance" onclick="toggleTask('insurance')">
+          <div class="task-top">
+            <div class="task-check"><span class="task-check-icon">✓</span></div>
+            <div class="task-body">
+              <div class="task-title">Get Business Insurance <span class="tag tag-paid">$500–$1,500/yr</span></div>
+              <div class="task-desc">Required on most government contracts before award. Get: General Liability ($1M/$2M) + Professional Liability/E&O ($1M). Hiscox does instant online quotes. Next Insurance is fast too.</div>
+              <div class="task-links">
+                <a href="https://www.hiscox.com/small-business-insurance" target="_blank" class="task-link">Hiscox Quote →</a>
+                <a href="https://www.nextinsurance.com" target="_blank" class="task-link blue">Next Insurance →</a>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="task-card" id="task-jackson" onclick="toggleTask('jackson')">
+          <div class="task-top">
+            <div class="task-check"><span class="task-check-icon">✓</span></div>
+            <div class="task-body">
+              <div class="task-title">Contact Fort Jackson MWR <span class="tag tag-hot">LOCAL</span></div>
+              <div class="task-desc">Fort Jackson MWR (Morale, Welfare & Recreation) handles on-post advertising, sponsorship, and family programs marketing. These are NAF contracts — simpler than federal, no full SAM.gov process required. This is the most accessible government contract in Columbia.</div>
+              <div class="task-links">
+                <a href="tel:8037516990" class="task-link">Call MWR: 803-751-6990 →</a>
+                <a href="https://jackson.armymwr.com/programs/commercial-sponsorship" target="_blank" class="task-link blue">MWR Sponsorship Info →</a>
+              </div>
+              <div class="task-tip">Ask for Katherine Romero. Introduce Crown Media Group. Bring your capability statement. This is a relationship-first door.</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="task-card" id="task-cdbg" onclick="toggleTask('cdbg')">
+          <div class="task-top">
+            <div class="task-check"><span class="task-check-icon">✓</span></div>
+            <div class="task-body">
+              <div class="task-title">Get the CDBG Subgrantee List from Columbia <span class="tag tag-hot">FAITH ORGS</span></div>
+              <div class="task-desc">Columbia receives $1.5M–$2.5M/year in federal Community Development Block Grant funds, which flow to 15–30 local nonprofits — many faith-based. These orgs have "community outreach" budget lines they can use to hire Crown Media. This list is public record.</div>
+              <div class="task-links">
+                <a href="tel:8035453373" class="task-link">Call: (803) 545-3373 →</a>
+              </div>
+              <div class="task-tip">Say: "I'm requesting the FY2025 CDBG subgrantee list. This is public record under FOIA." They'll email it to you.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <hr class="divider" style="margin: 0 20px 24px;">
+
+    <!-- LEVEL 3 -->
+    <div class="level">
+      <div class="level-header" style="padding: 0 20px;">
+        <div>
+          <span class="level-badge badge-medium">Level 3 — Month 2–3</span>
+          <div class="level-title">First Bids & Subcontracting</div>
+          <div class="level-sub">Submit real proposals. Build past performance.</div>
+        </div>
+        <div class="level-revenue">Target: first $10K–$50K contract</div>
+      </div>
+      <div class="task-grid" style="padding: 0 20px;">
+
+        <div class="task-card" id="task-subnet" onclick="toggleTask('subnet')">
+          <div class="task-top">
+            <div class="task-check"><span class="task-check-icon">✓</span></div>
+            <div class="task-body">
+              <div class="task-title">Find Subcontracting via SUBNet</div>
+              <div class="task-desc">SAM.gov's subcontracting portal lists prime contractors looking for small business subs. You perform the work under their contract — no past performance required from you. This is the fastest path to government experience. Target marketing primes with active GSA Schedule 541 contracts.</div>
+              <div class="task-links">
+                <a href="https://sam.gov/subcontracting" target="_blank" class="task-link">Browse SUBNet →</a>
+              </div>
+              <div class="task-tip">Target primes: Yes& Agency, Mythics, Social Marketing, GS&F — DC/national agencies with federal marketing contracts who sub out to local talent.</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="task-card" id="task-firstbid" onclick="toggleTask('firstbid')">
+          <div class="task-top">
+            <div class="task-check"><span class="task-check-icon">✓</span></div>
+            <div class="task-body">
+              <div class="task-title">Submit First Bid (Simplified Acquisition)</div>
+              <div class="task-desc">Target solicitations $15K–$350K (simplified acquisition threshold). Reduced past performance requirements. Shorter proposals. Find on SAM.gov filtered to: Total Small Business Set-Aside + NAICS 541810 + Active. Also check SCBO for SC state equivalents.</div>
+              <div class="task-links">
+                <a href="https://sam.gov/opportunities" target="_blank" class="task-link">Browse SAM.gov Opportunities →</a>
+                <a href="https://scbo.sc.gov" target="_blank" class="task-link blue">SCBO State Contracts →</a>
+                <a href="https://www.rfpmart.com/social-media-internet-marketing-and-seo-rfp-government-contract.html" target="_blank" class="task-link green">RFPMart (aggregated) →</a>
+              </div>
+              <div class="task-tip">Your first bid will not be perfect. Submit anyway. The process teaches more than any amount of research.</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="task-card" id="task-scprt" onclick="toggleTask('scprt')">
+          <div class="task-top">
+            <div class="task-check"><span class="task-check-icon">✓</span></div>
+            <div class="task-body">
+              <div class="task-title">Monitor SCPRT for Marketing RFP</div>
+              <div class="task-desc">SC Department of Parks, Recreation and Tourism issues marketing agency RFPs worth tens of millions. They have done so before and will again. Get on their vendor radar now so you're ready when the RFP drops.</div>
+              <div class="task-links">
+                <a href="https://www.scprt.com/about/procurement-opportunities" target="_blank" class="task-link">SCPRT Procurement →</a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <hr class="divider" style="margin: 0 20px 24px;">
+
+    <!-- LEVEL 4 -->
+    <div class="level">
+      <div class="level-header" style="padding: 0 20px;">
+        <div>
+          <span class="level-badge badge-hard">Level 4 — Year 1–2</span>
+          <div class="level-title">Certifications & Set-Asides</div>
+          <div class="level-sub">Unlock preferential access to contracts.</div>
+        </div>
+        <div class="level-revenue">Target: $100K–$500K/yr</div>
+      </div>
+      <div class="task-grid" style="padding: 0 20px;">
+
+        <div class="task-card" id="task-hubzone2" onclick="toggleTask('hubzone2')">
+          <div class="task-top">
+            <div class="task-check"><span class="task-check-icon">✓</span></div>
+            <div class="task-body">
+              <div class="task-title">HUBZone Certification (if eligible)</div>
+              <div class="task-desc">If your address qualifies: apply immediately. 10% price preference over large businesses on federal contracts. Federal goal: 3% of all contracting dollars to HUBZone firms. As a solo operator, you automatically meet the "35% of employees in HUBZone" requirement.</div>
+              <div class="task-links">
+                <a href="https://maps.certify.sba.gov/hubzone/map" target="_blank" class="task-link">Check Map First →</a>
+                <a href="https://certify.sba.gov" target="_blank" class="task-link blue">Apply via SBA Certify →</a>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="task-card" id="task-gsa541" onclick="toggleTask('gsa541')">
+          <div class="task-top">
+            <div class="task-check"><span class="task-check-icon">✓</span></div>
+            <div class="task-body">
+              <div class="task-title">Apply for GSA Schedule 541 AIMS</div>
+              <div class="task-desc">The gold standard. Agencies buy marketing services off-schedule like Amazon — no full competition required. Requires 2 years of business history with auditable financials. Target application: Q4 2027.</div>
+              <div class="task-links">
+                <a href="https://www.gsaelibrary.gsa.gov" target="_blank" class="task-link">GSA eLibrary →</a>
+              </div>
+              <div class="task-tip">Start documenting Shatiea results NOW in a format that becomes your GSA past performance record in 2027.</div>
+              <div class="task-time">Timeline: Q4 2027 | Application review: 3–6 months</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <hr class="divider" style="margin: 0 20px 24px;">
+
+    <!-- LEVEL 5 -->
+    <div class="level">
+      <div class="level-header" style="padding: 0 20px;">
+        <div>
+          <span class="level-badge badge-longplay">Level 5 — Long Game (2027+)</span>
+          <div class="level-title">8(a) Certification</div>
+          <div class="level-sub">Sole-source contracts. No competition. Up to $4.5M.</div>
+        </div>
+        <div class="level-revenue">Ceiling: $4.5M per sole-source award</div>
+      </div>
+      <div class="task-grid" style="padding: 0 20px;">
+        <div class="task-card" id="task-8a" onclick="toggleTask('8a')">
+          <div class="task-top">
+            <div class="task-check"><span class="task-check-icon">✓</span></div>
+            <div class="task-body">
+              <div class="task-title">8(a) Business Development Program</div>
+              <div class="task-desc">The most powerful certification in federal contracting. Once certified, agencies can award you contracts up to $4.5M with ZERO competition. Requirements: 2 years of operation, documented social/economic disadvantage, net worth under $850K. Target: Q1 2028.</div>
+              <div class="task-links">
+                <a href="https://www.sba.gov/federal-contracting/contracting-assistance-programs/8a-business-development-program" target="_blank" class="task-link">8(a) Program Info →</a>
+                <a href="https://certify.sba.gov" target="_blank" class="task-link blue">SBA Certify Portal →</a>
+              </div>
+              <div class="task-tip">Start documenting your story of disadvantage NOW — economic barriers, limited access to capital, challenges faced. This documentation is required and takes time to build compellingly.</div>
+              <div class="task-time">Target application: Q1 2028 | 9-year program once certified</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- CHURCHES & NONPROFITS TAB -->
+<div id="churches" class="section">
+  <div class="verse-block">
+    <div class="verse-text">"Iron sharpens iron, and one person sharpens another." — Proverbs 27:17<br>These are your people. Serve them with everything you have.</div>
+  </div>
+
+  <p class="section-intro">585 Christian organizations in Columbia SC collectively earning $49M+ annually. Most have zero dedicated marketing staff. This is your most natural market — and it's completely untapped.</p>
+
+  <h3 style="font-size:16px; font-weight:700; color:var(--gold); margin-bottom:12px;">PRIORITY CHURCH TARGETS</h3>
+  <div class="target-grid">
+
+    <div class="target-card priority">
+      <div class="target-header">
+        <div class="target-name">Forward City Church <span class="priority-star">★</span></div>
+        <span class="target-type type-church">CHURCH</span>
+      </div>
+      <div class="target-row"><strong>Pastor:</strong> Travis Greene (Grammy artist)</div>
+      <div class="target-row"><strong>Size:</strong> 2,000–3,000 members</div>
+      <div class="target-row"><strong>Social:</strong> @4wardcity | Travis IG: 2M followers</div>
+      <div class="target-row"><strong>Budget est.:</strong> $100K–$200K/yr marketing</div>
+      <div class="target-row"><strong>Needs:</strong> Sermon series branding, Reels, event promos, app marketing</div>
+      <div class="target-pitch">Highest-leverage target in Columbia. Any content you produce gets amplified by Travis's 2M IG. Faith alignment is your in — attend a service before reaching out. Pitch the Growth package at $1,200/mo + $400/sermon series.</div>
+      <a href="https://www.instagram.com/4wardcity" target="_blank" class="contact-btn">@4wardcity →</a>
+    </div>
+
+    <div class="target-card priority">
+      <div class="target-header">
+        <div class="target-name">Shandon Baptist Church <span class="priority-star">★</span></div>
+        <span class="target-type type-church">CHURCH</span>
+      </div>
+      <div class="target-row"><strong>Location:</strong> Forest Drive, Columbia</div>
+      <div class="target-row"><strong>Size:</strong> 3,000-seat sanctuary</div>
+      <div class="target-row"><strong>Social:</strong> @shandonbaptist — 4,120 IG</div>
+      <div class="target-row"><strong>Gap:</strong> 4K IG for a 3,000-seat church = massive growth opportunity</div>
+      <div class="target-row"><strong>Needs:</strong> Social media growth, Reels, event marketing</div>
+      <div class="target-pitch">4,100 Instagram followers for a 3,000-seat church is a clear gap. Your pitch: "I'll double your IG in 90 days using the same AI content system we built for a faith-based business." Starter package entry point.</div>
+      <a href="https://www.instagram.com/shandonbaptist" target="_blank" class="contact-btn">@shandonbaptist →</a>
+    </div>
+
+    <div class="target-card">
+      <div class="target-header">
+        <div class="target-name">Shandon Presbyterian</div>
+        <span class="target-type type-church">CHURCH</span>
+      </div>
+      <div class="target-row"><strong>Social:</strong> Active on IG, FB, LinkedIn, TikTok, YouTube, Vimeo</div>
+      <div class="target-row"><strong>Note:</strong> Most multi-platform church in Columbia — already invested in content</div>
+      <div class="target-row"><strong>Pitch:</strong> AI-powered content to fill their existing channels faster</div>
+      <a href="https://www.instagram.com/shandonpres" target="_blank" class="contact-btn">@shandonpres →</a>
+    </div>
+
+    <div class="target-card">
+      <div class="target-header">
+        <div class="target-name">Elevation Church Columbia</div>
+        <span class="target-type type-church">CHURCH</span>
+      </div>
+      <div class="target-row"><strong>Social:</strong> 5,088 IG / 6,100 FB</div>
+      <div class="target-row"><strong>Note:</strong> Part of Steven Furtick's national network — local campus decisions</div>
+      <div class="target-row"><strong>Pitch:</strong> Local campus content team — hyperlocal Columbia content</div>
+      <a href="https://www.instagram.com/elevationchurchcolumbia" target="_blank" class="contact-btn">@elevationchurch →</a>
+    </div>
+
+    <div class="target-card">
+      <div class="target-header">
+        <div class="target-name">ForColumbia Church</div>
+        <span class="target-type type-church">CHURCH</span>
+      </div>
+      <div class="target-row"><strong>Stage:</strong> Growing, younger congregation</div>
+      <div class="target-row"><strong>Social:</strong> Active IG @forcolumbia</div>
+      <div class="target-row"><strong>Sweet spot:</strong> Fast-growing churches invest in marketing early</div>
+      <a href="https://www.instagram.com/forcolumbia" target="_blank" class="contact-btn">@forcolumbia →</a>
+    </div>
+
+    <div class="target-card">
+      <div class="target-header">
+        <div class="target-name">Midtown Fellowship</div>
+        <span class="target-type type-church">CHURCH</span>
+      </div>
+      <div class="target-row"><strong>Campuses:</strong> Downtown, Two Notch, Lexington</div>
+      <div class="target-row"><strong>Social:</strong> @midtowncolumbia</div>
+      <div class="target-row"><strong>Pitch:</strong> Multi-campus content coordination — one agency, consistent brand across all 3 campuses</div>
+      <a href="https://www.instagram.com/midtowncolumbia" target="_blank" class="contact-btn">@midtowncolumbia →</a>
+    </div>
+  </div>
+
+  <hr class="divider">
+  <h3 style="font-size:16px; font-weight:700; color:var(--gold); margin-bottom:12px;">PRIORITY NONPROFIT TARGETS</h3>
+  <div class="target-grid">
+
+    <div class="target-card priority">
+      <div class="target-header">
+        <div class="target-name">Oliver Gospel Mission <span class="priority-star">★</span></div>
+        <span class="target-type type-nonprofit">NONPROFIT</span>
+      </div>
+      <div class="target-row"><strong>Mission:</strong> Columbia's largest men's rescue mission (since 1888)</div>
+      <div class="target-row"><strong>Social:</strong> 5,182 Facebook followers</div>
+      <div class="target-row"><strong>Note:</strong> Has used outside agencies before (billboard, TV, radio)</div>
+      <div class="target-row"><strong>Budget:</strong> Active marketing spend confirmed</div>
+      <div class="target-pitch">They already spend money on marketing. They've hired agencies before. Cold email the Executive Director with your Shatiea portfolio. This is a warm door — lead with faith alignment and results.</div>
+      <a href="https://www.olivergospel.org" target="_blank" class="contact-btn">olivergospel.org →</a>
+    </div>
+
+    <div class="target-card priority">
+      <div class="target-header">
+        <div class="target-name">CDBG-Funded Faith Orgs <span class="priority-star">★</span></div>
+        <span class="target-type type-gov">GOV-FUNDED</span>
+      </div>
+      <div class="target-row"><strong>How many:</strong> 15–30 orgs per year in Columbia</div>
+      <div class="target-row"><strong>Budget source:</strong> Federal CDBG funds ($1.5–2.5M/yr to Columbia)</div>
+      <div class="target-row"><strong>Why:</strong> Community outreach is an allowable cost — they can pay Crown Media from grant funds</div>
+      <div class="target-pitch">Call (803) 545-3373, request the FY2025 CDBG subgrantee list. It's public record. Every faith-based org on that list with an outreach line item is a potential paying client — using federal money.</div>
+      <a href="tel:8035453373" class="contact-btn">Call (803) 545-3373 →</a>
+    </div>
+
+    <div class="target-card">
+      <div class="target-header">
+        <div class="target-name">Family Promise of the Midlands</div>
+        <span class="target-type type-nonprofit">NONPROFIT</span>
+      </div>
+      <div class="target-row"><strong>Mission:</strong> Faith-based family homelessness org</div>
+      <div class="target-row"><strong>Network:</strong> Uses faith congregation network across Columbia</div>
+      <div class="target-row"><strong>Pitch:</strong> Donor acquisition and family recruitment campaigns</div>
+    </div>
+
+    <div class="target-card">
+      <div class="target-header">
+        <div class="target-name">Camp Longridge</div>
+        <span class="target-type type-nonprofit">NONPROFIT</span>
+      </div>
+      <div class="target-row"><strong>Type:</strong> Christian camp/conference center, Ridgeway SC</div>
+      <div class="target-row"><strong>Scale:</strong> Serves 4,500+ individuals/churches annually</div>
+      <div class="target-row"><strong>Need:</strong> Summer camp registration marketing — clear, seasonal, paid campaign</div>
+    </div>
+
+    <div class="target-card">
+      <div class="target-header">
+        <div class="target-name">SAMHSA-Funded Recovery Ministries</div>
+        <span class="target-type type-gov">GOV-FUNDED</span>
+      </div>
+      <div class="target-row"><strong>Source:</strong> Federal SAMHSA block grants → SC DAODAS</div>
+      <div class="target-row"><strong>Why:</strong> 800+ faith-based partners. Federal money. Almost never have marketing staff.</div>
+      <div class="target-row"><strong>Action:</strong> Search SAM.gov grant awards filtered to SC + SAMHSA</div>
+      <a href="https://www.samhsa.gov/grants" target="_blank" class="contact-btn">SAMHSA Grants →</a>
+    </div>
+
+    <div class="target-card">
+      <div class="target-header">
+        <div class="target-name">Sisters of Charity Grantees</div>
+        <span class="target-type type-nonprofit">NONPROFIT</span>
+      </div>
+      <div class="target-row"><strong>Funder:</strong> Sisters of Charity Foundation SC — $1.3M/yr to 94 orgs</div>
+      <div class="target-row"><strong>2026:</strong> New grant cycle reopens — watch for it</div>
+      <div class="target-row"><strong>Play:</strong> Become the go-to marketing partner for their grantees</div>
+      <a href="https://sistersofcharitysc.com/grants" target="_blank" class="contact-btn">View Grantees →</a>
+    </div>
+  </div>
+
+  <hr class="divider">
+  <div class="verse-block">
+    <div class="verse-text">"A good name is more desirable than great riches; to be esteemed is better than silver or gold."</div>
+    <div class="verse-ref">— Proverbs 22:1 | Your reputation in the faith community is your most valuable asset. Every church you serve becomes a referral engine.</div>
+  </div>
+</div>
+
+<!-- FEDERAL AGENCIES TAB -->
+<div id="federal" class="section">
+  <p class="section-intro">Federal agencies spend $1.8B/year on marketing and advertising. Here's who to target, ranked by accessibility for Crown Media Group.</p>
+
+  <div class="target-grid">
+    <div class="target-card priority">
+      <div class="target-header">
+        <div class="target-name">Fort Jackson MWR <span class="priority-star">★</span></div>
+        <span class="target-type type-gov">LOCAL GOV</span>
+      </div>
+      <div class="target-row"><strong>Why #1:</strong> 15 min away. NAF contracts (simpler). No full federal process.</div>
+      <div class="target-row"><strong>Contact:</strong> Katherine Romero | 803-751-6990</div>
+      <div class="target-row"><strong>Contracts:</strong> $25K–$500K for event marketing, family programs</div>
+      <div class="target-row"><strong>Email:</strong> katherine.d.romero2.naf@army.mil</div>
+      <div class="target-pitch">Call this week. Introduce Crown Media Group. Ask about upcoming marketing needs. Bring your capability statement. This is a relationship, not a bid — start the conversation.</div>
+      <a href="tel:8037516990" class="contact-btn">Call Now →</a>
+    </div>
+
+    <div class="target-card priority">
+      <div class="target-header">
+        <div class="target-name">Small Business Administration <span class="priority-star">★</span></div>
+        <span class="target-type type-federal">FEDERAL</span>
+      </div>
+      <div class="target-row"><strong>Contracts:</strong> $250K–$2M</div>
+      <div class="target-row"><strong>Needs:</strong> National entrepreneurship campaigns, SCORE outreach, awareness</div>
+      <div class="target-row"><strong>Angle:</strong> Faith-driven entrepreneur helping the SBA tell the entrepreneurship story</div>
+      <div class="target-row"><strong>Find:</strong> SAM.gov keyword "SBA advertising media campaign"</div>
+    </div>
+
+    <div class="target-card">
+      <div class="target-header">
+        <div class="target-name">Army Recruiting Command (USAREC)</div>
+        <span class="target-type type-federal">FEDERAL</span>
+      </div>
+      <div class="target-row"><strong>Contracts:</strong> $50K–$5M</div>
+      <div class="target-row"><strong>Needs:</strong> Recruitment advertising — Fort Jackson trains 50,000+ soldiers/year</div>
+      <div class="target-row"><strong>Vehicle:</strong> MICC contracts, GSA Schedule</div>
+      <div class="target-row"><strong>MICC:</strong> 4340 Magruder Ave, Fort Jackson SC 29207</div>
+    </div>
+
+    <div class="target-card">
+      <div class="target-header">
+        <div class="target-name">Dept. of Veterans Affairs (VA)</div>
+        <span class="target-type type-federal">FEDERAL</span>
+      </div>
+      <div class="target-row"><strong>Contracts:</strong> $250K–$10M</div>
+      <div class="target-row"><strong>Needs:</strong> Veteran health enrollment, benefit awareness, mental health outreach</div>
+      <div class="target-row"><strong>Faith angle:</strong> Veteran faith-based community outreach programs</div>
+    </div>
+
+    <div class="target-card">
+      <div class="target-header">
+        <div class="target-name">HHS / CDC</div>
+        <span class="target-type type-federal">FEDERAL</span>
+      </div>
+      <div class="target-row"><strong>Contracts:</strong> $500K–$450M (ceiling)</div>
+      <div class="target-row"><strong>Needs:</strong> Public health campaigns, community health outreach</div>
+      <div class="target-row"><strong>Faith angle:</strong> Faith community health outreach (HHS has explicit faith-based initiative)</div>
+    </div>
+
+    <div class="target-card">
+      <div class="target-header">
+        <div class="target-name">Dept. of Labor / ETA</div>
+        <span class="target-type type-federal">FEDERAL</span>
+      </div>
+      <div class="target-row"><strong>Contracts:</strong> $500K–$5M</div>
+      <div class="target-row"><strong>Needs:</strong> Job training awareness, workforce development outreach</div>
+      <div class="target-row"><strong>Faith angle:</strong> Dec 2025 rule explicitly opens DOL programs to faith orgs</div>
+    </div>
+
+    <div class="target-card">
+      <div class="target-header">
+        <div class="target-name">USDA Rural Development</div>
+        <span class="target-type type-federal">FEDERAL</span>
+      </div>
+      <div class="target-row"><strong>Contracts:</strong> $250K–$3M</div>
+      <div class="target-row"><strong>Needs:</strong> Rural outreach, food safety, nutrition program awareness</div>
+      <div class="target-row"><strong>SC angle:</strong> Large rural SC population — local context is a differentiator</div>
+    </div>
+
+    <div class="target-card">
+      <div class="target-header">
+        <div class="target-name">SC Army National Guard</div>
+        <span class="target-type type-gov">SC GOV</span>
+      </div>
+      <div class="target-row"><strong>Needs:</strong> Recruitment advertising, community engagement</div>
+      <div class="target-row"><strong>Local angle:</strong> Columbia-based is a significant advantage</div>
+      <div class="target-row"><strong>Contracts:</strong> State + National Guard Bureau channels</div>
+    </div>
+  </div>
+</div>
+
+<!-- PITCHES TAB -->
+<div id="pitches" class="section">
+  <p class="section-intro">Ready-to-send outreach for churches, nonprofits, and government contacts. Click any template to copy it.</p>
+
+  <div class="pitch-section">
+    <h3>Church Cold Email — Forward City / Large Church</h3>
+    <div class="pitch-template" id="pitch-church-large" onclick="copyPitch('pitch-church-large')">Subject: AI-Powered Content System for Forward City — 30-Day Pilot
+
+Hi [Name],
+
+I'm David King, founder of Crown Media Group — a faith-driven AI marketing agency based in Columbia, SC.
+
+I've been following Forward City and the work Travis and Dr. Jackie are doing, and I want to serve the mission.
+
+I built an AI-powered content system that generates sermon series graphics, Reels scripts, and social posts in your brand voice — at a fraction of the time it takes a traditional creative team.
+
+I'd love to show you how it works with a 30-day pilot for one sermon series. If the content lands, we can talk about an ongoing partnership.
+
+Attached is our capability overview and a sample we built for a current faith-based client.
+
+Would 15 minutes this week make sense?
+
+For His glory,
+David King
+Crown Media Group
+king@crownmediagroup.co
+crownmediagroup.co</div>
+    <button class="pitch-copy-btn" onclick="copyPitch('pitch-church-large')">📋 Copy Template</button>
+  </div>
+
+  <div class="pitch-section">
+    <h3>Nonprofit Cold Email — CDBG / Government-Funded Orgs</h3>
+    <div class="pitch-template" id="pitch-nonprofit" onclick="copyPitch('pitch-nonprofit')">Subject: Marketing Help for [Organization Name] — Community Outreach Support
+
+Hi [Name],
+
+I'm David King with Crown Media Group, a faith-driven AI marketing agency in Columbia, SC.
+
+I work specifically with faith-based nonprofits in the Midlands who need more community visibility but don't have a full-time marketing staff. I know many of your peers are operating on tight budgets with a big mission.
+
+The good news: community outreach and public awareness are allowable budget line items under most federal grants (CDBG, SAMHSA, DOL). You may already have budget for this that isn't being used.
+
+I'd love a 20-minute call to understand your outreach goals and show you what we've built for similar organizations in Columbia.
+
+No obligation, no pitch — just a conversation about what's possible.
+
+In Christ,
+David King
+Crown Media Group
+king@crownmediagroup.co | (908) 848-1436</div>
+    <button class="pitch-copy-btn" onclick="copyPitch('pitch-nonprofit')">📋 Copy Template</button>
+  </div>
+
+  <div class="pitch-section">
+    <h3>Fort Jackson MWR — Phone Introduction Script</h3>
+    <div class="pitch-template" id="pitch-jackson" onclick="copyPitch('pitch-jackson')">When Katherine Romero answers:
+
+"Hi Katherine, my name is David King. I'm the founder of Crown Media Group, an AI marketing agency based right here in Columbia at 29229.
+
+I specialize in social media content, event marketing, and digital outreach for military and faith-based organizations.
+
+I wanted to reach out and introduce myself to see if there are any upcoming marketing or advertising needs for MWR programs — whether that's event promotion, family readiness outreach, or social media content for on-post programs.
+
+I'd love to stop by and drop off our capability statement and show you what we've built. Would there be a good time this week or next?"
+
+[If they say they're not the right person]: "No problem — could you point me to whoever handles marketing vendors or commercial sponsorships? I just want to make sure we're on your radar for future opportunities."</div>
+    <button class="pitch-copy-btn" onclick="copyPitch('pitch-jackson')">📋 Copy Script</button>
+  </div>
+
+  <div class="pitch-section">
+    <h3>Church Instagram DM — Smaller/Growing Churches</h3>
+    <div class="pitch-template" id="pitch-church-dm" onclick="copyPitch('pitch-church-dm')">Hey [Church Name] team — love what you're building in Columbia.
+
+I'm David King, founder of Crown Media Group. I run a faith-driven AI marketing agency and I work with churches to grow their social presence and get more of the community through their doors.
+
+Quick question: are you handling your social content in-house or do you have someone on that?
+
+Either way — I've built something specific for churches that I think you'd find valuable. Would love to share it with your team if there's interest.
+
+For His glory,
+David (@mkdavidking)</div>
+    <button class="pitch-copy-btn" onclick="copyPitch('pitch-church-dm')">📋 Copy DM</button>
+  </div>
+</div>
+
+<!-- RESOURCES TAB -->
+<div id="resources" class="section">
+  <p class="section-intro">Every resource you need — all free unless noted.</p>
+  <div class="resource-grid">
+    <div class="resource-card">
+      <div class="resource-name">SAM.gov</div>
+      <div class="resource-desc">Federal vendor registration + contract opportunities database. The starting point for all federal contracting.</div>
+      <div class="resource-free">FREE</div>
+      <div style="margin-top:10px;"><a href="https://sam.gov" target="_blank" class="contact-btn">sam.gov →</a></div>
+    </div>
+    <div class="resource-card">
+      <div class="resource-name">SC Business Opportunities (SCBO)</div>
+      <div class="resource-desc">SC state contract portal. Register and set alerts for marketing/advertising solicitations.</div>
+      <div class="resource-free">FREE</div>
+      <div style="margin-top:10px;"><a href="https://scbo.sc.gov" target="_blank" class="contact-btn">scbo.sc.gov →</a></div>
+    </div>
+    <div class="resource-card">
+      <div class="resource-name">SC PTAC</div>
+      <div class="resource-desc">Free one-on-one government contracting counseling. They'll review your SAM registration, find solicitations, and review proposals — at no cost.</div>
+      <div class="resource-free">FREE — USE THIS</div>
+      <div style="margin-top:10px;"><a href="https://scptac.com" target="_blank" class="contact-btn">scptac.com →</a></div>
+    </div>
+    <div class="resource-card">
+      <div class="resource-name">SC SBDC (USC)</div>
+      <div class="resource-desc">Small Business Development Center. Free one-on-one advising for government contracting readiness. Gov contracting advisor on staff.</div>
+      <div class="resource-free">FREE | (803) 777-4907</div>
+      <div style="margin-top:10px;"><a href="https://sbdc.sc.edu" target="_blank" class="contact-btn">sbdc.sc.edu →</a></div>
+    </div>
+    <div class="resource-card">
+      <div class="resource-name">HUBZone Map</div>
+      <div class="resource-desc">Check if your 29229 address is in a HUBZone. If yes, 10% price preference over large businesses on all federal bids.</div>
+      <div class="resource-free">FREE — CHECK TODAY</div>
+      <div style="margin-top:10px;"><a href="https://maps.certify.sba.gov/hubzone/map" target="_blank" class="contact-btn">Check Map →</a></div>
+    </div>
+    <div class="resource-card">
+      <div class="resource-name">SUBNet (Subcontracting)</div>
+      <div class="resource-desc">SAM.gov subcontracting portal. Prime contractors post needs here. Work under their contract to build government past performance.</div>
+      <div class="resource-free">FREE</div>
+      <div style="margin-top:10px;"><a href="https://sam.gov/subcontracting" target="_blank" class="contact-btn">Browse SUBNet →</a></div>
+    </div>
+    <div class="resource-card">
+      <div class="resource-name">RFPMart</div>
+      <div class="resource-desc">Aggregates government social media and digital marketing RFPs from federal, state, and local levels. Free to browse.</div>
+      <div class="resource-free">FREE</div>
+      <div style="margin-top:10px;"><a href="https://www.rfpmart.com/social-media-internet-marketing-and-seo-rfp-government-contract.html" target="_blank" class="contact-btn">Browse RFPs →</a></div>
+    </div>
+    <div class="resource-card">
+      <div class="resource-name">Hiscox Insurance</div>
+      <div class="resource-desc">Fast online quotes for General Liability + Professional Liability. Required on most government contracts.</div>
+      <div class="resource-paid">$500–$1,500/yr</div>
+      <div style="margin-top:10px;"><a href="https://www.hiscox.com/small-business-insurance" target="_blank" class="contact-btn">Get Quote →</a></div>
+    </div>
+    <div class="resource-card">
+      <div class="resource-name">SCPRT Procurement</div>
+      <div class="resource-desc">SC Parks, Recreation & Tourism — issues marketing agency RFPs worth millions. Monitor this page for when the next RFP drops.</div>
+      <div class="resource-free">FREE</div>
+      <div style="margin-top:10px;"><a href="https://www.scprt.com/about/procurement-opportunities" target="_blank" class="contact-btn">SCPRT Ops →</a></div>
+    </div>
+    <div class="resource-card">
+      <div class="resource-name">SBA 8(a) Program</div>
+      <div class="resource-desc">9-year development program. Sole-source contracts up to $4.5M with zero competition. Requires 2 years of operation. Target: 2028.</div>
+      <div class="resource-free">FREE to apply | Target 2028</div>
+      <div style="margin-top:10px;"><a href="https://www.sba.gov/federal-contracting/contracting-assistance-programs/8a-business-development-program" target="_blank" class="contact-btn">8(a) Info →</a></div>
+    </div>
+    <div class="resource-card">
+      <div class="resource-name">IRS EIN Application</div>
+      <div class="resource-desc">Get your Employer Identification Number. Required for SAM.gov. Free and instant online.</div>
+      <div class="resource-free">FREE | 10 minutes</div>
+      <div style="margin-top:10px;"><a href="https://www.irs.gov/businesses/small-businesses-self-employed/apply-for-an-employer-identification-number-ein-online" target="_blank" class="contact-btn">Apply Now →</a></div>
+    </div>
+    <div class="resource-card">
+      <div class="resource-name">Columbia CDBG Office</div>
+      <div class="resource-desc">Request the FY2025 CDBG subgrantee list. 15–30 local nonprofits with federal outreach budget lines you can serve.</div>
+      <div class="resource-free">FREE | Public record</div>
+      <div style="margin-top:10px;"><a href="tel:8035453373" class="contact-btn">Call (803) 545-3373 →</a></div>
+    </div>
+  </div>
+
+  <div style="margin-top:24px;" class="verse-block">
+    <div class="verse-text">"Seek first the kingdom of God and his righteousness, and all these things will be added to you."</div>
+    <div class="verse-ref">— Matthew 6:33 | Kingdom first. The contracts are fruit. The mission is root.</div>
+  </div>
+</div>
+
+<script>
+  const TASKS = ['hubzone','ein','sam','scbo','ptac','usc','columbia','capstat','insurance','jackson','cdbg','subnet','firstbid','scprt','hubzone2','gsa541','8a'];
+  const TOTAL = TASKS.length;
+
+  function loadTasks() {
+    let done = 0;
+    TASKS.forEach(id => {
+      if (localStorage.getItem('task_' + id) === 'done') {
+        const el = document.getElementById('task_' + id) || document.getElementById('task-' + id);
+        if (el) el.classList.add('done');
+        done++;
+      }
+    });
+    updateProgress(done);
+  }
+
+  function toggleTask(id) {
+    const el = document.getElementById('task-' + id);
+    if (!el) return;
+    const isDone = el.classList.toggle('done');
+    localStorage.setItem('task_' + id, isDone ? 'done' : '');
+    let done = TASKS.filter(t => localStorage.getItem('task_' + t) === 'done').length;
+    updateProgress(done);
+  }
+
+  function updateProgress(done) {
+    const pct = Math.round((done / TOTAL) * 100);
+    document.getElementById('progress-fill').style.width = pct + '%';
+    document.getElementById('progress-pct').textContent = pct + '%';
+    document.getElementById('complete-count').textContent = done;
+  }
+
+  function showTab(name) {
+    document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+    document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+    document.getElementById(name).classList.add('active');
+    event.target.classList.add('active');
+  }
+
+  function copyPitch(id) {
+    const el = document.getElementById(id);
+    const text = el.innerText;
+    navigator.clipboard.writeText(text).then(() => {
+      const btn = el.nextElementSibling;
+      if (btn) { btn.textContent = '✅ Copied!'; setTimeout(() => btn.textContent = '📋 Copy Template', 2000); }
+    });
+  }
+
+  loadTasks();
+</script>
+</body>
+</html>

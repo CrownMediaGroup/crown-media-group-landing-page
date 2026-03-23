@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Capability Statement — Crown Media Group</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;600;700&family=Inter:wght@300;400;500;600&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Inter', sans-serif;
+    background: #fff;
+    color: #1a1a1a;
+    width: 8.5in;
+    min-height: 11in;
+    margin: 0 auto;
+    padding: 0;
+  }
+
+  /* HEADER */
+  .header {
+    background: #0a0a2e;
+    color: #fff;
+    padding: 28px 40px 22px;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+  }
+  .header-left {}
+  .agency-name {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 28px;
+    font-weight: 700;
+    color: #C9A84C;
+    letter-spacing: 1px;
+    line-height: 1;
+  }
+  .agency-dba {
+    font-size: 11px;
+    color: #aaa;
+    margin-top: 4px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+  }
+  .doc-title {
+    font-size: 11px;
+    color: #C9A84C;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    font-weight: 600;
+    text-align: right;
+  }
+
+  /* GOLD BAR */
+  .gold-bar { height: 4px; background: #C9A84C; }
+
+  /* BODY */
+  .body { padding: 28px 40px; display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+
+  /* SECTIONS */
+  .section { margin-bottom: 20px; }
+  .section-title {
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: #C9A84C;
+    border-bottom: 1px solid #C9A84C;
+    padding-bottom: 4px;
+    margin-bottom: 10px;
+  }
+  .section p, .section li {
+    font-size: 10.5px;
+    line-height: 1.6;
+    color: #2a2a2a;
+  }
+  .section ul { padding-left: 14px; }
+  .section li { margin-bottom: 3px; }
+
+  /* FULL WIDTH SECTION */
+  .full-width { grid-column: 1 / -1; }
+
+  /* OVERVIEW BOX */
+  .overview {
+    grid-column: 1 / -1;
+    background: #f8f6f0;
+    border-left: 4px solid #C9A84C;
+    padding: 14px 18px;
+    border-radius: 2px;
+  }
+  .overview p {
+    font-size: 11px;
+    line-height: 1.7;
+    color: #1a1a1a;
+    font-style: italic;
+  }
+
+  /* DATA GRID */
+  .data-row { display: flex; margin-bottom: 6px; }
+  .data-label {
+    font-size: 9.5px;
+    font-weight: 600;
+    color: #888;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    width: 110px;
+    flex-shrink: 0;
+  }
+  .data-value {
+    font-size: 10.5px;
+    color: #1a1a1a;
+    font-weight: 500;
+  }
+
+  /* NAICS PILLS */
+  .naics-wrap { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 4px; }
+  .naics-pill {
+    background: #0a0a2e;
+    color: #C9A84C;
+    font-size: 9px;
+    font-weight: 600;
+    padding: 4px 10px;
+    border-radius: 2px;
+    letter-spacing: 0.5px;
+  }
+
+  /* PERFORMANCE */
+  .perf-item {
+    background: #f8f6f0;
+    border-left: 3px solid #0a0a2e;
+    padding: 10px 14px;
+    margin-bottom: 8px;
+    border-radius: 1px;
+  }
+  .perf-client { font-size: 11px; font-weight: 600; color: #0a0a2e; }
+  .perf-desc { font-size: 10px; color: #444; margin-top: 3px; line-height: 1.5; }
+  .perf-result { font-size: 10px; color: #C9A84C; font-weight: 600; margin-top: 4px; }
+
+  /* DIFFERENTIATORS */
+  .diff-list { list-style: none; padding: 0; }
+  .diff-list li {
+    padding: 5px 0;
+    padding-left: 14px;
+    position: relative;
+    font-size: 10.5px;
+    color: #2a2a2a;
+    line-height: 1.5;
+    border-bottom: 1px solid #eee;
+  }
+  .diff-list li::before {
+    content: '✦';
+    position: absolute;
+    left: 0;
+    color: #C9A84C;
+    font-size: 8px;
+    top: 7px;
+  }
+
+  /* FOOTER */
+  .footer {
+    background: #0a0a2e;
+    color: #fff;
+    padding: 16px 40px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 8px;
+  }
+  .footer-contact { font-size: 10px; color: #ccc; line-height: 1.7; }
+  .footer-contact strong { color: #C9A84C; }
+  .footer-tag {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 13px;
+    color: #C9A84C;
+    font-style: italic;
+    text-align: right;
+  }
+
+  /* PRINT */
+  @media print {
+    body { width: 100%; }
+  }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="header">
+  <div class="header-left">
+    <div class="agency-name">Crown Media Group</div>
+    <div class="agency-dba">All Glory to Jesus Global LLC &nbsp;|&nbsp; Columbia, SC</div>
+  </div>
+  <div class="doc-title">Capability Statement</div>
+</div>
+<div class="gold-bar"></div>
+
+<!-- BODY -->
+<div class="body">
+
+  <!-- OVERVIEW -->
+  <div class="overview">
+    <p>Crown Media Group is an AI-powered marketing and content agency headquartered in Columbia, SC. We help government agencies, small businesses, churches, and nonprofits grow their brand, reach their audience, and drive measurable results — combining cutting-edge AI technology with Kingdom-quality execution. <strong>Built by faith. Powered by AI.</strong></p>
+  </div>
+
+  <!-- LEFT COLUMN -->
+  <div>
+
+    <!-- CORE COMPETENCIES -->
+    <div class="section">
+      <div class="section-title">Core Competencies</div>
+      <ul>
+        <li>AI-powered social media management & content creation</li>
+        <li>Paid advertising — Meta Ads, Google Ads, campaign strategy</li>
+        <li>Brand identity, logo design & visual rebrand</li>
+        <li>Custom landing pages & e-commerce buildout</li>
+        <li>Automated marketing workflows & CRM integration</li>
+        <li>Video production, Reels scripting & short-form content</li>
+        <li>Government & nonprofit outreach campaign design</li>
+        <li>Email sequences, newsletters & lead nurture systems</li>
+      </ul>
+    </div>
+
+    <!-- NAICS CODES -->
+    <div class="section">
+      <div class="section-title">NAICS Codes</div>
+      <div class="naics-wrap">
+        <div class="naics-pill">541810 — Advertising Agencies</div>
+        <div class="naics-pill">541613 — Marketing Consulting</div>
+        <div class="naics-pill">541511 — Custom Programming</div>
+      </div>
+    </div>
+
+    <!-- DIFFERENTIATORS -->
+    <div class="section">
+      <div class="section-title">Differentiators</div>
+      <ul class="diff-list">
+        <li>AI-native agency — faster delivery, lower cost, higher output</li>
+        <li>Faith-driven culture — Kingdom-quality work on every engagement</li>
+        <li>Columbia SC local — available for in-person meetings &amp; walk-ins</li>
+        <li>Full-service — strategy, content, ads, web, automation in one team</li>
+        <li>Rapid deployment — deliverables in days, not weeks</li>
+        <li>Transparent pricing — no hidden fees, no bait-and-switch</li>
+      </ul>
+    </div>
+
+  </div>
+
+  <!-- RIGHT COLUMN -->
+  <div>
+
+    <!-- COMPANY DATA -->
+    <div class="section">
+      <div class="section-title">Company Data</div>
+      <div class="data-row">
+        <div class="data-label">Legal Name</div>
+        <div class="data-value">All Glory to Jesus Global LLC</div>
+      </div>
+      <div class="data-row">
+        <div class="data-label">DBA</div>
+        <div class="data-value">Crown Media Group</div>
+      </div>
+      <div class="data-row">
+        <div class="data-label">EIN</div>
+        <div class="data-value">41-2660289</div>
+      </div>
+      <div class="data-row">
+        <div class="data-label">UEI</div>
+        <div class="data-value">Pending (SAM.gov — submitted 3/22/2026)</div>
+      </div>
+      <div class="data-row">
+        <div class="data-label">Entity Type</div>
+        <div class="data-value">LLC — Domestic, South Carolina</div>
+      </div>
+      <div class="data-row">
+        <div class="data-label">Founded</div>
+        <div class="data-value">November 17, 2025</div>
+      </div>
+      <div class="data-row">
+        <div class="data-label">Business Size</div>
+        <div class="data-value">Small Business | SDB (self-certified)</div>
+      </div>
+      <div class="data-row">
+        <div class="data-label">Address</div>
+        <div class="data-value">112 Avington Lane, Columbia, SC 29229</div>
+      </div>
+      <div class="data-row">
+        <div class="data-label">Website</div>
+        <div class="data-value">crownmediagroup.co</div>
+      </div>
+    </div>
+
+    <!-- PAST PERFORMANCE -->
+    <div class="section">
+      <div class="section-title">Past Performance</div>
+      <div class="perf-item">
+        <div class="perf-client">Shatiea's Fruit of the Spirit Juice — Columbia, SC</div>
+        <div class="perf-desc">Full brand rebrand, social media management, logo design, content calendar, AI-generated content, paid ad strategy, and e-commerce buildout for a faith-based health juice business.</div>
+        <div class="perf-result">Deliverables: brand identity, 3+ content series, ad campaign, e-commerce store — all within 30 days of engagement.</div>
+      </div>
+      <div class="perf-item">
+        <div class="perf-client">Crown Media Group Internal — Columbia, SC</div>
+        <div class="perf-desc">Built full AI-automated client onboarding system: Stripe payments, Supabase database, Railway server, Gemini AI logo generation, and Resend email delivery — zero manual intervention post-purchase.</div>
+        <div class="perf-result">Pipeline: Stripe → Supabase → AI generation → automated delivery. Live at crownmediagroup.co/ai-tools.html.</div>
+      </div>
+    </div>
+
+  </div>
+
+</div>
+
+<!-- FOOTER -->
+<div class="footer">
+  <div class="footer-contact">
+    <strong>David King</strong> — CEO & Founder<br>
+    king@crownmediagroup.co &nbsp;|&nbsp; (908) 848-1436<br>
+    crownmediagroup.co &nbsp;|&nbsp; Columbia, SC 29229
+  </div>
+  <div class="footer-tag">
+    Built by Faith. Powered by AI.<br>
+    <span style="font-size:10px; color:#aaa; font-family: Inter, sans-serif; font-style:normal;">All Glory to Jesus Global LLC</span>
+  </div>
+</div>
+
+</body>
+</html>
