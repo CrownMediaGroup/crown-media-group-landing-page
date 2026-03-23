@@ -12,9 +12,9 @@ const resend = new Resend(process.env.RESEND_API_KEY);
 // Each param looks like: entry.1234567890=value — use just the number after "entry."
 const FORM_ID = '1mFTt1YJ9iGJscnZxM5WnVnhN_L_9tqLCK9PV9_KHR3A';
 const FORM_ENTRY = {
-  business: '', // "Business Name" field entry ID
-  email:    '', // "Email Address" field entry ID
-  orderRef: '', // "Order Reference" field entry ID (add this field to the form first)
+  business: '359993626',  // "Business Name"
+  email:    '1269703971', // "Email Address"
+  orderRef: '',           // "Order Reference" — fill in after adding that field to the form
 };
 
 function buildFormUrl(businessName, email, sessionId) {
