@@ -704,12 +704,28 @@ nav.scrolled{box-shadow:0 4px 30px rgba(201,152,26,.08)}
 <!-- STATUS (post-payment) -->
 <div class="status-wrap" id="status-section">
   <div class="status-inner">
-    <div class="status-icon-lg" id="status-icon">&#8987;</div>
-    <h2 class="status-h" id="status-title">Generating your assets...</h2>
-    <p class="status-p" id="status-desc">Our AI is building your custom files right now. This usually takes 2&ndash;4 minutes. Don&rsquo;t close this tab.</p>
-    <div class="progress-track"><div class="progress-bar" id="progress-fill"></div></div>
-    <div class="progress-label" id="progress-label">Starting generation...</div>
-    <div class="delivery-grid" id="delivery-grid"></div>
+
+    <!-- Logo flow: complete brand brief -->
+    <div id="view-brief">
+      <div class="status-icon-lg">&#10003;</div>
+      <h2 class="status-h">Payment confirmed.</h2>
+      <p class="status-p">Fill out your brand brief below &mdash; takes 2 minutes. We use your answers to build a logo custom to your business.</p>
+      <p style="font-size:.8rem;color:var(--text-mid);margin-bottom:32px">A link was also sent to your email in case you need to return later.</p>
+      <div style="width:100%;max-width:640px;margin:0 auto">
+        <iframe id="brief-iframe" src="" width="100%" height="960" frameborder="0" marginheight="0" marginwidth="0" style="border:1px solid var(--border);border-radius:4px;background:#fff">Loading&hellip;</iframe>
+      </div>
+    </div>
+
+    <!-- Banner / auto-generation flow -->
+    <div id="view-processing" style="display:none">
+      <div class="status-icon-lg" id="status-icon">&#8987;</div>
+      <h2 class="status-h" id="status-title">Generating your assets...</h2>
+      <p class="status-p" id="status-desc">Our AI is building your custom files right now. This usually takes 2&ndash;4 minutes. Don&rsquo;t close this tab.</p>
+      <div class="progress-track"><div class="progress-bar" id="progress-fill"></div></div>
+      <div class="progress-label" id="progress-label">Starting generation...</div>
+      <div class="delivery-grid" id="delivery-grid"></div>
+    </div>
+
     <p class="support-text">Questions? <a href="mailto:king@crownmediagroup.co" class="support-link">king@crownmediagroup.co</a></p>
   </div>
 </div>
@@ -719,35 +735,10 @@ nav.scrolled{box-shadow:0 4px 30px rgba(201,152,26,.08)}
   <div class="modal">
     <button type="button" class="modal-close-btn" onclick="closeModal()" aria-label="Close">&times;</button>
     <h2 id="modal-title">Tell us about your brand</h2>
-    <p class="modal-sub">We&rsquo;ll personalize your AI-generated assets to your business.</p>
+    <p class="modal-sub">Enter your details below. After payment you&rsquo;ll complete a 2-minute brand brief so we can build something custom.</p>
     <div class="form-group">
       <label for="field-business">Business Name</label>
       <input type="text" id="field-business" placeholder="e.g. Shatiea's Juice Bar" maxlength="80">
-    </div>
-    <div class="form-group">
-      <label for="field-industry">Industry</label>
-      <select id="field-industry">
-        <option value="food & beverage">Food &amp; Beverage</option>
-        <option value="health & wellness">Health &amp; Wellness</option>
-        <option value="retail">Retail</option>
-        <option value="real estate">Real Estate</option>
-        <option value="faith & ministry">Faith &amp; Ministry</option>
-        <option value="beauty & salon">Beauty &amp; Salon</option>
-        <option value="fitness">Fitness</option>
-        <option value="professional services">Professional Services</option>
-        <option value="tech & marketing">Tech &amp; Marketing</option>
-        <option value="general">General / Other</option>
-      </select>
-    </div>
-    <div class="form-group">
-      <label for="field-style">Design Style</label>
-      <select id="field-style">
-        <option value="modern">Modern &amp; Clean</option>
-        <option value="bold">Bold &amp; Energetic</option>
-        <option value="minimalist">Minimalist</option>
-        <option value="classic">Classic &amp; Professional</option>
-        <option value="luxury">Luxury &amp; Premium</option>
-      </select>
     </div>
     <div class="form-group">
       <label for="field-email">Your Email (for delivery)</label>
@@ -862,8 +853,6 @@ document.getElementById('modal').addEventListener('click', e => {
 async function startCheckout() {
   const businessName = document.getElementById('field-business').value.trim();
   const email        = document.getElementById('field-email').value.trim();
-  const industry     = document.getElementById('field-industry').value;
-  const style        = document.getElementById('field-style').value;
 
   if (!businessName) { showErr('Please enter your business name.'); return; }
   if (!email || !email.includes('@')) { showErr('Please enter a valid email address.'); return; }
@@ -873,11 +862,16 @@ async function startCheckout() {
   btn.disabled    = true;
   document.getElementById('modal-error').style.display = 'none';
 
+  // Store for success page pre-fill
+  sessionStorage.setItem('order_business', businessName);
+  sessionStorage.setItem('order_email', email);
+  sessionStorage.setItem('order_product', selectedProduct);
+
   try {
     const res = await fetch('/api/create-checkout', {
       method:  'POST',
       headers: { 'Content-Type': 'application/json' },
-      body:    JSON.stringify({ productId: selectedProduct, customerEmail: email, businessName, style, industry }),
+      body:    JSON.stringify({ productId: selectedProduct, customerEmail: email, businessName }),
     });
     if (!res.ok) {
       const text = await res.text().catch(() => 'Server error');
@@ -907,15 +901,60 @@ function showErr(msg) {
   document.querySelectorAll('.reveal').forEach(el => obs.observe(el));
 })();
 
+// ── Google Form pre-fill entry IDs ────────────────────────────────────────────
+// Get these: open the form → 3-dot menu → "Get pre-filled link" → fill each field
+// → click "Get link" → copy URL → pull the number from each entry.XXXXXXXXXX param
+const FORM_ID = '1mFTt1YJ9iGJscnZxM5WnVnhN_L_9tqLCK9PV9_KHR3A';
+const FORM_ENTRY = {
+  business: '', // "Business Name" field entry ID (digits only, no "entry." prefix)
+  email:    '', // "Email Address" field entry ID
+  orderRef: '', // "Order Reference" field entry ID (add this field to form first)
+};
+
+function buildFormUrl(businessName, email, sessionId) {
+  let url = 'https://docs.google.com/forms/d/' + FORM_ID + '/viewform?embedded=true';
+  if (FORM_ENTRY.business) url += '&entry.' + FORM_ENTRY.business + '=' + encodeURIComponent(businessName);
+  if (FORM_ENTRY.email)    url += '&entry.' + FORM_ENTRY.email    + '=' + encodeURIComponent(email);
+  if (FORM_ENTRY.orderRef) url += '&entry.' + FORM_ENTRY.orderRef + '=' + encodeURIComponent(sessionId);
+  return url;
+}
+
+function showBriefForm(sessionId, businessName, email) {
+  document.getElementById('view-brief').style.display      = 'block';
+  document.getElementById('view-processing').style.display = 'none';
+  document.getElementById('brief-iframe').src = buildFormUrl(businessName, email, sessionId);
+}
+
 // ── Post-payment status ────────────────────────────────────────────────────────
 const params = new URLSearchParams(window.location.search);
+
 if (params.get('success') === '1' && params.get('session_id')) {
-  const sessionId = params.get('session_id');
+  const sessionId    = params.get('session_id');
+  const businessName = sessionStorage.getItem('order_business') || '';
+  const email        = sessionStorage.getItem('order_email') || '';
+  const productId    = sessionStorage.getItem('order_product') || 'logo-basic';
   ['main-hero','main-tabs'].forEach(id => { document.getElementById(id).style.display = 'none'; });
-  document.querySelector('.showcase').style.display   = 'none';
+  document.querySelector('.showcase').style.display        = 'none';
   document.querySelector('.products-section').style.display = 'none';
   document.getElementById('status-section').classList.add('active');
-  pollStatus(sessionId);
+  if (productId === 'logo-basic') {
+    showBriefForm(sessionId, businessName, email);
+  } else {
+    document.getElementById('view-brief').style.display      = 'none';
+    document.getElementById('view-processing').style.display = 'block';
+    pollStatus(sessionId);
+  }
+}
+
+if (params.get('order_id')) {
+  const orderId = params.get('order_id');
+  ['main-hero','main-tabs'].forEach(id => { document.getElementById(id).style.display = 'none'; });
+  document.querySelector('.showcase').style.display        = 'none';
+  document.querySelector('.products-section').style.display = 'none';
+  document.getElementById('status-section').classList.add('active');
+  document.getElementById('view-brief').style.display      = 'none';
+  document.getElementById('view-processing').style.display = 'block';
+  loadDelivery(orderId);
 }
 
 async function pollStatus(sessionId) {
