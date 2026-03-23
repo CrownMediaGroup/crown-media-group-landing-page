@@ -18,6 +18,16 @@ const FORM_ENTRY = {
   product:  '26156092',   // "Product Type"
 };
 
+// ── Website intake form pre-fill ───────────────────────────────────────────────
+// TODO: Create Google Form for website intake, then replace the placeholders below
+// Steps: 3-dot menu → "Get pre-filled link" → fill each field → "Get link" → copy entry IDs
+const WEBSITE_FORM_ID    = 'YOUR_WEBSITE_FORM_ID_HERE';
+const WEBSITE_FORM_ENTRY = {
+  business: 'ENTRY_BUSINESS_ID',  // "Business Name"
+  email:    'ENTRY_EMAIL_ID',     // "Email Address"
+  orderRef: 'ENTRY_ORDER_REF_ID', // "Order Reference"
+};
+
 function buildFormUrl(businessName, email, sessionId, productId) {
   const productLabel = productId === 'logo-basic' ? 'Logo' : 'Banner';
   let url = `https://docs.google.com/forms/d/${FORM_ID}/viewform?embedded=true`;
@@ -25,6 +35,16 @@ function buildFormUrl(businessName, email, sessionId, productId) {
   if (FORM_ENTRY.email)    url += `&entry.${FORM_ENTRY.email}=${encodeURIComponent(email)}`;
   if (FORM_ENTRY.orderRef) url += `&entry.${FORM_ENTRY.orderRef}=${encodeURIComponent(sessionId)}`;
   if (FORM_ENTRY.product)  url += `&entry.${FORM_ENTRY.product}=${encodeURIComponent(productLabel)}`;
+  return url;
+}
+
+function buildWebsiteFormUrl(businessName, email, sessionId) {
+  let url = `https://docs.google.com/forms/d/${WEBSITE_FORM_ID}/viewform?embedded=true`;
+  if (WEBSITE_FORM_ENTRY.business !== 'ENTRY_BUSINESS_ID') {
+    url += `&entry.${WEBSITE_FORM_ENTRY.business}=${encodeURIComponent(businessName)}`;
+    url += `&entry.${WEBSITE_FORM_ENTRY.email}=${encodeURIComponent(email)}`;
+    url += `&entry.${WEBSITE_FORM_ENTRY.orderRef}=${encodeURIComponent(sessionId)}`;
+  }
   return url;
 }
 
@@ -47,13 +67,14 @@ export default async (req) => {
       const businessName = session.metadata.businessName || '';
       const email        = session.customer_details?.email || '';
       const isLogo       = productId === 'logo-basic';
+      const isWebsite    = productId === 'website-basic';
 
       const { data: order, error } = await supabase.from('ai_orders').insert({
         email,
         product_type:      productId,
         amount:            session.amount_total,
         stripe_session_id: session.id,
-        status:            isLogo ? 'awaiting_intake' : 'processing',
+        status:            (isLogo || isWebsite) ? 'awaiting_intake' : 'processing',
         business_name:     businessName,
         style:             session.metadata.style || '',
         industry:          session.metadata.industry || '',
@@ -65,8 +86,13 @@ export default async (req) => {
       }
 
       // Notify King of new sale
-      const productLabel  = isLogo ? 'AI Logo Design' : 'AI Banner Set';
+      const productLabel  = isLogo ? 'AI Logo Design' : isWebsite ? 'AI Website' : 'AI Banner Set';
       const amountDollars = ((session.amount_total || 0) / 100).toFixed(2);
+      const pipelineNote  = isLogo
+        ? 'Logo — customer sent to brand brief form. Pipeline fires on form submit.'
+        : isWebsite
+        ? 'Website — customer sent to website intake form. Auto-deploys on form submit.'
+        : 'Banner — generation running automatically.';
       resend.emails.send({
         from: 'Crown Media Group <king@crownmediagroup.co>',
         to: 'king@crownmediagroup.co',
@@ -77,7 +103,7 @@ export default async (req) => {
           <p><strong>Amount:</strong> $${amountDollars}</p>
           <p><strong>Business:</strong> ${businessName}</p>
           <p><strong>Customer email:</strong> ${email}</p>
-          <p style="color:#555;font-size:13px;margin-top:24px">${isLogo ? 'Logo — customer sent to brand brief form. Pipeline fires on form submit.' : 'Banner — generation running automatically.'} Check <a href="https://crownmediagroup.co/admin" style="color:#C9981A">admin dashboard</a>.</p>
+          <p style="color:#555;font-size:13px;margin-top:24px">${pipelineNote} Check <a href="https://crownmediagroup.co/admin" style="color:#C9981A">admin dashboard</a>.</p>
         </div>`,
       }).catch(console.error);
 
@@ -94,6 +120,22 @@ export default async (req) => {
             <p style="color:#8888aa;margin-bottom:28px;line-height:1.7">One last step — fill out your brand brief so we can build a logo custom to your business. Takes 2 minutes.</p>
             <a href="${formUrl}" style="display:inline-block;background:#c9a84c;color:#000;font-weight:700;padding:14px 28px;border-radius:8px;text-decoration:none;margin-bottom:32px">Complete Your Brand Brief</a>
             <p style="color:#555;font-size:13px">Your logo will be ready within 24 hours of submitting the brief. Questions? Reply to this email.</p>
+            <p style="color:#333;font-size:12px;margin-top:24px">Crown Media Group &middot; Columbia, SC &middot; crownmediagroup.co</p>
+          </div>`,
+        }).catch(console.error);
+      } else if (isWebsite) {
+        // Send customer to website intake form
+        const websiteFormUrl = buildWebsiteFormUrl(businessName, email, session.id);
+        resend.emails.send({
+          from: 'Crown Media Group <king@crownmediagroup.co>',
+          to: email,
+          subject: `Complete your website brief — Crown Media Group`,
+          html: `<div style="font-family:sans-serif;max-width:560px;margin:0 auto;padding:40px 20px;background:#0d0d14;color:#e8e8f0">
+            <img src="https://crownmediagroup.co/logo.png" alt="Crown Media Group" style="height:40px;margin-bottom:32px">
+            <h1 style="font-size:24px;font-weight:800;margin-bottom:12px">Payment confirmed${businessName ? `, ${businessName}` : ''}.</h1>
+            <p style="color:#8888aa;margin-bottom:28px;line-height:1.7">One last step — fill out your website brief so we can build your custom site. Takes 3 minutes. Your site will be live within 10 minutes of submitting.</p>
+            <a href="${websiteFormUrl}" style="display:inline-block;background:#c9a84c;color:#000;font-weight:700;padding:14px 28px;border-radius:8px;text-decoration:none;margin-bottom:32px">Fill Out Website Brief</a>
+            <p style="color:#555;font-size:13px">Your website will be live and delivered to this email within minutes of submitting the brief. Questions? Reply to this email.</p>
             <p style="color:#333;font-size:12px;margin-top:24px">Crown Media Group &middot; Columbia, SC &middot; crownmediagroup.co</p>
           </div>`,
         }).catch(console.error);

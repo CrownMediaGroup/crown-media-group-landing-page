@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>AI Logo & Banner Generator — Crown Media Group</title>
+<title>AI Logo, Banner & Website Generator — Crown Media Group</title>
 <meta name="description" content="Generate professional AI logos and social media banners instantly. PNG + SVG vector files. Powered by Crown Media Group.">
 <meta name="robots" content="index, follow">
 <link rel="canonical" href="https://crownmediagroup.co/ai-tools.html">
@@ -605,6 +605,7 @@ nav.scrolled{box-shadow:0 4px 30px rgba(201,152,26,.08)}
 <div class="tab-bar" id="main-tabs">
   <button type="button" class="tab-btn active" id="tab-logos" onclick="switchTab('logos')">Logos</button>
   <button type="button" class="tab-btn" id="tab-banners" onclick="switchTab('banners')">Banners</button>
+  <button type="button" class="tab-btn" id="tab-websites" onclick="switchTab('websites')">Websites</button>
 </div>
 
 <!-- GUARANTEE -->
@@ -682,6 +683,35 @@ nav.scrolled{box-shadow:0 4px 30px rgba(201,152,26,.08)}
       </div>
     </div>
 
+    <!-- WEBSITES -->
+    <div id="panel-websites" class="panel">
+      <div class="section-header reveal">
+        <span class="label">AI Website Design</span>
+        <div class="divider"></div>
+        <h2>A real website,<br>live in 10 minutes.</h2>
+        <p>One-page service business site deployed to its own URL. Mobile responsive. Built and live before you finish your coffee.</p>
+      </div>
+      <div class="product-grid reveal">
+        <div class="product-card featured">
+          <div class="card-tier">Most Popular &mdash; New</div>
+          <div class="card-name">AI Website</div>
+          <div class="card-desc">Complete 1-page business landing page &mdash; hero, services, about, contact. Deployed live to your own URL. No monthly hosting fee, no setup required.</div>
+          <div class="card-price"><sup>$</sup>197</div>
+          <div class="card-price-note">One-time payment &mdash; your URL, forever</div>
+          <div class="card-divider"></div>
+          <ul class="card-features">
+            <li>Live URL: yourbusiness-cmg.netlify.app</li>
+            <li>Hero, Services, About &amp; Contact sections</li>
+            <li>Your brand colors applied automatically</li>
+            <li>Mobile responsive out of the box</li>
+            <li>Deployed live in under 10 minutes</li>
+            <li>Crown Media Group credit in footer</li>
+          </ul>
+          <button type="button" class="btn-gold-large btn-full" onclick="openModal('website-basic')">Get My Website</button>
+        </div>
+      </div>
+    </div>
+
   </div>
 </div>
 
@@ -713,6 +743,17 @@ nav.scrolled{box-shadow:0 4px 30px rgba(201,152,26,.08)}
       <p style="font-size:.8rem;color:var(--text-mid);margin-bottom:32px">A link was also sent to your email in case you need to return later.</p>
       <div style="width:100%;max-width:640px;margin:0 auto">
         <iframe id="brief-iframe" src="" width="100%" height="960" frameborder="0" marginheight="0" marginwidth="0" style="border:1px solid var(--border);border-radius:4px;background:#fff">Loading&hellip;</iframe>
+      </div>
+    </div>
+
+    <!-- Website flow: complete website brief -->
+    <div id="view-website-brief" style="display:none">
+      <div class="status-icon-lg">&#10003;</div>
+      <h2 class="status-h">Payment confirmed.</h2>
+      <p class="status-p">Fill out your website brief below &mdash; takes 3 minutes. Your site will be live within 10 minutes of submitting.</p>
+      <p style="font-size:.8rem;color:var(--text-mid);margin-bottom:32px">A link was also sent to your email in case you need to return later.</p>
+      <div style="width:100%;max-width:640px;margin:0 auto">
+        <iframe id="website-brief-iframe" src="" width="100%" height="1100" frameborder="0" marginheight="0" marginwidth="0" style="border:1px solid var(--border);border-radius:4px;background:#fff">Loading&hellip;</iframe>
       </div>
     </div>
 
@@ -832,7 +873,7 @@ let selectedProduct = null;
 
 function openModal(productId) {
   selectedProduct = productId;
-  const names = { 'logo-basic': 'AI Logo Design \u2014 $97', 'banner-pack': 'AI Banner Set \u2014 $97' };
+  const names = { 'logo-basic': 'AI Logo Design \u2014 $97', 'banner-pack': 'AI Banner Set \u2014 $97', 'website-basic': 'AI Website \u2014 $197' };
   document.getElementById('modal-title').textContent = names[productId];
   document.getElementById('modal-error').style.display = 'none';
   document.getElementById('checkout-btn').textContent = 'Proceed to Payment';
@@ -912,6 +953,14 @@ const FORM_ENTRY = {
   product:  '26156092',   // "Product Type"
 };
 
+// ── Website intake form IDs — TODO: replace after creating Google Form ─────────
+const WEBSITE_FORM_ID    = 'YOUR_WEBSITE_FORM_ID_HERE';
+const WEBSITE_FORM_ENTRY = {
+  business: 'ENTRY_BUSINESS_ID',
+  email:    'ENTRY_EMAIL_ID',
+  orderRef: 'ENTRY_ORDER_REF_ID',
+};
+
 function buildFormUrl(businessName, email, sessionId, productId) {
   const productLabel = productId === 'logo-basic' ? 'Logo' : 'Banner';
   let url = 'https://docs.google.com/forms/d/' + FORM_ID + '/viewform?embedded=true';
@@ -922,10 +971,28 @@ function buildFormUrl(businessName, email, sessionId, productId) {
   return url;
 }
 
+function buildWebsiteFormUrl(businessName, email, sessionId) {
+  let url = 'https://docs.google.com/forms/d/' + WEBSITE_FORM_ID + '/viewform?embedded=true';
+  if (WEBSITE_FORM_ENTRY.business !== 'ENTRY_BUSINESS_ID') {
+    url += '&entry.' + WEBSITE_FORM_ENTRY.business + '=' + encodeURIComponent(businessName);
+    url += '&entry.' + WEBSITE_FORM_ENTRY.email    + '=' + encodeURIComponent(email);
+    url += '&entry.' + WEBSITE_FORM_ENTRY.orderRef + '=' + encodeURIComponent(sessionId);
+  }
+  return url;
+}
+
 function showBriefForm(sessionId, businessName, email, productId) {
-  document.getElementById('view-brief').style.display      = 'block';
-  document.getElementById('view-processing').style.display = 'none';
+  document.getElementById('view-brief').style.display         = 'block';
+  document.getElementById('view-website-brief').style.display = 'none';
+  document.getElementById('view-processing').style.display    = 'none';
   document.getElementById('brief-iframe').src = buildFormUrl(businessName, email, sessionId, productId);
+}
+
+function showWebsiteBriefForm(sessionId, businessName, email) {
+  document.getElementById('view-brief').style.display         = 'none';
+  document.getElementById('view-website-brief').style.display = 'block';
+  document.getElementById('view-processing').style.display    = 'none';
+  document.getElementById('website-brief-iframe').src = buildWebsiteFormUrl(businessName, email, sessionId);
 }
 
 // ── Post-payment status ────────────────────────────────────────────────────────
@@ -942,9 +1009,12 @@ if (params.get('success') === '1' && params.get('session_id')) {
   document.getElementById('status-section').classList.add('active');
   if (productId === 'logo-basic') {
     showBriefForm(sessionId, businessName, email, productId);
+  } else if (productId === 'website-basic') {
+    showWebsiteBriefForm(sessionId, businessName, email);
   } else {
-    document.getElementById('view-brief').style.display      = 'none';
-    document.getElementById('view-processing').style.display = 'block';
+    document.getElementById('view-brief').style.display         = 'none';
+    document.getElementById('view-website-brief').style.display = 'none';
+    document.getElementById('view-processing').style.display    = 'block';
     pollStatus(sessionId);
   }
 }
