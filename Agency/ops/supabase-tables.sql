@@ -87,3 +87,55 @@ CREATE POLICY "allow_all_clients" ON clients FOR ALL USING (true);
 CREATE POLICY "allow_all_leads" ON leads FOR ALL USING (true);
 CREATE POLICY "allow_all_invoices" ON invoices FOR ALL USING (true);
 CREATE POLICY "allow_all_onboarding" ON onboarding_submissions FOR ALL USING (true);
+
+-- ============================================
+-- TABLE: ai_orders
+-- Tracks every AI Tools purchase end-to-end
+-- ============================================
+CREATE TABLE IF NOT EXISTS ai_orders (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  status_updated_at TIMESTAMPTZ DEFAULT NOW(),
+  email TEXT NOT NULL,
+  business_name TEXT,
+  product_type TEXT NOT NULL CHECK (product_type IN ('logo-basic', 'banner-pack')),
+  amount INTEGER,
+  stripe_session_id TEXT UNIQUE,
+  status TEXT DEFAULT 'awaiting_intake' CHECK (status IN (
+    'awaiting_intake',  -- paid, form not submitted yet
+    'processing',       -- form received, generating
+    'logos_ready',      -- King has logos in email, awaiting review
+    'completed',        -- King approved, delivered to client
+    'failed',           -- something broke
+    'abandoned'         -- paid but never filled form (24hr+)
+  )),
+  style TEXT,
+  industry TEXT,
+  error_msg TEXT
+);
+
+-- ============================================
+-- TABLE: ai_assets
+-- Stores generated logo/banner file references
+-- ============================================
+CREATE TABLE IF NOT EXISTS ai_assets (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  order_id UUID REFERENCES ai_orders(id) ON DELETE CASCADE,
+  storage_path TEXT NOT NULL,
+  asset_type TEXT CHECK (asset_type IN ('logo', 'banner')),
+  style TEXT,
+  platform TEXT,
+  width INTEGER,
+  height INTEGER,
+  prompt_used TEXT,
+  ai_model TEXT
+);
+
+-- Storage bucket: ai-generated
+-- Create this manually in Supabase → Storage → New bucket → "ai-generated" → Private
+
+ALTER TABLE ai_orders ENABLE ROW LEVEL SECURITY;
+ALTER TABLE ai_assets ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "allow_all_ai_orders" ON ai_orders FOR ALL USING (true);
+CREATE POLICY "allow_all_ai_assets" ON ai_assets FOR ALL USING (true);

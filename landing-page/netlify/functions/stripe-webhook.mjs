@@ -14,14 +14,17 @@ const FORM_ID = '1mFTt1YJ9iGJscnZxM5WnVnhN_L_9tqLCK9PV9_KHR3A';
 const FORM_ENTRY = {
   business: '359993626',  // "Business Name"
   email:    '1269703971', // "Email Address"
-  orderRef: '',           // "Order Reference" — fill in after adding that field to the form
+  orderRef: '729356391',  // "Order Reference"
+  product:  '26156092',   // "Product Type"
 };
 
-function buildFormUrl(businessName, email, sessionId) {
+function buildFormUrl(businessName, email, sessionId, productId) {
+  const productLabel = productId === 'logo-basic' ? 'Logo' : 'Banner';
   let url = `https://docs.google.com/forms/d/${FORM_ID}/viewform?embedded=true`;
   if (FORM_ENTRY.business) url += `&entry.${FORM_ENTRY.business}=${encodeURIComponent(businessName)}`;
   if (FORM_ENTRY.email)    url += `&entry.${FORM_ENTRY.email}=${encodeURIComponent(email)}`;
   if (FORM_ENTRY.orderRef) url += `&entry.${FORM_ENTRY.orderRef}=${encodeURIComponent(sessionId)}`;
+  if (FORM_ENTRY.product)  url += `&entry.${FORM_ENTRY.product}=${encodeURIComponent(productLabel)}`;
   return url;
 }
 
@@ -80,7 +83,7 @@ export default async (req) => {
 
       if (isLogo) {
         // Send customer to Google Form to complete brand brief
-        const formUrl = buildFormUrl(businessName, email, session.id);
+        const formUrl = buildFormUrl(businessName, email, session.id, productId);
         resend.emails.send({
           from: 'Crown Media Group <king@crownmediagroup.co>',
           to: email,
