@@ -1,0 +1,39 @@
+{
+  "brand": "Crown Media Group",
+  "entity": "All Glory to Jesus Global LLC",
+  "domain": "crownmediagroup.co",
+  "founder": "David King (@mkdavidking)",
+  "location": "Columbia, SC 29229",
+
+  "colors": {
+    "royal":      "#1A1A3E",
+    "royalMid":   "#2D2D5A",
+    "royalDeep":  "#0F0F28",
+    "gold":       "#C9981A",
+    "goldLight":  "#E8B832",
+    "goldDeep":   "#9A720D",
+    "goldPale":   "#F5E6B8",
+    "cream":      "#FDFBF7",
+    "warm":       "#F9F5EE",
+    "white":      "#FFFFFF",
+    "text":       "#1A1A2E",
+    "textMid":    "#4A4A6A",
+    "textLight":  "#8A8AAA"
+  },
+
+  "typography": {
+    "display": "Cormorant Garamond — serif, weights 300/400/600/700, italic",
+    "body":    "Inter — sans-serif, weights 300/400/500/600/700/800"
+  },
+
+  "voice": "Bold, direct, faith-aligned. No fluff. Confident CTA.",
+  "tagline": "All Glory to Jesus",
+
+  "social": {
+    "instagram": "@crownmediagroupco",
+    "x":         "@crownmedia_co",
+    "personal":  "@mkdavidking"
+  },
+
+  "email": "king@crownmediagroup.co"
+}

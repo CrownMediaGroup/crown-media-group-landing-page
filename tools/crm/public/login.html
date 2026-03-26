@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sign In — CRM</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg:      #0A1628;
+    --card:    #1E2D45;
+    --border:  rgba(201,168,76,0.2);
+    --gold:    #C9A84C;
+    --gold-h:  #E0BD6B;
+    --text:    #FFFFFF;
+    --muted:   rgba(255,255,255,0.55);
+    --red:     #e05c5c;
+    --green:   #4caf7d;
+    --input-bg:#16213a;
+    --radius:  8px;
+  }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+  }
+
+  .login-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 48px 40px;
+    width: 100%;
+    max-width: 400px;
+    box-shadow: 0 24px 64px rgba(0,0,0,0.4);
+  }
+
+  .brand {
+    text-align: center;
+    margin-bottom: 36px;
+  }
+
+  .brand-name {
+    font-size: 1.4rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    color: var(--text);
+  }
+
+  .brand-name span { color: var(--gold); }
+
+  .brand-sub {
+    font-size: 0.78rem;
+    color: var(--muted);
+    margin-top: 6px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  .form-group { margin-bottom: 18px; }
+
+  label {
+    display: block;
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: var(--muted);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    margin-bottom: 7px;
+  }
+
+  /* Password wrapper — positions the eye toggle inside the input */
+  .pw-wrap {
+    position: relative;
+    display: flex;
+    align-items: center;
+  }
+
+  input[type="email"],
+  input[type="password"],
+  input[type="text"].pw-input {
+    width: 100%;
+    background: var(--input-bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 12px 44px 12px 14px;
+    color: var(--text);
+    font-size: 0.93rem;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+
+  input[type="email"] { padding: 12px 14px; }
+
+  input[type="email"]:focus,
+  input[type="password"]:focus,
+  input[type="text"].pw-input:focus {
+    border-color: var(--gold);
+  }
+
+  /* Eye toggle button */
+  .pw-toggle {
+    position: absolute;
+    right: 12px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 4px;
+    color: var(--muted);
+    line-height: 1;
+    transition: color 0.15s;
+    -webkit-user-select: none;
+    user-select: none;
+    font-size: 18px;
+  }
+
+  .pw-toggle:hover { color: var(--gold); }
+
+  /* Remember me row */
+  .remember-row {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    margin-bottom: 20px;
+    margin-top: -4px;
+  }
+
+  .remember-row input[type="checkbox"] {
+    width: 16px;
+    height: 16px;
+    accent-color: var(--gold);
+    cursor: pointer;
+    flex-shrink: 0;
+  }
+
+  .remember-row label {
+    font-size: 0.82rem;
+    color: var(--muted);
+    letter-spacing: 0;
+    text-transform: none;
+    font-weight: 400;
+    margin-bottom: 0;
+    cursor: pointer;
+  }
+
+  .btn-login {
+    width: 100%;
+    background: var(--gold);
+    color: #0A1628;
+    border: none;
+    border-radius: var(--radius);
+    padding: 13px;
+    font-size: 0.9rem;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.1s;
+  }
+
+  .btn-login:hover   { background: var(--gold-h); }
+  .btn-login:active  { transform: scale(0.98); }
+  .btn-login:disabled { opacity: 0.6; cursor: not-allowed; }
+
+  .error-msg {
+    color: var(--red);
+    font-size: 0.82rem;
+    text-align: center;
+    min-height: 20px;
+    margin-top: 12px;
+  }
+
+  /* Security badge */
+  .security-badge {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    justify-content: center;
+    margin-top: 22px;
+    padding: 10px 14px;
+    background: rgba(76,175,125,0.08);
+    border: 1px solid rgba(76,175,125,0.2);
+    border-radius: var(--radius);
+  }
+
+  .security-badge svg { flex-shrink: 0; }
+
+  .security-badge span {
+    font-size: 0.72rem;
+    color: var(--green);
+    line-height: 1.4;
+  }
+
+  .footer-note {
+    text-align: center;
+    font-size: 0.72rem;
+    color: var(--muted);
+    margin-top: 20px;
+    line-height: 1.5;
+  }
+</style>
+</head>
+<body>
+
+<div class="login-card">
+  <div class="brand">
+    <div class="brand-name">Crown Media <span>CRM</span></div>
+    <div class="brand-sub">Sign in to your workspace</div>
+  </div>
+
+  <form id="loginForm" autocomplete="on">
+    <div class="form-group">
+      <label for="email">Email</label>
+      <input type="email" id="email" name="email" placeholder="you@example.com"
+             autocomplete="username" required>
+    </div>
+
+    <div class="form-group">
+      <label for="password">Password</label>
+      <div class="pw-wrap">
+        <input type="password" id="password" name="password" placeholder="&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;"
+               autocomplete="current-password" class="pw-input" required>
+        <button type="button" class="pw-toggle" id="pwToggle" aria-label="Show password" title="Show / hide password">
+          <!-- Eye closed (default — password hidden) -->
+          <svg id="eyeIcon" xmlns="http://www.w3.org/2000/svg" width="20" height="20"
+               viewBox="0 0 24 24" fill="none" stroke="currentColor"
+               stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+            <circle cx="12" cy="12" r="3"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+
+    <div class="remember-row">
+      <input type="checkbox" id="rememberMe" name="rememberMe">
+      <label for="rememberMe">Remember my email on this device</label>
+    </div>
+
+    <button type="submit" class="btn-login" id="loginBtn">Sign In</button>
+  </form>
+
+  <div class="error-msg" id="errorMsg"></div>
+
+  <div class="security-badge">
+    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24"
+         fill="none" stroke="#4caf7d" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+      <polyline points="9 12 11 14 15 10"/>
+    </svg>
+    <span>Encrypted session &mdash; your password is never stored or visible to anyone</span>
+  </div>
+
+  <div class="footer-note">
+    Crown Media Group &mdash; All Glory to Jesus
+  </div>
+</div>
+
+<script>
+// ── Auto-redirect if already logged in ────────────────────────────────────────
+// If you already have a valid session, skip the login page entirely.
+(async () => {
+  try {
+    const res = await fetch('/api/me', { credentials: 'same-origin' });
+    if (res.ok) window.location.replace('/');
+  } catch (_) {}
+})();
+
+// ── Pre-fill saved email ──────────────────────────────────────────────────────
+const savedEmail = localStorage.getItem('crm_saved_email');
+if (savedEmail) {
+  document.getElementById('email').value = savedEmail;
+  document.getElementById('rememberMe').checked = true;
+  // If email is pre-filled, jump straight to password field
+  document.getElementById('password').focus();
+} else {
+  document.getElementById('email').focus();
+}
+
+// ── Show / hide password toggle ───────────────────────────────────────────────
+const pwInput  = document.getElementById('password');
+const pwToggle = document.getElementById('pwToggle');
+const eyeIcon  = document.getElementById('eyeIcon');
+
+// Eye-off SVG (password visible)
+const eyeOffSVG = `<path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/>
+<path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/>
+<line x1="1" y1="1" x2="23" y2="23"/>`;
+
+// Eye SVG (password hidden)
+const eyeOnSVG = `<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+<circle cx="12" cy="12" r="3"/>`;
+
+let passwordVisible = false;
+
+pwToggle.addEventListener('click', () => {
+  passwordVisible = !passwordVisible;
+  pwInput.type          = passwordVisible ? 'text' : 'password';
+  eyeIcon.innerHTML     = passwordVisible ? eyeOffSVG : eyeOnSVG;
+  pwToggle.setAttribute('aria-label', passwordVisible ? 'Hide password' : 'Show password');
+  pwToggle.title        = passwordVisible ? 'Hide password' : 'Show password';
+  // Keep focus on the input after toggling
+  pwInput.focus();
+});
+
+// ── Login form submit ─────────────────────────────────────────────────────────
+document.getElementById('loginForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+
+  const btn      = document.getElementById('loginBtn');
+  const errorMsg = document.getElementById('errorMsg');
+  const email    = document.getElementById('email').value.trim();
+  const password = pwInput.value;
+  const remember = document.getElementById('rememberMe').checked;
+
+  btn.disabled         = true;
+  btn.textContent      = 'Signing in...';
+  errorMsg.textContent = '';
+
+  try {
+    const res = await fetch('/api/login', {
+      method:      'POST',
+      credentials: 'same-origin',
+      headers:     { 'Content-Type': 'application/json' },
+      body:        JSON.stringify({ email, password }),
+    });
+
+    if (res.ok) {
+      // Save or clear email based on checkbox — password is NEVER saved
+      if (remember) {
+        localStorage.setItem('crm_saved_email', email);
+      } else {
+        localStorage.removeItem('crm_saved_email');
+      }
+      window.location.replace('/');
+    } else {
+      const data           = await res.json().catch(() => ({}));
+      errorMsg.textContent = data.error || 'Wrong email or password. Try again.';
+      btn.disabled         = false;
+      btn.textContent      = 'Sign In';
+      // Clear the password field on failure so they retype it — never leave a bad password visible
+      pwInput.value    = '';
+      passwordVisible  = false;
+      pwInput.type     = 'password';
+      eyeIcon.innerHTML = eyeOnSVG;
+      pwInput.focus();
+    }
+  } catch {
+    errorMsg.textContent = 'Connection error. Is the server running?';
+    btn.disabled         = false;
+    btn.textContent      = 'Sign In';
+  }
+});
+</script>
+</body>
+</html>

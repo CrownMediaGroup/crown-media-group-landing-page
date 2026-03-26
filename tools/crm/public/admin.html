@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin — Crown Media CRM</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg:     #0A1628; --card:  #1E2D45; --border: rgba(201,168,76,0.2);
+    --gold:   #C9A84C; --gold-h:#E0BD6B; --text:   #FFFFFF;
+    --muted:  rgba(255,255,255,0.55); --red: #e05c5c; --green: #4caf7d;
+    --input-bg:#16213a; --radius:8px;
+  }
+  body { background:var(--bg); color:var(--text); font-family:'Inter',-apple-system,sans-serif; min-height:100vh; padding:40px 24px; }
+  .page { max-width:600px; margin:0 auto; }
+  h1 { font-size:1.4rem; font-weight:700; color:var(--gold); margin-bottom:6px; }
+  .sub { color:var(--muted); font-size:0.85rem; margin-bottom:36px; }
+  .back { color:var(--muted); font-size:0.8rem; text-decoration:none; display:inline-block; margin-bottom:24px; }
+  .back:hover { color:var(--gold); }
+  .card { background:var(--card); border:1px solid var(--border); border-radius:12px; padding:32px; margin-bottom:24px; }
+  .card h2 { font-size:1rem; font-weight:600; margin-bottom:20px; }
+  .form-group { margin-bottom:16px; }
+  label { display:block; font-size:0.75rem; font-weight:600; color:var(--muted); letter-spacing:.06em; text-transform:uppercase; margin-bottom:6px; }
+  input { width:100%; background:var(--input-bg); border:1px solid var(--border); border-radius:var(--radius); padding:11px 13px; color:var(--text); font-size:0.9rem; outline:none; transition:border-color .2s; }
+  input:focus { border-color:var(--gold); }
+  .row { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+  .btn { background:var(--gold); color:#0A1628; border:none; border-radius:var(--radius); padding:11px 24px; font-size:0.85rem; font-weight:700; letter-spacing:.05em; text-transform:uppercase; cursor:pointer; transition:background .2s; width:100%; margin-top:4px; }
+  .btn:hover { background:var(--gold-h); }
+  .btn:disabled { opacity:.6; cursor:not-allowed; }
+  .msg { font-size:.82rem; margin-top:12px; min-height:18px; }
+  .msg.ok  { color:var(--green); }
+  .msg.err { color:var(--red); }
+  .divider { border:none; border-top:1px solid var(--border); margin:24px 0; }
+  .result-box { background:var(--input-bg); border:1px solid var(--border); border-radius:var(--radius); padding:14px 16px; margin-top:14px; display:none; }
+  .result-box .result-row { display:flex; justify-content:space-between; align-items:center; font-size:.85rem; margin-bottom:6px; }
+  .result-box .result-row:last-child { margin-bottom:0; }
+  .result-box .label-k { color:var(--muted); font-size:.75rem; text-transform:uppercase; letter-spacing:.05em; }
+  .result-box .label-v { font-weight:600; color:var(--gold); }
+  .copy-btn { background:none; border:1px solid var(--border); color:var(--muted); border-radius:4px; padding:2px 8px; font-size:.72rem; cursor:pointer; }
+  .copy-btn:hover { border-color:var(--gold); color:var(--gold); }
+  table { width:100%; border-collapse:collapse; font-size:.83rem; }
+  th { text-align:left; color:var(--muted); font-size:.72rem; text-transform:uppercase; letter-spacing:.05em; padding-bottom:10px; border-bottom:1px solid var(--border); }
+  td { padding:10px 0; border-bottom:1px solid rgba(255,255,255,0.05); vertical-align:middle; }
+  .empty-table { color:var(--muted); font-size:.83rem; text-align:center; padding:20px 0; }
+  .sub-badge { display:inline-block; padding:2px 8px; border-radius:4px; font-size:.72rem; font-weight:700; letter-spacing:.04em; text-transform:uppercase; }
+  .sub-badge.trial    { background:rgba(201,168,76,0.15); color:var(--gold); }
+  .sub-badge.active   { background:rgba(76,175,125,0.15); color:var(--green); }
+  .sub-badge.expired  { background:rgba(224,92,92,0.15);  color:var(--red); }
+  .sub-badge.cancelled{ background:rgba(255,255,255,0.08); color:var(--muted); }
+  .action-btns { display:flex; gap:6px; flex-wrap:wrap; }
+  .act-btn { background:none; border:1px solid var(--border); border-radius:4px; padding:3px 10px; font-size:.72rem; color:var(--muted); cursor:pointer; }
+  .act-btn:hover { border-color:var(--gold); color:var(--gold); }
+  .act-btn.green { border-color:var(--green); color:var(--green); }
+  .act-btn.red   { border-color:var(--red); color:var(--red); }
+</style>
+</head>
+<body>
+
+<div class="page">
+  <a href="/" class="back">&larr; Back to CRM</a>
+  <h1>CRM Admin</h1>
+  <p class="sub">Create client workspaces and logins. Only you can see this page.</p>
+
+  <!-- Create new client workspace -->
+  <div class="card">
+    <h2>Add New Client</h2>
+    <div class="form-group">
+      <label>Client / Business Name</label>
+      <input id="wsName" placeholder="e.g. Shatiea Juice Bar">
+    </div>
+    <div class="row">
+      <div class="form-group">
+        <label>Client Email</label>
+        <input id="userEmail" type="email" placeholder="client@example.com">
+      </div>
+      <div class="form-group">
+        <label>Temporary Password</label>
+        <input id="userPassword" type="text" placeholder="Auto-generated" id="userPassword" readonly>
+      </div>
+    </div>
+    <div class="form-group">
+      <label>Brand Color (optional)</label>
+      <input id="wsColor" placeholder="#C9A84C" maxlength="7">
+    </div>
+    <button class="btn" id="createBtn" onclick="createClient()">Create Client Workspace</button>
+    <div class="msg" id="createMsg"></div>
+    <div class="result-box" id="resultBox">
+      <div class="result-row"><span class="label-k">Workspace</span><span class="label-v" id="r-name"></span></div>
+      <div class="result-row"><span class="label-k">Login URL</span><span class="label-v" id="r-url"></span></div>
+      <div class="result-row"><span class="label-k">Email</span><span class="label-v" id="r-email"></span></div>
+      <div class="result-row">
+        <span class="label-k">Temp Password</span>
+        <span class="label-v" id="r-pass"></span>
+        <button class="copy-btn" onclick="copyText(document.getElementById('r-pass').textContent)">Copy</button>
+      </div>
+      <div style="margin-top:12px;padding-top:12px;border-top:1px solid var(--border);font-size:.75rem;color:var(--muted)">
+        Send these credentials to your client. They can sign in at the Login URL and start adding contacts immediately.
+      </div>
+    </div>
+  </div>
+
+  <!-- Existing workspaces -->
+  <div class="card">
+    <h2>All Client Workspaces</h2>
+    <div id="wsTable"><div class="empty-table">Loading...</div></div>
+  </div>
+</div>
+
+<script>
+// ── Auth check — redirect non-superadmins ─────────────────────────────────────
+(async () => {
+  try {
+    const res  = await fetch('/api/me', { credentials: 'same-origin' });
+    if (!res.ok) { window.location.replace('/login'); return; }
+    const data = await res.json();
+    if (data.user.role !== 'superadmin') { window.location.replace('/'); }
+  } catch { window.location.replace('/login'); }
+  loadWorkspaces();
+})();
+
+// ── Auto-generate password on load ───────────────────────────────────────────
+function genPassword() {
+  const chars = 'ABCDEFGHJKMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789!@#';
+  return Array.from(crypto.getRandomValues(new Uint8Array(12)))
+    .map(b => chars[b % chars.length]).join('');
+}
+document.getElementById('userPassword').value = genPassword();
+
+// ── Create client ─────────────────────────────────────────────────────────────
+async function createClient() {
+  const btn      = document.getElementById('createBtn');
+  const msg      = document.getElementById('createMsg');
+  const name     = document.getElementById('wsName').value.trim();
+  const email    = document.getElementById('userEmail').value.trim();
+  const password = document.getElementById('userPassword').value.trim();
+  const color    = document.getElementById('wsColor').value.trim() || '#C9A84C';
+
+  msg.textContent = '';
+  msg.className   = 'msg';
+
+  if (!name)     { msg.textContent = 'Business name required.'; msg.className = 'msg err'; return; }
+  if (!email)    { msg.textContent = 'Client email required.';  msg.className = 'msg err'; return; }
+  if (!password) { msg.textContent = 'Password required.';      msg.className = 'msg err'; return; }
+
+  btn.disabled    = true;
+  btn.textContent = 'Creating...';
+
+  try {
+    // Step 1 — create workspace
+    const wsRes  = await fetch('/api/admin/workspaces', {
+      method:      'POST',
+      credentials: 'same-origin',
+      headers:     { 'Content-Type': 'application/json' },
+      body:        JSON.stringify({ name, primaryColor: color }),
+    });
+    if (!wsRes.ok) throw new Error((await wsRes.json()).error);
+    const { workspaceId } = await wsRes.json();
+
+    // Step 2 — create user
+    const uRes = await fetch('/api/admin/users', {
+      method:      'POST',
+      credentials: 'same-origin',
+      headers:     { 'Content-Type': 'application/json' },
+      body:        JSON.stringify({ email, password, workspaceId, role: 'rep' }),
+    });
+    if (!uRes.ok) throw new Error((await uRes.json()).error);
+
+    // Show result
+    const loginUrl = window.location.origin + '/login';
+    document.getElementById('r-name').textContent  = name;
+    document.getElementById('r-url').textContent   = loginUrl;
+    document.getElementById('r-email').textContent = email;
+    document.getElementById('r-pass').textContent  = password;
+    document.getElementById('resultBox').style.display = 'block';
+
+    msg.textContent = 'Client workspace created.';
+    msg.className   = 'msg ok';
+
+    // Reset form with new password ready
+    document.getElementById('wsName').value    = '';
+    document.getElementById('userEmail').value = '';
+    document.getElementById('wsColor').value   = '';
+    document.getElementById('userPassword').value = genPassword();
+
+    loadWorkspaces();
+  } catch (err) {
+    msg.textContent = err.message || 'Something went wrong.';
+    msg.className   = 'msg err';
+  }
+
+  btn.disabled    = false;
+  btn.textContent = 'Create Client Workspace';
+}
+
+// ── Load existing workspaces ──────────────────────────────────────────────────
+async function loadWorkspaces() {
+  const el = document.getElementById('wsTable');
+  try {
+    const res  = await fetch('/api/admin/workspaces', { credentials: 'same-origin' });
+    const list = await res.json();
+    if (!list.length) { el.innerHTML = '<div class="empty-table">No client workspaces yet.</div>'; return; }
+    el.innerHTML = `<table>
+      <thead><tr><th>#</th><th>Name</th><th>Subscription</th><th>Trial / Expires</th><th>Actions</th></tr></thead>
+      <tbody>${list.map(w => {
+        const status   = w.subscription_status || 'trial';
+        const trialEnd = w.trial_ends_at ? w.trial_ends_at.split('T')[0] : '—';
+        const subEnd   = w.subscription_ends_at ? w.subscription_ends_at.split('T')[0] : '—';
+        const dateInfo = status === 'active' ? `Renews ${subEnd}` : status === 'trial' ? `Ends ${trialEnd}` : '—';
+        const actions = w.id === 1 ? '<span style="font-size:.72rem;color:var(--muted)">Owner</span>' : `
+          <div class="action-btns">
+            ${status !== 'active' ? `<button class="act-btn green" onclick="setSubscription(${w.id},'active')">Activate</button>` : ''}
+            ${status === 'active' ? `<button class="act-btn" onclick="setSubscription(${w.id},'trial')">Back to Trial</button>` : ''}
+            <button class="act-btn" onclick="extendTrial(${w.id},7)">+7 Days</button>
+            <button class="act-btn" onclick="extendTrial(${w.id},33)">+33 Days</button>
+            ${status !== 'expired' ? `<button class="act-btn red" onclick="setSubscription(${w.id},'expired')">Expire</button>` : ''}
+          </div>`;
+        return `<tr>
+          <td>${w.id}</td>
+          <td>${esc(w.name)}</td>
+          <td><span class="sub-badge ${status}">${status}</span></td>
+          <td style="color:var(--muted);font-size:.78rem">${esc(dateInfo)}</td>
+          <td>${actions}</td>
+        </tr>`;
+      }).join('')}</tbody>
+    </table>`;
+  } catch { el.innerHTML = '<div class="empty-table">Failed to load workspaces.</div>'; }
+}
+
+async function setSubscription(wsId, status) {
+  try {
+    const res = await fetch(`/api/admin/workspaces/${wsId}/subscription`, {
+      method: 'PUT', credentials: 'same-origin',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ status }),
+    });
+    if (!res.ok) throw new Error((await res.json()).error);
+    loadWorkspaces();
+  } catch (err) { alert(err.message); }
+}
+
+async function extendTrial(wsId, days) {
+  try {
+    const res = await fetch(`/api/admin/workspaces/${wsId}/subscription`, {
+      method: 'PUT', credentials: 'same-origin',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ extendDays: days }),
+    });
+    if (!res.ok) throw new Error((await res.json()).error);
+    loadWorkspaces();
+  } catch (err) { alert(err.message); }
+}
+
+function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+function copyText(text) {
+  navigator.clipboard.writeText(text).then(() => alert('Copied!')).catch(() => {});
+}
+</script>
+</body>
+</html>
