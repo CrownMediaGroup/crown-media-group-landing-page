@@ -1,0 +1,99 @@
+name: Auto-Blog
+
+# Runs Mon/Wed/Fri at 6 AM EST (11:00 UTC)
+# Also triggerable manually from GitHub Actions tab
+on:
+  schedule:
+    - cron: '0 11 * * 1,3,5'
+  workflow_dispatch:
+    inputs:
+      topic:
+        description: 'Custom topic (leave blank to use queue)'
+        required: false
+      keyword:
+        description: 'Primary keyword'
+        required: false
+      category:
+        description: 'Category (default: Marketing)'
+        required: false
+        default: 'Marketing'
+
+jobs:
+  write-post:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install blog dependencies
+        working-directory: landing-page
+        run: npm install
+
+      - name: Generate post from queue
+        if: ${{ !inputs.topic }}
+        working-directory: landing-page
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          CI: true
+        run: node scripts/blog-writer.js --from-queue --publish
+
+      - name: Generate post from custom topic
+        if: ${{ inputs.topic }}
+        working-directory: landing-page
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          CI: true
+        run: |
+          node scripts/blog-writer.js \
+            --topic "${{ inputs.topic }}" \
+            --keyword "${{ inputs.keyword || inputs.topic }}" \
+            --category "${{ inputs.category }}" \
+            --publish
+
+      - name: Commit and push new post
+        run: |
+          git config user.name "Crown Media Bot"
+          git config user.email "king@crownmediagroup.co"
+          git add landing-page/content/blog/
+          git diff --staged --quiet || git commit -m "auto-blog: scheduled post $(date +%Y-%m-%d)"
+          git push
+
+      - name: Send email notification
+        if: success()
+        env:
+          RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
+        run: |
+          curl -s -X POST https://api.resend.com/emails \
+            -H "Authorization: Bearer $RESEND_API_KEY" \
+            -H "Content-Type: application/json" \
+            -d '{
+              "from": "Crown Media Group <king@crownmediagroup.co>",
+              "to": ["king@crownmediagroup.co"],
+              "subject": "New blog post published — crownmediagroup.co/blog",
+              "html": "<p>A new blog post was auto-published to <a href=\"https://crownmediagroup.co/blog\">crownmediagroup.co/blog</a>. Netlify will rebuild in ~2 minutes.</p><p>Review the post and edit the markdown if needed: <code>landing-page/content/blog/</code></p><p>All Glory to Jesus.</p>"
+            }'
+
+      - name: Notify on failure
+        if: failure()
+        env:
+          RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
+        run: |
+          curl -s -X POST https://api.resend.com/emails \
+            -H "Authorization: Bearer $RESEND_API_KEY" \
+            -H "Content-Type: application/json" \
+            -d '{
+              "from": "Crown Media Group <king@crownmediagroup.co>",
+              "to": ["king@crownmediagroup.co"],
+              "subject": "Auto-blog failed — check GitHub Actions",
+              "html": "<p>The scheduled auto-blog workflow failed. Check the GitHub Actions log for details.</p>"
+            }'

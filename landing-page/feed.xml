@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Crown Media Group Blog</title>
+    <link>https://crownmediagroup.co/blog/</link>
+    <description>AI marketing insights, local SEO, faith and business — Crown Media Group, Columbia SC</description>
+    <language>en-us</language>
+    <lastBuildDate>Fri, 27 Mar 2026 05:32:27 GMT</lastBuildDate>
+    <atom:link href="https://crownmediagroup.co/feed.xml" rel="self" type="application/rss+xml"/>
+  <item>
+    <title><![CDATA[SEO vs GEO: What Columbia SC Business Owners Need to Know]]></title>
+    <link>https://crownmediagroup.co/blog/seo-vs-geo-columbia-sc/</link>
+    <guid isPermaLink="true">https://crownmediagroup.co/blog/seo-vs-geo-columbia-sc/</guid>
+    <pubDate>Fri, 27 Mar 2026 00:00:00 GMT</pubDate>
+    <description><![CDATA[Google is no longer the only search engine that matters. AI assistants now answer questions directly — and if your business isn't optimized for them, you're invisible to a growing share of potential customers.]]></description>
+    <category>SEO</category>
+  </item>
+  <item>
+    <title><![CDATA[The Real Cost of Not Having a Marketing Strategy (And How to Fix It)]]></title>
+    <link>https://crownmediagroup.co/blog/real-cost-no-marketing/</link>
+    <guid isPermaLink="true">https://crownmediagroup.co/blog/real-cost-no-marketing/</guid>
+    <pubDate>Fri, 27 Mar 2026 00:00:00 GMT</pubDate>
+    <description><![CDATA[Most small business owners think they can't afford marketing. The truth is they can't afford NOT to have it. Here's what neglecting your marketing strategy is actually costing you.]]></description>
+    <category>Marketing</category>
+  </item>
+  <item>
+    <title><![CDATA[Faith and Business: How Proverbs 16:3 Changed How I Run My Agency]]></title>
+    <link>https://crownmediagroup.co/blog/faith-and-business-proverbs/</link>
+    <guid isPermaLink="true">https://crownmediagroup.co/blog/faith-and-business-proverbs/</guid>
+    <pubDate>Fri, 27 Mar 2026 00:00:00 GMT</pubDate>
+    <description><![CDATA[Running a business is hard. Running a business God's way is harder — and infinitely better. Here's what Proverbs taught me about strategy, integrity, and why Crown Media Group is built the way it is.]]></description>
+    <category>Faith</category>
+  </item>
+  <item>
+    <title><![CDATA[Why Every Small Business in Columbia SC Needs AI Marketing in 2026]]></title>
+    <link>https://crownmediagroup.co/blog/columbia-sc-ai-marketing-2026/</link>
+    <guid isPermaLink="true">https://crownmediagroup.co/blog/columbia-sc-ai-marketing-2026/</guid>
+    <pubDate>Fri, 27 Mar 2026 00:00:00 GMT</pubDate>
+    <description><![CDATA[AI-powered marketing is no longer reserved for Fortune 500 companies. Here's why Columbia SC small businesses that adopt it now will dominate their local market.]]></description>
+    <category>Marketing</category>
+  </item>
+  <item>
+    <title><![CDATA[How to Get Your Business Recommended by ChatGPT and Google AI]]></title>
+    <link>https://crownmediagroup.co/blog/chatgpt-google-ai-recommendations/</link>
+    <guid isPermaLink="true">https://crownmediagroup.co/blog/chatgpt-google-ai-recommendations/</guid>
+    <pubDate>Fri, 27 Mar 2026 00:00:00 GMT</pubDate>
+    <description><![CDATA[AI assistants like ChatGPT, Perplexity, and Google AI Overviews are now answering customer questions directly. If your business isn't optimized for them, you're missing a fast-growing source of local referrals.]]></description>
+    <category>GEO</category>
+  </item>
+  </channel>
+</rss>
