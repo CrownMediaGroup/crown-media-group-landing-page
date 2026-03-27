@@ -266,6 +266,42 @@ app.post('/api/logout', (req, res) => {
   res.json({ ok: true });
 });
 
+// ── Register (free trial signup) ──────────────────────────────────────────────
+app.post('/api/register', loginLimiter, (req, res) => {
+  const { name, email, password, businessName } = req.body;
+
+  if (!name || !email || !password || !businessName)
+    return res.status(400).json({ error: 'All fields are required.' });
+  if (email.length > 254)    return res.status(400).json({ error: 'Invalid email.' });
+  if (password.length < 8)   return res.status(400).json({ error: 'Password must be at least 8 characters.' });
+  if (password.length > 128) return res.status(400).json({ error: 'Password too long.' });
+  if (name.length > 100 || businessName.length > 150)
+    return res.status(400).json({ error: 'Name or business name too long.' });
+
+  const normalizedEmail = email.toLowerCase().trim();
+  const existing = db.prepare('SELECT id FROM users WHERE email = ?').get(normalizedEmail);
+  if (existing) return res.status(409).json({ error: 'An account with that email already exists.' });
+
+  // Create workspace with 33-day trial
+  const trialEnds = new Date(Date.now() + 33 * 24 * 60 * 60 * 1000).toISOString();
+  const ws = db.prepare(
+    "INSERT INTO workspaces (name, subscription_status, trial_ends_at) VALUES (?, 'trial', ?)"
+  ).run(businessName.trim(), trialEnds);
+  const workspaceId = ws.lastInsertRowid;
+
+  // Create user
+  const user = db.prepare(
+    "INSERT INTO users (email, password_hash, role, workspace_id) VALUES (?, ?, 'rep', ?)"
+  ).run(normalizedEmail, hashPassword(password), workspaceId);
+
+  // Auto-login
+  const token = createSession(user.lastInsertRowid, workspaceId);
+  const isProd = process.env.NODE_ENV === 'production';
+  const cookieOpts = `Path=/; HttpOnly; SameSite=Lax; Max-Age=${30 * 24 * 60 * 60}${isProd ? '; Secure' : ''}`;
+  res.setHeader('Set-Cookie', `crm_session=${token}; ${cookieOpts}`);
+  res.json({ ok: true, trialEnds });
+});
+
 // ── Branding (public — used by login page and dashboard) ──────────────────────
 app.get('/api/branding', (req, res) => {
   const session = validateSession(getCookie(req, 'crm_session'));
@@ -283,7 +319,7 @@ app.get('/api/branding', (req, res) => {
 // ═══════════════════════════════════════════════════════════════════════════════
 
 app.use('/api', (req, res, next) => {
-  const publicPaths = ['/login', '/logout', '/branding'];
+  const publicPaths = ['/login', '/logout', '/branding', '/register'];
   if (publicPaths.includes(req.path)) return next();
   const session = validateSession(getCookie(req, 'crm_session'));
   if (!session) return res.status(401).json({ error: 'Unauthorized' });

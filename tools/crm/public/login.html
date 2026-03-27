@@ -205,6 +205,43 @@
     margin-top: 20px;
     line-height: 1.5;
   }
+
+  #signupForm { display: none; }
+
+  .toggle-link {
+    text-align: center;
+    margin-top: 20px;
+    font-size: 0.83rem;
+    color: var(--muted);
+  }
+
+  .toggle-link a {
+    color: var(--gold);
+    text-decoration: none;
+    font-weight: 600;
+    cursor: pointer;
+  }
+
+  .toggle-link a:hover { color: var(--gold-h); }
+
+  .trial-badge {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    justify-content: center;
+    margin-bottom: 24px;
+    padding: 10px 14px;
+    background: rgba(201,168,76,0.08);
+    border: 1px solid rgba(201,168,76,0.25);
+    border-radius: var(--radius);
+  }
+
+  .trial-badge span {
+    font-size: 0.78rem;
+    color: var(--gold);
+    font-weight: 600;
+    line-height: 1.4;
+  }
 </style>
 </head>
 <body>
@@ -212,23 +249,22 @@
 <div class="login-card">
   <div class="brand">
     <div class="brand-name">Crown Media <span>CRM</span></div>
-    <div class="brand-sub">Sign in to your workspace</div>
+    <div class="brand-sub" id="brandSub">Sign in to your workspace</div>
   </div>
 
+  <!-- ── LOGIN FORM ── -->
   <form id="loginForm" autocomplete="on">
     <div class="form-group">
       <label for="email">Email</label>
       <input type="email" id="email" name="email" placeholder="you@example.com"
              autocomplete="username" required>
     </div>
-
     <div class="form-group">
       <label for="password">Password</label>
       <div class="pw-wrap">
         <input type="password" id="password" name="password" placeholder="&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;"
                autocomplete="current-password" class="pw-input" required>
         <button type="button" class="pw-toggle" id="pwToggle" aria-label="Show password" title="Show / hide password">
-          <!-- Eye closed (default — password hidden) -->
           <svg id="eyeIcon" xmlns="http://www.w3.org/2000/svg" width="20" height="20"
                viewBox="0 0 24 24" fill="none" stroke="currentColor"
                stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -238,16 +274,60 @@
         </button>
       </div>
     </div>
-
     <div class="remember-row">
       <input type="checkbox" id="rememberMe" name="rememberMe">
       <label for="rememberMe">Remember my email on this device</label>
     </div>
-
     <button type="submit" class="btn-login" id="loginBtn">Sign In</button>
   </form>
 
+  <!-- ── SIGNUP FORM ── -->
+  <form id="signupForm" autocomplete="on">
+    <div class="trial-badge">
+      <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24"
+           fill="none" stroke="#C9A84C" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="20 12 20 22 4 22 4 12"/><rect x="2" y="7" width="20" height="5"/>
+        <line x1="12" y1="22" x2="12" y2="7"/><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"/>
+        <path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/>
+      </svg>
+      <span>33-day free trial &mdash; no credit card required</span>
+    </div>
+    <div class="form-group">
+      <label for="regName">Your Name</label>
+      <input type="text" id="regName" name="regName" placeholder="First Last" autocomplete="name" required>
+    </div>
+    <div class="form-group">
+      <label for="regBusiness">Business Name</label>
+      <input type="text" id="regBusiness" name="regBusiness" placeholder="Your Business LLC" required>
+    </div>
+    <div class="form-group">
+      <label for="regEmail">Email</label>
+      <input type="email" id="regEmail" name="regEmail" placeholder="you@example.com"
+             autocomplete="username" required>
+    </div>
+    <div class="form-group">
+      <label for="regPassword">Password</label>
+      <div class="pw-wrap">
+        <input type="password" id="regPassword" name="regPassword" placeholder="Min 8 characters"
+               autocomplete="new-password" class="pw-input" required minlength="8">
+        <button type="button" class="pw-toggle" id="regPwToggle" aria-label="Show password" title="Show / hide password">
+          <svg id="regEyeIcon" xmlns="http://www.w3.org/2000/svg" width="20" height="20"
+               viewBox="0 0 24 24" fill="none" stroke="currentColor"
+               stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+            <circle cx="12" cy="12" r="3"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+    <button type="submit" class="btn-login" id="signupBtn">Create Free Account</button>
+  </form>
+
   <div class="error-msg" id="errorMsg"></div>
+
+  <div class="toggle-link" id="toggleLink">
+    Don't have an account? <a onclick="showSignup()">Start free trial</a>
+  </div>
 
   <div class="security-badge">
     <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24"
@@ -265,13 +345,31 @@
 
 <script>
 // ── Auto-redirect if already logged in ────────────────────────────────────────
-// If you already have a valid session, skip the login page entirely.
 (async () => {
   try {
     const res = await fetch('/api/me', { credentials: 'same-origin' });
     if (res.ok) window.location.replace('/');
   } catch (_) {}
 })();
+
+// ── Toggle between login and signup ───────────────────────────────────────────
+function showSignup() {
+  document.getElementById('loginForm').style.display  = 'none';
+  document.getElementById('signupForm').style.display = 'block';
+  document.getElementById('brandSub').textContent     = 'Start your 33-day free trial';
+  document.getElementById('toggleLink').innerHTML     = 'Already have an account? <a onclick="showLogin()">Sign in</a>';
+  document.getElementById('errorMsg').textContent     = '';
+  document.getElementById('regName').focus();
+}
+
+function showLogin() {
+  document.getElementById('signupForm').style.display = 'none';
+  document.getElementById('loginForm').style.display  = 'block';
+  document.getElementById('brandSub').textContent     = 'Sign in to your workspace';
+  document.getElementById('toggleLink').innerHTML     = 'Don\'t have an account? <a onclick="showSignup()">Start free trial</a>';
+  document.getElementById('errorMsg').textContent     = '';
+  document.getElementById('email').focus();
+}
 
 // ── Pre-fill saved email ──────────────────────────────────────────────────────
 const savedEmail = localStorage.getItem('crm_saved_email');
@@ -357,6 +455,55 @@ document.getElementById('loginForm').addEventListener('submit', async (e) => {
     btn.disabled         = false;
     btn.textContent      = 'Sign In';
   }
+});
+
+// ── Signup form submit ────────────────────────────────────────────────────────
+document.getElementById('signupForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const btn      = document.getElementById('signupBtn');
+  const errorMsg = document.getElementById('errorMsg');
+  const name         = document.getElementById('regName').value.trim();
+  const businessName = document.getElementById('regBusiness').value.trim();
+  const email        = document.getElementById('regEmail').value.trim();
+  const password     = document.getElementById('regPassword').value;
+
+  btn.disabled         = true;
+  btn.textContent      = 'Creating account...';
+  errorMsg.textContent = '';
+
+  try {
+    const res = await fetch('/api/register', {
+      method:      'POST',
+      credentials: 'same-origin',
+      headers:     { 'Content-Type': 'application/json' },
+      body:        JSON.stringify({ name, email, password, businessName }),
+    });
+    if (res.ok) {
+      window.location.replace('/');
+    } else {
+      const data           = await res.json().catch(() => ({}));
+      errorMsg.textContent = data.error || 'Could not create account. Try again.';
+      btn.disabled         = false;
+      btn.textContent      = 'Create Free Account';
+    }
+  } catch {
+    errorMsg.textContent = 'Connection error. Try again.';
+    btn.disabled         = false;
+    btn.textContent      = 'Create Free Account';
+  }
+});
+
+// ── Signup password show/hide ─────────────────────────────────────────────────
+const regPwInput  = document.getElementById('regPassword');
+const regPwToggle = document.getElementById('regPwToggle');
+const regEyeIcon  = document.getElementById('regEyeIcon');
+let regPwVisible  = false;
+
+regPwToggle.addEventListener('click', () => {
+  regPwVisible       = !regPwVisible;
+  regPwInput.type    = regPwVisible ? 'text' : 'password';
+  regEyeIcon.innerHTML = regPwVisible ? eyeOffSVG : eyeOnSVG;
+  regPwInput.focus();
 });
 </script>
 </body>
