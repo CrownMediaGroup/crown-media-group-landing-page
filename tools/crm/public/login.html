@@ -239,6 +239,7 @@
 
   #signupForm { display: none; }
   .hidden { display: none; }
+  .google-btn-wrap { display: flex; justify-content: center; margin-bottom: 18px; }
 
   /* Google button */
   .btn-google {
@@ -316,17 +317,9 @@
     <button type="button" class="auth-tab" id="tabSignup" onclick="showSignup()">Create Account</button>
   </div>
 
-  <!-- ── GOOGLE SIGN-IN (shown when GOOGLE_CLIENT_ID is configured) ── -->
+  <!-- ── GOOGLE SIGN-IN (rendered by Google GIS when GOOGLE_CLIENT_ID is set) ── -->
   <div id="googleSection" class="hidden">
-    <button type="button" class="btn-google" id="googleBtn" onclick="handleGoogleClick()">
-      <svg width="18" height="18" viewBox="0 0 48 48">
-        <path fill="#4285F4" d="M44.5 20H24v8.5h11.8C34.7 33.9 30.1 37 24 37c-7.2 0-13-5.8-13-13s5.8-13 13-13c3.1 0 5.9 1.1 8.1 2.9l6.4-6.4C34.6 4.1 29.6 2 24 2 11.8 2 2 11.8 2 24s9.8 22 22 22c11 0 21-8 21-22 0-1.3-.2-2.7-.5-4z"/>
-        <path fill="#34A853" d="M6.3 14.7l7 5.1C15.1 16.2 19.2 13 24 13c3.1 0 5.9 1.1 8.1 2.9l6.4-6.4C34.6 4.1 29.6 2 24 2 16.2 2 9.5 7.4 6.3 14.7z"/>
-        <path fill="#FBBC05" d="M24 46c5.5 0 10.5-1.8 14.3-5l-6.6-5.4C29.6 37.4 27 38 24 38c-6 0-11.1-4-12.9-9.5l-7 5.4C7.7 42 15.2 46 24 46z"/>
-        <path fill="#EA4335" d="M44.5 20H24v8.5h11.8c-.8 2.3-2.3 4.2-4.3 5.5l6.6 5.4C42.3 36.3 45 30.6 45 24c0-1.3-.2-2.7-.5-4z"/>
-      </svg>
-      Continue with Google
-    </button>
+    <div id="googleBtnContainer" class="google-btn-wrap"></div>
     <div class="or-divider">or</div>
   </div>
 
@@ -428,7 +421,7 @@
 })();
 
 // ── Tab switcher ──────────────────────────────────────────────────────────────
-function showSignup() {
+document.getElementById('tabSignup').addEventListener('click', function() {
   document.getElementById('loginForm').style.display  = 'none';
   document.getElementById('signupForm').style.display = 'block';
   document.getElementById('brandSub').textContent     = 'Start your 33-day free trial';
@@ -436,9 +429,9 @@ function showSignup() {
   document.getElementById('tabLogin').classList.remove('active');
   document.getElementById('tabSignup').classList.add('active');
   document.getElementById('regName').focus();
-}
+});
 
-function showLogin() {
+document.getElementById('tabLogin').addEventListener('click', function() {
   document.getElementById('signupForm').style.display = 'none';
   document.getElementById('loginForm').style.display  = 'block';
   document.getElementById('brandSub').textContent     = 'Sign in to your workspace';
@@ -446,20 +439,19 @@ function showLogin() {
   document.getElementById('tabSignup').classList.remove('active');
   document.getElementById('tabLogin').classList.add('active');
   document.getElementById('email').focus();
-}
+});
 
 // ── Google OAuth ──────────────────────────────────────────────────────────────
 let googleClientId = null;
-let googleTokenClient = null;
 
 (async () => {
   try {
     const cfg = await fetch('/api/config/public').then(r => r.json());
     if (cfg.googleClientId) {
       googleClientId = cfg.googleClientId;
-      // Load Google Identity Services
       const script = document.createElement('script');
       script.src = 'https://accounts.google.com/gsi/client';
+      script.async = true;
       script.onload = initGoogle;
       document.head.appendChild(script);
     }
@@ -471,12 +463,13 @@ function initGoogle() {
     client_id: googleClientId,
     callback: handleGoogleCredential,
     auto_select: false,
+    cancel_on_tap_outside: true,
   });
+  window.google.accounts.id.renderButton(
+    document.getElementById('googleBtnContainer'),
+    { theme: 'outline', size: 'large', width: 320, text: 'continue_with' }
+  );
   document.getElementById('googleSection').classList.remove('hidden');
-}
-
-async function handleGoogleClick() {
-  window.google.accounts.id.prompt();
 }
 
 async function handleGoogleCredential(response) {
@@ -586,6 +579,14 @@ document.getElementById('loginForm').addEventListener('submit', async (e) => {
   }
 });
 
+// ── Pre-fill signup fields from saved info ────────────────────────────────────
+const savedRegName     = localStorage.getItem('crm_reg_name');
+const savedRegBusiness = localStorage.getItem('crm_reg_business');
+const savedRegEmail    = localStorage.getItem('crm_reg_email');
+if (savedRegName)     document.getElementById('regName').value     = savedRegName;
+if (savedRegBusiness) document.getElementById('regBusiness').value = savedRegBusiness;
+if (savedRegEmail)    document.getElementById('regEmail').value    = savedRegEmail;
+
 // ── Signup form submit ────────────────────────────────────────────────────────
 document.getElementById('signupForm').addEventListener('submit', async (e) => {
   e.preventDefault();
@@ -608,6 +609,9 @@ document.getElementById('signupForm').addEventListener('submit', async (e) => {
       body:        JSON.stringify({ name, email, password, businessName }),
     });
     if (res.ok) {
+      localStorage.setItem('crm_reg_name',     name);
+      localStorage.setItem('crm_reg_business', businessName);
+      localStorage.setItem('crm_reg_email',    email);
       window.location.replace('/');
     } else {
       const data           = await res.json().catch(() => ({}));
