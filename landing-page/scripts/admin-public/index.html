@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Blog Admin — Crown Media Group</title>
+<style>
+:root {
+  --bg: #0A1628; --card: #1E2D45; --card2: #162238;
+  --gold: #C9A84C; --gold-h: #E0BD6B; --gold-pale: rgba(201,168,76,.1);
+  --text: #FFFFFF; --muted: rgba(255,255,255,.55); --border: rgba(201,168,76,.2);
+  --green: #4caf7d; --red: #e05c5c; --blue: #5c9fe0;
+  --radius: 8px;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: var(--bg); color: var(--text); font-family: 'Inter', -apple-system, sans-serif; min-height: 100vh; }
+a { color: var(--gold); text-decoration: none; }
+
+/* ── Layout ── */
+.shell { display: grid; grid-template-columns: 220px 1fr; min-height: 100vh; }
+.sidebar { background: var(--card2); border-right: 1px solid var(--border); padding: 28px 0; display: flex; flex-direction: column; }
+.sidebar-brand { padding: 0 24px 28px; border-bottom: 1px solid var(--border); }
+.sidebar-brand h2 { font-size: .95rem; font-weight: 700; color: var(--gold); letter-spacing: .04em; }
+.sidebar-brand p { font-size: .72rem; color: var(--muted); margin-top: 4px; }
+.nav { display: flex; flex-direction: column; padding: 16px 0; }
+.nav-item { padding: 12px 24px; font-size: .85rem; color: var(--muted); cursor: pointer; transition: color .2s, background .2s; border-left: 3px solid transparent; }
+.nav-item:hover, .nav-item.active { color: var(--gold); background: var(--gold-pale); border-left-color: var(--gold); }
+.main { padding: 32px 40px; overflow-y: auto; }
+
+/* ── Cards ── */
+.stats-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 32px; }
+.stat-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px 24px; }
+.stat-num { font-size: 2rem; font-weight: 700; color: var(--gold); line-height: 1; }
+.stat-label { font-size: .75rem; color: var(--muted); margin-top: 6px; text-transform: uppercase; letter-spacing: .06em; }
+
+/* ── Section headers ── */
+.section-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+.section-head h3 { font-size: 1rem; font-weight: 700; color: var(--text); }
+.section-head p { font-size: .8rem; color: var(--muted); }
+
+/* ── Panels ── */
+.panel { display: none; }
+.panel.active { display: block; }
+
+/* ── Table ── */
+.table-wrap { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
+table { width: 100%; border-collapse: collapse; }
+th { background: var(--card2); font-size: .72rem; font-weight: 600; color: var(--muted); letter-spacing: .08em; text-transform: uppercase; padding: 12px 16px; text-align: left; border-bottom: 1px solid var(--border); }
+td { padding: 12px 16px; font-size: .85rem; border-bottom: 1px solid rgba(255,255,255,.04); vertical-align: middle; }
+tr:last-child td { border-bottom: none; }
+tr:hover td { background: rgba(255,255,255,.02); }
+.badge { display: inline-block; padding: 2px 10px; border-radius: 20px; font-size: .7rem; font-weight: 600; }
+.badge-green { background: rgba(76,175,125,.15); color: var(--green); }
+.badge-gold { background: rgba(201,168,76,.15); color: var(--gold); }
+.badge-blue { background: rgba(92,159,224,.15); color: var(--blue); }
+
+/* ── Forms ── */
+.form-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; margin-bottom: 24px; }
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
+.form-row.single { grid-template-columns: 1fr; }
+.form-group { display: flex; flex-direction: column; gap: 6px; }
+label { font-size: .75rem; color: var(--muted); font-weight: 600; text-transform: uppercase; letter-spacing: .06em; }
+input[type=text], textarea, select {
+  background: #0e1e35; border: 1px solid var(--border); border-radius: 6px;
+  padding: 10px 14px; color: var(--text); font-size: .88rem; outline: none;
+  transition: border-color .2s; font-family: inherit;
+}
+input[type=text]:focus, textarea:focus, select:focus { border-color: var(--gold); }
+textarea { resize: vertical; min-height: 80px; }
+.btn { padding: 10px 22px; border: none; border-radius: 6px; font-size: .85rem; font-weight: 600; cursor: pointer; transition: opacity .2s, transform .1s; letter-spacing: .04em; text-transform: uppercase; }
+.btn:hover { opacity: .88; }
+.btn:active { transform: scale(.98); }
+.btn-gold { background: var(--gold); color: #0A1628; }
+.btn-outline { background: transparent; border: 1.5px solid var(--border); color: var(--text); }
+.btn-red { background: var(--red); color: #fff; }
+.btn-sm { padding: 6px 14px; font-size: .75rem; }
+.btn-green { background: var(--green); color: #0A1628; }
+
+/* ── Research ── */
+.research-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 16px; }
+.research-item { background: var(--card); border: 1px solid var(--border); border-radius: 6px; padding: 14px 16px; display: flex; flex-direction: column; gap: 8px; }
+.research-source { font-size: .68rem; color: var(--muted); text-transform: uppercase; letter-spacing: .08em; }
+.research-title { font-size: .85rem; color: var(--text); line-height: 1.4; }
+.research-actions { display: flex; gap: 8px; margin-top: 4px; }
+
+/* ── Schedule ── */
+.schedule-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; }
+.toggle-row { display: flex; align-items: center; justify-content: space-between; padding: 14px 0; border-bottom: 1px solid rgba(255,255,255,.06); }
+.toggle-row:last-child { border-bottom: none; }
+.toggle-info h4 { font-size: .88rem; font-weight: 600; }
+.toggle-info p { font-size: .78rem; color: var(--muted); margin-top: 3px; }
+.toggle { position: relative; width: 46px; height: 24px; flex-shrink: 0; }
+.toggle input { opacity: 0; width: 0; height: 0; }
+.toggle-slider { position: absolute; inset: 0; background: rgba(255,255,255,.15); border-radius: 24px; cursor: pointer; transition: background .2s; }
+.toggle-slider:before { content: ''; position: absolute; width: 18px; height: 18px; left: 3px; top: 3px; background: white; border-radius: 50%; transition: transform .2s; }
+.toggle input:checked + .toggle-slider { background: var(--gold); }
+.toggle input:checked + .toggle-slider:before { transform: translateX(22px); }
+
+/* ── Toast ── */
+.toast { position: fixed; bottom: 24px; right: 24px; background: var(--green); color: #0A1628; padding: 12px 20px; border-radius: var(--radius); font-size: .85rem; font-weight: 600; z-index: 9999; opacity: 0; transform: translateY(10px); transition: all .3s; pointer-events: none; }
+.toast.show { opacity: 1; transform: translateY(0); }
+.toast.error { background: var(--red); color: white; }
+
+/* ── Queue list ── */
+.queue-item { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; padding: 14px 16px; border-bottom: 1px solid rgba(255,255,255,.04); }
+.queue-item:last-child { border-bottom: none; }
+.queue-topic { font-size: .88rem; line-height: 1.4; }
+.queue-meta { font-size: .72rem; color: var(--muted); margin-top: 4px; }
+.queue-actions { display: flex; gap: 6px; flex-shrink: 0; }
+
+/* ── Spinner ── */
+.spinner { display: inline-block; width: 16px; height: 16px; border: 2px solid rgba(255,255,255,.3); border-top-color: var(--gold); border-radius: 50%; animation: spin .6s linear infinite; margin-right: 8px; vertical-align: middle; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ── Upcoming ── */
+.upcoming-row { display: flex; gap: 12px; align-items: flex-start; padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,.04); }
+.upcoming-time { font-size: .78rem; color: var(--gold); font-weight: 600; min-width: 90px; flex-shrink: 0; }
+.upcoming-topic { font-size: .85rem; line-height: 1.4; }
+.upcoming-cat { font-size: .72rem; color: var(--muted); }
+</style>
+</head>
+<body>
+
+<div class="shell">
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+    <div class="sidebar-brand">
+      <h2>Blog Admin</h2>
+      <p>Crown Media Group</p>
+    </div>
+    <div class="nav">
+      <div class="nav-item active" onclick="showPanel('dashboard')">Dashboard</div>
+      <div class="nav-item" onclick="showPanel('posts')">Published Posts</div>
+      <div class="nav-item" onclick="showPanel('queue')">Topic Queue</div>
+      <div class="nav-item" onclick="showPanel('generate')">Generate Now</div>
+      <div class="nav-item" onclick="showPanel('research')">Topic Research</div>
+      <div class="nav-item" onclick="showPanel('schedule')">Schedule Settings</div>
+    </div>
+  </div>
+
+  <!-- MAIN -->
+  <div class="main">
+
+    <!-- DASHBOARD -->
+    <div id="panel-dashboard" class="panel active">
+      <div class="section-head" style="margin-bottom:24px;">
+        <div>
+          <h3 style="font-size:1.4rem;">Good morning, King.</h3>
+          <p id="dash-date" style="margin-top:4px;"></p>
+        </div>
+        <button class="btn btn-gold" onclick="generateFromQueue()">Generate Post Now</button>
+      </div>
+      <div class="stats-row">
+        <div class="stat-card">
+          <div class="stat-num" id="stat-total">—</div>
+          <div class="stat-label">Total Posts</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-num" id="stat-today">—</div>
+          <div class="stat-label">Posted Today</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-num" id="stat-queue">—</div>
+          <div class="stat-label">In Queue</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-num" id="stat-ppd">4</div>
+          <div class="stat-label">Posts Per Day</div>
+        </div>
+      </div>
+      <div class="section-head" style="margin-bottom:16px;">
+        <h3>Upcoming Posts (From Queue)</h3>
+      </div>
+      <div class="form-card" style="padding:0;overflow:hidden;">
+        <div id="upcoming-list" style="padding:16px 20px;">
+          <p style="color:var(--muted);font-size:.85rem;">Loading queue...</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- POSTS -->
+    <div id="panel-posts" class="panel">
+      <div class="section-head" style="margin-bottom:16px;">
+        <h3>Published Posts</h3>
+        <p id="posts-count" style="font-size:.8rem;color:var(--muted);"></p>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Title</th><th>Date</th><th>Category</th><th>Words</th><th>Status</th></tr></thead>
+          <tbody id="posts-tbody"><tr><td colspan="5" style="text-align:center;color:var(--muted);padding:32px;">Loading...</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- QUEUE -->
+    <div id="panel-queue" class="panel">
+      <div class="section-head" style="margin-bottom:16px;">
+        <h3>Topic Queue</h3>
+        <button class="btn btn-gold btn-sm" onclick="showPanel('generate')">+ Add Topic</button>
+      </div>
+      <div class="form-card" style="padding:0;overflow:hidden;">
+        <div id="queue-list"><p style="padding:24px;color:var(--muted);">Loading...</p></div>
+      </div>
+    </div>
+
+    <!-- GENERATE -->
+    <div id="panel-generate" class="panel">
+      <div class="section-head" style="margin-bottom:16px;"><h3>Add Topic &amp; Generate</h3></div>
+      <div class="form-card">
+        <div class="form-row">
+          <div class="form-group">
+            <label>Topic *</label>
+            <input type="text" id="gen-topic" placeholder="e.g. Why Columbia SC businesses need social media in 2026">
+          </div>
+          <div class="form-group">
+            <label>Keyword (optional)</label>
+            <input type="text" id="gen-keyword" placeholder="e.g. Columbia SC marketing">
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Category</label>
+            <select id="gen-category">
+              <option>Marketing</option>
+              <option>SEO</option>
+              <option>Social Media</option>
+              <option>Local Business</option>
+              <option>Faith &amp; Business</option>
+              <option>AI Tools</option>
+              <option>Case Studies</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Action</label>
+            <div style="display:flex;gap:8px;margin-top:2px;">
+              <button class="btn btn-gold" onclick="addToQueue()">Add to Queue</button>
+              <button class="btn btn-green" onclick="generateNow()">Generate Now</button>
+            </div>
+          </div>
+        </div>
+        <p style="font-size:.78rem;color:var(--muted);margin-top:8px;">
+          "Add to Queue" saves for the daily scheduler. "Generate Now" writes and publishes immediately (takes ~30 seconds).
+        </p>
+      </div>
+      <div id="gen-status" style="display:none;" class="form-card" style="background:rgba(76,175,125,.08);border-color:rgba(76,175,125,.3);">
+        <p><span class="spinner"></span> Generating post... this takes about 30 seconds.</p>
+      </div>
+    </div>
+
+    <!-- RESEARCH -->
+    <div id="panel-research" class="panel">
+      <div class="section-head" style="margin-bottom:16px;">
+        <h3>Topic Research</h3>
+        <div style="display:flex;gap:8px;align-items:center;">
+          <input type="text" id="research-niche" placeholder="small business marketing Columbia SC" style="width:260px;">
+          <button class="btn btn-gold" onclick="fetchResearch()">Search Trends</button>
+        </div>
+      </div>
+      <p style="font-size:.82rem;color:var(--muted);margin-bottom:16px;">Pulls hot topics from Reddit, Google Trends, and DuckDuckGo. Click any topic to add it to your queue.</p>
+      <div id="research-results">
+        <p style="color:var(--muted);">Hit "Search Trends" to load topics people are complaining about and asking questions on.</p>
+      </div>
+    </div>
+
+    <!-- SCHEDULE -->
+    <div id="panel-schedule" class="panel">
+      <div class="section-head" style="margin-bottom:16px;"><h3>Schedule Settings</h3></div>
+      <div class="schedule-card">
+        <div class="toggle-row">
+          <div class="toggle-info">
+            <h4>Posts Per Day</h4>
+            <p>How many posts to auto-generate each day from the queue</p>
+          </div>
+          <input type="number" id="sched-ppd" value="4" min="1" max="10" style="width:70px;text-align:center;">
+        </div>
+        <div class="toggle-row">
+          <div class="toggle-info">
+            <h4>Skip Sabbath (Saturday)</h4>
+            <p>No posts generated on Saturday — rest day</p>
+          </div>
+          <label class="toggle">
+            <input type="checkbox" id="sched-sabbath" checked>
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+        <div class="toggle-row">
+          <div class="toggle-info">
+            <h4>Auto-Research Topics</h4>
+            <p>When queue runs low (&lt;4), auto-fetch trending topics and add to queue</p>
+          </div>
+          <label class="toggle">
+            <input type="checkbox" id="sched-autoresearch" checked>
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+        <div style="margin-top:20px;">
+          <button class="btn btn-gold" onclick="saveSchedule()">Save Settings</button>
+        </div>
+      </div>
+      <div style="margin-top:24px;" class="form-card">
+        <h4 style="margin-bottom:12px;font-size:.9rem;">How the Daily Scheduler Works</h4>
+        <p style="font-size:.82rem;color:var(--muted);line-height:1.7;">
+          Run <code style="background:rgba(255,255,255,.08);padding:2px 6px;border-radius:4px;">node scripts/blog-scheduler.js</code> in the background (or via the start-all.bat) to enable daily posting.
+          It runs every day at 6am, 10am, 2pm, and 6pm — skipping Saturday.
+          It pulls the next topic from the queue, calls blog-writer.js, and publishes automatically.
+        </p>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+let currentPanel = 'dashboard';
+
+function showPanel(name) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById(`panel-${name}`)?.classList.add('active');
+  document.querySelectorAll('.nav-item').forEach(n => {
+    if (n.textContent.toLowerCase().includes(name.toLowerCase())) n.classList.add('active');
+  });
+  currentPanel = name;
+  if (name === 'dashboard') loadDashboard();
+  if (name === 'posts')     loadPosts();
+  if (name === 'queue')     loadQueue();
+  if (name === 'schedule')  loadSchedule();
+}
+
+function toast(msg, type = 'success') {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.className = `toast show ${type === 'error' ? 'error' : ''}`;
+  setTimeout(() => el.classList.remove('show'), 3000);
+}
+
+async function loadDashboard() {
+  document.getElementById('dash-date').textContent = new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+  const stats = await fetch('/api/stats').then(r => r.json()).catch(() => ({}));
+  document.getElementById('stat-total').textContent = stats.totalPosts ?? '—';
+  document.getElementById('stat-today').textContent = stats.todayPosts ?? '—';
+  document.getElementById('stat-queue').textContent = stats.queueCount ?? '—';
+  document.getElementById('stat-ppd').textContent   = stats.postsPerDay ?? 4;
+
+  // Upcoming from queue
+  const queue = await fetch('/api/queue').then(r => r.json()).catch(() => []);
+  const ul = document.getElementById('upcoming-list');
+  if (!queue.length) {
+    ul.innerHTML = '<p style="color:var(--muted);font-size:.85rem;">Queue is empty — go to Topic Research to add topics.</p>';
+    return;
+  }
+  const times = ['6:00 AM', '10:00 AM', '2:00 PM', '6:00 PM'];
+  const today = new Date();
+  const isSabbath = today.getDay() === 6;
+  ul.innerHTML = queue.slice(0, 8).map((q, i) => `
+    <div class="upcoming-row">
+      <div class="upcoming-time">${times[i % 4] || 'Queued'}</div>
+      <div>
+        <div class="upcoming-topic">${q.topic}</div>
+        <div class="upcoming-cat">${q.category || 'General'} &bull; ${q.source || 'Manual'}</div>
+      </div>
+    </div>
+  `).join('') + (isSabbath ? '<p style="color:var(--gold);font-size:.8rem;padding:12px 0;">Saturday — Sabbath rest. No posts today.</p>' : '');
+}
+
+async function loadPosts() {
+  const posts = await fetch('/api/posts').then(r => r.json()).catch(() => []);
+  document.getElementById('posts-count').textContent = `${posts.length} posts published`;
+  const tbody = document.getElementById('posts-tbody');
+  if (!posts.length) { tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:var(--muted);padding:32px;">No posts yet.</td></tr>'; return; }
+  tbody.innerHTML = posts.map(p => `
+    <tr>
+      <td style="max-width:320px;">${p.title}</td>
+      <td style="white-space:nowrap;">${p.date}</td>
+      <td><span class="badge badge-gold">${p.category}</span></td>
+      <td>${p.wordCount.toLocaleString()}</td>
+      <td><span class="badge badge-green">Live</span></td>
+    </tr>
+  `).join('');
+}
+
+async function loadQueue() {
+  const queue = await fetch('/api/queue').then(r => r.json()).catch(() => []);
+  const el = document.getElementById('queue-list');
+  if (!queue.length) { el.innerHTML = '<p style="padding:24px;color:var(--muted);">Queue is empty. Add topics in Generate or Research.</p>'; return; }
+  el.innerHTML = queue.map((q, i) => `
+    <div class="queue-item">
+      <div>
+        <div class="queue-topic">${q.topic}</div>
+        <div class="queue-meta">${q.category || 'General'} &bull; Added ${new Date(q.addedAt).toLocaleDateString()}</div>
+      </div>
+      <div class="queue-actions">
+        <button class="btn btn-green btn-sm" onclick="generateFromQueueAt(${i})">Write Now</button>
+        <button class="btn btn-red btn-sm" onclick="deleteQueue(${i})">Remove</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+async function loadSchedule() {
+  const s = await fetch('/api/schedule').then(r => r.json()).catch(() => ({}));
+  document.getElementById('sched-ppd').value = s.postsPerDay || 4;
+  document.getElementById('sched-sabbath').checked = s.skipSabbath ?? true;
+  document.getElementById('sched-autoresearch').checked = s.autoResearch ?? true;
+}
+
+async function addToQueue() {
+  const topic    = document.getElementById('gen-topic').value.trim();
+  const keyword  = document.getElementById('gen-keyword').value.trim();
+  const category = document.getElementById('gen-category').value;
+  if (!topic) { toast('Enter a topic first', 'error'); return; }
+  const r = await fetch('/api/queue', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ topic, keyword, category }) });
+  const d = await r.json();
+  if (d.ok) { toast(`Added to queue (${d.count} topics)`); document.getElementById('gen-topic').value = ''; document.getElementById('gen-keyword').value = ''; }
+  else toast(d.error, 'error');
+}
+
+async function generateNow() {
+  const topic    = document.getElementById('gen-topic').value.trim();
+  const keyword  = document.getElementById('gen-keyword').value.trim();
+  const category = document.getElementById('gen-category').value;
+  if (!topic) { toast('Enter a topic first', 'error'); return; }
+  document.getElementById('gen-status').style.display = 'block';
+  const r = await fetch('/api/generate', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ topic, keyword, category }) });
+  const d = await r.json();
+  if (d.ok) { toast('Generation started — post will appear in Published Posts shortly'); document.getElementById('gen-topic').value = ''; }
+  else { toast(d.error, 'error'); document.getElementById('gen-status').style.display = 'none'; }
+}
+
+async function generateFromQueue() {
+  const r = await fetch('/api/generate', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ fromQueue: true }) });
+  const d = await r.json();
+  toast(d.ok ? 'Generation started from queue' : d.error, d.ok ? 'success' : 'error');
+}
+
+async function generateFromQueueAt(i) {
+  const queue = await fetch('/api/queue').then(r => r.json());
+  const item = queue[i];
+  if (!item) return;
+  const r = await fetch('/api/generate', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ topic: item.topic, keyword: item.keyword, category: item.category }) });
+  const d = await r.json();
+  if (d.ok) { await deleteQueue(i); toast('Generating — check Published Posts in 30s'); }
+}
+
+async function deleteQueue(i) {
+  await fetch(`/api/queue/${i}`, { method: 'DELETE' });
+  loadQueue();
+}
+
+async function fetchResearch() {
+  const niche = document.getElementById('research-niche').value.trim() || 'small business marketing Columbia SC';
+  document.getElementById('research-results').innerHTML = '<p style="color:var(--muted);"><span class="spinner"></span> Searching Reddit, Google Trends, and more...</p>';
+  const data = await fetch(`/api/research?niche=${encodeURIComponent(niche)}`).then(r => r.json()).catch(() => ({ topics: [] }));
+  if (!data.topics.length) { document.getElementById('research-results').innerHTML = '<p style="color:var(--muted);">No results found. Try a different niche.</p>'; return; }
+  document.getElementById('research-results').innerHTML = `
+    <div class="research-grid">
+      ${data.topics.map((t, i) => `
+        <div class="research-item">
+          <div class="research-source">${t.source}</div>
+          <div class="research-title">${t.title}</div>
+          <div class="research-actions">
+            <button class="btn btn-gold btn-sm" onclick="addResearchToQueue(${i})">Add to Queue</button>
+            ${t.url ? `<a href="${t.url}" target="_blank" class="btn btn-outline btn-sm">View</a>` : ''}
+          </div>
+        </div>
+      `).join('')}
+    </div>
+  `;
+  window._researchTopics = data.topics;
+}
+
+async function addResearchToQueue(i) {
+  const topic = window._researchTopics?.[i];
+  if (!topic) return;
+  const r = await fetch('/api/queue/from-research', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ title: topic.title, source: topic.source }) });
+  const d = await r.json();
+  if (d.ok) toast(`Added: "${d.topic.substring(0, 60)}..."`);
+}
+
+async function saveSchedule() {
+  const postsPerDay  = parseInt(document.getElementById('sched-ppd').value) || 4;
+  const skipSabbath  = document.getElementById('sched-sabbath').checked;
+  const autoResearch = document.getElementById('sched-autoresearch').checked;
+  const r = await fetch('/api/schedule', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ postsPerDay, skipSabbath, autoResearch }) });
+  const d = await r.json();
+  if (d.ok) toast('Schedule saved');
+}
+
+// Init
+loadDashboard();
+</script>
+</body>
+</html>

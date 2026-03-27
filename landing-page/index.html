@@ -119,17 +119,18 @@ nav.scrolled{box-shadow:0 4px 30px rgba(201,152,26,.08)}
 .mobile-menu a{color:var(--text-mid);text-decoration:none;font-size:.95rem;font-weight:500;letter-spacing:.02em;transition:color .2s}
 .mobile-menu a:hover{color:var(--gold)}
 .mobile-cta{background:var(--royal);color:var(--gold-light)!important;padding:14px 24px;text-align:center;border-radius:4px;font-weight:600!important;letter-spacing:.06em;text-transform:uppercase;font-size:.82rem!important}
-#hero{position:relative;min-height:100vh;display:flex;align-items:center;justify-content:center;text-align:center;overflow:hidden;background:var(--white)}
-#hero-canvas{position:absolute;inset:0;z-index:0;opacity:.65}
-.hero-light{position:absolute;top:-20%;left:50%;transform:translateX(-50%);width:900px;height:600px;background:radial-gradient(ellipse at top,rgba(232,184,50,.18) 0%,rgba(201,152,26,.06) 40%,transparent 70%);pointer-events:none;z-index:0}
-.hero-content{position:relative;z-index:1;max-width:860px;padding:80px 24px 0}
-.hero-crown{display:inline-block;margin-bottom:20px;filter:drop-shadow(0 4px 20px rgba(201,152,26,.5));animation:float 4s ease-in-out infinite}
+#hero{position:relative;min-height:100vh;display:flex;align-items:center;justify-content:center;text-align:center;overflow:hidden;background:var(--royal)}
+#hero-video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:0;opacity:.35}
+#hero-canvas{position:absolute;inset:0;z-index:1;opacity:.4}
+.hero-light{position:absolute;top:-20%;left:50%;transform:translateX(-50%);width:900px;height:600px;background:radial-gradient(ellipse at top,rgba(232,184,50,.18) 0%,rgba(201,152,26,.06) 40%,transparent 70%);pointer-events:none;z-index:1}
+.hero-content{position:relative;z-index:2;max-width:860px;padding:80px 24px 0}
+.hero-crown{display:inline-block;margin-bottom:20px;filter:drop-shadow(0 4px 20px rgba(201,152,26,.5));animation:float 4s ease-in-out infinite;position:relative;z-index:2}
 @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
-.hero-eyebrow{display:inline-flex;align-items:center;gap:10px;background:var(--gold-pale);color:var(--gold-deep);font-size:.72rem;font-weight:700;letter-spacing:.18em;text-transform:uppercase;padding:8px 20px;border-radius:2px;border:1px solid var(--border);margin-bottom:32px}
+.hero-eyebrow{display:inline-flex;align-items:center;gap:10px;background:rgba(201,152,26,.12);color:var(--gold-light);font-size:.72rem;font-weight:700;letter-spacing:.18em;text-transform:uppercase;padding:8px 20px;border-radius:2px;border:1px solid rgba(201,152,26,.35);margin-bottom:32px}
 .eyebrow-dot{width:6px;height:6px;border-radius:50%;background:var(--gold)}
-.hero-headline{font-family:'Cormorant Garamond',serif;font-size:clamp(3.5rem,7vw,7rem);font-weight:700;line-height:1.02;color:var(--text);margin-bottom:28px;letter-spacing:-.02em}
+.hero-headline{font-family:'Cormorant Garamond',serif;font-size:clamp(3.5rem,7vw,7rem);font-weight:700;line-height:1.02;color:var(--white);margin-bottom:28px;letter-spacing:-.02em}
 .hero-headline em{font-style:italic;color:var(--gold)}
-.hero-sub{font-size:clamp(1rem,1.8vw,1.2rem);color:var(--text-mid);font-weight:400;line-height:1.75;max-width:580px;margin:0 auto 48px}
+.hero-sub{font-size:clamp(1rem,1.8vw,1.2rem);color:rgba(255,255,255,.75);font-weight:400;line-height:1.75;max-width:580px;margin:0 auto 48px}
 .hero-ctas{display:flex;gap:16px;justify-content:center;flex-wrap:wrap}
 .hero-ctas .btn-royal,.hero-ctas .btn-outline{font-size:.9rem;padding:16px 40px}
 .scroll-indicator{position:absolute;bottom:48px;left:50%;transform:translateX(-50%);z-index:1}
@@ -311,14 +312,14 @@ footer{background:#0F0F28;padding:56px 64px;display:flex;align-items:center;just
 .faq-item p{color:var(--text-mid);font-size:.87rem;line-height:1.7}
 @media(max-width:1024px){.why-grid{grid-template-columns:repeat(2,1fr)}.crm-spot-inner{grid-template-columns:1fr;gap:48px}.crm-spot-badge{display:none}.faq-grid{grid-template-columns:1fr}}
 @media(max-width:640px){#why-us,#crm-spotlight,#faq{padding:80px 24px}.why-card{padding:32px 24px}.faq-item{padding:24px}}
-/* ── Ambient Music Toggle ── */
-#ambient-toggle{position:fixed;bottom:32px;right:32px;z-index:9000;width:52px;height:52px;border-radius:50%;background:rgba(26,26,62,0.82);border:1px solid rgba(201,152,26,0.4);-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:border-color .2s,background .2s;box-shadow:0 4px 24px rgba(0,0,0,.32)}
-#ambient-toggle:hover{border-color:var(--gold);background:rgba(26,26,62,.95)}
-#ambient-toggle svg{width:22px;height:22px;color:var(--gold-light)}
-.ambient-playing svg{color:var(--gold)!important}
-.vol-wrap{display:none;position:absolute;bottom:60px;right:0;background:rgba(26,26,62,.9);border:1px solid rgba(201,152,26,.3);border-radius:8px;padding:12px 10px;-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px)}
-#ambient-toggle:hover .vol-wrap{display:block}
-#vol-slider{writing-mode:vertical-lr;direction:rtl;width:4px;height:80px;cursor:pointer;accent-color:var(--gold)}
+/* ── Music Toggle ── */
+#music-bar{position:fixed;bottom:32px;right:32px;z-index:9000;display:flex;flex-direction:column;align-items:center;gap:8px}
+#music-btn{width:52px;height:52px;border-radius:50%;background:rgba(26,26,62,0.82);border:1px solid rgba(201,152,26,0.4);-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:border-color .2s,background .2s,color .2s;box-shadow:0 4px 24px rgba(0,0,0,.32);font-size:1.25rem;color:rgba(232,184,50,.65);outline:none}
+#music-btn:hover{border-color:var(--gold);background:rgba(26,26,62,.95)}
+#music-btn.music-on{color:var(--gold);border-color:var(--gold)}
+.music-vol-wrap{display:none;position:absolute;bottom:60px;right:0;background:rgba(26,26,62,.9);border:1px solid rgba(201,152,26,.3);border-radius:8px;padding:12px 10px;-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px)}
+#music-bar:hover .music-vol-wrap{display:block}
+#music-vol{writing-mode:vertical-lr;direction:rtl;width:4px;height:80px;cursor:pointer;accent-color:var(--gold)}
 </style>
 </head>
 <body>
@@ -329,38 +330,41 @@ footer{background:#0F0F28;padding:56px 64px;display:flex;align-items:center;just
     <span class="nav-logo-text">Crown Media Group</span>
   </a>
   <ul class="nav-links">
+    <li><a href="/blog/" class="nav-link-gold">Blog</a></li>
     <li><a href="#about">About</a></li>
     <li><a href="#services">Services</a></li>
     <li><a href="#proof">Work</a></li>
     <li><a href="#process">Process</a></li>
     <li><a href="#pricing">Pricing</a></li>
     <li><a href="#serve">Columbia SC</a></li>
-    <li><a href="/blog/">Blog</a></li>
     <li><a href="/ai-tools.html" class="nav-link-gold">AI Tools</a></li>
   </ul>
   <a href="https://calendly.com/crownmediagroupco" target="_blank" class="btn-royal nav-cta">Book a Call</a>
   <div class="hamburger" id="hamburger" role="button" aria-label="Menu"><span></span><span></span><span></span></div>
 </nav>
 <div class="mobile-menu" id="mobile-menu">
+  <a href="/blog/" class="nav-link-gold">Blog</a>
   <a href="#about">About</a>
   <a href="#services">Services</a>
   <a href="#proof">Work</a>
   <a href="#process">Process</a>
   <a href="#pricing">Pricing</a>
   <a href="#serve">Columbia SC</a>
-  <a href="/blog/">Blog</a>
-  <a href="/ai-tools.html">AI Tools</a>
+  <a href="/ai-tools.html" class="nav-link-gold">AI Tools</a>
   <a href="https://calendly.com/crownmediagroupco" target="_blank" rel="noopener" class="mobile-cta">Book a Call</a>
 </div>
 
 <div id="hero">
+  <video id="hero-video" autoplay muted loop playsinline preload="auto">
+    <source src="/assets/video/hero-bg.mp4" type="video/mp4">
+  </video>
   <canvas id="hero-canvas"></canvas>
   <div class="hero-light"></div>
   <div class="hero-content">
     <div class="hero-crown"><svg xmlns="http://www.w3.org/2000/svg" width="60" height="54" viewBox="0 0 60 54" fill="none"><line x1="30" y1="0" x2="30" y2="9" stroke="#C9981A" stroke-width="2.5" stroke-linecap="round"/><line x1="25" y1="4.5" x2="35" y2="4.5" stroke="#C9981A" stroke-width="2.5" stroke-linecap="round"/><path d="M5 44L12 20L26 34L30 14L34 34L48 20L55 44H5Z" stroke="#C9981A" stroke-width="2" fill="rgba(201,152,26,0.08)" stroke-linejoin="round"/><rect x="4" y="44" width="52" height="7" rx="1.5" fill="rgba(201,152,26,0.1)" stroke="#C9981A" stroke-width="2"/><circle cx="30" cy="14" r="3" fill="#C9981A"/><circle cx="5" cy="20" r="2.5" fill="#C9981A" opacity="0.8"/><circle cx="55" cy="20" r="2.5" fill="#C9981A" opacity="0.8"/></svg></div>
     <div class="hero-eyebrow"><span class="eyebrow-dot"></span>Columbia, SC &mdash; AI-Powered Marketing Agency</div>
     <h1 class="hero-headline">Crown Your Brand.<br><em>Own Your Market.</em></h1>
-    <p class="hero-sub">AI-powered marketing that puts your business in a class of its own. Content, ads, brand &mdash; delivered in 48 hours. Built for Columbia SC businesses ready to grow.</p>
+    <p class="hero-sub">AI-powered marketing that puts your business in a class of its own. Content, ads, brand &mdash; fast turnaround. Built for Columbia SC businesses ready to grow.</p>
     <div class="hero-ctas">
       <a href="https://calendly.com/crownmediagroupco" target="_blank" class="btn-royal">Claim Your Free Strategy Session</a>
       <a href="https://crm.crownmediagroup.co" target="_blank" class="btn-crm-trial">Try CRM Free &rarr;</a>
@@ -372,7 +376,7 @@ footer{background:#0F0F28;padding:56px 64px;display:flex;align-items:center;just
 <div id="proof-bar">
   <div class="proof-inner">
     <div class="proof-item"><span class="star"><svg xmlns="http://www.w3.org/2000/svg" width="8" height="8" viewBox="0 0 8 8"><polygon points="4,0 5,3 8,4 5,5 4,8 3,5 0,4 3,3" fill="#E8B832"/></svg></span> AI-Powered Production</div>
-    <div class="proof-item"><span class="star"><svg xmlns="http://www.w3.org/2000/svg" width="8" height="8" viewBox="0 0 8 8"><polygon points="4,0 5,3 8,4 5,5 4,8 3,5 0,4 3,3" fill="#E8B832"/></svg></span> 48-Hour Delivery</div>
+    <div class="proof-item"><span class="star"><svg xmlns="http://www.w3.org/2000/svg" width="8" height="8" viewBox="0 0 8 8"><polygon points="4,0 5,3 8,4 5,5 4,8 3,5 0,4 3,3" fill="#E8B832"/></svg></span> Fast Delivery</div>
     <div class="proof-item"><span class="star"><svg xmlns="http://www.w3.org/2000/svg" width="8" height="8" viewBox="0 0 8 8"><polygon points="4,0 5,3 8,4 5,5 4,8 3,5 0,4 3,3" fill="#E8B832"/></svg></span> 33-Day Free CRM Trial</div>
     <div class="proof-item"><span class="star"><svg xmlns="http://www.w3.org/2000/svg" width="8" height="8" viewBox="0 0 8 8"><polygon points="4,0 5,3 8,4 5,5 4,8 3,5 0,4 3,3" fill="#E8B832"/></svg></span> Faith-Aligned</div>
     <div class="proof-item"><span class="star"><svg xmlns="http://www.w3.org/2000/svg" width="8" height="8" viewBox="0 0 8 8"><polygon points="4,0 5,3 8,4 5,5 4,8 3,5 0,4 3,3" fill="#E8B832"/></svg></span> Faith-Aligned Agency</div>
@@ -390,7 +394,7 @@ footer{background:#0F0F28;padding:56px 64px;display:flex;align-items:center;just
         <div class="divider" style="margin:0 0 36px;"></div>
         <p>David King is a 27-year-old faith-driven CEO based in Columbia, SC. He founded Crown Media Group on one conviction: <strong>local businesses deserve enterprise-level marketing without enterprise-level price tags.</strong></p>
         <p>He built an AI-powered content and automation stack that can serve 1 client or 100,000 &mdash; the same system, the same quality, every time. Every strategy starts with prayer. Every result gets documented. Every client gets treated like family.</p>
-        <p>While big agencies charge $5,000/month and hand you off to an intern, <strong>Crown Media Group gives you the founder, real AI tools, and real results &mdash; delivered in 48 hours.</strong></p>
+        <p>While big agencies charge $5,000/month and hand you off to an intern, <strong>Crown Media Group gives you the founder, real AI tools, and real results &mdash; fast.</strong></p>
         <blockquote>"All Glory to Jesus."</blockquote>
       </div>
       <div class="about-visual">
@@ -462,15 +466,15 @@ footer{background:#0F0F28;padding:56px 64px;display:flex;align-items:center;just
     </div>
     <div class="ai-grid">
       <ul class="tech-list reveal">
-        <li class="tech-item"><div class="tech-mark"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#C9981A" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="16" rx="2"/><circle cx="7" cy="9" r="2"/><path d="M2 15l5-5 4 4 2.5-2.5L21 17"/></svg></div><div><div class="tech-label">Gemini AI Image Generation</div><div class="tech-sub">Imagen 3 &mdash; world-class visuals on demand</div></div></li>
-        <li class="tech-item"><div class="tech-mark"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#C9981A" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="6" width="12" height="12" rx="2"/><path d="M6 9H3M6 12H2M6 15H3M18 9h3M18 12h4M18 15h3M9 6V3M12 6V2M15 6V3M9 18v3M12 18v4M15 18v3"/></svg></div><div><div class="tech-label">Claude AI Strategy Engine</div><div class="tech-sub">Anthropic &mdash; content, copy, and strategy at scale</div></div></li>
-        <li class="tech-item"><div class="tech-mark"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#C9981A" stroke-width="1.5" stroke-linecap="round"><path d="M6 14a5 5 0 0 1-.5-9.8A6 6 0 0 1 17 7.5a4 4 0 0 1-.5 8H6z"/></svg></div><div><div class="tech-label">Railway Cloud Infrastructure</div><div class="tech-sub">Always-on server &mdash; 24/7 automation</div></div></li>
-        <li class="tech-item"><div class="tech-mark"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#C9981A" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 5l10 8 10-8"/></svg></div><div><div class="tech-label">Automated SMS &amp; Email Pipelines</div><div class="tech-sub">Twilio + Resend &mdash; instant client communication</div></div></li>
-        <li class="tech-item"><div class="tech-mark"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#C9981A" stroke-width="1.5" stroke-linecap="round"><line x1="6" y1="20" x2="6" y2="14"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="18" y1="20" x2="18" y2="10"/><line x1="2" y1="20" x2="22" y2="20"/></svg></div><div><div class="tech-label">Real-Time Reporting Dashboard</div><div class="tech-sub">Google Sheets API &mdash; live performance data</div></div></li>
+        <li class="tech-item"><div class="tech-mark"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#C9981A" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="16" rx="2"/><circle cx="7" cy="9" r="2"/><path d="M2 15l5-5 4 4 2.5-2.5L21 17"/></svg></div><div><div class="tech-label">We Create Your Visuals</div><div class="tech-sub">Professional images &amp; graphics made by AI &mdash; in seconds, not days</div></div></li>
+        <li class="tech-item"><div class="tech-mark"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#C9981A" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="6" width="12" height="12" rx="2"/><path d="M6 9H3M6 12H2M6 15H3M18 9h3M18 12h4M18 15h3M9 6V3M12 6V2M15 6V3M9 18v3M12 18v4M15 18v3"/></svg></div><div><div class="tech-label">Your Marketing Brain, On Autopilot</div><div class="tech-sub">AI writes your captions, ads, and strategy &mdash; you just approve and post</div></div></li>
+        <li class="tech-item"><div class="tech-mark"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#C9981A" stroke-width="1.5" stroke-linecap="round"><path d="M6 14a5 5 0 0 1-.5-9.8A6 6 0 0 1 17 7.5a4 4 0 0 1-.5 8H6z"/></svg></div><div><div class="tech-label">We Never Stop Working For You</div><div class="tech-sub">Your marketing runs around the clock &mdash; even when you close the laptop</div></div></li>
+        <li class="tech-item"><div class="tech-mark"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#C9981A" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 5l10 8 10-8"/></svg></div><div><div class="tech-label">Auto Follow-Up, Zero Effort</div><div class="tech-sub">Text and email your leads the moment they reach out &mdash; no manual work</div></div></li>
+        <li class="tech-item"><div class="tech-mark"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#C9981A" stroke-width="1.5" stroke-linecap="round"><line x1="6" y1="20" x2="6" y2="14"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="18" y1="20" x2="18" y2="10"/><line x1="2" y1="20" x2="22" y2="20"/></svg></div><div><div class="tech-label">See Exactly What's Working</div><div class="tech-sub">Live results on your content and ads &mdash; updated in real time, no guessing</div></div></li>
       </ul>
       <div class="counters reveal">
         <div class="counter-cell"><div class="counter-num" data-target="10" data-suffix="+">0</div><div class="counter-desc">AI Tools in our stack</div></div>
-        <div class="counter-cell"><div class="counter-num" data-target="48" data-suffix="hr">0</div><div class="counter-desc">Content delivery</div></div>
+        <div class="counter-cell"><div class="counter-num" data-target="33" data-suffix="d">0</div><div class="counter-desc">Free CRM Trial</div></div>
         <div class="counter-cell"><div class="counter-num" data-target="100" data-suffix="%">0</div><div class="counter-desc">Faith-aligned</div></div>
         <div class="counter-cell"><div class="counter-num" data-text="1 to 100K">1</div><div class="counter-desc">Scalable</div></div>
       </div>
@@ -480,39 +484,39 @@ footer{background:#0F0F28;padding:56px 64px;display:flex;align-items:center;just
 
 <div id="process">
   <div class="process-inner">
-    <div class="reveal"><span class="label">How It Works</span><h2 class="prsh">From zero to growth <span class="grad-gold">in 4 steps.</span></h2></div>
+    <div class="reveal"><span class="label">How It Works</span><h2 class="prsh">Simple process. <span class="grad-gold">Real results.</span></h2></div>
     <div class="steps">
-      <div class="step reveal"><div class="step-num">01</div><h3>Discovery Call</h3><p>15 minutes, free, no pressure. We learn your business, your goals, and your biggest challenges.</p></div>
-      <div class="step reveal"><div class="step-num">02</div><h3>Custom Strategy</h3><p>A real plan built around your specific business &mdash; not a template. Content pillars, ad targets, 30-day roadmap.</p></div>
-      <div class="step reveal"><div class="step-num">03</div><h3>Content + Ads Live</h3><p>Delivered in 48 hours. Content running, ads live, brand looking elite within days of signing.</p></div>
-      <div class="step reveal"><div class="step-num">04</div><h3>Scale + Report</h3><p>Monthly strategy calls, real data, and continuous optimization. Your growth is always the goal.</p></div>
+      <div class="step reveal"><div class="step-num">01</div><h3>Discovery Call</h3><p>15-minute free call. We learn your business, your goals, and what's holding you back.</p></div>
+      <div class="step reveal"><div class="step-num">02</div><h3>Custom Strategy</h3><p>A real plan built around your business — not a template. Content pillars, ad targets, 30-day roadmap.</p></div>
+      <div class="step reveal"><div class="step-num">03</div><h3>We Build &amp; Launch</h3><p>Your content, ads, and brand go live. We handle all of it — you just approve.</p></div>
+      <div class="step reveal"><div class="step-num">04</div><h3>Grow &amp; Optimize</h3><p>Monthly strategy calls, real data, continuous improvement. You always know what's working.</p></div>
     </div>
   </div>
 </div>
 
 <div id="why-us">
   <div class="why-inner">
-    <div class="reveal"><span class="label">Why Crown Media</span><h2 class="sh">The agency that works <span class="grad-gold">like a founder.</span></h2></div>
+    <div class="reveal"><span class="label">Why Crown Media</span><h2 class="sh">Built different. <span class="grad-gold">By design.</span></h2></div>
     <div class="why-grid reveal">
       <div class="why-card">
         <div class="why-icon">&#9812;</div>
         <h3>Founder-Led</h3>
-        <p>You get David King — the founder, strategist, and executor. Not an intern. Not a junior account manager. The person who built this.</p>
+        <p>You work directly with David King — the founder who built this, not an account manager who inherited your file.</p>
       </div>
       <div class="why-card">
         <div class="why-icon">&#10013;</div>
         <h3>Faith-Aligned</h3>
-        <p>Built on biblical principles. Every strategy, every campaign, every decision is filtered through integrity — not just algorithms.</p>
+        <p>Every strategy runs through integrity first. No manipulative tactics, no fake urgency, no shortcuts that embarrass your brand.</p>
       </div>
       <div class="why-card">
         <div class="why-icon">&#9889;</div>
-        <h3>AI-Powered Speed</h3>
-        <p>Enterprise-grade AI tools at startup prices. Logos, websites, content, and ads delivered in 48 hours — not 4 weeks.</p>
+        <h3>AI-Powered</h3>
+        <p>Enterprise-grade AI stack at startup prices. The same tools Fortune 500 companies pay tens of thousands for — built into every package.</p>
       </div>
       <div class="why-card">
         <div class="why-icon">&#128205;</div>
-        <h3>Columbia Local</h3>
-        <p>We know your market. We know your neighbors. Columbia SC is not a generic campaign — it's home, and we market it like it.</p>
+        <h3>Columbia, SC</h3>
+        <p>We know this market. Your competitors, your neighborhoods, your customers. Columbia is home — and we market it like it.</p>
       </div>
     </div>
   </div>
@@ -684,7 +688,7 @@ footer{background:#0F0F28;padding:56px 64px;display:flex;align-items:center;just
     <div class="faq-grid reveal">
       <div class="faq-item">
         <h3>How fast do you actually deliver?</h3>
-        <p>AI products (logo, banners, website) deliver within 24 hours. Social content starts within 48 hours of signing. Paid ads go live within 72 hours of receiving assets.</p>
+        <p>AI products (logo, banners, website) deliver quickly — typically within a business day. Social content starts fast after signing. Paid ads go live as soon as we receive your assets.</p>
       </div>
       <div class="faq-item">
         <h3>What if I'm not happy with my logo?</h3>
@@ -814,48 +818,42 @@ const cObs=new IntersectionObserver(entries=>{entries.forEach(e=>{if(e.isInterse
 document.querySelectorAll('.counters').forEach(el=>cObs.observe(el));
 </script>
 
-<!-- Ambient Music — Crown Media Group Worship Pad -->
-<div id="ambient-toggle" title="Ambient music" aria-label="Toggle ambient music">
-  <div class="vol-wrap"><input type="range" id="vol-slider" min="0" max="1" step="0.01" value="0.18"></div>
-  <svg id="ambient-icon-play" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
-  <svg id="ambient-icon-pause" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" style="display:none"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
+<!-- Music Player — Crown Media Group Playlist -->
+<div id="music-bar">
+  <div class="music-vol-wrap"><input type="range" id="music-vol" min="0" max="100" value="18" aria-label="Music volume" title="Music volume"></div>
+  <button id="music-btn" title="Play playlist" aria-label="Toggle playlist music">&#9835;</button>
+  <div id="yt-player-wrap" style="position:absolute;width:1px;height:1px;overflow:hidden;opacity:0;pointer-events:none;bottom:0;right:0;"></div>
 </div>
-<script src="https://cdn.jsdelivr.net/npm/tone@14.7.77/build/Tone.js"></script>
 <script>
-/* Crown Media Group — Ambient Worship Pad | Tone.js v14 | C major pad */
+/* Crown Media Group — YouTube Playlist Player */
 (function(){
+  var musicOn=false,ytPlayer=null,ytReady=false;
+  var savedPref=localStorage.getItem('cmg_music');
   var isMobile=/Mobi|Android/i.test(navigator.userAgent);
-  var btn=document.getElementById('ambient-toggle');
-  var iconPlay=document.getElementById('ambient-icon-play');
-  var iconPause=document.getElementById('ambient-icon-pause');
-  var volSlider=document.getElementById('vol-slider');
-  var started=false,playing=false;
-  var savedPref=localStorage.getItem('cmg_ambient');
-  var shouldAutoPlay=!isMobile&&savedPref!=='off';
-  function buildPad(){
-    var reverb=new Tone.Reverb({decay:8,wet:0.7}).toDestination();
-    var chorus=new Tone.Chorus(1.5,2.5,0.4).connect(reverb);chorus.start();
-    var vol=new Tone.Volume(-14).connect(chorus);
-    new Tone.LFO({frequency:'0.05',min:-24,max:-10}).connect(vol.volume).start();
-    ['C3','E3','G3','C4'].forEach(function(note){
-      new Tone.Synth({oscillator:{type:'sine'},envelope:{attack:4,decay:2,sustain:0.8,release:6},volume:-8}).connect(vol).triggerAttack(note,Tone.now());
-      new Tone.Synth({oscillator:{type:'triangle'},envelope:{attack:6,decay:4,sustain:0.6,release:8},volume:-16}).connect(vol).triggerAttack(note,Tone.now()+0.5);
+  var tag=document.createElement('script');
+  tag.src='https://www.youtube.com/iframe_api';
+  document.head.appendChild(tag);
+  window.onYouTubeIframeAPIReady=function(){
+    ytPlayer=new YT.Player('yt-player-wrap',{
+      height:'1',width:'1',
+      playerVars:{listType:'playlist',list:'PLPdK5nHr48s1mLIl6HL_qxJukitxpMkgY',autoplay:1,mute:1,loop:1,controls:0,playsinline:1,origin:window.location.origin},
+      events:{onReady:function(e){
+        ytReady=true;e.target.setVolume(18);e.target.playVideo();
+        if(savedPref==='on'&&!isMobile){
+          document.addEventListener('scroll',function au(){document.removeEventListener('scroll',au);if(ytReady){ytPlayer.unMute();musicOn=true;document.getElementById('music-btn').classList.add('music-on');}},{once:true,passive:true});
+        }
+      }}
     });
-  }
-  function setPlaying(state){
-    playing=state;
-    if(state){Tone.getDestination().volume.rampTo(parseFloat(volSlider.value)*6-14,1.5);btn.classList.add('ambient-playing');iconPlay.style.display='none';iconPause.style.display='block';localStorage.setItem('cmg_ambient','on');}
-    else{Tone.getDestination().volume.rampTo(-Infinity,2);btn.classList.remove('ambient-playing');iconPlay.style.display='block';iconPause.style.display='none';localStorage.setItem('cmg_ambient','off');}
-  }
-  btn.addEventListener('click',async function(e){
-    if(e.target.id==='vol-slider')return;
-    await Tone.start();
-    if(!started){started=true;buildPad();}
-    setPlaying(!playing);
+  };
+  var btn=document.getElementById('music-btn');
+  var vol=document.getElementById('music-vol');
+  btn.addEventListener('click',function(){
+    if(!ytReady)return;
+    if(!musicOn){ytPlayer.unMute();ytPlayer.setVolume(parseInt(vol.value));ytPlayer.playVideo();musicOn=true;btn.classList.add('music-on');localStorage.setItem('cmg_music','on');}
+    else{ytPlayer.mute();musicOn=false;btn.classList.remove('music-on');localStorage.setItem('cmg_music','off');}
   });
-  volSlider.addEventListener('input',function(){Tone.getDestination().volume.rampTo(parseFloat(this.value)*6-14,0.3);});
-  if(shouldAutoPlay){document.addEventListener('click',async function autoStart(){document.removeEventListener('click',autoStart);await Tone.start();if(!started){started=true;buildPad();}setPlaying(true);},{once:true});}
-  document.addEventListener('visibilitychange',function(){if(!started)return;if(document.hidden){Tone.getDestination().volume.rampTo(-Infinity,1);}else if(playing){Tone.getDestination().volume.rampTo(parseFloat(volSlider.value)*6-14,1);}});
+  vol.addEventListener('input',function(){if(ytReady)ytPlayer.setVolume(parseInt(this.value));});
+  document.addEventListener('visibilitychange',function(){if(!ytReady)return;if(document.hidden)ytPlayer.mute();else if(musicOn)ytPlayer.unMute();});
 })();
 </script>
 </body>
