@@ -93,12 +93,13 @@ app.use(helmet({
     directives: {
       defaultSrc: ["'self'"],
       styleSrc:   ["'self'", "'unsafe-inline'"],
-      scriptSrc:  ["'self'", "'unsafe-inline'"],
-      imgSrc:     ["'self'", 'data:'],
-      connectSrc: ["'self'"],
+      scriptSrc:  ["'self'", "'unsafe-inline'", 'https://accounts.google.com'],
+      imgSrc:     ["'self'", 'data:', 'https://lh3.googleusercontent.com'],
+      connectSrc: ["'self'", 'https://accounts.google.com', 'https://oauth2.googleapis.com'],
+      frameSrc:   ["'self'", 'https://accounts.google.com'],
     },
   },
-  frameguard: { action: 'deny' },
+  frameguard: false,
 }));
 
 // ── Trust proxy (Railway / Netlify sit behind a load balancer) ────────────────
