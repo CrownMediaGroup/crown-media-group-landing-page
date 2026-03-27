@@ -313,8 +313,8 @@
 
   <!-- ── TAB SWITCHER ── -->
   <div class="auth-tabs">
-    <button type="button" class="auth-tab active" id="tabLogin" onclick="showLogin()">Sign In</button>
-    <button type="button" class="auth-tab" id="tabSignup" onclick="showSignup()">Create Account</button>
+    <button type="button" class="auth-tab active" id="tabLogin">Sign In</button>
+    <button type="button" class="auth-tab" id="tabSignup">Create Account</button>
   </div>
 
   <!-- ── GOOGLE SIGN-IN (rendered by Google GIS when GOOGLE_CLIENT_ID is set) ── -->
@@ -453,12 +453,14 @@ let googleClientId = null;
       script.src = 'https://accounts.google.com/gsi/client';
       script.async = true;
       script.onload = initGoogle;
+      script.onerror = () => {};
       document.head.appendChild(script);
     }
   } catch (_) {}
 })();
 
 function initGoogle() {
+  if (!window.google?.accounts?.id) return;
   window.google.accounts.id.initialize({
     client_id: googleClientId,
     callback: handleGoogleCredential,
