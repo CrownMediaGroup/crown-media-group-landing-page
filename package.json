@@ -11,7 +11,9 @@
     "start": "node tools/standalone-runner.js",
     "resize": "node tools/resize-image.js",
     "crm": "node tools/crm/server.js",
-    "scrape": "node Agency/tools/maps-scraper.js"
+    "scrape": "node Agency/tools/maps-scraper.js",
+    "video-poster": "node tools/video-service/automation/auto-poster.js",
+    "video-report": "node tools/video-service/reporting/monthly-report.js"
   },
   "devDependencies": {
     "playwright": "^1.58.2"
@@ -21,8 +23,10 @@
     "axios": "^1.13.6",
     "dotenv": "^17.3.1",
     "elevenlabs": "^1.59.0",
+    "form-data": "^4.0.5",
     "inquirer": "^8.2.7",
     "instagram-private-api": "^1.46.1",
+    "node-cron": "^3.0.3",
     "node-windows": "^1.0.0-beta.8",
     "playwright-extra": "^4.3.6",
     "playwright-extra-plugin-stealth": "^0.0.1",

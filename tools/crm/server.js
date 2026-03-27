@@ -76,12 +76,12 @@ function getCookie(req, name) {
 // ── Seed King's user on first start ──────────────────────────────────────────
 const KING_EMAIL = 'king@crownmediagroup.co';
 if (!db.prepare('SELECT id FROM users WHERE email = ?').get(KING_EMAIL)) {
-  const tempPassword = randomBytes(8).toString('hex');
-  db.prepare("INSERT INTO users (email, password_hash, role, workspace_id) VALUES (?, ?, 'superadmin', 1)").run(KING_EMAIL, hashPassword(tempPassword));
+  const initPassword = process.env.KING_PASSWORD || randomBytes(8).toString('hex');
+  db.prepare("INSERT INTO users (email, password_hash, role, workspace_id) VALUES (?, ?, 'superadmin', 1)").run(KING_EMAIL, hashPassword(initPassword));
   console.log('\n[CRM AUTH] ─────────────────────────────────────────────');
   console.log(`  King's login created — save this password now:`);
   console.log(`  Email:    ${KING_EMAIL}`);
-  console.log(`  Password: ${tempPassword}`);
+  console.log(`  Password: ${initPassword}`);
   console.log('[CRM AUTH] ─────────────────────────────────────────────\n');
 }
 
@@ -865,6 +865,106 @@ app.get('/api/reports/activity', (req, res) => {
     GROUP BY date(date)
     ORDER BY day ASC
   `).all());
+});
+
+// ══════════════════════════════════════════════════════════════════════════════
+// VIDEO SERVICE API — /api/video-service/*
+// Bridges dashboard → Supabase REST + description-gen.js (Claude AI)
+// Auth: same crm_session cookie used for all protected routes
+// ══════════════════════════════════════════════════════════════════════════════
+
+const SB_URL = process.env.SUPABASE_URL;
+const SB_KEY = process.env.SUPABASE_KEY;
+
+function sbHeaders() {
+  return {
+    apikey: SB_KEY,
+    Authorization: `Bearer ${SB_KEY}`,
+    'Content-Type': 'application/json',
+  };
+}
+
+// GET /api/video-service/projects — list all projects (newest first)
+app.get('/api/video-service/projects', async (req, res) => {
+  try {
+    const params = new URLSearchParams({ select: '*', order: 'created_at.desc' });
+    if (req.query.status) params.set('status', `eq.${req.query.status}`);
+    const r = await fetch(`${SB_URL}/rest/v1/video_projects?${params}`, { headers: sbHeaders() });
+    const data = await r.json();
+    res.json(data);
+  } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
+// POST /api/video-service/projects — create project
+app.post('/api/video-service/projects', async (req, res) => {
+  try {
+    const r = await fetch(`${SB_URL}/rest/v1/video_projects`, {
+      method: 'POST',
+      headers: { ...sbHeaders(), Prefer: 'return=representation' },
+      body: JSON.stringify(req.body),
+    });
+    const data = await r.json();
+    res.status(r.ok ? 201 : 400).json(data);
+  } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
+// PATCH /api/video-service/projects/:id — update status/notes/schedule
+app.patch('/api/video-service/projects/:id', async (req, res) => {
+  try {
+    const r = await fetch(`${SB_URL}/rest/v1/video_projects?id=eq.${req.params.id}`, {
+      method: 'PATCH',
+      headers: { ...sbHeaders(), Prefer: 'return=representation' },
+      body: JSON.stringify(req.body),
+    });
+    const data = await r.json();
+    res.json(data);
+  } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
+// GET /api/video-service/projects/:id/posts — get platform posts for a project
+app.get('/api/video-service/projects/:id/posts', async (req, res) => {
+  try {
+    const r = await fetch(`${SB_URL}/rest/v1/video_platform_posts?project_id=eq.${req.params.id}&order=platform.asc`, { headers: sbHeaders() });
+    res.json(await r.json());
+  } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
+// POST /api/video-service/generate-descriptions — Claude AI caption generation
+app.post('/api/video-service/generate-descriptions', async (req, res) => {
+  const { project_id } = req.body;
+  if (!project_id) return res.status(400).json({ error: 'project_id required' });
+  try {
+    // Dynamic import of ESM description-gen.js
+    const { generateDescriptions } = await import('./../../tools/video-service/automation/description-gen.js');
+    const rows = await generateDescriptions(project_id);
+    res.json({ ok: true, count: rows.length, posts: rows });
+  } catch (err) {
+    console.error('[VIDEO] Caption generation error:', err.message);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// GET /api/video-service/revenue — revenue data for dashboard chart
+app.get('/api/video-service/revenue', async (req, res) => {
+  try {
+    const r = await fetch(`${SB_URL}/rest/v1/video_revenue?order=revenue_month.desc&limit=12`, { headers: sbHeaders() });
+    res.json(await r.json());
+  } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
+// POST /api/video-service/report — trigger monthly PDF report generation
+app.post('/api/video-service/report', async (req, res) => {
+  const { month } = req.body;
+  res.json({ ok: true, message: 'Report generation started', month: month || 'current' });
+  // Run async — don't block the response
+  import('child_process').then(({ execFile }) => {
+    const scriptPath = join(__dirname, '../../tools/video-service/reporting/monthly-report.js');
+    const args = month ? [scriptPath, month] : [scriptPath];
+    execFile(process.execPath, args, { cwd: join(__dirname, '../..') }, (err, stdout) => {
+      if (err) console.error('[VIDEO REPORT] Error:', err.message);
+      else console.log('[VIDEO REPORT] Complete:', stdout.trim());
+    });
+  });
 });
 
 // ── Fallback → serve index.html (requires auth) ───────────────────────────────

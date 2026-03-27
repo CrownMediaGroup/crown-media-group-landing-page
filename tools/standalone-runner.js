@@ -136,8 +136,32 @@ function checkScheduler() {
   }
 }
 
+// ── Video service auto-poster check (every 15 min = every 15th tick) ──────────
+const VIDEO_POSTER = path.join(__dirname, '../tools/video-service/automation/auto-poster.js');
+let videoPollTick = 0;
+function checkVideoPoster() {
+  videoPollTick++;
+  if (videoPollTick % 15 !== 0) return; // every 15 minutes (15 × 60s ticks)
+  if (!fs.existsSync(VIDEO_POSTER)) return;
+  try {
+    execSync(`node "${VIDEO_POSTER}" --check`, {
+      cwd: ROOT, shell: 'bash', timeout: 120000, encoding: 'utf8'
+    });
+  } catch (e) {
+    log(`[VIDEO-POSTER] ${e.message?.substring(0, 100)}`);
+  }
+}
+
 // Normal run
-log('Standalone runner started — polling every 60s (directives + content scheduler)');
-setInterval(() => { checkQueue(); checkScheduler(); }, POLL);
+log('Standalone runner started — polling every 60s (directives + content scheduler + video poster)');
+setInterval(() => { checkQueue(); checkScheduler(); checkVideoPoster(); }, POLL);
 checkQueue();
 checkScheduler();
+// Run video poster check immediately on start (tick 15 condition override)
+setTimeout(() => {
+  if (fs.existsSync(VIDEO_POSTER)) {
+    try {
+      execSync(`node "${VIDEO_POSTER}" --check`, { cwd: ROOT, shell: 'bash', timeout: 120000 });
+    } catch (e) { /* silent */ }
+  }
+}, 5000);

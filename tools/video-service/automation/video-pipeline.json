@@ -1,0 +1,260 @@
+{
+  "name": "Crown Media — Video Upload Pipeline",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [{ "field": "minutes", "minutesInterval": 5 }]
+        }
+      },
+      "id": "node-trigger",
+      "name": "Every 5 Minutes",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [240, 300]
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT id, client_name, client_email, business_name, project_title, video_type, target_platforms, raw_video_url, drive_link, upload_method, notes FROM video_projects WHERE status = 'uploaded' AND (king_notified IS NULL OR king_notified = FALSE) LIMIT 10",
+        "options": {}
+      },
+      "id": "node-check-uploads",
+      "name": "Check New Uploads",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.4,
+      "position": [460, 300],
+      "credentials": { "postgres": { "id": "supabase-pg", "name": "Supabase Postgres" } },
+      "notes": "Connect to Supabase Postgres. Get host from: Supabase → Project Settings → Database → Connection info"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": { "caseSensitive": true, "leftValue": "", "typeValidation": "strict" },
+          "conditions": [
+            {
+              "leftValue": "={{ $json.length }}",
+              "rightValue": 0,
+              "operator": { "type": "number", "operation": "gt" }
+            }
+          ],
+          "combinator": "and"
+        }
+      },
+      "id": "node-if-uploads",
+      "name": "New Uploads?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [680, 300]
+    },
+    {
+      "parameters": {
+        "fromEmail": "king@crownmediagroup.co",
+        "toEmail": "king@crownmediagroup.co",
+        "subject": "=New Video Upload — {{ $json.client_name }} | {{ $json.business_name }}",
+        "emailType": "html",
+        "message": "=<div style=\"font-family:Inter,sans-serif;max-width:560px;\">\n  <h2 style=\"color:#1A1A3E;\">New Video Project Submitted</h2>\n  <table style=\"width:100%;border-collapse:collapse;\">\n    <tr><td style=\"padding:8px;color:#4A4A6A;font-weight:600;\">Client:</td><td style=\"padding:8px;\">{{ $json.client_name }}</td></tr>\n    <tr><td style=\"padding:8px;color:#4A4A6A;font-weight:600;\">Business:</td><td style=\"padding:8px;\">{{ $json.business_name }}</td></tr>\n    <tr><td style=\"padding:8px;color:#4A4A6A;font-weight:600;\">Email:</td><td style=\"padding:8px;\">{{ $json.client_email }}</td></tr>\n    <tr><td style=\"padding:8px;color:#4A4A6A;font-weight:600;\">Video Type:</td><td style=\"padding:8px;\">{{ $json.video_type }}</td></tr>\n    <tr><td style=\"padding:8px;color:#4A4A6A;font-weight:600;\">Platforms:</td><td style=\"padding:8px;\">{{ $json.target_platforms }}</td></tr>\n    <tr><td style=\"padding:8px;color:#4A4A6A;font-weight:600;\">Notes:</td><td style=\"padding:8px;\">{{ $json.notes }}</td></tr>\n    <tr><td style=\"padding:8px;color:#4A4A6A;font-weight:600;\">Upload:</td><td style=\"padding:8px;\">{{ $json.upload_method }} — {{ $json.drive_link || $json.raw_video_url }}</td></tr>\n  </table>\n  <div style=\"margin-top:20px;\">\n    <a href=\"https://crownmediagroup.co/video-admin?project={{ $json.id }}\" style=\"background:#1A1A3E;color:#E8B832;padding:12px 24px;border-radius:6px;text-decoration:none;font-weight:700;\">Open Dashboard →</a>\n  </div>\n  <p style=\"color:#C9981A;font-style:italic;margin-top:20px;font-size:0.85rem;\">All glory to God — another client to serve with excellence.</p>\n</div>",
+        "options": {}
+      },
+      "id": "node-email-king",
+      "name": "Email King — New Upload",
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2.1,
+      "position": [900, 200],
+      "credentials": { "smtp": { "id": "gmail-smtp", "name": "Gmail SMTP" } },
+      "notes": "Configure Gmail SMTP credentials in n8n → Credentials"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "UPDATE video_projects SET king_notified = TRUE WHERE id = '{{ $json.id }}'",
+        "options": {}
+      },
+      "id": "node-mark-notified",
+      "name": "Mark King Notified",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.4,
+      "position": [1120, 200],
+      "credentials": { "postgres": { "id": "supabase-pg", "name": "Supabase Postgres" } }
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT vp.id, vp.client_name, vp.client_email, vp.business_name, vp.project_title, vp.video_type, vp.target_platforms, vp.notes FROM video_projects vp WHERE vp.status = 'approved' AND NOT EXISTS (SELECT 1 FROM video_platform_posts vpp WHERE vpp.project_id = vp.id) LIMIT 10",
+        "options": {}
+      },
+      "id": "node-check-approved",
+      "name": "Check Approved (No Captions Yet)",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.4,
+      "position": [460, 500],
+      "credentials": { "postgres": { "id": "supabase-pg", "name": "Supabase Postgres" } }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "conditions": [
+            {
+              "leftValue": "={{ $json.length }}",
+              "rightValue": 0,
+              "operator": { "type": "number", "operation": "gt" }
+            }
+          ],
+          "combinator": "and"
+        }
+      },
+      "id": "node-if-approved",
+      "name": "Approved Without Captions?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [680, 500]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $env.CRM_API_BASE || 'https://crm.crownmediagroup.co' }}/api/video-service/generate-descriptions",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "Content-Type", "value": "application/json" }
+          ]
+        },
+        "sendBody": true,
+        "bodyContentType": "json",
+        "jsonBody": "={ \"project_id\": \"{{ $json.id }}\" }",
+        "options": {
+          "timeout": 60000,
+          "response": { "response": { "neverError": true } }
+        }
+      },
+      "id": "node-generate-captions",
+      "name": "Generate Captions (Claude API)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [900, 500],
+      "notes": "Calls CRM server route which invokes description-gen.js with claude-sonnet-4-6"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT vp.id, vp.client_name, vp.business_name, COUNT(vpp.id) as post_count FROM video_projects vp JOIN video_platform_posts vpp ON vpp.project_id = vp.id WHERE vp.status = 'posted' AND vpp.client_notified = FALSE GROUP BY vp.id, vp.client_name, vp.business_name LIMIT 10",
+        "options": {}
+      },
+      "id": "node-check-live",
+      "name": "Check Posted — Client Not Notified",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.4,
+      "position": [460, 700],
+      "credentials": { "postgres": { "id": "supabase-pg", "name": "Supabase Postgres" } }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "conditions": [
+            {
+              "leftValue": "={{ $json.length }}",
+              "rightValue": 0,
+              "operator": { "type": "number", "operation": "gt" }
+            }
+          ],
+          "combinator": "and"
+        }
+      },
+      "id": "node-if-live",
+      "name": "Clients to Notify?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [680, 700]
+    },
+    {
+      "parameters": {
+        "fromEmail": "king@crownmediagroup.co",
+        "toEmail": "={{ $json.client_email }}",
+        "subject": "Your video is live! 🎬",
+        "emailType": "html",
+        "message": "=<div style=\"font-family:Inter,sans-serif;max-width:560px;margin:0 auto;\">\n  <div style=\"background:#1A1A3E;padding:24px;text-align:center;border-radius:8px 8px 0 0;\">\n    <h1 style=\"color:#E8B832;font-family:Georgia,serif;font-size:1.4rem;margin:0;\">Crown Media Group</h1>\n  </div>\n  <div style=\"background:#FDFBF7;padding:32px;border-radius:0 0 8px 8px;\">\n    <p style=\"font-size:1rem;color:#1A1A2E;\">Hi {{ $json.client_name.split(' ')[0] }},</p>\n    <p style=\"color:#4A4A6A;line-height:1.6;\">Your video for <strong>{{ $json.business_name }}</strong> is now live across your social media platforms!</p>\n    <p style=\"color:#4A4A6A;line-height:1.6;\">Check your profiles — the posts are up and ready. We'll have full engagement metrics in your monthly report.</p>\n    <p style=\"color:#9A720D;font-style:italic;margin-top:24px;font-size:0.9rem;\">All glory to God — we're honored to serve your business with excellence.</p>\n    <hr style=\"border:none;border-top:1px solid #eee;margin:24px 0;\">\n    <p style=\"font-size:0.8rem;color:#8A8AAA;\">Crown Media Group | <a href=\"https://crownmediagroup.co\" style=\"color:#C9981A;\">crownmediagroup.co</a> | king@crownmediagroup.co</p>\n  </div>\n</div>",
+        "options": {}
+      },
+      "id": "node-notify-client",
+      "name": "Email Client — Video Live",
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2.1,
+      "position": [900, 700],
+      "credentials": { "smtp": { "id": "gmail-smtp", "name": "Gmail SMTP" } }
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "UPDATE video_platform_posts SET client_notified = TRUE WHERE project_id = '{{ $json.id }}'",
+        "options": {}
+      },
+      "id": "node-mark-client-notified",
+      "name": "Mark Client Notified",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.4,
+      "position": [1120, 700],
+      "credentials": { "postgres": { "id": "supabase-pg", "name": "Supabase Postgres" } }
+    }
+  ],
+  "connections": {
+    "Every 5 Minutes": {
+      "main": [
+        [
+          { "node": "Check New Uploads", "type": "main", "index": 0 },
+          { "node": "Check Approved (No Captions Yet)", "type": "main", "index": 0 },
+          { "node": "Check Posted — Client Not Notified", "type": "main", "index": 0 }
+        ]
+      ]
+    },
+    "Check New Uploads": {
+      "main": [[{ "node": "New Uploads?", "type": "main", "index": 0 }]]
+    },
+    "New Uploads?": {
+      "main": [
+        [{ "node": "Email King — New Upload", "type": "main", "index": 0 }],
+        []
+      ]
+    },
+    "Email King — New Upload": {
+      "main": [[{ "node": "Mark King Notified", "type": "main", "index": 0 }]]
+    },
+    "Check Approved (No Captions Yet)": {
+      "main": [[{ "node": "Approved Without Captions?", "type": "main", "index": 0 }]]
+    },
+    "Approved Without Captions?": {
+      "main": [
+        [{ "node": "Generate Captions (Claude API)", "type": "main", "index": 0 }],
+        []
+      ]
+    },
+    "Check Posted — Client Not Notified": {
+      "main": [[{ "node": "Clients to Notify?", "type": "main", "index": 0 }]]
+    },
+    "Clients to Notify?": {
+      "main": [
+        [{ "node": "Email Client — Video Live", "type": "main", "index": 0 }],
+        []
+      ]
+    },
+    "Email Client — Video Live": {
+      "main": [[{ "node": "Mark Client Notified", "type": "main", "index": 0 }]]
+    }
+  },
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1",
+    "saveManualExecutions": true,
+    "callerPolicy": "workflowsFromSameOwner",
+    "errorWorkflow": ""
+  },
+  "staticData": null,
+  "meta": {
+    "templateCredsSetupCompleted": false,
+    "instanceId": "crown-media-group"
+  },
+  "id": "video-pipeline-001",
+  "tags": [{ "createdAt": "2026-03-27", "updatedAt": "2026-03-27", "id": "video-service", "name": "video-service" }],
+  "triggerCount": 0,
+  "updatedAt": "2026-03-27T00:00:00.000Z",
+  "versionId": "1"
+}
