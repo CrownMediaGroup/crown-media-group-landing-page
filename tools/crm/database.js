@@ -4,7 +4,7 @@ import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
-const DB_PATH = join(__dirname, 'crm.db');
+const DB_PATH = process.env.DATA_DIR ? join(process.env.DATA_DIR, 'crm.db') : join(__dirname, 'crm.db');
 
 export const db = new DatabaseSync(DB_PATH);
 

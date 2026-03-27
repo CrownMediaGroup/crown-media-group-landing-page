@@ -30,7 +30,7 @@ for (const p of [rootEnv, localEnv]) {
 import db from './database.js';
 
 const app   = express();
-const PORT  = process.env.CRM_PORT || 3001;
+const PORT  = process.env.PORT || process.env.CRM_PORT || 3001;
 
 // ── Crypto helpers ────────────────────────────────────────────────────────────
 

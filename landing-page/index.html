@@ -271,6 +271,45 @@ footer{background:#0F0F28;padding:56px 64px;display:flex;align-items:center;just
 @media(max-width:1024px){.services-grid{grid-template-columns:repeat(2,1fr)}.steps{grid-template-columns:repeat(2,1fr)}.pricing-grid{grid-template-columns:1fr;border:none}.price-card{border-right:none;border-bottom:1px solid rgba(201,152,26,.15)}.price-card:last-child{border-bottom:none}}
 @media(max-width:768px){nav{padding:16px 24px}.nav-links,.nav-cta{display:none}.hamburger{display:flex}#about,#services,#proof,#ai,#process,#pricing,#serve,#cta-final{padding:80px 24px}#proof-bar{padding:24px}.proof-inner{gap:24px;justify-content:flex-start}.about-grid,.ai-grid,.serve-grid{grid-template-columns:1fr;gap:60px}.about-visual{height:280px}.crown-orb{width:220px;height:220px}.orb-crown{font-size:3.5rem}.orb-crown img{width:180px;height:180px}.services-header{grid-template-columns:1fr;gap:24px}.services-grid,.steps{grid-template-columns:1fr}.service-card{padding:32px 24px}.step{padding:36px 24px}.price-card{padding:40px 24px}.city-name{font-size:4rem}.hero-light{display:none}.cta-glow{display:none}footer{flex-direction:column;text-align:center;padding:48px 24px}.footer-links{justify-content:center}.case-card{padding:40px 24px}}
 @media(max-width:480px){.hero-headline{font-size:2.8rem}.sh{font-size:2rem}.city-name{font-size:3rem}.proof-inner{flex-direction:column;gap:16px}.footer-links{flex-direction:column;gap:16px;align-items:center}}
+/* ── CRM trial hero button ── */
+.btn-crm-trial{background:transparent;border:1px solid rgba(201,168,76,0.4);color:var(--gold);font-size:.85rem;font-weight:600;letter-spacing:.06em;padding:14px 28px;text-decoration:none;display:inline-block;transition:border-color .2s,color .2s;text-transform:uppercase}
+.btn-crm-trial:hover{border-color:var(--gold);color:var(--gold-light)}
+/* ── Case study stats ── */
+.case-stats{display:flex;gap:24px;margin-bottom:20px;flex-wrap:wrap}
+.case-stat{text-align:center;background:rgba(201,168,76,0.08);border:1px solid rgba(201,168,76,0.15);border-radius:6px;padding:12px 20px;min-width:100px}
+.case-stat-num{display:block;font-family:'Cormorant Garamond',serif;font-size:2rem;font-weight:700;color:var(--gold);line-height:1}
+.case-stat-label{display:block;font-size:.7rem;color:rgba(255,255,255,.5);text-transform:uppercase;letter-spacing:.08em;margin-top:4px}
+/* ── Why Crown Media ── */
+#why-us{padding:120px 64px;background:var(--royal)}
+.why-inner{max-width:1200px;margin:0 auto;text-align:center}
+.why-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:2px;margin-top:56px}
+.why-card{background:var(--warm);padding:48px 32px;text-align:center}
+.why-icon{font-size:2rem;margin-bottom:20px;display:block}
+.why-card h3{font-size:1rem;font-weight:700;color:var(--gold);margin-bottom:12px;letter-spacing:.04em;text-transform:uppercase}
+.why-card p{color:rgba(255,255,255,.6);font-size:.88rem;line-height:1.7}
+/* ── CRM Spotlight ── */
+#crm-spotlight{padding:120px 64px;background:var(--deep)}
+.crm-spot-inner{max-width:1200px;margin:0 auto;display:grid;grid-template-columns:1fr 340px;gap:80px;align-items:center}
+.crm-spot-sub{color:rgba(255,255,255,.6);font-size:1rem;line-height:1.75;margin:24px 0 32px;max-width:520px}
+.crm-spot-features{display:flex;flex-direction:column;gap:10px;margin-bottom:36px}
+.crm-feat{color:rgba(255,255,255,.75);font-size:.9rem}
+.crm-spot-cta{display:flex;align-items:center;gap:20px;flex-wrap:wrap}
+.crm-price{color:rgba(255,255,255,.4);font-size:.82rem}
+.crm-spot-badge{display:flex;justify-content:center}
+.crm-badge-inner{background:linear-gradient(135deg,rgba(201,168,76,0.12),rgba(201,168,76,0.05));border:1px solid rgba(201,168,76,0.3);border-radius:12px;padding:48px 40px;text-align:center}
+.crm-badge-price{font-family:'Cormorant Garamond',serif;font-size:5rem;font-weight:700;color:var(--gold);line-height:1}
+.crm-badge-price span{font-size:1.5rem;color:rgba(201,168,76,.6)}
+.crm-badge-trial{font-size:.85rem;font-weight:700;color:var(--gold);letter-spacing:.1em;text-transform:uppercase;margin-top:12px}
+.crm-badge-note{font-size:.75rem;color:rgba(255,255,255,.35);margin-top:8px}
+/* ── FAQ ── */
+#faq{padding:120px 64px;background:var(--royal)}
+.faq-inner{max-width:1000px;margin:0 auto;text-align:center}
+.faq-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:24px;margin-top:56px;text-align:left}
+.faq-item{background:var(--warm);border:1px solid rgba(201,168,76,0.1);border-radius:8px;padding:32px}
+.faq-item h3{font-size:.92rem;font-weight:700;color:var(--gold);margin-bottom:12px;letter-spacing:.02em}
+.faq-item p{color:rgba(255,255,255,.6);font-size:.87rem;line-height:1.7}
+@media(max-width:1024px){.why-grid{grid-template-columns:repeat(2,1fr)}.crm-spot-inner{grid-template-columns:1fr;gap:48px}.crm-spot-badge{display:none}.faq-grid{grid-template-columns:1fr}}
+@media(max-width:640px){#why-us,#crm-spotlight,#faq{padding:80px 24px}.why-card{padding:32px 24px}.faq-item{padding:24px}}
 </style>
 </head>
 <body>
@@ -312,8 +351,9 @@ footer{background:#0F0F28;padding:56px 64px;display:flex;align-items:center;just
     <h1 class="hero-headline">Crown Your Brand.<br><em>Own Your Market.</em></h1>
     <p class="hero-sub">AI-powered marketing that puts your business in a class of its own. Content, ads, brand &mdash; delivered in 48 hours. Built for Columbia SC businesses ready to grow.</p>
     <div class="hero-ctas">
-      <a href="https://calendly.com/crownmediagroupco" target="_blank" class="btn-royal">Book Your Free Strategy Call</a>
+      <a href="https://calendly.com/crownmediagroupco" target="_blank" class="btn-royal">Claim Your Free Strategy Session</a>
       <a href="#proof" class="btn-outline">See Our Work</a>
+      <a href="https://crm.crownmediagroup.co" target="_blank" class="btn-crm-trial">Try CRM Free &rarr;</a>
     </div>
   </div>
   <div class="scroll-indicator"><div class="scroll-line"></div></div>
@@ -322,7 +362,9 @@ footer{background:#0F0F28;padding:56px 64px;display:flex;align-items:center;just
 <div id="proof-bar">
   <div class="proof-inner">
     <div class="proof-item"><span class="star"><svg xmlns="http://www.w3.org/2000/svg" width="8" height="8" viewBox="0 0 8 8"><polygon points="4,0 5,3 8,4 5,5 4,8 3,5 0,4 3,3" fill="#E8B832"/></svg></span> AI-Powered Production</div>
-    <div class="proof-item"><span class="star"><svg xmlns="http://www.w3.org/2000/svg" width="8" height="8" viewBox="0 0 8 8"><polygon points="4,0 5,3 8,4 5,5 4,8 3,5 0,4 3,3" fill="#E8B832"/></svg></span> Results in 30 Days</div>
+    <div class="proof-item"><span class="star"><svg xmlns="http://www.w3.org/2000/svg" width="8" height="8" viewBox="0 0 8 8"><polygon points="4,0 5,3 8,4 5,5 4,8 3,5 0,4 3,3" fill="#E8B832"/></svg></span> 48-Hour Delivery</div>
+    <div class="proof-item"><span class="star"><svg xmlns="http://www.w3.org/2000/svg" width="8" height="8" viewBox="0 0 8 8"><polygon points="4,0 5,3 8,4 5,5 4,8 3,5 0,4 3,3" fill="#E8B832"/></svg></span> 33-Day Free CRM Trial</div>
+    <div class="proof-item"><span class="star"><svg xmlns="http://www.w3.org/2000/svg" width="8" height="8" viewBox="0 0 8 8"><polygon points="4,0 5,3 8,4 5,5 4,8 3,5 0,4 3,3" fill="#E8B832"/></svg></span> Faith-Aligned</div>
     <div class="proof-item"><span class="star"><svg xmlns="http://www.w3.org/2000/svg" width="8" height="8" viewBox="0 0 8 8"><polygon points="4,0 5,3 8,4 5,5 4,8 3,5 0,4 3,3" fill="#E8B832"/></svg></span> Faith-Aligned Agency</div>
     <div class="proof-item"><span class="star"><svg xmlns="http://www.w3.org/2000/svg" width="8" height="8" viewBox="0 0 8 8"><polygon points="4,0 5,3 8,4 5,5 4,8 3,5 0,4 3,3" fill="#E8B832"/></svg></span> Columbia, SC Local</div>
     <div class="proof-item"><span class="star"><svg xmlns="http://www.w3.org/2000/svg" width="8" height="8" viewBox="0 0 8 8"><polygon points="4,0 5,3 8,4 5,5 4,8 3,5 0,4 3,3" fill="#E8B832"/></svg></span> Scalable to 100,000 Clients</div>
@@ -388,6 +430,11 @@ footer{background:#0F0F28;padding:56px 64px;display:flex;align-items:center;just
       <div class="case-tags">
         <span class="case-tag">Brand Identity</span><span class="case-tag">Social Content</span><span class="case-tag">E-Commerce</span><span class="case-tag">AI Video Ad</span><span class="case-tag">Paid Ads</span><span class="case-tag">Account Rebrand</span>
       </div>
+      <div class="case-stats">
+        <div class="case-stat"><span class="case-stat-num">14</span><span class="case-stat-label">Days to Launch</span></div>
+        <div class="case-stat"><span class="case-stat-num">6</span><span class="case-stat-label">Content Pillars Live</span></div>
+        <div class="case-stat"><span class="case-stat-num">30</span><span class="case-stat-label">Days to E-Commerce + Ads</span></div>
+      </div>
       <p class="case-quote">"Crown Media Group transformed our brand from the ground up. Professional content, a beautiful logo, and an online store &mdash; all delivered in under 30 days. We went from invisible to unstoppable."</p>
       <p class="case-attr">&mdash; Shatiea, Founder</p>
       <p class="case-body">We rebranded the entire business around Galatians 5:22-23, built a complete content library, launched paid ads, and set up e-commerce &mdash; proving that Crown Media Group delivers at the highest level from day one.</p>
@@ -429,6 +476,34 @@ footer{background:#0F0F28;padding:56px 64px;display:flex;align-items:center;just
       <div class="step reveal"><div class="step-num">02</div><h3>Custom Strategy</h3><p>A real plan built around your specific business &mdash; not a template. Content pillars, ad targets, 30-day roadmap.</p></div>
       <div class="step reveal"><div class="step-num">03</div><h3>Content + Ads Live</h3><p>Delivered in 48 hours. Content running, ads live, brand looking elite within days of signing.</p></div>
       <div class="step reveal"><div class="step-num">04</div><h3>Scale + Report</h3><p>Monthly strategy calls, real data, and continuous optimization. Your growth is always the goal.</p></div>
+    </div>
+  </div>
+</div>
+
+<div id="why-us">
+  <div class="why-inner">
+    <div class="reveal"><span class="label">Why Crown Media</span><h2 class="sh">The agency that works <span class="grad-gold">like a founder.</span></h2></div>
+    <div class="why-grid reveal">
+      <div class="why-card">
+        <div class="why-icon">&#9812;</div>
+        <h3>Founder-Led</h3>
+        <p>You get David King — the founder, strategist, and executor. Not an intern. Not a junior account manager. The person who built this.</p>
+      </div>
+      <div class="why-card">
+        <div class="why-icon">&#10013;</div>
+        <h3>Faith-Aligned</h3>
+        <p>Built on biblical principles. Every strategy, every campaign, every decision is filtered through integrity — not just algorithms.</p>
+      </div>
+      <div class="why-card">
+        <div class="why-icon">&#9889;</div>
+        <h3>AI-Powered Speed</h3>
+        <p>Enterprise-grade AI tools at startup prices. Logos, websites, content, and ads delivered in 48 hours — not 4 weeks.</p>
+      </div>
+      <div class="why-card">
+        <div class="why-icon">&#128205;</div>
+        <h3>Columbia Local</h3>
+        <p>We know your market. We know your neighbors. Columbia SC is not a generic campaign — it's home, and we market it like it.</p>
+      </div>
     </div>
   </div>
 </div>
@@ -488,6 +563,33 @@ footer{background:#0F0F28;padding:56px 64px;display:flex;align-items:center;just
   </div>
 </div>
 
+<div id="crm-spotlight">
+  <div class="crm-spot-inner reveal">
+    <div class="crm-spot-text">
+      <span class="label">Crown Media CRM</span>
+      <h2 class="sh">Stop losing track of<br><span class="grad-gold">your best leads.</span></h2>
+      <p class="crm-spot-sub">Every business has people they need to follow up with. This tool keeps them all in one place — with AI-written outreach, mass email and SMS, and a visual pipeline so nothing slips through the cracks.</p>
+      <div class="crm-spot-features">
+        <span class="crm-feat">&#10003; AI writes your emails, texts &amp; call scripts</span>
+        <span class="crm-feat">&#10003; Pipeline board — drag leads to closed</span>
+        <span class="crm-feat">&#10003; Mass email &amp; SMS campaigns</span>
+        <span class="crm-feat">&#10003; Follow-up reminders &amp; task tracker</span>
+      </div>
+      <div class="crm-spot-cta">
+        <a href="https://crm.crownmediagroup.co" target="_blank" class="btn-royal">Start Free — 33 Days, No Card</a>
+        <span class="crm-price">Then $97/month. Cancel anytime.</span>
+      </div>
+    </div>
+    <div class="crm-spot-badge">
+      <div class="crm-badge-inner">
+        <div class="crm-badge-price">$97<span>/mo</span></div>
+        <div class="crm-badge-trial">33-Day Free Trial</div>
+        <div class="crm-badge-note">No setup fee. No contract.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
 <div id="serve">
   <div class="serve-inner">
     <div class="reveal"><span class="label">Our Market</span><h2 class="servesh">Built for Columbia. <span class="grad-gold">Ready for anywhere.</span></h2></div>
@@ -512,13 +614,45 @@ footer{background:#0F0F28;padding:56px 64px;display:flex;align-items:center;just
   </div>
 </div>
 
+<div id="faq">
+  <div class="faq-inner">
+    <div class="reveal"><span class="label">FAQ</span><h2 class="sh">Quick answers. <span class="grad-gold">Real talk.</span></h2></div>
+    <div class="faq-grid reveal">
+      <div class="faq-item">
+        <h3>How fast do you actually deliver?</h3>
+        <p>AI products (logo, banners, website) deliver within 24 hours. Social content starts within 48 hours of signing. Paid ads go live within 72 hours of receiving assets.</p>
+      </div>
+      <div class="faq-item">
+        <h3>What if I'm not happy with my logo?</h3>
+        <p>We revise it or refund you. No fine print. If the deliverable doesn't match what we agreed, we make it right.</p>
+      </div>
+      <div class="faq-item">
+        <h3>Do I need to sign a long-term contract?</h3>
+        <p>No. Every service package is month-to-month. The only thing due upfront is the one-time setup fee — which covers your strategy call and brand onboarding.</p>
+      </div>
+      <div class="faq-item">
+        <h3>Can I start with just a logo or website?</h3>
+        <p>Yes. AI products are one-time purchases starting at $97. No subscription required. Start with what you need and scale when you're ready.</p>
+      </div>
+      <div class="faq-item">
+        <h3>What does the CRM free trial include?</h3>
+        <p>Full access to every feature for 33 days — pipeline board, AI outreach drafts, mass email and SMS, reports. No credit card required to start.</p>
+      </div>
+      <div class="faq-item">
+        <h3>Do you work with businesses outside Columbia SC?</h3>
+        <p>Absolutely. We serve clients remotely across the country. Columbia is home base — everywhere else is reach.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
 <div id="cta-final">
   <div class="cta-glow"></div>
   <div class="reveal">
     <span class="label">Get Started</span>
     <h2 class="cta-headline">Ready to <em style="color:var(--gold-light)">reign</em><br>in your market?</h2>
     <p class="cta-sub">15 minutes. No pressure. Real strategy. Free.</p>
-    <a href="https://calendly.com/crownmediagroupco" target="_blank" class="btn-gold-large">Book Your Free Strategy Call</a>
+    <a href="https://calendly.com/crownmediagroupco" target="_blank" class="btn-gold-large">Claim Your Free Strategy Session</a>
     <span class="cta-email">Or email: <a href="mailto:king@crownmediagroup.co">king@crownmediagroup.co</a></span>
   </div>
 </div>
