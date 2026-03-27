@@ -101,6 +101,9 @@ app.use(helmet({
   frameguard: { action: 'deny' },
 }));
 
+// ── Trust proxy (Railway / Netlify sit behind a load balancer) ────────────────
+app.set('trust proxy', 1);
+
 // ── Rate limiters ─────────────────────────────────────────────────────────────
 const loginLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, max: 5, skipSuccessfulRequests: true,
