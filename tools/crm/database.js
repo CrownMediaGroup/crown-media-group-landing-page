@@ -125,6 +125,13 @@ if (!_cols.includes('workspace_id')) {
   db.exec('UPDATE contacts SET workspace_id = 1 WHERE workspace_id IS NULL');
 }
 
+// ── Runtime column additions for messages_sent (email tracking) ───────────────
+const _msgCols = db.prepare('PRAGMA table_info(messages_sent)').all().map(r => r.name);
+if (!_msgCols.includes('track_token')) db.exec('ALTER TABLE messages_sent ADD COLUMN track_token TEXT');
+if (!_msgCols.includes('open_count'))  db.exec('ALTER TABLE messages_sent ADD COLUMN open_count INTEGER DEFAULT 0');
+if (!_msgCols.includes('opened_at'))   db.exec('ALTER TABLE messages_sent ADD COLUMN opened_at DATETIME');
+if (!_msgCols.includes('clicked_at'))  db.exec('ALTER TABLE messages_sent ADD COLUMN clicked_at DATETIME');
+
 // ── Runtime column additions for workspaces (subscription tracking) ───────────
 const _wsCols = db.prepare('PRAGMA table_info(workspaces)').all().map(r => r.name);
 if (!_wsCols.includes('trial_ends_at'))        db.exec("ALTER TABLE workspaces ADD COLUMN trial_ends_at DATETIME");

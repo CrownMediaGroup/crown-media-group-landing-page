@@ -2,6 +2,8 @@
 // Port 3001 | SQLite local | Twilio SMS | Nodemailer email | Claude AI drafts
 
 import express from 'express';
+import helmet from 'helmet';
+import rateLimit from 'express-rate-limit';
 import { createTransport } from 'nodemailer';
 import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
@@ -83,35 +85,33 @@ if (!db.prepare('SELECT id FROM users WHERE email = ?').get(KING_EMAIL)) {
   console.log('[CRM AUTH] ─────────────────────────────────────────────\n');
 }
 
-// ── Security headers (every response) ────────────────────────────────────────
-app.use((req, res, next) => {
-  res.setHeader('X-Content-Type-Options',  'nosniff');
-  res.setHeader('X-Frame-Options',         'DENY');
-  res.setHeader('X-XSS-Protection',        '1; mode=block');
-  res.setHeader('Referrer-Policy',         'strict-origin-when-cross-origin');
-  res.setHeader('Content-Security-Policy', "default-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self'");
-  next();
+// ── Security headers (helmet v8 — covers X-Content-Type-Options, X-Frame-Options,
+//    X-XSS-Protection, Referrer-Policy, CSP, plus Permissions-Policy, COEP, COOP,
+//    Origin-Agent-Cluster, X-DNS-Prefetch-Control) ────────────────────────────
+app.use(helmet({
+  contentSecurityPolicy: {
+    directives: {
+      defaultSrc: ["'self'"],
+      styleSrc:   ["'self'", "'unsafe-inline'"],
+      scriptSrc:  ["'self'", "'unsafe-inline'"],
+      imgSrc:     ["'self'", 'data:'],
+      connectSrc: ["'self'"],
+    },
+  },
+  frameguard: { action: 'deny' },
+}));
+
+// ── Rate limiters ─────────────────────────────────────────────────────────────
+const loginLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, max: 5, skipSuccessfulRequests: true,
+  standardHeaders: true, legacyHeaders: false,
+  message: { error: 'Too many login attempts. Wait 15 minutes and try again.' },
 });
-
-// ── Rate limiter — brute-force protection on login ────────────────────────────
-// Max 5 failed attempts per IP per 15 minutes. Clears on success.
-const _loginAttempts = new Map(); // ip → { count, windowStart }
-const LOGIN_MAX      = 5;
-const LOGIN_WINDOW   = 15 * 60 * 1000; // 15 min
-
-function loginRateCheck(ip) {
-  const now = Date.now();
-  const rec = _loginAttempts.get(ip);
-  if (!rec || now - rec.windowStart > LOGIN_WINDOW) {
-    _loginAttempts.set(ip, { count: 1, windowStart: now });
-    return true;
-  }
-  if (rec.count >= LOGIN_MAX) return false; // blocked
-  rec.count++;
-  return true;
-}
-
-function loginRateClear(ip) { _loginAttempts.delete(ip); }
+const apiLimiter  = rateLimit({ windowMs: 60 * 1000, max: 120, standardHeaders: true, legacyHeaders: false });
+const massLimiter = rateLimit({
+  windowMs: 60 * 60 * 1000, max: 5, standardHeaders: true, legacyHeaders: false,
+  message: { error: 'Mass send limit reached. Max 5 per hour.' },
+});
 
 // ── Periodic session cleanup (every hour) ────────────────────────────────────
 setInterval(() => {
@@ -121,6 +121,7 @@ setInterval(() => {
 
 app.use(express.json({ limit: '100kb' }));
 app.use(express.urlencoded({ extended: true, limit: '100kb' }));
+app.use('/api', apiLimiter);
 
 // ── Serve login.html for / and /index.html if not authenticated ───────────────
 app.get('/', (req, res) => {
@@ -142,6 +143,23 @@ app.get('/login', (req, res) => {
 // Static files (CSS, JS, login.html) — index:false so /  is handled above
 app.use(express.static(join(__dirname, 'public'), { index: false }));
 
+// ── Email open/click tracking (public — no auth required) ─────────────────────
+const PIXEL_PNG = Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==', 'base64');
+
+app.get('/track/open/:token.png', (req, res) => {
+  const msg = db.prepare('SELECT id FROM messages_sent WHERE track_token = ?').get(req.params.token);
+  if (msg) db.prepare("UPDATE messages_sent SET open_count = open_count + 1, opened_at = COALESCE(opened_at, datetime('now')) WHERE id = ?").run(msg.id);
+  res.setHeader('Content-Type', 'image/png');
+  res.setHeader('Cache-Control', 'no-store');
+  res.end(PIXEL_PNG);
+});
+
+app.get('/track/click/:token', (req, res) => {
+  const msg = db.prepare('SELECT id FROM messages_sent WHERE track_token = ?').get(req.params.token);
+  if (msg) db.prepare("UPDATE messages_sent SET clicked_at = COALESCE(clicked_at, datetime('now')) WHERE id = ?").run(msg.id);
+  res.redirect(req.query.url || 'https://crownmediagroup.co');
+});
+
 // ── Config (white-label ready) ────────────────────────────────────────────────
 const CONFIG = {
   agencyName:   'Crown Media Group',
@@ -155,6 +173,14 @@ const CONFIG = {
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
 function todayISO() { return new Date().toISOString().split('T')[0]; }
+
+function interpolate(text, contact, ownerName = 'King', agencyName = 'Crown Media Group') {
+  return text
+    .replace(/\{\{name\}\}/gi,     contact.name?.split(' ')[0] || '')
+    .replace(/\{\{business\}\}/gi, contact.business || '')
+    .replace(/\{\{myname\}\}/gi,   ownerName)
+    .replace(/\{\{agency\}\}/gi,   agencyName);
+}
 
 function normalizePhone(raw = '') {
   const digits = raw.replace(/\D/g, '');
@@ -200,13 +226,7 @@ if (process.env.ANTHROPIC_API_KEY) {
 // ═══════════════════════════════════════════════════════════════════════════════
 
 // ── Login ─────────────────────────────────────────────────────────────────────
-app.post('/api/login', (req, res) => {
-  // Rate limit by IP
-  const ip = req.headers['x-forwarded-for']?.split(',')[0].trim() || req.socket.remoteAddress || 'unknown';
-  if (!loginRateCheck(ip)) {
-    return res.status(429).json({ error: 'Too many login attempts. Wait 15 minutes and try again.' });
-  }
-
+app.post('/api/login', loginLimiter, (req, res) => {
   const { email, password } = req.body;
 
   // Hard length caps — prevent oversized inputs from hitting scrypt
@@ -225,8 +245,7 @@ app.post('/api/login', (req, res) => {
     return res.status(401).json({ error: 'Wrong email or password.' });
   }
 
-  // Login success — clear rate limit, clean expired sessions
-  loginRateClear(ip);
+  // Login success — clean expired sessions
   db.prepare("DELETE FROM sessions WHERE expires_at < datetime('now')").run();
 
   const token = createSession(user.id, user.workspace_id);
@@ -547,7 +566,7 @@ app.post('/api/email/send', async (req, res) => {
 });
 
 // ── Mass email ────────────────────────────────────────────────────────────────
-app.post('/api/email/mass', async (req, res) => {
+app.post('/api/email/mass', massLimiter, async (req, res) => {
   if (!mailer) return res.status(503).json({ error: 'Email not configured' });
   const { contactIds, subject, body } = req.body;
   if (!contactIds?.length || !subject || !body) return res.status(400).json({ error: 'contactIds, subject, body required' });
@@ -555,17 +574,21 @@ app.post('/api/email/mass', async (req, res) => {
   const results    = { sent: 0, failed: 0, errors: [] };
   const ownerName  = db.prepare("SELECT value FROM settings WHERE key='owner_name'").get()?.value || 'King';
   const agencyName = db.prepare("SELECT value FROM settings WHERE key='agency_name'").get()?.value || 'Crown Media Group';
+  const BASE_URL   = process.env.PUBLIC_URL || `http://localhost:${PORT}`;
 
   for (const id of contactIds) {
     const contact = db.prepare('SELECT * FROM contacts WHERE id = ? AND workspace_id = ?').get(id, req.workspaceId);
     if (!contact) continue;
 
-    const pSubject = subject.replace(/\{\{name\}\}/gi, contact.name.split(' ')[0]).replace(/\{\{business\}\}/gi, contact.business || '').replace(/\{\{myname\}\}/gi, ownerName);
-    const pBody    = body.replace(/\{\{name\}\}/gi, contact.name.split(' ')[0]).replace(/\{\{business\}\}/gi, contact.business || '').replace(/\{\{myname\}\}/gi, ownerName).replace(/\{\{agency\}\}/gi, agencyName);
+    const pSubject    = interpolate(subject, contact, ownerName, agencyName);
+    const pBody       = interpolate(body, contact, ownerName, agencyName);
+    const trackToken  = randomBytes(16).toString('hex');
+    const pixelTag    = `<img src="${BASE_URL}/track/open/${trackToken}.png" width="1" height="1" style="display:none">`;
+    const htmlWithPx  = pBody.replace(/\n/g, '<br>') + pixelTag;
 
     try {
-      await mailer.sendMail({ from: `${agencyName} <${process.env.GMAIL_USER}>`, to: contact.email, subject: pSubject, html: pBody.replace(/\n/g, '<br>'), text: pBody });
-      db.prepare('INSERT INTO messages_sent (contact_id, type, subject, body) VALUES (?, ?, ?, ?)').run(id, 'email', pSubject, pBody);
+      await mailer.sendMail({ from: `${agencyName} <${process.env.GMAIL_USER}>`, to: contact.email, subject: pSubject, html: htmlWithPx, text: pBody });
+      const ins = db.prepare('INSERT INTO messages_sent (contact_id, type, subject, body, track_token) VALUES (?, ?, ?, ?, ?)').run(id, 'email', pSubject, pBody, trackToken);
       db.prepare("UPDATE contacts SET last_contacted = datetime('now'), status = CASE WHEN status = 'Not Contacted' THEN 'Emailed' ELSE status END WHERE id = ? AND workspace_id = ?").run(id, req.workspaceId);
       results.sent++;
     } catch (err) {
@@ -596,7 +619,7 @@ app.post('/api/sms/send', async (req, res) => {
 });
 
 // ── Mass SMS ──────────────────────────────────────────────────────────────────
-app.post('/api/sms/mass', async (req, res) => {
+app.post('/api/sms/mass', massLimiter, async (req, res) => {
   if (!twilioClient) return res.status(503).json({ error: 'Twilio not configured' });
   const { contactIds, body } = req.body;
   if (!contactIds?.length || !body) return res.status(400).json({ error: 'contactIds and body required' });

@@ -9,7 +9,9 @@
     "linkedin": "node Agency/tools/linkedin-outreach.js",
     "runner": "node tools/standalone-runner.js",
     "start": "node tools/standalone-runner.js",
-    "resize": "node tools/resize-image.js"
+    "resize": "node tools/resize-image.js",
+    "crm": "node tools/crm/server.js",
+    "scrape": "node Agency/tools/maps-scraper.js"
   },
   "devDependencies": {
     "playwright": "^1.58.2"
