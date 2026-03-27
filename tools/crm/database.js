@@ -3,8 +3,11 @@ import { DatabaseSync } from 'node:sqlite';
 import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
 
+import { existsSync, mkdirSync } from 'fs';
 const __dirname = dirname(fileURLToPath(import.meta.url));
-const DB_PATH = process.env.DATA_DIR ? join(process.env.DATA_DIR, 'crm.db') : join(__dirname, 'crm.db');
+const dataDir = process.env.DATA_DIR || __dirname;
+if (!existsSync(dataDir)) mkdirSync(dataDir, { recursive: true });
+const DB_PATH = join(dataDir, 'crm.db');
 
 export const db = new DatabaseSync(DB_PATH);
 
@@ -24,6 +27,9 @@ db.exec(`
     next_followup  DATE,
     notes         TEXT DEFAULT '',
     ai_notes      TEXT DEFAULT '',
+    deal_value    REAL DEFAULT 0,
+    archived      INTEGER DEFAULT 0,
+    workspace_id  INTEGER DEFAULT 1,
     created_at    DATETIME DEFAULT CURRENT_TIMESTAMP
   );
 

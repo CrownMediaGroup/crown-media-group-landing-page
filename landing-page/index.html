@@ -93,7 +93,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;0,700;1,300;1,400&family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
 <style>
-:root{--white:#FFFFFF;--cream:#FDFBF7;--warm:#F9F5EE;--gold:#C9981A;--gold-light:#E8B832;--gold-deep:#9A720D;--gold-pale:#F5E6B8;--royal:#1A1A3E;--royal-mid:#2D2D5A;--text:#1A1A2E;--text-mid:#4A4A6A;--text-light:#8A8AAA;--border:rgba(201,152,26,0.2);--border-soft:rgba(201,152,26,0.1)}
+:root{--white:#FFFFFF;--cream:#FDFBF7;--warm:#F9F5EE;--deep:#0E0E28;--gold:#C9981A;--gold-light:#E8B832;--gold-deep:#9A720D;--gold-pale:#F5E6B8;--royal:#1A1A3E;--royal-mid:#2D2D5A;--text:#1A1A2E;--text-mid:#4A4A6A;--text-light:#8A8AAA;--border:rgba(201,152,26,0.2);--border-soft:rgba(201,152,26,0.1)}
 *{margin:0;padding:0;box-sizing:border-box}html{scroll-behavior:smooth}
 body{background:var(--cream);color:var(--text);font-family:'Inter',sans-serif;overflow-x:hidden}
 .display{font-family:'Cormorant Garamond',serif;font-weight:700;letter-spacing:-.02em;line-height:1.05}
@@ -286,7 +286,8 @@ footer{background:#0F0F28;padding:56px 64px;display:flex;align-items:center;just
 .why-card{background:var(--warm);padding:48px 32px;text-align:center}
 .why-icon{font-size:2rem;margin-bottom:20px;display:block}
 .why-card h3{font-size:1rem;font-weight:700;color:var(--gold);margin-bottom:12px;letter-spacing:.04em;text-transform:uppercase}
-.why-card p{color:rgba(255,255,255,.6);font-size:.88rem;line-height:1.7}
+.why-card p{color:var(--text-mid);font-size:.88rem;line-height:1.7}
+#why-us .sh,#crm-spotlight .sh,#faq .sh{color:var(--white)}
 /* ── CRM Spotlight ── */
 #crm-spotlight{padding:120px 64px;background:var(--deep)}
 .crm-spot-inner{max-width:1200px;margin:0 auto;display:grid;grid-template-columns:1fr 340px;gap:80px;align-items:center}
@@ -307,7 +308,7 @@ footer{background:#0F0F28;padding:56px 64px;display:flex;align-items:center;just
 .faq-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:24px;margin-top:56px;text-align:left}
 .faq-item{background:var(--warm);border:1px solid rgba(201,168,76,0.1);border-radius:8px;padding:32px}
 .faq-item h3{font-size:.92rem;font-weight:700;color:var(--gold);margin-bottom:12px;letter-spacing:.02em}
-.faq-item p{color:rgba(255,255,255,.6);font-size:.87rem;line-height:1.7}
+.faq-item p{color:var(--text-mid);font-size:.87rem;line-height:1.7}
 @media(max-width:1024px){.why-grid{grid-template-columns:repeat(2,1fr)}.crm-spot-inner{grid-template-columns:1fr;gap:48px}.crm-spot-badge{display:none}.faq-grid{grid-template-columns:1fr}}
 @media(max-width:640px){#why-us,#crm-spotlight,#faq{padding:80px 24px}.why-card{padding:32px 24px}.faq-item{padding:24px}}
 /* ── Ambient Music Toggle ── */
@@ -362,7 +363,6 @@ footer{background:#0F0F28;padding:56px 64px;display:flex;align-items:center;just
     <p class="hero-sub">AI-powered marketing that puts your business in a class of its own. Content, ads, brand &mdash; delivered in 48 hours. Built for Columbia SC businesses ready to grow.</p>
     <div class="hero-ctas">
       <a href="https://calendly.com/crownmediagroupco" target="_blank" class="btn-royal">Claim Your Free Strategy Session</a>
-      <a href="#proof" class="btn-outline">See Our Work</a>
       <a href="https://crm.crownmediagroup.co" target="_blank" class="btn-crm-trial">Try CRM Free &rarr;</a>
     </div>
   </div>
@@ -441,9 +441,9 @@ footer{background:#0F0F28;padding:56px 64px;display:flex;align-items:center;just
         <span class="case-tag">Brand Identity</span><span class="case-tag">Social Content</span><span class="case-tag">E-Commerce</span><span class="case-tag">AI Video Ad</span><span class="case-tag">Paid Ads</span><span class="case-tag">Account Rebrand</span>
       </div>
       <div class="case-stats">
-        <div class="case-stat"><span class="case-stat-num">14</span><span class="case-stat-label">Days to Launch</span></div>
-        <div class="case-stat"><span class="case-stat-num">6</span><span class="case-stat-label">Content Pillars Live</span></div>
-        <div class="case-stat"><span class="case-stat-num">30</span><span class="case-stat-label">Days to E-Commerce + Ads</span></div>
+        <div class="case-stat"><span class="case-stat-num">14</span><span class="case-stat-label">Days to Full Brand Launch</span></div>
+        <div class="case-stat"><span class="case-stat-num">6</span><span class="case-stat-label">Content Pillars Built</span></div>
+        <div class="case-stat"><span class="case-stat-num">30</span><span class="case-stat-label">Days to Online Store + Live Ads</span></div>
       </div>
       <p class="case-quote">"Crown Media Group transformed our brand from the ground up. Professional content, a beautiful logo, and an online store &mdash; all delivered in under 30 days. We went from invisible to unstoppable."</p>
       <p class="case-attr">&mdash; Shatiea, Founder</p>
@@ -635,33 +635,8 @@ footer{background:#0F0F28;padding:56px 64px;display:flex;align-items:center;just
     </div>
   </div>
 
-  <div class="reveal" style="margin-bottom:64px;">
-    <h3 style="text-align:center;font-family:'Cormorant Garamond',serif;font-size:1.6rem;font-weight:700;color:var(--text);margin-bottom:8px;">Simple, Transparent Pricing</h3>
-    <p style="text-align:center;color:var(--text-mid);font-size:0.9rem;margin-bottom:40px;">No setup fees. Cancel anytime. Start with one free video.</p>
-    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:20px;max-width:900px;margin:0 auto;">
-      <div style="background:var(--cream);border:1.5px solid var(--border);border-radius:16px;padding:32px 24px;text-align:center;">
-        <div style="font-size:0.72rem;font-weight:700;color:var(--text-mid);letter-spacing:.1em;text-transform:uppercase;margin-bottom:12px;">Basic</div>
-        <div style="font-family:'Cormorant Garamond',serif;font-size:2.8rem;font-weight:700;color:var(--text);line-height:1;margin-bottom:4px;">$300</div>
-        <div style="font-size:0.8rem;color:var(--text-light);margin-bottom:24px;">/ month</div>
-        <ul style="list-style:none;text-align:left;font-size:0.85rem;color:var(--text-mid);line-height:1.8;margin-bottom:28px;"><li>✓ 4 videos / month</li><li>✓ 2 platforms</li><li>✓ AI captions</li><li>✓ Monthly report</li></ul>
-        <a href="/video" class="btn-outline" style="display:block;text-align:center;font-size:0.78rem;padding:10px 16px;">Get Started</a>
-      </div>
-      <div style="background:var(--royal);border:2px solid var(--gold);border-radius:16px;padding:32px 24px;text-align:center;position:relative;transform:scale(1.04);box-shadow:0 20px 60px rgba(26,26,62,.15);">
-        <div style="position:absolute;top:-12px;left:50%;transform:translateX(-50%);background:var(--gold);color:var(--royal);padding:3px 14px;border-radius:20px;font-size:0.68rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase;white-space:nowrap;">Most Popular</div>
-        <div style="font-size:0.72rem;font-weight:700;color:var(--gold);letter-spacing:.1em;text-transform:uppercase;margin-bottom:12px;">Standard</div>
-        <div style="font-family:'Cormorant Garamond',serif;font-size:2.8rem;font-weight:700;color:var(--gold-light);line-height:1;margin-bottom:4px;">$600</div>
-        <div style="font-size:0.8rem;color:rgba(232,184,50,.7);margin-bottom:24px;">/ month</div>
-        <ul style="list-style:none;text-align:left;font-size:0.85rem;color:rgba(253,251,247,.8);line-height:1.8;margin-bottom:28px;"><li>✓ 8 videos / month</li><li>✓ 4 platforms</li><li>✓ AI captions + hashtags</li><li>✓ Bi-weekly reports</li></ul>
-        <a href="/video" style="display:block;text-align:center;background:var(--gold);color:var(--royal);padding:12px 16px;border-radius:6px;font-size:0.78rem;font-weight:800;text-transform:uppercase;text-decoration:none;">Get Started</a>
-      </div>
-      <div style="background:var(--cream);border:1.5px solid var(--border);border-radius:16px;padding:32px 24px;text-align:center;">
-        <div style="font-size:0.72rem;font-weight:700;color:var(--text-mid);letter-spacing:.1em;text-transform:uppercase;margin-bottom:12px;">Premium</div>
-        <div style="font-family:'Cormorant Garamond',serif;font-size:2.8rem;font-weight:700;color:var(--text);line-height:1;margin-bottom:4px;">$1,200</div>
-        <div style="font-size:0.8rem;color:var(--text-light);margin-bottom:24px;">/ month</div>
-        <ul style="list-style:none;text-align:left;font-size:0.85rem;color:var(--text-mid);line-height:1.8;margin-bottom:28px;"><li>✓ Unlimited videos</li><li>✓ All 6 platforms</li><li>✓ AI captions + ad copy</li><li>✓ Monthly strategy call</li></ul>
-        <a href="/video" class="btn-outline" style="display:block;text-align:center;font-size:0.78rem;padding:10px 16px;">Get Started</a>
-      </div>
-    </div>
+  <div class="reveal" style="margin-bottom:64px;text-align:center;">
+    <p style="color:var(--text-mid);font-size:0.9rem;">View Social Media Management pricing on our <a href="/ai-tools#social-pricing" style="color:var(--gold);font-weight:600;">AI Tools page</a>.</p>
   </div>
 
   <div class="reveal" style="background:var(--warm);border:1px solid var(--border-soft);border-radius:16px;padding:40px;text-align:center;margin-bottom:48px;">

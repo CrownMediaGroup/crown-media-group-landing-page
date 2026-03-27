@@ -1,0 +1,17 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Debug Landing Page",
+      "type": "editor-browser",
+      "request": "launch",
+      "url": "file:///${workspaceFolder}/landing-page/index.html"
+    },
+    {
+      "name": "Debug AI Tools Page",
+      "type": "editor-browser",
+      "request": "launch",
+      "url": "file:///${workspaceFolder}/landing-page/ai-tools.html"
+    }
+  ]
+}
