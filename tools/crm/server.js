@@ -302,6 +302,68 @@ app.post('/api/register', loginLimiter, (req, res) => {
   res.json({ ok: true, trialEnds });
 });
 
+// ── Google OAuth (Sign in with Google — ID token verification) ────────────────
+app.post('/api/auth/google', loginLimiter, async (req, res) => {
+  const { credential } = req.body;
+  if (!credential || typeof credential !== 'string' || credential.length > 4096)
+    return res.status(400).json({ error: 'Invalid credential.' });
+
+  try {
+    // Verify ID token with Google's tokeninfo endpoint (no SDK needed)
+    const response = await fetch(`https://oauth2.googleapis.com/tokeninfo?id_token=${encodeURIComponent(credential)}`);
+    if (!response.ok) return res.status(401).json({ error: 'Google verification failed.' });
+    const payload = await response.json();
+
+    // Validate audience matches our client ID
+    const clientId = process.env.GOOGLE_CLIENT_ID;
+    if (clientId && payload.aud !== clientId)
+      return res.status(401).json({ error: 'Token audience mismatch.' });
+
+    const googleId    = payload.sub;
+    const email       = payload.email?.toLowerCase().trim();
+    const displayName = payload.name || email?.split('@')[0] || 'User';
+    const avatarUrl   = payload.picture || null;
+
+    if (!googleId || !email) return res.status(400).json({ error: 'Incomplete Google profile.' });
+
+    // Find existing user by google_id or email
+    let user = db.prepare('SELECT * FROM users WHERE google_id = ? OR email = ?').get(googleId, email);
+
+    if (user) {
+      // Update google_id + avatar if this is first Google login for existing email account
+      db.prepare('UPDATE users SET google_id = ?, display_name = ?, avatar_url = ? WHERE id = ?')
+        .run(googleId, displayName, avatarUrl, user.id);
+    } else {
+      // New user — create workspace + account
+      const trialEnds = new Date(Date.now() + 33 * 24 * 60 * 60 * 1000).toISOString();
+      const ws = db.prepare(
+        "INSERT INTO workspaces (name, subscription_status, trial_ends_at) VALUES (?, 'trial', ?)"
+      ).run(displayName + "'s Workspace", trialEnds);
+
+      const result = db.prepare(
+        "INSERT INTO users (email, password_hash, role, workspace_id, google_id, display_name, avatar_url) VALUES (?, ?, 'rep', ?, ?, ?, ?)"
+      ).run(email, 'google:' + googleId, ws.lastInsertRowid, googleId, displayName, avatarUrl);
+
+      user = db.prepare('SELECT * FROM users WHERE id = ?').get(result.lastInsertRowid);
+    }
+
+    db.prepare("DELETE FROM sessions WHERE expires_at < datetime('now')").run();
+    const token = createSession(user.id, user.workspace_id);
+    const isProd = process.env.NODE_ENV === 'production';
+    const cookieOpts = `Path=/; HttpOnly; SameSite=Lax; Max-Age=${30 * 24 * 60 * 60}${isProd ? '; Secure' : ''}`;
+    res.setHeader('Set-Cookie', `crm_session=${token}; ${cookieOpts}`);
+    res.json({ ok: true, workspaceId: user.workspace_id });
+  } catch (err) {
+    console.error('[Google OAuth]', err.message);
+    res.status(500).json({ error: 'Authentication failed. Try again.' });
+  }
+});
+
+// ── Public config (exposes non-secret env vars to login page) ─────────────────
+app.get('/api/config/public', (req, res) => {
+  res.json({ googleClientId: process.env.GOOGLE_CLIENT_ID || null });
+});
+
 // ── Branding (public — used by login page and dashboard) ──────────────────────
 app.get('/api/branding', (req, res) => {
   const session = validateSession(getCookie(req, 'crm_session'));
@@ -319,7 +381,7 @@ app.get('/api/branding', (req, res) => {
 // ═══════════════════════════════════════════════════════════════════════════════
 
 app.use('/api', (req, res, next) => {
-  const publicPaths = ['/login', '/logout', '/branding', '/register'];
+  const publicPaths = ['/login', '/logout', '/branding', '/register', '/auth/google', '/config/public'];
   if (publicPaths.includes(req.path)) return next();
   const session = validateSession(getCookie(req, 'crm_session'));
   if (!session) return res.status(401).json({ error: 'Unauthorized' });

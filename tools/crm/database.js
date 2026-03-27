@@ -144,6 +144,12 @@ if (!_wsCols.includes('trial_ends_at'))        db.exec("ALTER TABLE workspaces A
 if (!_wsCols.includes('subscription_status'))  db.exec("ALTER TABLE workspaces ADD COLUMN subscription_status TEXT DEFAULT 'trial'");
 if (!_wsCols.includes('subscription_ends_at')) db.exec("ALTER TABLE workspaces ADD COLUMN subscription_ends_at DATETIME");
 
+// ── Runtime column additions for users (Google OAuth) ─────────────────────────
+const _userCols = db.prepare('PRAGMA table_info(users)').all().map(r => r.name);
+if (!_userCols.includes('google_id'))    db.exec("ALTER TABLE users ADD COLUMN google_id TEXT");
+if (!_userCols.includes('display_name')) db.exec("ALTER TABLE users ADD COLUMN display_name TEXT");
+if (!_userCols.includes('avatar_url'))   db.exec("ALTER TABLE users ADD COLUMN avatar_url TEXT");
+
 // ── Seed default workspace ────────────────────────────────────────────────────
 db.prepare(`INSERT OR IGNORE INTO workspaces (id, name, primary_color) VALUES (1, 'Crown Media Group', '#C9A84C')`).run();
 // King's workspace is always active — no trial restrictions
