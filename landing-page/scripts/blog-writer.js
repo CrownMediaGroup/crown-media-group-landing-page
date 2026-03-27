@@ -18,6 +18,22 @@ const { execSync } = require('child_process');
 
 const ROOT = path.resolve(__dirname, '..');
 const CONTENT_DIR = path.join(ROOT, 'content', 'blog');
+
+// ─── Auto-load .env from repo root ────────────────────────────────────────────
+(function loadEnv() {
+  const envFile = path.join(ROOT, '..', '.env');
+  if (!fs.existsSync(envFile)) return;
+  const lines = fs.readFileSync(envFile, 'utf8').split('\n');
+  for (const line of lines) {
+    const trimmed = line.trim();
+    if (!trimmed || trimmed.startsWith('#')) continue;
+    const eq = trimmed.indexOf('=');
+    if (eq === -1) continue;
+    const key = trimmed.slice(0, eq).trim();
+    const val = trimmed.slice(eq + 1).trim().replace(/^["']|["']$/g, '');
+    if (key && !process.env[key]) process.env[key] = val;
+  }
+})();
 const QUEUE_FILE = path.join(CONTENT_DIR, 'topics-queue.json');
 const REPO_ROOT = path.resolve(ROOT, '..');  // AllGloryAgency/
 
