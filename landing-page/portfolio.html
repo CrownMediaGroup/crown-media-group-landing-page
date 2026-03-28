@@ -4,123 +4,215 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Portfolio — Crown Media Group | Columbia SC</title>
-<meta name="description" content="426 pieces of work. Photos, videos, ad creatives, branding, social content. Crown Media Group — Columbia SC AI-powered marketing agency.">
+<meta name="description" content="Real work. Real results. Photos, videos, ad creatives, branding, social content from Crown Media Group — Columbia SC.">
 <link rel="icon" href="logo.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;0,700;1,400&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <style>
-:root{--white:#FFFFFF;--cream:#FDFBF7;--warm:#F9F5EE;--royal:#1A1A3E;--royal-mid:#2D2D5A;--gold:#C9981A;--gold-light:#E8B832;--text:#1A1A2E;--text-mid:#4A4A6A;--text-light:#8A8AAA;--border:rgba(201,152,26,0.2)}
+:root{--white:#FFFFFF;--cream:#FDFBF7;--warm:#F9F5EE;--royal:#1A1A3E;--royal-mid:#2D2D5A;--gold:#C9981A;--gold-light:#E8B832;--text:#1A1A2E;--text-mid:#4A4A6A;--text-light:#8A8AAA;--border:rgba(201,152,26,0.2);--red:#c0392b}
 *{margin:0;padding:0;box-sizing:border-box}
 body{font-family:'Inter',sans-serif;background:var(--cream);color:var(--text)}
-/* ── NAV ── */
-nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:20px 64px;display:flex;align-items:center;justify-content:space-between;background:rgba(253,251,247,.92);backdrop-filter:blur(12px);border-bottom:1px solid rgba(201,152,26,.1)}
+
+/* NAV */
+nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:18px 64px;display:flex;align-items:center;justify-content:space-between;gap:16px;background:rgba(253,251,247,.92);-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);border-bottom:1px solid rgba(201,152,26,.1)}
 .nav-logo{display:flex;align-items:center;gap:12px;text-decoration:none}
 .nav-logo img{height:32px;width:32px;object-fit:contain}
 .nav-logo-text{font-family:'Cormorant Garamond',serif;font-size:1.1rem;font-weight:700;color:var(--text)}
-.nav-back{color:var(--text-mid);text-decoration:none;font-size:.85rem;font-weight:500;display:flex;align-items:center;gap:6px;transition:color .2s}
+.nav-back{color:var(--text-mid);text-decoration:none;font-size:.85rem;font-weight:500;transition:color .2s}
 .nav-back:hover{color:var(--gold)}
-.nav-cta{background:var(--royal);color:var(--gold);font-size:.8rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:10px 24px;text-decoration:none;transition:background .2s}
+.nav-right{display:flex;align-items:center;gap:12px}
+#admin-toggle{background:transparent;border:1px solid rgba(201,152,26,.35);color:var(--gold);font-size:.72rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;padding:7px 16px;cursor:pointer;transition:all .2s;display:none}
+#admin-toggle:hover,#admin-toggle.active{background:var(--royal);border-color:var(--royal);color:var(--gold)}
+.nav-cta{background:var(--royal);color:var(--gold);font-size:.78rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:10px 22px;text-decoration:none;transition:background .2s}
 .nav-cta:hover{background:var(--royal-mid)}
-/* ── HERO ── */
+
+/* HERO */
 .port-hero{padding:140px 64px 60px;text-align:center;background:var(--royal)}
-.port-hero .label{display:inline-block;font-size:.72rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--gold);margin-bottom:16px}
+.label{display:inline-block;font-size:.72rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--gold);margin-bottom:16px}
 .port-hero h1{font-family:'Cormorant Garamond',serif;font-size:clamp(2.5rem,5vw,4rem);font-weight:700;color:var(--white);line-height:1.1;margin-bottom:16px}
 .port-hero h1 em{color:var(--gold-light);font-style:italic}
 .port-hero p{color:rgba(255,255,255,.6);font-size:1rem;max-width:520px;margin:0 auto}
 .port-stats{display:flex;justify-content:center;gap:48px;margin-top:40px;padding-top:40px;border-top:1px solid rgba(201,152,26,.2)}
 .port-stat span{display:block;font-family:'Cormorant Garamond',serif;font-size:2.5rem;font-weight:700;color:var(--gold)}
 .port-stat p{font-size:.78rem;color:rgba(255,255,255,.4);letter-spacing:.08em;text-transform:uppercase;margin-top:4px}
-/* ── FILTERS ── */
-.filter-bar{padding:32px 64px;background:var(--white);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:16px;position:sticky;top:70px;z-index:50}
-.filter-btns{display:flex;gap:8px}
-.filter-btn{background:transparent;border:1px solid rgba(201,152,26,.25);color:var(--text-mid);font-size:.8rem;font-weight:600;letter-spacing:.06em;text-transform:uppercase;padding:8px 20px;cursor:pointer;transition:all .2s}
+
+/* ADMIN BAR */
+#admin-bar{display:none;background:var(--royal);border-bottom:2px solid var(--gold);padding:14px 64px;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;position:sticky;top:70px;z-index:60}
+#admin-bar.visible{display:flex}
+.admin-label{font-size:.75rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--gold)}
+#upload-btn{background:var(--gold);color:var(--royal);font-size:.8rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:10px 24px;border:none;cursor:pointer;transition:background .2s}
+#upload-btn:hover{background:var(--gold-light)}
+.admin-note{font-size:.75rem;color:rgba(255,255,255,.4)}
+
+/* FILTER BAR */
+.filter-bar{padding:24px 64px;background:var(--white);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;position:sticky;top:70px;z-index:50;transition:top .2s}
+.filter-bar.admin-offset{top:120px}
+.filter-btns{display:flex;gap:8px;flex-wrap:wrap}
+.filter-btn{background:transparent;border:1px solid rgba(201,152,26,.25);color:var(--text-mid);font-size:.78rem;font-weight:600;letter-spacing:.06em;text-transform:uppercase;padding:7px 18px;cursor:pointer;transition:all .2s}
 .filter-btn:hover,.filter-btn.active{background:var(--royal);color:var(--gold);border-color:var(--royal)}
 .filter-count{font-size:.82rem;color:var(--text-light)}
-/* ── GALLERY ── */
+
+/* GALLERY */
 .gallery-wrap{padding:40px 64px 80px;max-width:1400px;margin:0 auto}
 .gallery-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
 .gallery-item{position:relative;overflow:hidden;cursor:pointer;background:var(--warm);aspect-ratio:1;transition:transform .3s,box-shadow .3s}
 .gallery-item:hover{transform:translateY(-3px);box-shadow:0 12px 40px rgba(0,0,0,.15)}
-.gallery-item img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .4s}
-.gallery-item:hover img{transform:scale(1.06)}
-.gallery-item .vid-badge{position:absolute;top:8px;right:8px;background:rgba(10,10,30,.75);border:1px solid rgba(201,152,26,.4);color:var(--gold);font-size:.65rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;padding:3px 8px}
-.gallery-item .play-btn{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;opacity:0;background:rgba(26,26,62,.4);transition:opacity .3s}
-.gallery-item:hover .play-btn{opacity:1}
-.play-icon{width:52px;height:52px;background:rgba(201,152,26,.9);border-radius:50%;display:flex;align-items:center;justify-content:center}
-.play-icon svg{margin-left:4px}
-.gallery-item.hidden{display:none}
-/* ── LOAD MORE ── */
-.load-more-wrap{text-align:center;padding:40px 0}
+.gallery-item img.thumb{width:100%;height:100%;object-fit:cover;display:block;transition:transform .4s}
+.gallery-item:hover img.thumb{transform:scale(1.05)}
+.vid-badge{position:absolute;top:8px;right:8px;background:rgba(10,10,30,.8);border:1px solid rgba(201,152,26,.4);color:var(--gold);font-size:.62rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;padding:3px 8px}
+.play-overlay{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;opacity:0;background:rgba(26,26,62,.35);transition:opacity .3s}
+.gallery-item:hover .play-overlay{opacity:1}
+.play-circle{width:52px;height:52px;background:rgba(201,152,26,.92);border-radius:50%;display:flex;align-items:center;justify-content:center}
+/* Delete button (admin only) */
+.del-btn{display:none;position:absolute;top:8px;left:8px;background:rgba(192,57,43,.9);color:#fff;border:none;width:28px;height:28px;border-radius:50%;font-size:1rem;line-height:1;cursor:pointer;align-items:center;justify-content:center;z-index:10;transition:background .2s}
+.del-btn:hover{background:var(--red)}
+.admin-mode .del-btn{display:flex}
+
+/* LOAD MORE */
+.load-more-wrap{text-align:center;padding:40px 0;display:none}
 #load-more-btn{background:var(--royal);color:var(--gold);font-size:.85rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:16px 48px;border:none;cursor:pointer;transition:background .2s}
 #load-more-btn:hover{background:var(--royal-mid)}
-#load-more-btn:disabled{opacity:.4;cursor:default}
-/* ── LIGHTBOX (images) ── */
-#lightbox{display:none;position:fixed;inset:0;background:rgba(10,10,30,.95);z-index:9999;align-items:center;justify-content:center;padding:40px}
-#lightbox.open{display:flex}
+
+/* MODALS */
+.modal-backdrop{display:none;position:fixed;inset:0;background:rgba(10,10,30,.95);z-index:9999;align-items:center;justify-content:center}
+.modal-backdrop.open{display:flex}
 #lightbox img{max-width:90vw;max-height:85vh;object-fit:contain;box-shadow:0 32px 80px rgba(0,0,0,.6)}
-/* ── VIDEO MODAL ── */
-#video-modal{display:none;position:fixed;inset:0;background:rgba(10,10,30,.97);z-index:9999;align-items:center;justify-content:center}
-#video-modal.open{display:flex}
 #video-modal video{max-width:90vw;max-height:85vh;outline:none}
-.modal-close{position:fixed;top:24px;right:32px;color:rgba(255,255,255,.7);font-size:2rem;cursor:pointer;background:none;border:none;line-height:1;padding:8px;transition:color .2s;z-index:10001}
+.modal-close{position:fixed;top:20px;right:28px;color:rgba(255,255,255,.7);font-size:2rem;cursor:pointer;background:none;border:none;z-index:10001;transition:color .2s}
 .modal-close:hover{color:var(--gold)}
-/* ── EMPTY ── */
+
+/* UPLOAD MODAL */
+#upload-modal .modal-inner{background:var(--white);padding:48px;max-width:520px;width:90%;text-align:center}
+#upload-modal h2{font-family:'Cormorant Garamond',serif;font-size:1.8rem;font-weight:700;color:var(--royal);margin-bottom:8px}
+#upload-modal p{color:var(--text-mid);font-size:.9rem;margin-bottom:28px}
+#drop-zone{border:2px dashed rgba(201,152,26,.4);padding:48px 24px;cursor:pointer;transition:border-color .2s;margin-bottom:20px}
+#drop-zone:hover,#drop-zone.drag-over{border-color:var(--gold);background:rgba(201,152,26,.04)}
+#drop-zone p{color:var(--text-light);font-size:.9rem}
+#drop-zone .icon{font-size:2.5rem;margin-bottom:12px;display:block}
+#file-input{display:none}
+#upload-preview{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px;justify-content:center}
+.preview-thumb{width:80px;height:80px;object-fit:cover;border:2px solid rgba(201,152,26,.2)}
+#upload-progress{display:none;font-size:.85rem;color:var(--text-mid);margin-bottom:12px}
+.progress-bar-wrap{background:var(--warm);height:6px;border-radius:3px;overflow:hidden;margin-bottom:8px}
+.progress-bar{background:var(--gold);height:100%;width:0;transition:width .3s}
+#do-upload-btn{background:var(--royal);color:var(--gold);font-size:.85rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:14px 36px;border:none;cursor:pointer;width:100%;transition:background .2s;display:none}
+#do-upload-btn:hover{background:var(--royal-mid)}
+#upload-result{font-size:.85rem;margin-top:12px}
+
+/* EMPTY */
 #empty-msg{display:none;text-align:center;padding:80px 20px;color:var(--text-light)}
-/* ── FOOTER ── */
+
+/* ADMIN LOGIN MODAL */
+#admin-login-modal .modal-inner{background:var(--white);padding:48px;max-width:400px;width:90%}
+#admin-login-modal h2{font-family:'Cormorant Garamond',serif;font-size:1.8rem;color:var(--royal);margin-bottom:20px;text-align:center}
+#admin-login-modal input{width:100%;border:1px solid var(--border);padding:12px 16px;font-size:.9rem;margin-bottom:12px;font-family:inherit;outline:none}
+#admin-login-modal input:focus{border-color:var(--gold)}
+#admin-login-btn{background:var(--royal);color:var(--gold);font-size:.85rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:14px;border:none;cursor:pointer;width:100%;transition:background .2s}
+#admin-login-btn:hover{background:var(--royal-mid)}
+#login-error{color:var(--red);font-size:.82rem;margin-top:8px;display:none;text-align:center}
+
+/* FOOTER */
 footer{background:#0F0F28;padding:40px 64px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:16px}
 footer p{color:rgba(255,255,255,.25);font-size:.78rem}
 footer a{color:var(--gold);text-decoration:none;font-size:.82rem}
-/* ── RESPONSIVE ── */
+
+/* RESPONSIVE */
 @media(max-width:1200px){.gallery-grid{grid-template-columns:repeat(3,1fr)}}
-@media(max-width:900px){nav{padding:16px 24px}.port-hero,.gallery-wrap,.filter-bar{padding-left:24px;padding-right:24px}.gallery-grid{grid-template-columns:repeat(2,1fr)}.port-stats{gap:24px}}
-@media(max-width:480px){.gallery-grid{grid-template-columns:repeat(2,1fr);gap:8px}.port-stats{flex-wrap:wrap}.filter-bar{top:60px}}
+@media(max-width:900px){nav,#admin-bar,.filter-bar,.gallery-wrap,.port-hero{padding-left:24px;padding-right:24px}.gallery-grid{grid-template-columns:repeat(2,1fr)}.port-stats{gap:24px}}
+@media(max-width:480px){.gallery-grid{gap:8px}.port-stats{flex-wrap:wrap;justify-content:center}}
 </style>
 </head>
 <body>
 
 <nav>
-  <a href="/" class="nav-logo">
-    <img src="logo.png" alt="Crown Media Group">
-    <span class="nav-logo-text">Crown Media Group</span>
-  </a>
+  <a href="/" class="nav-logo"><img src="logo.png" alt="Crown Media Group"><span class="nav-logo-text">Crown Media Group</span></a>
   <a href="/" class="nav-back">← Back to Site</a>
-  <a href="https://calendly.com/crownmediagroupco" target="_blank" rel="noopener" class="nav-cta">Book a Free Audit</a>
+  <div class="nav-right">
+    <button type="button" id="admin-toggle">Admin</button>
+    <a href="https://calendly.com/crownmediagroupco" target="_blank" rel="noopener" class="nav-cta">Book a Free Audit</a>
+  </div>
 </nav>
+
+<!-- Admin toolbar -->
+<div id="admin-bar">
+  <span class="admin-label">Admin Mode — Crown Media Group</span>
+  <button type="button" id="upload-btn">+ Add Work</button>
+  <span class="admin-note">Click any item's &times; to delete it</span>
+</div>
 
 <div class="port-hero">
   <span class="label">Our Work</span>
-  <h1>426 Pieces.<br><em>Zero Excuses.</em></h1>
-  <p>Photos, videos, ad creatives, branding, social content. This is what Crown Media Group delivers — every time.</p>
+  <h1>Real Work.<br><em>Real Results.</em></h1>
+  <p>Photos, videos, ad creatives, branding, web design, social content. Built by Crown Media Group.</p>
   <div class="port-stats">
-    <div class="port-stat"><span id="stat-total">426</span><p>Total Pieces</p></div>
-    <div class="port-stat"><span id="stat-images">58</span><p>Images</p></div>
-    <div class="port-stat"><span id="stat-videos">368</span><p>Videos</p></div>
+    <div class="port-stat"><span id="stat-total">—</span><p>Total Pieces</p></div>
+    <div class="port-stat"><span id="stat-images">—</span><p>Images</p></div>
+    <div class="port-stat"><span id="stat-videos">—</span><p>Videos</p></div>
   </div>
 </div>
 
-<div class="filter-bar">
+<div class="filter-bar" id="filter-bar">
   <div class="filter-btns">
-    <button class="filter-btn active" data-filter="all">All Work</button>
-    <button class="filter-btn" data-filter="image">Photos</button>
-    <button class="filter-btn" data-filter="video">Videos</button>
+    <button type="button" class="filter-btn active" data-filter="all">All Work</button>
+    <button type="button" class="filter-btn" data-filter="image">Photos</button>
+    <button type="button" class="filter-btn" data-filter="video">Videos</button>
   </div>
-  <span class="filter-count" id="filter-count">Showing all 426 pieces</span>
+  <span class="filter-count" id="filter-count">Loading...</span>
 </div>
 
 <div class="gallery-wrap">
   <div class="gallery-grid" id="gallery-grid"></div>
-  <p id="empty-msg">No items in this category.</p>
-  <div class="load-more-wrap" id="load-more-wrap" style="display:none">
-    <button id="load-more-btn">Load More</button>
+  <p id="empty-msg">No items found.</p>
+  <div class="load-more-wrap" id="load-more-wrap">
+    <button type="button" id="load-more-btn">Load More</button>
   </div>
 </div>
 
-<!-- Image Lightbox -->
-<div id="lightbox"><button class="modal-close" id="lb-close">&times;</button><img id="lb-img" src="" alt="Portfolio work"></div>
+<!-- Image lightbox -->
+<div class="modal-backdrop" id="lightbox">
+  <button type="button" class="modal-close" id="lb-close">&times;</button>
+  <img id="lb-img" src="" alt="Portfolio">
+</div>
 
-<!-- Video Modal -->
-<div id="video-modal"><button class="modal-close" id="vm-close">&times;</button><video id="vm-video" controls playsinline></video></div>
+<!-- Video modal -->
+<div class="modal-backdrop" id="video-modal">
+  <button type="button" class="modal-close" id="vm-close">&times;</button>
+  <video id="vm-video" controls playsinline></video>
+</div>
+
+<!-- Upload modal -->
+<div class="modal-backdrop" id="upload-modal">
+  <div class="modal-inner">
+    <button type="button" class="modal-close" id="um-close" style="position:absolute;top:12px;right:16px;color:var(--text-mid)">&times;</button>
+    <h2>Add Work</h2>
+    <p>Drop photos or videos here. JPG, PNG, GIF, WEBP, MP4, MOV supported.</p>
+    <div id="drop-zone">
+      <span class="icon">📁</span>
+      <p>Drag &amp; drop files here, or <strong>click to browse</strong></p>
+      <input type="file" id="file-input" multiple accept="image/*,video/mp4,video/quicktime,.mov">
+    </div>
+    <div id="upload-preview"></div>
+    <div id="upload-progress">
+      <div class="progress-bar-wrap"><div class="progress-bar" id="progress-bar"></div></div>
+      <span id="progress-text">Uploading...</span>
+    </div>
+    <div id="upload-result"></div>
+    <button type="button" id="do-upload-btn">Upload Files</button>
+  </div>
+</div>
+
+<!-- Admin login modal -->
+<div class="modal-backdrop" id="admin-login-modal">
+  <div class="modal-inner">
+    <button type="button" class="modal-close" id="alm-close" style="position:absolute;top:12px;right:16px;color:var(--text-mid)">&times;</button>
+    <h2>Admin Login</h2>
+    <input type="email" id="admin-email" placeholder="Email" value="king@crownmediagroup.co">
+    <input type="password" id="admin-password" placeholder="Password">
+    <button type="button" id="admin-login-btn">Log In</button>
+    <p id="login-error">Invalid credentials. Try again.</p>
+  </div>
+</div>
 
 <footer>
   <p>All Glory to Jesus Global LLC &mdash; Crown Media Group &mdash; Columbia, SC</p>
@@ -128,70 +220,123 @@ footer a{color:var(--gold);text-decoration:none;font-size:.82rem}
 </footer>
 
 <script>
-const BATCH = 40;
-let allItems = [];
-let filtered = [];
-let loaded = 0;
-let currentFilter = 'all';
+// ── Config ─────────────────────────────────────────────────────────────────────
+const CRM_URL   = 'https://allglory-onboarding-production.up.railway.app'; // CRM endpoint
+const BATCH     = 40;
+const ADMIN_KEY = 'crm_portfolio_admin';
 
-// Load manifest
-fetch('assets/portfolio/manifest.json')
-  .then(r => r.json())
-  .then(data => {
-    allItems = data;
-    applyFilter('all');
-  })
-  .catch(() => {
-    document.getElementById('empty-msg').style.display = 'block';
-    document.getElementById('empty-msg').textContent = 'Portfolio loading — refresh the page.';
-  });
+// ── State ──────────────────────────────────────────────────────────────────────
+let allItems    = [];
+let filtered    = [];
+let loaded      = 0;
+let adminMode   = false;
+let pendingFiles = [];
+let crmSession  = localStorage.getItem(ADMIN_KEY);
 
+// ── Init ───────────────────────────────────────────────────────────────────────
+loadPortfolio();
+if (crmSession) enableAdminUI();
+
+// ── Load items (local manifest + CRM uploads merged) ──────────────────────────
+async function loadPortfolio() {
+  let items = [];
+
+  // Local static manifest
+  try {
+    const r = await fetch('assets/portfolio/manifest.json');
+    const data = await r.json();
+    items = data.map(i => ({ ...i, source: 'local' }));
+  } catch (_) {}
+
+  // CRM uploaded items (if accessible)
+  try {
+    const r = await fetch(CRM_URL + '/api/portfolio/items', { signal: AbortSignal.timeout(4000) });
+    if (r.ok) {
+      const { items: crmItems } = await r.json();
+      items = [...items, ...crmItems.map(i => ({ ...i, source: 'crm' }))];
+    }
+  } catch (_) {}
+
+  allItems = items;
+  updateStats();
+  applyFilter('all');
+}
+
+function updateStats() {
+  const imgs = allItems.filter(i => i.type === 'image').length;
+  const vids = allItems.filter(i => i.type === 'video').length;
+  document.getElementById('stat-total').textContent  = allItems.length;
+  document.getElementById('stat-images').textContent = imgs;
+  document.getElementById('stat-videos').textContent = vids;
+}
+
+// ── Filter ─────────────────────────────────────────────────────────────────────
 function applyFilter(type) {
-  currentFilter = type;
   filtered = type === 'all' ? allItems : allItems.filter(i => i.type === type);
-  loaded = 0;
+  loaded   = 0;
   document.getElementById('gallery-grid').innerHTML = '';
   document.getElementById('filter-count').textContent =
-    'Showing ' + filtered.length + ' piece' + (filtered.length !== 1 ? 's' : '');
+    filtered.length + ' piece' + (filtered.length !== 1 ? 's' : '');
   document.querySelectorAll('.filter-btn').forEach(b => {
     b.classList.toggle('active', b.dataset.filter === type);
   });
   loadBatch();
 }
 
+document.querySelectorAll('.filter-btn').forEach(b => {
+  b.addEventListener('click', () => applyFilter(b.dataset.filter));
+});
+
+// ── Render batch ───────────────────────────────────────────────────────────────
 function loadBatch() {
-  const grid = document.getElementById('gallery-grid');
+  const grid  = document.getElementById('gallery-grid');
   const batch = filtered.slice(loaded, loaded + BATCH);
 
   batch.forEach(item => {
     const div = document.createElement('div');
     div.className = 'gallery-item';
-    div.dataset.type = item.type;
+    div.dataset.id     = item.id || item.file;
+    div.dataset.source = item.source || 'local';
+
+    // Delete button (admin only, hidden via CSS)
+    const delBtn = document.createElement('button');
+    delBtn.className   = 'del-btn';
+    delBtn.textContent = '×';
+    delBtn.title       = 'Delete';
+    delBtn.addEventListener('click', e => { e.stopPropagation(); deleteItem(item, div); });
+    div.appendChild(delBtn);
 
     if (item.type === 'image') {
       const img = document.createElement('img');
-      img.src = item.src;
-      img.alt = item.file;
-      img.loading = 'lazy';
-      img.onerror = () => div.remove();
+      img.className = 'thumb';
+      img.src       = item.src;
+      img.alt       = item.file;
+      img.loading   = 'lazy';
+      img.onerror   = () => div.remove();
       div.appendChild(img);
       div.addEventListener('click', () => openLightbox(item.src));
+
     } else {
-      // Video: show thumbnail + play button
-      const img = document.createElement('img');
-      img.src = item.thumb;
-      img.alt = item.file;
-      img.loading = 'lazy';
-      img.onerror = () => { img.src = 'logo.png'; img.style.objectFit = 'contain'; img.style.padding = '20px'; };
+      // Video thumbnail
+      const thumb = item.thumb || item.src;
+      const img   = document.createElement('img');
+      img.className = 'thumb';
+      img.src       = thumb;
+      img.alt       = item.file;
+      img.loading   = 'lazy';
+      img.onerror   = () => { img.src = 'logo.png'; img.style.padding = '20%'; img.style.objectFit = 'contain'; };
+
       const badge = document.createElement('div');
-      badge.className = 'vid-badge';
+      badge.className   = 'vid-badge';
       badge.textContent = item.file.toLowerCase().endsWith('.mov') ? 'MOV' : 'MP4';
-      const playBtn = document.createElement('div');
-      playBtn.className = 'play-btn';
-      playBtn.innerHTML = '<div class="play-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="#C9981A"><polygon points="5,3 19,12 5,21"/></svg></div>';
+
+      const overlay = document.createElement('div');
+      overlay.className = 'play-overlay';
+      overlay.innerHTML = '<div class="play-circle"><svg width="18" height="18" viewBox="0 0 24 24" fill="#1A1A3E"><polygon points="5,3 19,12 5,21"/></svg></div>';
+
       div.appendChild(img);
       div.appendChild(badge);
-      div.appendChild(playBtn);
+      div.appendChild(overlay);
       div.addEventListener('click', () => openVideo(item.src));
     }
 
@@ -204,8 +349,7 @@ function loadBatch() {
   const btn  = document.getElementById('load-more-btn');
   if (loaded < filtered.length) {
     wrap.style.display = 'block';
-    btn.disabled = false;
-    btn.textContent = 'Load More (' + (filtered.length - loaded) + ' remaining)';
+    btn.textContent    = 'Load More (' + (filtered.length - loaded) + ' remaining)';
   } else {
     wrap.style.display = 'none';
   }
@@ -213,15 +357,9 @@ function loadBatch() {
   document.getElementById('empty-msg').style.display = filtered.length === 0 ? 'block' : 'none';
 }
 
-// Filter buttons
-document.querySelectorAll('.filter-btn').forEach(btn => {
-  btn.addEventListener('click', () => applyFilter(btn.dataset.filter));
-});
-
-// Load More
 document.getElementById('load-more-btn').addEventListener('click', loadBatch);
 
-// Image lightbox
+// ── Lightbox ───────────────────────────────────────────────────────────────────
 const lb = document.getElementById('lightbox');
 const lbImg = document.getElementById('lb-img');
 function openLightbox(src) { lbImg.src = src; lb.classList.add('open'); document.body.style.overflow = 'hidden'; }
@@ -229,7 +367,7 @@ function closeLb() { lb.classList.remove('open'); document.body.style.overflow =
 document.getElementById('lb-close').addEventListener('click', closeLb);
 lb.addEventListener('click', e => { if (e.target === lb) closeLb(); });
 
-// Video modal
+// ── Video Modal ────────────────────────────────────────────────────────────────
 const vm = document.getElementById('video-modal');
 const vmVid = document.getElementById('vm-video');
 function openVideo(src) { vmVid.src = src; vm.classList.add('open'); vmVid.play(); document.body.style.overflow = 'hidden'; }
@@ -237,8 +375,246 @@ function closeVm() { vm.classList.remove('open'); vmVid.pause(); vmVid.src = '';
 document.getElementById('vm-close').addEventListener('click', closeVm);
 vm.addEventListener('click', e => { if (e.target === vm) closeVm(); });
 
-// ESC to close
-document.addEventListener('keydown', e => { if (e.key === 'Escape') { closeLb(); closeVm(); } });
+// ── ESC close ──────────────────────────────────────────────────────────────────
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') { closeLb(); closeVm(); closeUploadModal(); closeAdminLogin(); }
+});
+
+// ── Admin Toggle ───────────────────────────────────────────────────────────────
+document.getElementById('admin-toggle').style.display = 'block';
+document.getElementById('admin-toggle').addEventListener('click', () => {
+  if (adminMode) {
+    disableAdminMode();
+  } else if (crmSession) {
+    toggleAdminMode(true);
+  } else {
+    openAdminLogin();
+  }
+});
+
+function enableAdminUI() {
+  document.getElementById('admin-toggle').style.display = 'block';
+}
+
+function toggleAdminMode(on) {
+  adminMode = on;
+  document.getElementById('admin-bar').classList.toggle('visible', on);
+  document.getElementById('filter-bar').classList.toggle('admin-offset', on);
+  document.getElementById('gallery-grid').classList.toggle('admin-mode', on);
+  document.getElementById('admin-toggle').classList.toggle('active', on);
+  document.getElementById('admin-toggle').textContent = on ? 'Exit Admin' : 'Admin';
+}
+
+function disableAdminMode() {
+  toggleAdminMode(false);
+}
+
+// ── Admin Login ────────────────────────────────────────────────────────────────
+const alm = document.getElementById('admin-login-modal');
+function openAdminLogin() { alm.classList.add('open'); document.getElementById('admin-password').focus(); }
+function closeAdminLogin() { alm.classList.remove('open'); }
+document.getElementById('alm-close').addEventListener('click', closeAdminLogin);
+alm.addEventListener('click', e => { if (e.target === alm) closeAdminLogin(); });
+
+document.getElementById('admin-login-btn').addEventListener('click', async () => {
+  const email = document.getElementById('admin-email').value.trim();
+  const pass  = document.getElementById('admin-password').value;
+  const err   = document.getElementById('login-error');
+
+  try {
+    const r = await fetch(CRM_URL + '/api/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
+      body: JSON.stringify({ email, password: pass })
+    });
+    if (r.ok) {
+      const data = await r.json();
+      crmSession = data.token || 'ok';
+      localStorage.setItem(ADMIN_KEY, crmSession);
+      err.style.display = 'none';
+      closeAdminLogin();
+      toggleAdminMode(true);
+    } else {
+      err.style.display = 'block';
+    }
+  } catch (_) {
+    err.style.display = 'block';
+    err.textContent = 'Cannot reach CRM. Try again.';
+  }
+});
+
+// ── Upload Modal ───────────────────────────────────────────────────────────────
+const uModal = document.getElementById('upload-modal');
+document.getElementById('upload-btn').addEventListener('click', openUploadModal);
+document.getElementById('um-close').addEventListener('click', closeUploadModal);
+uModal.addEventListener('click', e => { if (e.target === uModal) closeUploadModal(); });
+
+function openUploadModal() {
+  pendingFiles = [];
+  document.getElementById('upload-preview').innerHTML = '';
+  document.getElementById('do-upload-btn').style.display = 'none';
+  document.getElementById('upload-result').textContent = '';
+  document.getElementById('upload-progress').style.display = 'none';
+  uModal.classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+function closeUploadModal() {
+  uModal.classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+// Drop zone
+const dropZone = document.getElementById('drop-zone');
+const fileInput = document.getElementById('file-input');
+
+dropZone.addEventListener('click', () => fileInput.click());
+dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('drag-over'); });
+dropZone.addEventListener('dragleave', () => dropZone.classList.remove('drag-over'));
+dropZone.addEventListener('drop', e => { e.preventDefault(); dropZone.classList.remove('drag-over'); handleFiles(e.dataTransfer.files); });
+fileInput.addEventListener('change', e => handleFiles(e.target.files));
+
+function handleFiles(files) {
+  pendingFiles = Array.from(files);
+  const preview = document.getElementById('upload-preview');
+  preview.innerHTML = '';
+  pendingFiles.forEach(f => {
+    if (f.type.startsWith('image/')) {
+      const img = document.createElement('img');
+      img.className = 'preview-thumb';
+      img.src = URL.createObjectURL(f);
+      preview.appendChild(img);
+    } else {
+      const div = document.createElement('div');
+      div.style.cssText = 'width:80px;height:80px;background:var(--royal);display:flex;align-items:center;justify-content:center;color:var(--gold);font-size:.65rem;font-weight:700;text-align:center;padding:4px;border:2px solid rgba(201,152,26,.2)';
+      div.textContent = f.name.substring(0, 20);
+      preview.appendChild(div);
+    }
+  });
+  document.getElementById('do-upload-btn').style.display = pendingFiles.length > 0 ? 'block' : 'none';
+}
+
+document.getElementById('do-upload-btn').addEventListener('click', async () => {
+  if (!pendingFiles.length) return;
+  const progress   = document.getElementById('upload-progress');
+  const progressBar = document.getElementById('progress-bar');
+  const progressText = document.getElementById('progress-text');
+  const result     = document.getElementById('upload-result');
+  const btn        = document.getElementById('do-upload-btn');
+
+  progress.style.display = 'block';
+  btn.disabled = true;
+  result.textContent = '';
+
+  let done = 0;
+  let errors = 0;
+  const newItems = [];
+
+  for (const file of pendingFiles) {
+    progressText.textContent = `Uploading ${file.name} (${done + 1}/${pendingFiles.length})...`;
+    progressBar.style.width = ((done / pendingFiles.length) * 100) + '%';
+
+    try {
+      const b64 = await fileToBase64(file);
+      const r = await fetch(CRM_URL + '/api/portfolio/upload', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ filename: file.name, data: b64, mimetype: file.type })
+      });
+      if (r.ok) {
+        const item = await r.json();
+        newItems.push({ id: item.file, file: item.file, type: item.type, src: item.src, thumb: item.src, source: 'crm' });
+      } else {
+        errors++;
+      }
+    } catch (e) {
+      errors++;
+    }
+    done++;
+  }
+
+  progressBar.style.width = '100%';
+  progressText.textContent = 'Done!';
+
+  // Add new items to gallery
+  if (newItems.length) {
+    allItems = [...newItems, ...allItems];
+    updateStats();
+    newItems.forEach(item => prependItem(item));
+  }
+
+  result.style.color = errors > 0 ? 'var(--red)' : 'green';
+  result.textContent = `${done - errors} uploaded successfully${errors > 0 ? ', ' + errors + ' failed' : ''}.`;
+  btn.disabled = false;
+  setTimeout(() => { if (!errors) closeUploadModal(); }, 1500);
+});
+
+function fileToBase64(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload  = () => resolve(reader.result.split(',')[1]);
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
+
+function prependItem(item) {
+  const grid = document.getElementById('gallery-grid');
+  const div  = document.createElement('div');
+  div.className   = 'gallery-item';
+  div.dataset.id  = item.id;
+  div.dataset.source = 'crm';
+
+  const delBtn = document.createElement('button');
+  delBtn.className   = 'del-btn';
+  delBtn.textContent = '×';
+  delBtn.addEventListener('click', e => { e.stopPropagation(); deleteItem(item, div); });
+  div.appendChild(delBtn);
+
+  const img = document.createElement('img');
+  img.className = 'thumb';
+  img.src       = item.type === 'video' ? (item.thumb || item.src) : item.src;
+  img.alt       = item.file;
+  img.loading   = 'lazy';
+  div.appendChild(img);
+
+  if (item.type === 'video') {
+    const ov = document.createElement('div');
+    ov.className = 'play-overlay';
+    ov.innerHTML = '<div class="play-circle"><svg width="18" height="18" viewBox="0 0 24 24" fill="#1A1A3E"><polygon points="5,3 19,12 5,21"/></svg></div>';
+    div.appendChild(ov);
+    div.addEventListener('click', () => openVideo(item.src));
+  } else {
+    div.addEventListener('click', () => openLightbox(item.src));
+  }
+
+  grid.insertBefore(div, grid.firstChild);
+}
+
+// ── Delete ─────────────────────────────────────────────────────────────────────
+async function deleteItem(item, el) {
+  if (!confirm(`Delete "${item.file}"? This cannot be undone.`)) return;
+
+  if (item.source === 'crm') {
+    try {
+      const r = await fetch(CRM_URL + '/api/portfolio/file/' + encodeURIComponent(item.file), {
+        method: 'DELETE',
+        credentials: 'include'
+      });
+      if (!r.ok) { alert('Delete failed. Try again.'); return; }
+    } catch (e) {
+      alert('Could not reach CRM. Try again.'); return;
+    }
+  }
+  // Remove from local arrays
+  allItems  = allItems.filter(i => (i.id || i.file) !== (item.id || item.file));
+  filtered  = filtered.filter(i => (i.id || i.file) !== (item.id || item.file));
+  el.remove();
+  updateStats();
+  document.getElementById('filter-count').textContent =
+    filtered.length + ' piece' + (filtered.length !== 1 ? 's' : '');
+}
 </script>
 </body>
 </html>

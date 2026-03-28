@@ -17,7 +17,13 @@
     "campaign:setup": "node tools/crm/nxlevel-campaign-setup.js",
     "campaign:run": "node tools/crm/campaign-runner.js",
     "campaign:dry-run": "node tools/crm/campaign-runner.js --dry-run",
-    "campaign:status": "node tools/crm/campaign-runner.js --status"
+    "campaign:status": "node tools/crm/campaign-runner.js --status",
+    "lionheart-harvest": "python Agency/tools/lionheart-harvest.py",
+    "lionheart-transcribe": "python Agency/tools/lionheart-transcribe.py",
+    "lionheart-clean": "node Agency/tools/lionheart-clean.js",
+    "lionheart-pdf": "node Agency/tools/lionheart-pdf.js",
+    "lionheart-whisper": "python Agency/tools/lionheart-whisper.py",
+    "lionheart-all": "npm run lionheart-harvest && npm run lionheart-transcribe && npm run lionheart-whisper && npm run lionheart-clean && npm run lionheart-pdf"
   },
   "devDependencies": {
     "playwright": "^1.58.2"

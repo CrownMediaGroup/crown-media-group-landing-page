@@ -5,9 +5,9 @@ import express from 'express';
 import helmet from 'helmet';
 import rateLimit from 'express-rate-limit';
 import { createTransport } from 'nodemailer';
-import { join, dirname } from 'path';
+import { join, dirname, extname, basename } from 'path';
 import { fileURLToPath } from 'url';
-import { readFileSync, existsSync } from 'fs';
+import { readFileSync, existsSync, writeFileSync, unlinkSync, mkdirSync, readdirSync } from 'fs';
 import { randomBytes, scryptSync, timingSafeEqual } from 'crypto';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -123,9 +123,28 @@ setInterval(() => {
   if (deleted.changes > 0) console.log(`[CRM] Cleaned ${deleted.changes} expired sessions`);
 }, 60 * 60 * 1000);
 
-app.use(express.json({ limit: '100kb' }));
-app.use(express.urlencoded({ extended: true, limit: '100kb' }));
+// ── Portfolio uploads dir ─────────────────────────────────────────────────────
+const PORTFOLIO_DIR = join(__dirname, 'portfolio-uploads');
+if (!existsSync(PORTFOLIO_DIR)) mkdirSync(PORTFOLIO_DIR, { recursive: true });
+
+// ── CORS for public portfolio endpoints (crownmediagroup.co) ──────────────────
+app.use('/api/portfolio/items', (req, res, next) => {
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
+  if (req.method === 'OPTIONS') return res.sendStatus(204);
+  next();
+});
+app.use('/portfolio-media', (req, res, next) => {
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  next();
+});
+
+app.use(express.json({ limit: '52mb' }));
+app.use(express.urlencoded({ extended: true, limit: '52mb' }));
 app.use('/api', apiLimiter);
+
+// ── Serve portfolio upload files as static ────────────────────────────────────
+app.use('/portfolio-media', express.static(PORTFOLIO_DIR));
 
 // ── Serve login.html for / and /index.html if not authenticated ───────────────
 app.get('/', (req, res) => {
@@ -1185,6 +1204,87 @@ app.post('/api/video-service/report', async (req, res) => {
       else console.log('[VIDEO REPORT] Complete:', stdout.trim());
     });
   });
+});
+
+// ── Portfolio Management ───────────────────────────────────────────────────────
+const PORTFOLIO_EXTS = new Set(['.jpg','.jpeg','.png','.gif','.webp','.mp4','.mov','.heic']);
+const CRM_HOST = process.env.CRM_PUBLIC_URL || `http://localhost:${process.env.PORT || 3001}`;
+
+// Public: list all portfolio items
+app.get('/api/portfolio/items', (req, res) => {
+  try {
+    const files = readdirSync(PORTFOLIO_DIR);
+    const imageExts = new Set(['.jpg','.jpeg','.png','.gif','.webp']);
+    const videoExts = new Set(['.mp4','.mov']);
+    const items = files
+      .filter(f => PORTFOLIO_EXTS.has(extname(f).toLowerCase()))
+      .map(f => {
+        const ext = extname(f).toLowerCase();
+        const type = imageExts.has(ext) ? 'image' : videoExts.has(ext) ? 'video' : null;
+        if (!type) return null;
+        return {
+          id: f,
+          file: f,
+          type,
+          src: `${CRM_HOST}/portfolio-media/${encodeURIComponent(f)}`,
+          thumb: type === 'video'
+            ? `${CRM_HOST}/portfolio-media/thumb_${encodeURIComponent(basename(f, ext))}.jpg`
+            : `${CRM_HOST}/portfolio-media/${encodeURIComponent(f)}`,
+          uploadedAt: new Date().toISOString()
+        };
+      })
+      .filter(Boolean);
+    res.json({ items, total: items.length });
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
+// Auth: upload a file (base64 JSON)
+app.post('/api/portfolio/upload', (req, res) => {
+  const session = validateSession(getCookie(req, 'crm_session'));
+  if (!session) return res.status(401).json({ error: 'Unauthorized' });
+
+  const { filename, data, mimetype } = req.body;
+  if (!filename || !data) return res.status(400).json({ error: 'Missing filename or data' });
+
+  const ext = extname(filename).toLowerCase();
+  if (!PORTFOLIO_EXTS.has(ext)) return res.status(400).json({ error: 'File type not allowed' });
+
+  // Sanitize filename — keep extension, slugify the name
+  const safe = filename.replace(/[^a-zA-Z0-9._\-() ]/g, '_').trim();
+  const destPath = join(PORTFOLIO_DIR, safe);
+
+  try {
+    const buffer = Buffer.from(data, 'base64');
+    writeFileSync(destPath, buffer);
+    res.json({
+      ok: true,
+      file: safe,
+      src: `${CRM_HOST}/portfolio-media/${encodeURIComponent(safe)}`,
+      type: ['.mp4','.mov'].includes(ext) ? 'video' : 'image'
+    });
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
+// Auth: delete a file
+app.delete('/api/portfolio/file/:filename', (req, res) => {
+  const session = validateSession(getCookie(req, 'crm_session'));
+  if (!session) return res.status(401).json({ error: 'Unauthorized' });
+
+  const safe = req.params.filename.replace(/\.\./g, '').replace(/[/\\]/g, '');
+  const filePath = join(PORTFOLIO_DIR, safe);
+  const thumbPath = join(PORTFOLIO_DIR, 'thumb_' + basename(safe, extname(safe)) + '.jpg');
+
+  try {
+    if (existsSync(filePath)) unlinkSync(filePath);
+    if (existsSync(thumbPath)) unlinkSync(thumbPath);
+    res.json({ ok: true, deleted: safe });
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
 });
 
 // ── Campaigns ─────────────────────────────────────────────────────────────────
