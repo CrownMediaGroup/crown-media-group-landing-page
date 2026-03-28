@@ -103,6 +103,30 @@ db.exec(`
   );
 `);
 
+// ── Campaigns (NxLevel outreach + future) ─────────────────────────────────────
+db.exec(`
+  CREATE TABLE IF NOT EXISTS campaigns (
+    id           INTEGER PRIMARY KEY AUTOINCREMENT,
+    name         TEXT NOT NULL,
+    status       TEXT DEFAULT 'draft',
+    workspace_id INTEGER DEFAULT 1,
+    calendly_link TEXT,
+    created_at   DATETIME DEFAULT CURRENT_TIMESTAMP
+  );
+
+  CREATE TABLE IF NOT EXISTS campaign_contacts (
+    id              INTEGER PRIMARY KEY AUTOINCREMENT,
+    campaign_id     INTEGER NOT NULL REFERENCES campaigns(id),
+    contact_id      INTEGER NOT NULL REFERENCES contacts(id),
+    current_step    INTEGER DEFAULT 0,
+    enrolled_at     DATETIME DEFAULT CURRENT_TIMESTAMP,
+    last_sent_at    DATETIME,
+    status          TEXT DEFAULT 'active',
+    ai_observations TEXT,
+    UNIQUE(campaign_id, contact_id)
+  );
+`);
+
 // ── Indexes (safe — CREATE INDEX IF NOT EXISTS) ───────────────────────────────
 db.exec(`
   CREATE INDEX IF NOT EXISTS idx_contacts_workspace    ON contacts(workspace_id);
@@ -120,6 +144,8 @@ db.exec(`
   CREATE INDEX IF NOT EXISTS idx_tasks_workspace       ON tasks(workspace_id, completed);
   CREATE INDEX IF NOT EXISTS idx_tasks_contact         ON tasks(contact_id);
   CREATE INDEX IF NOT EXISTS idx_tasks_due             ON tasks(due_date, completed);
+  CREATE INDEX IF NOT EXISTS idx_campaign_contacts     ON campaign_contacts(campaign_id, status);
+  CREATE INDEX IF NOT EXISTS idx_campaign_step         ON campaign_contacts(campaign_id, current_step, last_sent_at);
 `);
 
 // ── Runtime column additions (safe for existing DB) ───────────────────────────

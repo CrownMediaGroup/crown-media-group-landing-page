@@ -1187,6 +1187,43 @@ app.post('/api/video-service/report', async (req, res) => {
   });
 });
 
+// ── Campaigns ─────────────────────────────────────────────────────────────────
+app.get('/api/campaigns', (req, res) => {
+  const session = validateSession(getCookie(req, 'crm_session'));
+  if (!session) return res.status(401).json({ error: 'Unauthorized' });
+  const campaigns = db.prepare(`
+    SELECT c.*,
+      (SELECT COUNT(*) FROM campaign_contacts cc WHERE cc.campaign_id = c.id) as total,
+      (SELECT COUNT(*) FROM campaign_contacts cc WHERE cc.campaign_id = c.id AND cc.status = 'active') as active_count,
+      (SELECT COUNT(*) FROM campaign_contacts cc WHERE cc.campaign_id = c.id AND cc.current_step >= 1) as sent_count,
+      (SELECT COUNT(*) FROM campaign_contacts cc WHERE cc.campaign_id = c.id AND cc.status = 'replied') as replied_count
+    FROM campaigns c WHERE c.workspace_id = ? ORDER BY c.created_at DESC
+  `).all(session.workspace_id);
+  res.json(campaigns);
+});
+
+app.get('/api/campaigns/:id/contacts', (req, res) => {
+  const session = validateSession(getCookie(req, 'crm_session'));
+  if (!session) return res.status(401).json({ error: 'Unauthorized' });
+  const rows = db.prepare(`
+    SELECT cc.*, co.name, co.business, co.email, co.phone, co.status as contact_status
+    FROM campaign_contacts cc
+    JOIN contacts co ON co.id = cc.contact_id
+    WHERE cc.campaign_id = ?
+    ORDER BY cc.enrolled_at ASC
+  `).all(req.params.id);
+  res.json(rows);
+});
+
+app.patch('/api/campaigns/:id/contacts/:contactId', (req, res) => {
+  const session = validateSession(getCookie(req, 'crm_session'));
+  if (!session) return res.status(401).json({ error: 'Unauthorized' });
+  const { status } = req.body;
+  db.prepare('UPDATE campaign_contacts SET status = ? WHERE campaign_id = ? AND contact_id = ?')
+    .run(status, req.params.id, req.params.contactId);
+  res.json({ ok: true });
+});
+
 // ── Fallback → serve index.html (requires auth) ───────────────────────────────
 app.get('*', (req, res) => {
   const session = validateSession(getCookie(req, 'crm_session'));
