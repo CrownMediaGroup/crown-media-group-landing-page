@@ -1,0 +1,7 @@
+# Exclude large video files from git — host on CDN for production playback
+Crown Media Group/*.mp4
+Crown Media Group/*.mov
+Crown Media Group/*.MP4
+Crown Media Group/*.MOV
+Crown Media Group/*.HEIC
+Crown Media Group/*.heic

@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Portfolio — Crown Media Group | Columbia SC</title>
+<meta name="description" content="426 pieces of work. Photos, videos, ad creatives, branding, social content. Crown Media Group — Columbia SC AI-powered marketing agency.">
+<link rel="icon" href="logo.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;0,700;1,400&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--white:#FFFFFF;--cream:#FDFBF7;--warm:#F9F5EE;--royal:#1A1A3E;--royal-mid:#2D2D5A;--gold:#C9981A;--gold-light:#E8B832;--text:#1A1A2E;--text-mid:#4A4A6A;--text-light:#8A8AAA;--border:rgba(201,152,26,0.2)}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Inter',sans-serif;background:var(--cream);color:var(--text)}
+/* ── NAV ── */
+nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:20px 64px;display:flex;align-items:center;justify-content:space-between;background:rgba(253,251,247,.92);backdrop-filter:blur(12px);border-bottom:1px solid rgba(201,152,26,.1)}
+.nav-logo{display:flex;align-items:center;gap:12px;text-decoration:none}
+.nav-logo img{height:32px;width:32px;object-fit:contain}
+.nav-logo-text{font-family:'Cormorant Garamond',serif;font-size:1.1rem;font-weight:700;color:var(--text)}
+.nav-back{color:var(--text-mid);text-decoration:none;font-size:.85rem;font-weight:500;display:flex;align-items:center;gap:6px;transition:color .2s}
+.nav-back:hover{color:var(--gold)}
+.nav-cta{background:var(--royal);color:var(--gold);font-size:.8rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:10px 24px;text-decoration:none;transition:background .2s}
+.nav-cta:hover{background:var(--royal-mid)}
+/* ── HERO ── */
+.port-hero{padding:140px 64px 60px;text-align:center;background:var(--royal)}
+.port-hero .label{display:inline-block;font-size:.72rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--gold);margin-bottom:16px}
+.port-hero h1{font-family:'Cormorant Garamond',serif;font-size:clamp(2.5rem,5vw,4rem);font-weight:700;color:var(--white);line-height:1.1;margin-bottom:16px}
+.port-hero h1 em{color:var(--gold-light);font-style:italic}
+.port-hero p{color:rgba(255,255,255,.6);font-size:1rem;max-width:520px;margin:0 auto}
+.port-stats{display:flex;justify-content:center;gap:48px;margin-top:40px;padding-top:40px;border-top:1px solid rgba(201,152,26,.2)}
+.port-stat span{display:block;font-family:'Cormorant Garamond',serif;font-size:2.5rem;font-weight:700;color:var(--gold)}
+.port-stat p{font-size:.78rem;color:rgba(255,255,255,.4);letter-spacing:.08em;text-transform:uppercase;margin-top:4px}
+/* ── FILTERS ── */
+.filter-bar{padding:32px 64px;background:var(--white);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:16px;position:sticky;top:70px;z-index:50}
+.filter-btns{display:flex;gap:8px}
+.filter-btn{background:transparent;border:1px solid rgba(201,152,26,.25);color:var(--text-mid);font-size:.8rem;font-weight:600;letter-spacing:.06em;text-transform:uppercase;padding:8px 20px;cursor:pointer;transition:all .2s}
+.filter-btn:hover,.filter-btn.active{background:var(--royal);color:var(--gold);border-color:var(--royal)}
+.filter-count{font-size:.82rem;color:var(--text-light)}
+/* ── GALLERY ── */
+.gallery-wrap{padding:40px 64px 80px;max-width:1400px;margin:0 auto}
+.gallery-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+.gallery-item{position:relative;overflow:hidden;cursor:pointer;background:var(--warm);aspect-ratio:1;transition:transform .3s,box-shadow .3s}
+.gallery-item:hover{transform:translateY(-3px);box-shadow:0 12px 40px rgba(0,0,0,.15)}
+.gallery-item img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .4s}
+.gallery-item:hover img{transform:scale(1.06)}
+.gallery-item .vid-badge{position:absolute;top:8px;right:8px;background:rgba(10,10,30,.75);border:1px solid rgba(201,152,26,.4);color:var(--gold);font-size:.65rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;padding:3px 8px}
+.gallery-item .play-btn{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;opacity:0;background:rgba(26,26,62,.4);transition:opacity .3s}
+.gallery-item:hover .play-btn{opacity:1}
+.play-icon{width:52px;height:52px;background:rgba(201,152,26,.9);border-radius:50%;display:flex;align-items:center;justify-content:center}
+.play-icon svg{margin-left:4px}
+.gallery-item.hidden{display:none}
+/* ── LOAD MORE ── */
+.load-more-wrap{text-align:center;padding:40px 0}
+#load-more-btn{background:var(--royal);color:var(--gold);font-size:.85rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:16px 48px;border:none;cursor:pointer;transition:background .2s}
+#load-more-btn:hover{background:var(--royal-mid)}
+#load-more-btn:disabled{opacity:.4;cursor:default}
+/* ── LIGHTBOX (images) ── */
+#lightbox{display:none;position:fixed;inset:0;background:rgba(10,10,30,.95);z-index:9999;align-items:center;justify-content:center;padding:40px}
+#lightbox.open{display:flex}
+#lightbox img{max-width:90vw;max-height:85vh;object-fit:contain;box-shadow:0 32px 80px rgba(0,0,0,.6)}
+/* ── VIDEO MODAL ── */
+#video-modal{display:none;position:fixed;inset:0;background:rgba(10,10,30,.97);z-index:9999;align-items:center;justify-content:center}
+#video-modal.open{display:flex}
+#video-modal video{max-width:90vw;max-height:85vh;outline:none}
+.modal-close{position:fixed;top:24px;right:32px;color:rgba(255,255,255,.7);font-size:2rem;cursor:pointer;background:none;border:none;line-height:1;padding:8px;transition:color .2s;z-index:10001}
+.modal-close:hover{color:var(--gold)}
+/* ── EMPTY ── */
+#empty-msg{display:none;text-align:center;padding:80px 20px;color:var(--text-light)}
+/* ── FOOTER ── */
+footer{background:#0F0F28;padding:40px 64px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:16px}
+footer p{color:rgba(255,255,255,.25);font-size:.78rem}
+footer a{color:var(--gold);text-decoration:none;font-size:.82rem}
+/* ── RESPONSIVE ── */
+@media(max-width:1200px){.gallery-grid{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:900px){nav{padding:16px 24px}.port-hero,.gallery-wrap,.filter-bar{padding-left:24px;padding-right:24px}.gallery-grid{grid-template-columns:repeat(2,1fr)}.port-stats{gap:24px}}
+@media(max-width:480px){.gallery-grid{grid-template-columns:repeat(2,1fr);gap:8px}.port-stats{flex-wrap:wrap}.filter-bar{top:60px}}
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="/" class="nav-logo">
+    <img src="logo.png" alt="Crown Media Group">
+    <span class="nav-logo-text">Crown Media Group</span>
+  </a>
+  <a href="/" class="nav-back">← Back to Site</a>
+  <a href="https://calendly.com/crownmediagroupco" target="_blank" rel="noopener" class="nav-cta">Book a Free Audit</a>
+</nav>
+
+<div class="port-hero">
+  <span class="label">Our Work</span>
+  <h1>426 Pieces.<br><em>Zero Excuses.</em></h1>
+  <p>Photos, videos, ad creatives, branding, social content. This is what Crown Media Group delivers — every time.</p>
+  <div class="port-stats">
+    <div class="port-stat"><span id="stat-total">426</span><p>Total Pieces</p></div>
+    <div class="port-stat"><span id="stat-images">58</span><p>Images</p></div>
+    <div class="port-stat"><span id="stat-videos">368</span><p>Videos</p></div>
+  </div>
+</div>
+
+<div class="filter-bar">
+  <div class="filter-btns">
+    <button class="filter-btn active" data-filter="all">All Work</button>
+    <button class="filter-btn" data-filter="image">Photos</button>
+    <button class="filter-btn" data-filter="video">Videos</button>
+  </div>
+  <span class="filter-count" id="filter-count">Showing all 426 pieces</span>
+</div>
+
+<div class="gallery-wrap">
+  <div class="gallery-grid" id="gallery-grid"></div>
+  <p id="empty-msg">No items in this category.</p>
+  <div class="load-more-wrap" id="load-more-wrap" style="display:none">
+    <button id="load-more-btn">Load More</button>
+  </div>
+</div>
+
+<!-- Image Lightbox -->
+<div id="lightbox"><button class="modal-close" id="lb-close">&times;</button><img id="lb-img" src="" alt="Portfolio work"></div>
+
+<!-- Video Modal -->
+<div id="video-modal"><button class="modal-close" id="vm-close">&times;</button><video id="vm-video" controls playsinline></video></div>
+
+<footer>
+  <p>All Glory to Jesus Global LLC &mdash; Crown Media Group &mdash; Columbia, SC</p>
+  <a href="https://calendly.com/crownmediagroupco" target="_blank" rel="noopener">Book a Free Audit &rarr;</a>
+</footer>
+
+<script>
+const BATCH = 40;
+let allItems = [];
+let filtered = [];
+let loaded = 0;
+let currentFilter = 'all';
+
+// Load manifest
+fetch('assets/portfolio/manifest.json')
+  .then(r => r.json())
+  .then(data => {
+    allItems = data;
+    applyFilter('all');
+  })
+  .catch(() => {
+    document.getElementById('empty-msg').style.display = 'block';
+    document.getElementById('empty-msg').textContent = 'Portfolio loading — refresh the page.';
+  });
+
+function applyFilter(type) {
+  currentFilter = type;
+  filtered = type === 'all' ? allItems : allItems.filter(i => i.type === type);
+  loaded = 0;
+  document.getElementById('gallery-grid').innerHTML = '';
+  document.getElementById('filter-count').textContent =
+    'Showing ' + filtered.length + ' piece' + (filtered.length !== 1 ? 's' : '');
+  document.querySelectorAll('.filter-btn').forEach(b => {
+    b.classList.toggle('active', b.dataset.filter === type);
+  });
+  loadBatch();
+}
+
+function loadBatch() {
+  const grid = document.getElementById('gallery-grid');
+  const batch = filtered.slice(loaded, loaded + BATCH);
+
+  batch.forEach(item => {
+    const div = document.createElement('div');
+    div.className = 'gallery-item';
+    div.dataset.type = item.type;
+
+    if (item.type === 'image') {
+      const img = document.createElement('img');
+      img.src = item.src;
+      img.alt = item.file;
+      img.loading = 'lazy';
+      img.onerror = () => div.remove();
+      div.appendChild(img);
+      div.addEventListener('click', () => openLightbox(item.src));
+    } else {
+      // Video: show thumbnail + play button
+      const img = document.createElement('img');
+      img.src = item.thumb;
+      img.alt = item.file;
+      img.loading = 'lazy';
+      img.onerror = () => { img.src = 'logo.png'; img.style.objectFit = 'contain'; img.style.padding = '20px'; };
+      const badge = document.createElement('div');
+      badge.className = 'vid-badge';
+      badge.textContent = item.file.toLowerCase().endsWith('.mov') ? 'MOV' : 'MP4';
+      const playBtn = document.createElement('div');
+      playBtn.className = 'play-btn';
+      playBtn.innerHTML = '<div class="play-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="#C9981A"><polygon points="5,3 19,12 5,21"/></svg></div>';
+      div.appendChild(img);
+      div.appendChild(badge);
+      div.appendChild(playBtn);
+      div.addEventListener('click', () => openVideo(item.src));
+    }
+
+    grid.appendChild(div);
+  });
+
+  loaded += batch.length;
+
+  const wrap = document.getElementById('load-more-wrap');
+  const btn  = document.getElementById('load-more-btn');
+  if (loaded < filtered.length) {
+    wrap.style.display = 'block';
+    btn.disabled = false;
+    btn.textContent = 'Load More (' + (filtered.length - loaded) + ' remaining)';
+  } else {
+    wrap.style.display = 'none';
+  }
+
+  document.getElementById('empty-msg').style.display = filtered.length === 0 ? 'block' : 'none';
+}
+
+// Filter buttons
+document.querySelectorAll('.filter-btn').forEach(btn => {
+  btn.addEventListener('click', () => applyFilter(btn.dataset.filter));
+});
+
+// Load More
+document.getElementById('load-more-btn').addEventListener('click', loadBatch);
+
+// Image lightbox
+const lb = document.getElementById('lightbox');
+const lbImg = document.getElementById('lb-img');
+function openLightbox(src) { lbImg.src = src; lb.classList.add('open'); document.body.style.overflow = 'hidden'; }
+function closeLb() { lb.classList.remove('open'); document.body.style.overflow = ''; }
+document.getElementById('lb-close').addEventListener('click', closeLb);
+lb.addEventListener('click', e => { if (e.target === lb) closeLb(); });
+
+// Video modal
+const vm = document.getElementById('video-modal');
+const vmVid = document.getElementById('vm-video');
+function openVideo(src) { vmVid.src = src; vm.classList.add('open'); vmVid.play(); document.body.style.overflow = 'hidden'; }
+function closeVm() { vm.classList.remove('open'); vmVid.pause(); vmVid.src = ''; document.body.style.overflow = ''; }
+document.getElementById('vm-close').addEventListener('click', closeVm);
+vm.addEventListener('click', e => { if (e.target === vm) closeVm(); });
+
+// ESC to close
+document.addEventListener('keydown', e => { if (e.key === 'Escape') { closeLb(); closeVm(); } });
+</script>
+</body>
+</html>
