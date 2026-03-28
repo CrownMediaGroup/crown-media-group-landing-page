@@ -100,7 +100,7 @@ const NAV_HTML = `<nav id="navbar">
     <li><a href="/ai-tools.html" class="nav-link-gold">AI Tools</a></li>
   </ul>
   <a href="https://calendly.com/crownmediagroupco" target="_blank" rel="noopener" class="btn-royal nav-cta">Book a Call</a>
-  <button class="hamburger" id="hamburger" aria-label="Menu"><span></span><span></span><span></span></button>
+  <button type="button" class="hamburger" id="hamburger" aria-label="Menu"><span></span><span></span><span></span></button>
 </nav>
 <div class="mobile-menu" id="mobile-menu">
   <a href="/#about">About</a>
@@ -295,7 +295,7 @@ ${FONTS}
 body{background:var(--cream);color:var(--text);font-family:'Inter',sans-serif;overflow-x:hidden}
 .display{font-family:'Cormorant Garamond',serif;font-weight:700;letter-spacing:-.02em;line-height:1.05}
 .grad-gold{background:linear-gradient(135deg,var(--gold-deep) 0%,var(--gold-light) 50%,var(--gold-deep) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
-nav{position:fixed;top:0;left:0;right:0;z-index:1000;padding:20px 64px;display:flex;align-items:center;justify-content:space-between;background:rgba(253,251,247,0.93);backdrop-filter:blur(20px);border-bottom:1px solid var(--border-soft);transition:box-shadow .3s}
+nav{position:fixed;top:0;left:0;right:0;z-index:1000;padding:20px 64px;display:flex;align-items:center;justify-content:space-between;background:rgba(253,251,247,0.93);-webkit-backdrop-filter:blur(20px);backdrop-filter:blur(20px);border-bottom:1px solid var(--border-soft);transition:box-shadow .3s}
 nav.scrolled{box-shadow:0 4px 30px rgba(201,152,26,.08)}
 .nav-logo{display:flex;align-items:center;gap:12px;text-decoration:none}
 .nav-logo img{height:38px;width:38px;object-fit:contain;border-radius:8px}
