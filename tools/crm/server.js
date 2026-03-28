@@ -105,6 +105,27 @@ app.use(helmet({
 // ── Trust proxy (Railway / Netlify sit behind a load balancer) ────────────────
 app.set('trust proxy', 1);
 
+// ── CORS — allow crownmediagroup.co to call the CRM API with credentials ───────
+const ALLOWED_ORIGINS = [
+  'https://crownmediagroup.co',
+  'https://www.crownmediagroup.co',
+  'https://crm.crownmediagroup.co',
+  'http://localhost:3000',
+  'http://localhost:8080',
+  'http://localhost:5500',
+];
+app.use((req, res, next) => {
+  const origin = req.headers.origin;
+  if (origin && ALLOWED_ORIGINS.includes(origin)) {
+    res.setHeader('Access-Control-Allow-Origin', origin);
+    res.setHeader('Access-Control-Allow-Credentials', 'true');
+    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, PATCH, DELETE, OPTIONS');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+    if (req.method === 'OPTIONS') return res.sendStatus(204);
+  }
+  next();
+});
+
 // ── Rate limiters ─────────────────────────────────────────────────────────────
 const loginLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, max: 5, skipSuccessfulRequests: true,
