@@ -507,7 +507,7 @@ footer{background:#0F0F28;padding:56px 64px;display:flex;align-items:center;just
     </div>
   </div>
 </div>
-<div id="portfolio-lightbox" role="dialog" aria-modal="true" aria-label="Portfolio image viewer"><button id="lightbox-close" aria-label="Close">&times;</button><img id="lightbox-img" src="" alt="Portfolio work sample"></div>
+<div id="portfolio-lightbox" role="dialog" aria-modal="true" aria-label="Portfolio image viewer"><button type="button" id="lightbox-close" aria-label="Close">&times;</button><img id="lightbox-img" src="" alt="Portfolio work sample"></div>
 
 <div id="proof">
   <div class="proof-c">
@@ -921,7 +921,7 @@ document.querySelectorAll('.counters').forEach(el=>cObs.observe(el));
     vm=document.createElement('div');
     vm.id=vmId;
     vm.style.cssText='display:none;position:fixed;inset:0;background:rgba(10,10,30,.97);z-index:9999;align-items:center;justify-content:center;cursor:pointer';
-    vm.innerHTML='<button style="position:fixed;top:24px;right:32px;color:rgba(255,255,255,.7);font-size:2rem;cursor:pointer;background:none;border:none;line-height:1;padding:8px;z-index:10001" id="pvm-close">&times;</button><video id="pvm-video" controls playsinline style="max-width:90vw;max-height:85vh"></video>';
+    vm.innerHTML='<button type="button" style="position:fixed;top:24px;right:32px;color:rgba(255,255,255,.7);font-size:2rem;cursor:pointer;background:none;border:none;line-height:1;padding:8px;z-index:10001" id="pvm-close">&times;</button><video id="pvm-video" controls playsinline style="max-width:90vw;max-height:85vh"></video>';
     document.body.appendChild(vm);
   }
   const pvmVid=document.getElementById('pvm-video');
@@ -1017,7 +1017,7 @@ window.addEventListener('beforeinstallprompt', e => {
   _pwaPrompt = e;
   const b = document.createElement('div');
   b.id = 'pwa-banner';
-  b.innerHTML = '<div style="position:fixed;bottom:0;left:0;right:0;background:#1A237E;padding:16px 20px;display:flex;align-items:center;justify-content:space-between;z-index:9999;border-top:2px solid #D4A843;font-family:system-ui,sans-serif;"><div><div style="color:#D4A843;font-weight:700;font-size:15px;">Get the Crown Media App</div><div style="color:#E5E7EB;font-size:12px;">Install for faster access. Free.</div></div><button onclick="window._installPWA()" style="background:#D4A843;color:#0A0E1A;border:none;padding:10px 20px;border-radius:8px;font-weight:700;font-size:14px;cursor:pointer;">Install</button><button onclick="document.getElementById(\'pwa-banner\').remove()" style="background:none;border:none;color:#9CA3AF;font-size:20px;cursor:pointer;padding:0 8px;">&times;</button></div>';
+  b.innerHTML = '<div style="position:fixed;bottom:0;left:0;right:0;background:#1A237E;padding:16px 20px;display:flex;align-items:center;justify-content:space-between;z-index:9999;border-top:2px solid #D4A843;font-family:system-ui,sans-serif;"><div><div style="color:#D4A843;font-weight:700;font-size:15px;">Get the Crown Media App</div><div style="color:#E5E7EB;font-size:12px;">Install for faster access. Free.</div></div><button type="button" onclick="window._installPWA()" style="background:#D4A843;color:#0A0E1A;border:none;padding:10px 20px;border-radius:8px;font-weight:700;font-size:14px;cursor:pointer;">Install</button><button type="button" onclick="document.getElementById(\'pwa-banner\').remove()" style="background:none;border:none;color:#9CA3AF;font-size:20px;cursor:pointer;padding:0 8px;">&times;</button></div>';
   document.body.appendChild(b);
 });
 window._installPWA = function() {

@@ -300,6 +300,7 @@ function loadBatch() {
 
     // Delete button (admin only, hidden via CSS)
     const delBtn = document.createElement('button');
+    delBtn.type        = 'button';
     delBtn.className   = 'del-btn';
     delBtn.textContent = '×';
     delBtn.title       = 'Delete';
@@ -567,6 +568,7 @@ function prependItem(item) {
   div.dataset.source = 'crm';
 
   const delBtn = document.createElement('button');
+  delBtn.type        = 'button';
   delBtn.className   = 'del-btn';
   delBtn.textContent = '×';
   delBtn.addEventListener('click', e => { e.stopPropagation(); deleteItem(item, div); });
