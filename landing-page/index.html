@@ -278,7 +278,7 @@ footer{background:#0F0F28;padding:56px 64px;display:flex;align-items:center;just
 .footer-links a:hover{color:rgba(255,255,255,.8)}
 .footer-copy{color:rgba(255,255,255,.25);font-size:.78rem}
 @media(max-width:1024px){.services-grid{grid-template-columns:repeat(2,1fr)}.steps{grid-template-columns:repeat(2,1fr)}.pricing-grid{grid-template-columns:1fr;border:none}.price-card{border-right:none;border-bottom:1px solid rgba(201,152,26,.15)}.price-card:last-child{border-bottom:none}}
-@media(max-width:768px){nav{padding:16px 24px}.nav-links,.nav-cta{display:none}.hamburger{display:flex}#about,#services,#proof,#ai,#process,#pricing,#serve,#cta-final{padding:80px 24px}#proof-bar{padding:24px}.proof-inner{gap:24px;justify-content:flex-start}.about-grid,.ai-grid,.serve-grid{grid-template-columns:1fr;gap:60px}.about-visual{height:280px}.crown-orb{width:220px;height:220px}.orb-crown{font-size:3.5rem}.orb-crown img{width:180px;height:180px}.services-header{grid-template-columns:1fr;gap:24px}.services-grid,.steps{grid-template-columns:1fr}.service-card{padding:32px 24px}.step{padding:36px 24px}.price-card{padding:40px 24px}.city-name{font-size:4rem}.hero-light{display:none}.cta-glow{display:none}footer{flex-direction:column;text-align:center;padding:48px 24px}.footer-links{justify-content:center}.case-card{padding:40px 24px}}
+@media(max-width:768px){nav{padding:16px 24px}.nav-links,.nav-cta{display:none}.hamburger{display:flex}#about,#services,#portfolio,#proof,#ai,#process,#pricing,#serve,#cta-final{padding:80px 24px}#proof-bar{padding:24px}.proof-inner{gap:24px;justify-content:flex-start}.about-grid,.ai-grid,.serve-grid{grid-template-columns:1fr;gap:60px}.about-visual{height:280px}.crown-orb{width:220px;height:220px}.orb-crown{font-size:3.5rem}.orb-crown img{width:180px;height:180px}.services-header{grid-template-columns:1fr;gap:24px}.services-grid,.steps{grid-template-columns:1fr}.service-card{padding:32px 24px}.step{padding:36px 24px}.price-card{padding:40px 24px}.city-name{font-size:4rem}.hero-light{display:none}.cta-glow{display:none}footer{flex-direction:column;text-align:center;padding:48px 24px}.footer-links{justify-content:center}.case-card{padding:40px 24px}}
 @media(max-width:480px){.hero-headline{font-size:2.8rem}.sh{font-size:2rem}.city-name{font-size:3rem}.proof-inner{flex-direction:column;gap:16px}.footer-links{flex-direction:column;gap:16px;align-items:center}}
 /* ── CRM trial hero button ── */
 .btn-crm-trial{background:transparent;border:1px solid rgba(201,168,76,0.4);color:var(--gold);font-size:.85rem;font-weight:600;letter-spacing:.06em;padding:14px 28px;text-decoration:none;display:inline-block;transition:border-color .2s,color .2s;text-transform:uppercase}
@@ -320,6 +320,28 @@ footer{background:#0F0F28;padding:56px 64px;display:flex;align-items:center;just
 .faq-item p{color:var(--text-mid);font-size:.87rem;line-height:1.7}
 @media(max-width:1024px){.why-grid{grid-template-columns:repeat(2,1fr)}.crm-spot-inner{grid-template-columns:1fr;gap:48px}.crm-spot-badge{display:none}.faq-grid{grid-template-columns:1fr}}
 @media(max-width:640px){#why-us,#crm-spotlight,#faq{padding:80px 24px}.why-card{padding:32px 24px}.faq-item{padding:24px}}
+/* ── Portfolio Grid ── */
+#portfolio{padding:120px 64px;background:var(--cream)}.portfolio-inner{max-width:1200px;margin:0 auto}
+.portfolio-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;margin-top:56px}
+.portfolio-item{background:var(--white);overflow:hidden;cursor:pointer;transition:transform .3s,box-shadow .3s;border:1px solid rgba(201,152,26,0.1)}
+.portfolio-item:hover{transform:translateY(-4px);box-shadow:0 16px 48px rgba(0,0,0,.1);border-color:rgba(201,152,26,0.35)}
+.portfolio-img-wrap{width:100%;aspect-ratio:4/3;overflow:hidden;background:var(--warm)}
+.portfolio-img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .4s ease}
+.portfolio-item:hover .portfolio-img{transform:scale(1.04)}
+.portfolio-placeholder{width:100%;aspect-ratio:4/3;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,rgba(201,152,26,0.08),rgba(201,152,26,0.03));border-bottom:1px solid rgba(201,152,26,0.1)}
+.portfolio-placeholder-text{font-family:'Cormorant Garamond',serif;font-size:1.1rem;color:rgba(201,152,26,0.5);letter-spacing:.06em;text-align:center;padding:16px}
+.portfolio-caption{padding:20px 24px}
+.portfolio-tag{display:inline-block;font-size:.68rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--gold);background:rgba(201,152,26,0.08);border:1px solid rgba(201,152,26,0.2);padding:4px 10px;margin-bottom:10px}
+.portfolio-desc{font-size:.87rem;color:var(--text-mid);line-height:1.5;margin:0}
+.portfolio-cta{text-align:center;margin-top:64px}
+.portfolio-cta p{font-size:1.1rem;color:var(--text-mid);margin-bottom:28px}
+#portfolio-lightbox{display:none;position:fixed;inset:0;background:rgba(10,10,30,.92);z-index:9999;align-items:center;justify-content:center;padding:40px;cursor:pointer}
+#portfolio-lightbox.open{display:flex}
+#portfolio-lightbox img{max-width:90vw;max-height:85vh;object-fit:contain;box-shadow:0 32px 80px rgba(0,0,0,.6);cursor:default;pointer-events:none}
+#lightbox-close{position:fixed;top:24px;right:32px;color:rgba(255,255,255,.7);font-size:2rem;cursor:pointer;background:none;border:none;line-height:1;padding:8px;transition:color .2s;z-index:10000}
+#lightbox-close:hover{color:var(--gold)}
+@media(max-width:1024px){.portfolio-grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:768px){#portfolio{padding:80px 24px}.portfolio-grid{grid-template-columns:1fr}}
 /* ── Music Toggle ── */
 #music-bar{position:fixed;bottom:32px;right:32px;z-index:9000;display:flex;flex-direction:column;align-items:center;padding:10px 10px 0;background:rgba(26,26,62,0.82);border:1px solid rgba(201,152,26,0.35);border-radius:40px;-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);box-shadow:0 4px 24px rgba(0,0,0,.32)}
 .music-vol-wrap{display:none;padding-bottom:10px;}
@@ -341,6 +363,7 @@ footer{background:#0F0F28;padding:56px 64px;display:flex;align-items:center;just
     <li><a href="/blog/" class="nav-link-gold">Blog</a></li>
     <li><a href="#about">About</a></li>
     <li><a href="#services">Services</a></li>
+    <li><a href="#portfolio">Portfolio</a></li>
     <li><a href="#proof">Work</a></li>
     <li><a href="#process">Process</a></li>
     <li><a href="#pricing">Pricing</a></li>
@@ -354,6 +377,7 @@ footer{background:#0F0F28;padding:56px 64px;display:flex;align-items:center;just
   <a href="/blog/" class="nav-link-gold">Blog</a>
   <a href="#about">About</a>
   <a href="#services">Services</a>
+  <a href="#portfolio">Portfolio</a>
   <a href="#proof">Work</a>
   <a href="#process">Process</a>
   <a href="#pricing">Pricing</a>
@@ -436,6 +460,48 @@ footer{background:#0F0F28;padding:56px 64px;display:flex;align-items:center;just
     </div>
   </div>
 </div>
+
+<div id="portfolio">
+  <div class="portfolio-inner">
+    <div class="reveal" style="text-align:center">
+      <span class="label">Our Work</span>
+      <h2 class="sh">What We <span class="grad-gold">Build</span></h2>
+      <p style="color:var(--text-mid);margin-top:16px;font-size:.95rem;max-width:560px;margin-left:auto;margin-right:auto;">Real results for real businesses. Here's what Crown Media Group delivers.</p>
+      <div class="divider" style="margin:24px auto 0;width:80px;"></div>
+    </div>
+    <div class="portfolio-grid">
+      <div class="portfolio-item reveal" data-full="assets/showcase/before-barber.png">
+        <div class="portfolio-img-wrap"><img class="portfolio-img" src="assets/showcase/before-barber.png" alt="Barbershop branding" loading="lazy"></div>
+        <div class="portfolio-caption"><span class="portfolio-tag">Branding</span><p class="portfolio-desc">Full brand identity for a Columbia SC barbershop</p></div>
+      </div>
+      <div class="portfolio-item reveal" data-full="assets/showcase/before-juice.png">
+        <div class="portfolio-img-wrap"><img class="portfolio-img" src="assets/showcase/before-juice.png" alt="Juice brand social media" loading="lazy"></div>
+        <div class="portfolio-caption"><span class="portfolio-tag">Social Media</span><p class="portfolio-desc">Content strategy + design for Shatiea's faith-based juice brand</p></div>
+      </div>
+      <div class="portfolio-item reveal" data-full="assets/showcase/before-realty.png">
+        <div class="portfolio-img-wrap"><img class="portfolio-img" src="assets/showcase/before-realty.png" alt="Real estate web design" loading="lazy"></div>
+        <div class="portfolio-caption"><span class="portfolio-tag">Web Design</span><p class="portfolio-desc">Landing page + lead capture for a Columbia SC real estate firm</p></div>
+      </div>
+      <div class="portfolio-item reveal" data-full="assets/showcase/before-wellness.png">
+        <div class="portfolio-img-wrap"><img class="portfolio-img" src="assets/showcase/before-wellness.png" alt="Wellness logo design" loading="lazy"></div>
+        <div class="portfolio-caption"><span class="portfolio-tag">Logo Design</span><p class="portfolio-desc">Logo + visual identity for a wellness business</p></div>
+      </div>
+      <div class="portfolio-item reveal">
+        <div class="portfolio-placeholder"><span class="portfolio-placeholder-text">Ad Creative &mdash; Coming Soon</span></div>
+        <div class="portfolio-caption"><span class="portfolio-tag">Ad Creative</span><p class="portfolio-desc">Meta + Google ad campaigns built to drive measurable ROI</p></div>
+      </div>
+      <div class="portfolio-item reveal">
+        <div class="portfolio-placeholder"><span class="portfolio-placeholder-text">Email Campaign &mdash; Coming Soon</span></div>
+        <div class="portfolio-caption"><span class="portfolio-tag">Email Marketing</span><p class="portfolio-desc">Automated sequences converting subscribers into paying customers</p></div>
+      </div>
+    </div>
+    <div class="portfolio-cta reveal">
+      <p>Ready to see what we can do for YOUR business?</p>
+      <a href="https://calendly.com/crownmediagroupco" target="_blank" rel="noopener" class="btn-royal">Book a Free Audit</a>
+    </div>
+  </div>
+</div>
+<div id="portfolio-lightbox" role="dialog" aria-modal="true" aria-label="Portfolio image viewer"><button id="lightbox-close" aria-label="Close">&times;</button><img id="lightbox-img" src="" alt="Portfolio work sample"></div>
 
 <div id="proof">
   <div class="proof-c">
@@ -824,6 +890,23 @@ function runC(el){
 }
 const cObs=new IntersectionObserver(entries=>{entries.forEach(e=>{if(e.isIntersecting){e.target.querySelectorAll('[data-target],[data-text]').forEach(runC);cObs.unobserve(e.target);}});},{threshold:.4});
 document.querySelectorAll('.counters').forEach(el=>cObs.observe(el));
+// Portfolio lightbox
+(function(){
+  const lb=document.getElementById('portfolio-lightbox');
+  const lbImg=document.getElementById('lightbox-img');
+  const lbClose=document.getElementById('lightbox-close');
+  document.querySelectorAll('.portfolio-item[data-full]').forEach(item=>{
+    item.addEventListener('click',function(){
+      lbImg.src=this.dataset.full;
+      lb.classList.add('open');
+      document.body.style.overflow='hidden';
+    });
+  });
+  function closeLb(){lb.classList.remove('open');document.body.style.overflow='';}
+  lbClose.addEventListener('click',closeLb);
+  lb.addEventListener('click',function(e){if(e.target===lb)closeLb();});
+  document.addEventListener('keydown',function(e){if(e.key==='Escape')closeLb();});
+})();
 </script>
 
 <!-- Music Player — Crown Media Group Playlist -->
