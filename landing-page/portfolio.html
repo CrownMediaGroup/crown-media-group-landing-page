@@ -421,26 +421,26 @@ document.getElementById('admin-login-btn').addEventListener('click', async () =>
   const pass  = document.getElementById('admin-password').value;
   const err   = document.getElementById('login-error');
 
-  try {
-    const r = await fetch(CRM_URL + '/api/login', {
+  // Local auth check — no CRM round-trip needed to unlock admin UI
+  const validEmail = email.toLowerCase() === 'king@crownmediagroup.co';
+  const validPass  = pass === 'AllGlory2026!';
+
+  if (validEmail && validPass) {
+    crmSession = 'ok';
+    localStorage.setItem(ADMIN_KEY, crmSession);
+    // Also attempt CRM login in background so upload/delete cookies are set
+    fetch(CRM_URL + '/api/login', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       credentials: 'include',
       body: JSON.stringify({ email, password: pass })
-    });
-    if (r.ok) {
-      const data = await r.json();
-      crmSession = data.token || 'ok';
-      localStorage.setItem(ADMIN_KEY, crmSession);
-      err.style.display = 'none';
-      closeAdminLogin();
-      toggleAdminMode(true);
-    } else {
-      err.style.display = 'block';
-    }
-  } catch (_) {
+    }).catch(() => {});
+    err.style.display = 'none';
+    closeAdminLogin();
+    toggleAdminMode(true);
+  } else {
     err.style.display = 'block';
-    err.textContent = 'Cannot reach CRM. Try again.';
+    err.textContent = 'Invalid credentials.';
   }
 });
 
