@@ -16,7 +16,7 @@
 <meta property="og:url" content="https://crownmediagroup.co/">
 <meta property="og:title" content="Crown Media Group — AI-Powered Marketing | Columbia, SC">
 <meta property="og:description" content="Faith-driven, AI-powered marketing for Columbia SC businesses. Social media, paid ads, AI video, brand strategy. Results in 30 days.">
-<meta property="og:image" content="https://crownmediagroup.co/assets/crown-media-group-logo.png">
+<meta property="og:image" content="https://crownmediagroup.co/logo.png">
 <meta property="og:locale" content="en_US">
 <meta property="og:site_name" content="Crown Media Group">
 
@@ -26,7 +26,15 @@
 <meta name="twitter:creator" content="@mkdavidking">
 <meta name="twitter:title" content="Crown Media Group — AI-Powered Marketing | Columbia, SC">
 <meta name="twitter:description" content="Faith-driven, AI-powered marketing for Columbia SC businesses. Results in 30 days.">
-<meta name="twitter:image" content="https://crownmediagroup.co/assets/crown-media-group-logo.png">
+<meta name="twitter:image" content="https://crownmediagroup.co/logo.png">
+
+<!-- PWA -->
+<link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#D4A843">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Crown Media">
+<link rel="apple-touch-icon" href="/icons/icon-192x192.png">
 
 <!-- Local Business Schema -->
 <script type="application/ld+json">
@@ -313,13 +321,13 @@ footer{background:#0F0F28;padding:56px 64px;display:flex;align-items:center;just
 @media(max-width:1024px){.why-grid{grid-template-columns:repeat(2,1fr)}.crm-spot-inner{grid-template-columns:1fr;gap:48px}.crm-spot-badge{display:none}.faq-grid{grid-template-columns:1fr}}
 @media(max-width:640px){#why-us,#crm-spotlight,#faq{padding:80px 24px}.why-card{padding:32px 24px}.faq-item{padding:24px}}
 /* ── Music Toggle ── */
-#music-bar{position:fixed;bottom:32px;right:32px;z-index:9000;display:flex;flex-direction:column;align-items:center;gap:8px}
-#music-btn{width:52px;height:52px;border-radius:50%;background:rgba(26,26,62,0.82);border:1px solid rgba(201,152,26,0.4);-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:border-color .2s,background .2s,color .2s;box-shadow:0 4px 24px rgba(0,0,0,.32);font-size:1.25rem;color:rgba(232,184,50,.65);outline:none}
-#music-btn:hover{border-color:var(--gold);background:rgba(26,26,62,.95)}
-#music-btn.music-on{color:var(--gold);border-color:var(--gold)}
-.music-vol-wrap{display:none;position:absolute;bottom:60px;right:0;background:rgba(26,26,62,.9);border:1px solid rgba(201,152,26,.3);border-radius:8px;padding:12px 10px;-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px)}
-#music-bar:hover .music-vol-wrap{display:block}
-#music-vol{writing-mode:vertical-lr;direction:rtl;width:4px;height:80px;cursor:pointer;accent-color:var(--gold)}
+#music-bar{position:fixed;bottom:32px;right:32px;z-index:9000;display:flex;flex-direction:column;align-items:center;padding:10px 10px 0;background:rgba(26,26,62,0.82);border:1px solid rgba(201,152,26,0.35);border-radius:40px;-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);box-shadow:0 4px 24px rgba(0,0,0,.32)}
+.music-vol-wrap{display:none;padding-bottom:10px;}
+#music-vol{writing-mode:vertical-lr;direction:rtl;width:4px;height:80px;cursor:pointer;accent-color:var(--gold);display:block}
+#music-btn{width:44px;height:44px;border-radius:50%;background:rgba(201,152,26,0.15);border:1.5px solid rgba(201,152,26,0.5);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:border-color .2s,background .2s,color .2s;font-size:1.2rem;color:rgba(232,184,50,.75);outline:none;margin-bottom:10px}
+#music-btn:hover,#music-btn.music-on{background:rgba(201,152,26,0.25);border-color:var(--gold);color:var(--gold)}
+#music-shuffle{width:36px;height:36px;border-radius:50%;background:transparent;border:1px solid rgba(201,152,26,0.3);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:border-color .2s,color .2s;font-size:1rem;color:rgba(232,184,50,.5);outline:none;margin-bottom:10px}
+#music-shuffle:hover{border-color:var(--gold);color:var(--gold)}
 </style>
 </head>
 <body>
@@ -820,41 +828,99 @@ document.querySelectorAll('.counters').forEach(el=>cObs.observe(el));
 
 <!-- Music Player — Crown Media Group Playlist -->
 <div id="music-bar">
-  <div class="music-vol-wrap"><input type="range" id="music-vol" min="0" max="100" value="18" aria-label="Music volume" title="Music volume"></div>
-  <button id="music-btn" title="Play playlist" aria-label="Toggle playlist music">&#9835;</button>
+  <div class="music-vol-wrap" id="music-vol-wrap">
+    <input type="range" id="music-vol" min="0" max="100" value="18" aria-label="Music volume" title="Music volume">
+  </div>
+  <button type="button" id="music-btn" title="Play playlist" aria-label="Toggle playlist music">&#9835;</button>
+  <button type="button" id="music-shuffle" title="Shuffle — next random song" aria-label="Next random song">&#8635;</button>
   <div id="yt-player-wrap" style="position:absolute;width:1px;height:1px;overflow:hidden;opacity:0;pointer-events:none;bottom:0;right:0;"></div>
 </div>
 <script>
 /* Crown Media Group — YouTube Playlist Player */
 (function(){
   var musicOn=false,ytPlayer=null,ytReady=false;
-  var savedPref=localStorage.getItem('cmg_music');
-  var isMobile=/Mobi|Android/i.test(navigator.userAgent);
+  var btn=document.getElementById('music-btn');
+  var vol=document.getElementById('music-vol');
+  var wrap=document.getElementById('music-vol-wrap');
+  var bar=document.getElementById('music-bar');
+  var shuf=document.getElementById('music-shuffle');
+
+  // Sticky volume panel — JS controlled so no gap between button and slider
+  bar.addEventListener('mouseenter',function(){wrap.style.display='block';});
+  bar.addEventListener('mouseleave',function(){wrap.style.display='none';});
+
+  function setOn(){ytPlayer.unMute();ytPlayer.setVolume(parseInt(vol.value));ytPlayer.playVideo();musicOn=true;btn.classList.add('music-on');localStorage.setItem('cmg_music','on');}
+  function setOff(){ytPlayer.mute();musicOn=false;btn.classList.remove('music-on');localStorage.setItem('cmg_music','off');}
+
+  // Load YouTube IFrame API
   var tag=document.createElement('script');
   tag.src='https://www.youtube.com/iframe_api';
   document.head.appendChild(tag);
+
   window.onYouTubeIframeAPIReady=function(){
     ytPlayer=new YT.Player('yt-player-wrap',{
       height:'1',width:'1',
       playerVars:{listType:'playlist',list:'PLPdK5nHr48s1mLIl6HL_qxJukitxpMkgY',autoplay:1,mute:1,loop:1,controls:0,playsinline:1,origin:window.location.origin},
       events:{onReady:function(e){
-        ytReady=true;e.target.setVolume(18);e.target.playVideo();
-        if(savedPref==='on'&&!isMobile){
-          document.addEventListener('scroll',function au(){document.removeEventListener('scroll',au);if(ytReady){ytPlayer.unMute();musicOn=true;document.getElementById('music-btn').classList.add('music-on');}},{once:true,passive:true});
-        }
+        ytReady=true;
+        e.target.setShuffle(true);
+        e.target.setVolume(18);
+        e.target.playVideo();
+        // Try immediate unmute (works if browser trusts the page)
+        e.target.unMute();
+        setTimeout(function(){
+          if(!e.target.isMuted()){
+            // Unmute succeeded — autoplay with sound is live
+            musicOn=true;btn.classList.add('music-on');
+          } else {
+            // Browser blocked — unmute on first ANY interaction
+            var unlock=function(){
+              if(ytReady&&!musicOn){ytPlayer.unMute();ytPlayer.setVolume(parseInt(vol.value));musicOn=true;btn.classList.add('music-on');}
+              ['click','scroll','keydown','touchstart'].forEach(function(ev){document.removeEventListener(ev,unlock);});
+            };
+            ['click','scroll','keydown','touchstart'].forEach(function(ev){document.addEventListener(ev,unlock,{once:true,passive:true});});
+          }
+        },400);
       }}
     });
   };
-  var btn=document.getElementById('music-btn');
-  var vol=document.getElementById('music-vol');
+
   btn.addEventListener('click',function(){
     if(!ytReady)return;
-    if(!musicOn){ytPlayer.unMute();ytPlayer.setVolume(parseInt(vol.value));ytPlayer.playVideo();musicOn=true;btn.classList.add('music-on');localStorage.setItem('cmg_music','on');}
-    else{ytPlayer.mute();musicOn=false;btn.classList.remove('music-on');localStorage.setItem('cmg_music','off');}
+    if(!musicOn)setOn(); else setOff();
   });
+  shuf.addEventListener('click',function(){if(!ytReady)return;ytPlayer.setShuffle(true);ytPlayer.nextVideo();if(!musicOn)setOn();});
   vol.addEventListener('input',function(){if(ytReady)ytPlayer.setVolume(parseInt(this.value));});
   document.addEventListener('visibilitychange',function(){if(!ytReady)return;if(document.hidden)ytPlayer.mute();else if(musicOn)ytPlayer.unMute();});
 })();
 </script>
+<script>
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => navigator.serviceWorker.register('/sw.js'));
+}
+// Android install prompt
+let _pwaPrompt;
+window.addEventListener('beforeinstallprompt', e => {
+  e.preventDefault();
+  _pwaPrompt = e;
+  const b = document.createElement('div');
+  b.id = 'pwa-banner';
+  b.innerHTML = '<div style="position:fixed;bottom:0;left:0;right:0;background:#1A237E;padding:16px 20px;display:flex;align-items:center;justify-content:space-between;z-index:9999;border-top:2px solid #D4A843;font-family:system-ui,sans-serif;"><div><div style="color:#D4A843;font-weight:700;font-size:15px;">Get the Crown Media App</div><div style="color:#E5E7EB;font-size:12px;">Install for faster access. Free.</div></div><button onclick="window._installPWA()" style="background:#D4A843;color:#0A0E1A;border:none;padding:10px 20px;border-radius:8px;font-weight:700;font-size:14px;cursor:pointer;">Install</button><button onclick="document.getElementById(\'pwa-banner\').remove()" style="background:none;border:none;color:#9CA3AF;font-size:20px;cursor:pointer;padding:0 8px;">&times;</button></div>';
+  document.body.appendChild(b);
+});
+window._installPWA = function() {
+  if (_pwaPrompt) {
+    _pwaPrompt.prompt();
+    _pwaPrompt.userChoice.then(() => { document.getElementById('pwa-banner')?.remove(); _pwaPrompt = null; });
+  }
+};
+// iOS prompt
+if (/iPhone|iPad/.test(navigator.userAgent) && !navigator.standalone) {
+  const b = document.createElement('div');
+  b.innerHTML = '<div style="position:fixed;bottom:0;left:0;right:0;background:#1A237E;padding:16px 20px;z-index:9999;border-top:2px solid #D4A843;font-family:system-ui,sans-serif;text-align:center;"><div style="color:#D4A843;font-weight:700;font-size:15px;">Install Crown Media App</div><div style="color:#E5E7EB;font-size:13px;margin-top:4px;">Tap &#x2B06; Share &rarr; then &ldquo;Add to Home Screen&rdquo;</div><button onclick="this.parentElement.remove()" style="background:none;border:none;color:#9CA3AF;font-size:12px;cursor:pointer;margin-top:8px;">Dismiss</button></div>';
+  document.body.appendChild(b);
+}
+</script>
 </body>
+</html>
 </html>

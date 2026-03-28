@@ -21,6 +21,13 @@
 <meta name="twitter:title" content="AI Logo, Website & CRM — Crown Media Group">
 <meta name="twitter:description" content="Get your logo, website, or CRM set up fast. Built by AI, delivered in 24 hours.">
 <meta name="twitter:image" content="https://crownmediagroup.co/logo.png">
+<!-- PWA -->
+<link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#D4A843">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Crown Media">
+<link rel="apple-touch-icon" href="/icons/icon-192x192.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;0,700;1,300;1,400&family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
@@ -342,7 +349,7 @@ nav.scrolled{box-shadow:0 4px 30px rgba(201,152,26,.08)}
   <p class="hero-sub">Everything your business needs to look professional and stay organized &mdash; without hiring a designer, developer, or extra staff. We do it for you.</p>
   <div class="hero-ctas">
     <button type="button" class="btn-royal" onclick="switchTab('logos');document.getElementById('products-section').scrollIntoView({behavior:'smooth'})">Get My Logo &mdash; $97</button>
-    <button type="button" class="btn-outline" onclick="switchTab('banners');document.getElementById('products-section').scrollIntoView({behavior:'smooth'})">Get My Banners &mdash; $97</button>
+    <button type="button" class="btn-outline" onclick="switchTab('social');document.getElementById('products-section').scrollIntoView({behavior:'smooth'})">Social Media Management</button>
     <button type="button" class="btn-gold-large" onclick="switchTab('websites');document.getElementById('products-section').scrollIntoView({behavior:'smooth'})">Get My Website &mdash; $197</button>
     <button type="button" class="btn-outline" onclick="switchTab('crm');document.getElementById('products-section').scrollIntoView({behavior:'smooth'})">Manage My Leads &mdash; $97/mo</button>
   </div>
@@ -629,6 +636,7 @@ nav.scrolled{box-shadow:0 4px 30px rgba(201,152,26,.08)}
   <button type="button" class="tab-btn active" id="tab-logos" onclick="switchTab('logos')">Logos</button>
   <button type="button" class="tab-btn" id="tab-banners" onclick="switchTab('banners')">Banners</button>
   <button type="button" class="tab-btn" id="tab-websites" onclick="switchTab('websites')">Websites</button>
+  <button type="button" class="tab-btn" id="tab-social" onclick="switchTab('social')">Social Media</button>
   <button type="button" class="tab-btn" id="tab-crm" onclick="switchTab('crm')">CRM</button>
 </div>
 
@@ -737,6 +745,72 @@ nav.scrolled{box-shadow:0 4px 30px rgba(201,152,26,.08)}
     </div>
 
     <!-- CRM -->
+    <!-- SOCIAL MEDIA -->
+    <div id="panel-social" class="panel">
+      <div class="section-header reveal">
+        <span class="label">AI-Powered Social Media</span>
+        <div class="divider"></div>
+        <h2>Content that gets you clients.<br>Posted while you run your business.</h2>
+        <p>We build your content strategy, write every caption, design every graphic, and post on schedule &mdash; powered by AI, managed by real people who know Columbia SC.</p>
+      </div>
+      <div class="product-grid reveal">
+        <div class="product-card">
+          <div class="card-tier">Starter</div>
+          <div class="card-name">Get Online</div>
+          <div class="card-desc">Perfect for local businesses that need a consistent, professional presence without the overhead of a full marketing team.</div>
+          <div class="card-price"><sup>$</sup>750</div>
+          <div class="card-price-note">Per month &middot; $250 one-time setup fee</div>
+          <div class="card-divider"></div>
+          <ul class="card-features">
+            <li>8 posts per month &mdash; designed and written for you</li>
+            <li>1 platform (Instagram or Facebook, your choice)</li>
+            <li>Branded graphics using your colors and logo</li>
+            <li>Monthly content calendar delivered in advance</li>
+            <li>Hashtag strategy &amp; caption copywriting included</li>
+            <li>Monthly performance report</li>
+          </ul>
+          <a href="/#contact" class="btn-royal btn-full">Get Started</a>
+        </div>
+        <div class="product-card featured">
+          <div class="card-tier">Growth &mdash; Most Popular</div>
+          <div class="card-name">Build Momentum</div>
+          <div class="card-desc">For businesses ready to grow their audience, run ads, and turn followers into paying customers.</div>
+          <div class="card-price"><sup>$</sup>1,200</div>
+          <div class="card-price-note">Per month &middot; $400 one-time setup fee</div>
+          <div class="card-divider"></div>
+          <ul class="card-features">
+            <li>20 posts per month across 3 platforms</li>
+            <li>AI-generated short-form video (Reels / TikTok-style)</li>
+            <li>Meta Ads management &mdash; up to $1,000 ad spend</li>
+            <li>Story content &amp; engagement strategy</li>
+            <li>Profile optimization &amp; brand consistency audit</li>
+            <li>Bi-weekly check-in call with King</li>
+            <li>Monthly analytics report with growth insights</li>
+          </ul>
+          <a href="/#contact" class="btn-gold-large btn-full">Get Started</a>
+        </div>
+        <div class="product-card premium">
+          <div class="card-tier">Premium</div>
+          <div class="card-name">Full Domination</div>
+          <div class="card-desc">You want to be the most visible business in your niche in Columbia SC. This is how. Daily content, full ad management, video production, and a partner who treats your growth like their own.</div>
+          <div class="card-price"><sup>$</sup>3,500</div>
+          <div class="card-price-note">Per month &middot; $1,000 one-time setup fee</div>
+          <div class="card-divider"></div>
+          <ul class="card-features">
+            <li>Daily posts across all major platforms</li>
+            <li>Professional AI video ads produced monthly</li>
+            <li>Full Meta + Google Ads management</li>
+            <li>Email marketing sequence (up to 4 per month)</li>
+            <li>Content strategy session every week</li>
+            <li>Competitor analysis &amp; local market positioning</li>
+            <li>Landing page optimization included</li>
+            <li>Priority support &mdash; direct line to King</li>
+          </ul>
+          <a href="/#contact" class="btn-gold-large btn-full">Let&rsquo;s Talk</a>
+        </div>
+      </div>
+    </div>
+
     <div id="panel-crm" class="panel">
       <div class="section-header reveal">
         <span class="label">Lead Management</span>
@@ -1166,6 +1240,74 @@ async function loadDelivery(orderId) {
 
 const sleep = ms => new Promise(r => setTimeout(r, ms));
 
+</script>
+<style>
+#music-bar{position:fixed;bottom:32px;right:32px;z-index:9000;display:flex;flex-direction:column;align-items:center;padding:10px 10px 0;background:rgba(26,26,62,0.82);border:1px solid rgba(201,152,26,0.35);border-radius:40px;-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);box-shadow:0 4px 24px rgba(0,0,0,.32)}
+.music-vol-wrap{display:none;padding-bottom:10px;}
+#music-vol{writing-mode:vertical-lr;direction:rtl;width:4px;height:80px;cursor:pointer;accent-color:#C9981A;display:block}
+#music-btn{width:44px;height:44px;border-radius:50%;background:rgba(201,152,26,0.15);border:1.5px solid rgba(201,152,26,0.5);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:border-color .2s,background .2s,color .2s;font-size:1.2rem;color:rgba(232,184,50,.75);outline:none;margin-bottom:10px}
+#music-btn:hover,#music-btn.music-on{background:rgba(201,152,26,0.25);border-color:#C9981A;color:#C9981A}
+#music-shuffle{width:36px;height:36px;border-radius:50%;background:transparent;border:1px solid rgba(201,152,26,0.3);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:border-color .2s,color .2s;font-size:1rem;color:rgba(232,184,50,.5);outline:none;margin-bottom:10px}
+#music-shuffle:hover{border-color:#C9981A;color:#C9981A}
+</style>
+<div id="music-bar">
+  <div class="music-vol-wrap" id="music-vol-wrap">
+    <input type="range" id="music-vol" min="0" max="100" value="18" aria-label="Music volume" title="Music volume">
+  </div>
+  <button type="button" id="music-btn" title="Play playlist" aria-label="Toggle playlist music">&#9835;</button>
+  <button type="button" id="music-shuffle" title="Shuffle — next random song" aria-label="Next random song">&#8635;</button>
+  <div id="yt-player-wrap" style="position:absolute;width:1px;height:1px;overflow:hidden;opacity:0;pointer-events:none;bottom:0;right:0;"></div>
+</div>
+<script>
+/* Crown Media Group — YouTube Playlist Player */
+(function(){
+  var musicOn=false,ytPlayer=null,ytReady=false;
+  var btn=document.getElementById('music-btn');
+  var vol=document.getElementById('music-vol');
+  var wrap=document.getElementById('music-vol-wrap');
+  var bar=document.getElementById('music-bar');
+  var shuf=document.getElementById('music-shuffle');
+  bar.addEventListener('mouseenter',function(){wrap.style.display='block';});
+  bar.addEventListener('mouseleave',function(){wrap.style.display='none';});
+  function setOn(){ytPlayer.unMute();ytPlayer.setVolume(parseInt(vol.value));ytPlayer.playVideo();musicOn=true;btn.classList.add('music-on');localStorage.setItem('cmg_music','on');}
+  function setOff(){ytPlayer.mute();musicOn=false;btn.classList.remove('music-on');localStorage.setItem('cmg_music','off');}
+  var tag=document.createElement('script');
+  tag.src='https://www.youtube.com/iframe_api';
+  document.head.appendChild(tag);
+  window.onYouTubeIframeAPIReady=function(){
+    ytPlayer=new YT.Player('yt-player-wrap',{
+      height:'1',width:'1',
+      playerVars:{listType:'playlist',list:'PLPdK5nHr48s1mLIl6HL_qxJukitxpMkgY',autoplay:1,mute:1,loop:1,controls:0,playsinline:1,origin:window.location.origin},
+      events:{onReady:function(e){
+        ytReady=true;
+        e.target.setShuffle(true);
+        e.target.setVolume(18);
+        e.target.playVideo();
+        e.target.unMute();
+        setTimeout(function(){
+          if(!e.target.isMuted()){
+            musicOn=true;btn.classList.add('music-on');
+          } else {
+            var unlock=function(){
+              if(ytReady&&!musicOn){ytPlayer.unMute();ytPlayer.setVolume(parseInt(vol.value));musicOn=true;btn.classList.add('music-on');}
+              ['click','scroll','keydown','touchstart'].forEach(function(ev){document.removeEventListener(ev,unlock);});
+            };
+            ['click','scroll','keydown','touchstart'].forEach(function(ev){document.addEventListener(ev,unlock,{once:true,passive:true});});
+          }
+        },400);
+      }}
+    });
+  };
+  btn.addEventListener('click',function(){if(!ytReady)return;if(!musicOn)setOn();else setOff();});
+  shuf.addEventListener('click',function(){if(!ytReady)return;ytPlayer.setShuffle(true);ytPlayer.nextVideo();if(!musicOn)setOn();});
+  vol.addEventListener('input',function(){if(ytReady)ytPlayer.setVolume(parseInt(this.value));});
+  document.addEventListener('visibilitychange',function(){if(!ytReady)return;if(document.hidden)ytPlayer.mute();else if(musicOn)ytPlayer.unMute();});
+})();
+</script>
+<script>
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => navigator.serviceWorker.register('/sw.js'));
+}
 </script>
 </body>
 </html>

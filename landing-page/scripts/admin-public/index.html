@@ -130,6 +130,7 @@ textarea { resize: vertical; min-height: 80px; }
     </div>
     <div class="nav">
       <div class="nav-item active" onclick="showPanel('dashboard')">Dashboard</div>
+      <div class="nav-item" onclick="showPanel('crm')">CRM Overview</div>
       <div class="nav-item" onclick="showPanel('posts')">Published Posts</div>
       <div class="nav-item" onclick="showPanel('queue')">Topic Queue</div>
       <div class="nav-item" onclick="showPanel('generate')">Generate Now</div>
@@ -175,6 +176,36 @@ textarea { resize: vertical; min-height: 80px; }
         <div id="upcoming-list" style="padding:16px 20px;">
           <p style="color:var(--muted);font-size:.85rem;">Loading queue...</p>
         </div>
+      </div>
+    </div>
+
+    <!-- CRM OVERVIEW -->
+    <div id="panel-crm" class="panel">
+      <div class="section-head" style="margin-bottom:24px;">
+        <div><h3 style="font-size:1.4rem;">CRM Overview</h3><p id="crm-status" style="margin-top:4px;font-size:.8rem;color:var(--muted);">Loading...</p></div>
+        <a href="https://crm.crownmediagroup.co" target="_blank" class="btn btn-gold btn-sm">Open CRM &rarr;</a>
+      </div>
+      <div class="stats-row">
+        <div class="stat-card"><div class="stat-num" id="crm-total">—</div><div class="stat-label">Total Contacts</div></div>
+        <div class="stat-card"><div class="stat-num" id="crm-clients" style="color:var(--green);">—</div><div class="stat-label">Active Clients</div></div>
+        <div class="stat-card"><div class="stat-num" id="crm-leads">—</div><div class="stat-label">Open Leads</div></div>
+        <div class="stat-card"><div class="stat-num" id="crm-overdue" style="color:var(--red);">—</div><div class="stat-label">Follow-Ups Due</div></div>
+      </div>
+      <div class="stats-row" style="margin-top:-8px;">
+        <div class="stat-card"><div class="stat-num" id="crm-pipeline" style="font-size:1.3rem;">—</div><div class="stat-label">Pipeline Value</div></div>
+        <div class="stat-card"><div class="stat-num" id="crm-new">—</div><div class="stat-label">New This Week</div></div>
+      </div>
+      <div class="section-head" style="margin:24px 0 12px;"><h3>Follow-Ups Due Soon</h3></div>
+      <div class="table-wrap">
+        <table><thead><tr><th>Name</th><th>Business</th><th>Status</th><th>Follow-Up</th></tr></thead>
+        <tbody id="crm-followups-tbody"><tr><td colspan="4" style="text-align:center;color:var(--muted);padding:24px;">Loading...</td></tr></tbody>
+        </table>
+      </div>
+      <div class="section-head" style="margin:24px 0 12px;"><h3>Recent Contacts</h3></div>
+      <div class="table-wrap">
+        <table><thead><tr><th>Name</th><th>Business</th><th>Status</th><th>Priority</th><th>Deal</th></tr></thead>
+        <tbody id="crm-contacts-tbody"><tr><td colspan="5" style="text-align:center;color:var(--muted);padding:24px;">Loading...</td></tr></tbody>
+        </table>
       </div>
     </div>
 
@@ -324,6 +355,7 @@ function showPanel(name) {
   });
   currentPanel = name;
   if (name === 'dashboard') loadDashboard();
+  if (name === 'crm')       loadCRM();
   if (name === 'posts')     loadPosts();
   if (name === 'queue')     loadQueue();
   if (name === 'schedule')  loadSchedule();
@@ -486,6 +518,45 @@ async function saveSchedule() {
   const r = await fetch('/api/schedule', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ postsPerDay, skipSabbath, autoResearch }) });
   const d = await r.json();
   if (d.ok) toast('Schedule saved');
+}
+
+async function loadCRM() {
+  const stats = await fetch('/api/crm/stats').then(r => r.json()).catch(() => ({ available: false }));
+  if (!stats.available) {
+    document.getElementById('crm-status').textContent = 'CRM database not connected — start with --experimental-sqlite flag';
+    ['crm-total','crm-clients','crm-leads','crm-overdue','crm-pipeline','crm-new'].forEach(id => document.getElementById(id).textContent = '—');
+    document.getElementById('crm-followups-tbody').innerHTML = '<tr><td colspan="4" style="text-align:center;color:var(--muted);padding:24px;">CRM not connected.</td></tr>';
+    document.getElementById('crm-contacts-tbody').innerHTML = '<tr><td colspan="5" style="text-align:center;color:var(--muted);padding:24px;">CRM not connected.</td></tr>';
+    return;
+  }
+  document.getElementById('crm-status').textContent = 'Live — reading local CRM database';
+  document.getElementById('crm-total').textContent   = stats.total ?? '—';
+  document.getElementById('crm-clients').textContent = stats.clients ?? '—';
+  document.getElementById('crm-leads').textContent   = stats.leads ?? '—';
+  document.getElementById('crm-overdue').textContent = stats.overdue ?? '—';
+  document.getElementById('crm-pipeline').textContent = stats.pipeline ? '$' + Number(stats.pipeline).toLocaleString() : '$0';
+  document.getElementById('crm-new').textContent     = stats.newThisWeek ?? '—';
+
+  const followups = await fetch('/api/crm/followups').then(r => r.json()).catch(() => []);
+  const ftbody = document.getElementById('crm-followups-tbody');
+  ftbody.innerHTML = followups.length ? followups.map(c => `
+    <tr>
+      <td>${c.name}</td>
+      <td>${c.business || '—'}</td>
+      <td><span class="badge badge-gold">${c.status}</span></td>
+      <td style="color:var(--red);font-weight:600;">${c.next_followup || '—'}</td>
+    </tr>`).join('') : '<tr><td colspan="4" style="text-align:center;color:var(--muted);padding:16px;">No follow-ups due.</td></tr>';
+
+  const contacts = await fetch('/api/crm/contacts').then(r => r.json()).catch(() => []);
+  const ctbody = document.getElementById('crm-contacts-tbody');
+  ctbody.innerHTML = contacts.length ? contacts.map(c => `
+    <tr>
+      <td>${c.name}</td>
+      <td>${c.business || '—'}</td>
+      <td><span class="badge ${c.status === 'Client' ? 'badge-green' : 'badge-gold'}">${c.status}</span></td>
+      <td>${c.priority}</td>
+      <td>${c.deal_value ? '$' + Number(c.deal_value).toLocaleString() : '—'}</td>
+    </tr>`).join('') : '<tr><td colspan="5" style="text-align:center;color:var(--muted);padding:16px;">No contacts yet.</td></tr>';
 }
 
 // Init

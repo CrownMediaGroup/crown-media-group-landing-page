@@ -148,7 +148,8 @@ function checkVideoPoster() {
       cwd: ROOT, shell: 'bash', timeout: 120000, encoding: 'utf8'
     });
   } catch (e) {
-    log(`[VIDEO-POSTER] ${e.message?.substring(0, 100)}`);
+    const detail = (e.stderr || e.stdout || e.message || '').toString().replace(/\n/g, ' ').substring(0, 200);
+    log(`[VIDEO-POSTER] ERROR: ${detail}`);
   }
 }
 

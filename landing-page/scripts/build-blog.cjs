@@ -19,57 +19,69 @@ const FONTS = `<link rel="preconnect" href="https://fonts.googleapis.com">
 
 const BRAND_VARS = `--white:#FFFFFF;--cream:#FDFBF7;--warm:#F9F5EE;--gold:#C9981A;--gold-light:#E8B832;--gold-deep:#9A720D;--gold-pale:#F5E6B8;--royal:#1A1A3E;--royal-mid:#2D2D5A;--royal-deep:#0F0F28;--text:#1A1A2E;--text-mid:#4A4A6A;--text-light:#8A8AAA;--border:rgba(201,152,26,0.2);--border-soft:rgba(201,152,26,0.1)`;
 
-// ─── Ambient music snippet (Tone.js CDN — C major worship pad) ────────────────
+// ─── YouTube Playlist Player (matches index.html — shuffle + random song on reload) ──
 const AMBIENT_CSS = `
-#ambient-toggle{position:fixed;bottom:32px;right:32px;z-index:9000;width:52px;height:52px;border-radius:50%;background:rgba(26,26,62,0.82);border:1px solid rgba(201,152,26,0.4);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:border-color .2s,background .2s;box-shadow:0 4px 24px rgba(0,0,0,.32)}
-#ambient-toggle:hover{border-color:var(--gold);background:rgba(26,26,62,.95)}
-#ambient-toggle svg{width:22px;height:22px;color:var(--gold-light)}
-.ambient-playing svg{color:var(--gold)!important}
-.vol-wrap{display:none;position:absolute;bottom:60px;right:0;background:rgba(26,26,62,.9);border:1px solid rgba(201,152,26,.3);border-radius:8px;padding:12px 10px;backdrop-filter:blur(12px)}
-#ambient-toggle:hover .vol-wrap{display:block}
-#vol-slider{writing-mode:vertical-lr;direction:rtl;width:4px;height:80px;cursor:pointer;accent-color:var(--gold)}`;
+#music-bar{position:fixed;bottom:32px;right:32px;z-index:9000;display:flex;flex-direction:column;align-items:center;padding:10px 10px 0;background:rgba(26,26,62,0.82);border:1px solid rgba(201,152,26,0.35);border-radius:40px;-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);box-shadow:0 4px 24px rgba(0,0,0,.32)}
+.music-vol-wrap{display:none;padding-bottom:10px;}
+#music-vol{writing-mode:vertical-lr;direction:rtl;width:4px;height:80px;cursor:pointer;accent-color:var(--gold);display:block}
+#music-btn{width:44px;height:44px;border-radius:50%;background:rgba(201,152,26,0.15);border:1.5px solid rgba(201,152,26,0.5);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:border-color .2s,background .2s,color .2s;font-size:1.2rem;color:rgba(232,184,50,.75);outline:none;margin-bottom:10px}
+#music-btn:hover,#music-btn.music-on{background:rgba(201,152,26,0.25);border-color:var(--gold);color:var(--gold)}
+#music-shuffle{width:36px;height:36px;border-radius:50%;background:transparent;border:1px solid rgba(201,152,26,0.3);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:border-color .2s,color .2s;font-size:1rem;color:rgba(232,184,50,.5);outline:none;margin-bottom:10px}
+#music-shuffle:hover{border-color:var(--gold);color:var(--gold)}`;
 
 const AMBIENT_HTML = `
-<div id="ambient-toggle" title="Ambient music" aria-label="Toggle ambient music">
-  <div class="vol-wrap"><input type="range" id="vol-slider" min="0" max="1" step="0.01" value="0.18"></div>
-  <svg id="ambient-icon-play" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
-  <svg id="ambient-icon-pause" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" style="display:none"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
+<div id="music-bar">
+  <div class="music-vol-wrap" id="music-vol-wrap">
+    <input type="range" id="music-vol" min="0" max="100" value="18" aria-label="Music volume" title="Music volume">
+  </div>
+  <button type="button" id="music-btn" title="Play playlist" aria-label="Toggle playlist music">&#9835;</button>
+  <button type="button" id="music-shuffle" title="Shuffle — next random song" aria-label="Next random song">&#8635;</button>
+  <div id="yt-player-wrap" style="position:absolute;width:1px;height:1px;overflow:hidden;opacity:0;pointer-events:none;bottom:0;right:0;"></div>
 </div>
-<script src="https://cdn.jsdelivr.net/npm/tone@14.7.77/build/Tone.js"></script>
 <script>
+/* Crown Media Group — YouTube Playlist Player */
 (function(){
-  var isMobile=/Mobi|Android/i.test(navigator.userAgent);
-  var btn=document.getElementById('ambient-toggle');
-  var iconPlay=document.getElementById('ambient-icon-play');
-  var iconPause=document.getElementById('ambient-icon-pause');
-  var volSlider=document.getElementById('vol-slider');
-  var started=false,playing=false;
-  var savedPref=localStorage.getItem('cmg_ambient');
-  var shouldAutoPlay=!isMobile&&savedPref!=='off';
-  function buildPad(){
-    var reverb=new Tone.Reverb({decay:8,wet:0.7}).toDestination();
-    var chorus=new Tone.Chorus(1.5,2.5,0.4).connect(reverb);chorus.start();
-    var vol=new Tone.Volume(-14).connect(chorus);
-    new Tone.LFO({frequency:'0.05',min:-24,max:-10}).connect(vol.volume).start();
-    ['C3','E3','G3','C4'].forEach(function(note){
-      new Tone.Synth({oscillator:{type:'sine'},envelope:{attack:4,decay:2,sustain:0.8,release:6},volume:-8}).connect(vol).triggerAttack(note,Tone.now());
-      new Tone.Synth({oscillator:{type:'triangle'},envelope:{attack:6,decay:4,sustain:0.6,release:8},volume:-16}).connect(vol).triggerAttack(note,Tone.now()+0.5);
+  var musicOn=false,ytPlayer=null,ytReady=false;
+  var btn=document.getElementById('music-btn');
+  var vol=document.getElementById('music-vol');
+  var wrap=document.getElementById('music-vol-wrap');
+  var bar=document.getElementById('music-bar');
+  var shuf=document.getElementById('music-shuffle');
+  bar.addEventListener('mouseenter',function(){wrap.style.display='block';});
+  bar.addEventListener('mouseleave',function(){wrap.style.display='none';});
+  function setOn(){ytPlayer.unMute();ytPlayer.setVolume(parseInt(vol.value));ytPlayer.playVideo();musicOn=true;btn.classList.add('music-on');localStorage.setItem('cmg_music','on');}
+  function setOff(){ytPlayer.mute();musicOn=false;btn.classList.remove('music-on');localStorage.setItem('cmg_music','off');}
+  var tag=document.createElement('script');
+  tag.src='https://www.youtube.com/iframe_api';
+  document.head.appendChild(tag);
+  window.onYouTubeIframeAPIReady=function(){
+    ytPlayer=new YT.Player('yt-player-wrap',{
+      height:'1',width:'1',
+      playerVars:{listType:'playlist',list:'PLPdK5nHr48s1mLIl6HL_qxJukitxpMkgY',autoplay:1,mute:1,loop:1,controls:0,playsinline:1,origin:window.location.origin},
+      events:{onReady:function(e){
+        ytReady=true;
+        e.target.setShuffle(true);
+        e.target.setVolume(18);
+        e.target.playVideo();
+        e.target.unMute();
+        setTimeout(function(){
+          if(!e.target.isMuted()){
+            musicOn=true;btn.classList.add('music-on');
+          } else {
+            var unlock=function(){
+              if(ytReady&&!musicOn){ytPlayer.unMute();ytPlayer.setVolume(parseInt(vol.value));musicOn=true;btn.classList.add('music-on');}
+              ['click','scroll','keydown','touchstart'].forEach(function(ev){document.removeEventListener(ev,unlock);});
+            };
+            ['click','scroll','keydown','touchstart'].forEach(function(ev){document.addEventListener(ev,unlock,{once:true,passive:true});});
+          }
+        },400);
+      }}
     });
-  }
-  function setPlaying(state){
-    playing=state;
-    if(state){Tone.getDestination().volume.rampTo(parseFloat(volSlider.value)*6-14,1.5);btn.classList.add('ambient-playing');iconPlay.style.display='none';iconPause.style.display='block';localStorage.setItem('cmg_ambient','on');}
-    else{Tone.getDestination().volume.rampTo(-Infinity,2);btn.classList.remove('ambient-playing');iconPlay.style.display='block';iconPause.style.display='none';localStorage.setItem('cmg_ambient','off');}
-  }
-  btn.addEventListener('click',async function(e){
-    if(e.target.id==='vol-slider')return;
-    await Tone.start();
-    if(!started){started=true;buildPad();}
-    setPlaying(!playing);
-  });
-  volSlider.addEventListener('input',function(){Tone.getDestination().volume.rampTo(parseFloat(this.value)*6-14,0.3);});
-  if(shouldAutoPlay){document.addEventListener('click',async function autoStart(){document.removeEventListener('click',autoStart);await Tone.start();if(!started){started=true;buildPad();}setPlaying(true);},{once:true});}
-  document.addEventListener('visibilitychange',function(){if(!started)return;if(document.hidden){Tone.getDestination().volume.rampTo(-Infinity,1);}else if(playing){Tone.getDestination().volume.rampTo(parseFloat(volSlider.value)*6-14,1);}});
+  };
+  btn.addEventListener('click',function(){if(!ytReady)return;if(!musicOn)setOn();else setOff();});
+  shuf.addEventListener('click',function(){if(!ytReady)return;ytPlayer.setShuffle(true);ytPlayer.nextVideo();if(!musicOn)setOn();});
+  vol.addEventListener('input',function(){if(ytReady)ytPlayer.setVolume(parseInt(this.value));});
+  document.addEventListener('visibilitychange',function(){if(!ytReady)return;if(document.hidden)ytPlayer.mute();else if(musicOn)ytPlayer.unMute();});
 })();
 </script>`;
 
@@ -415,7 +427,7 @@ function buildPostPage(post, allPosts) {
 </div>`;
 
   const extraCss = `
-.blog-page-wrap{max-width:780px;margin:0 auto;padding:120px 24px 80px}
+.blog-page-wrap{max-width:780px;margin:0 auto;padding:140px 24px 80px}
 .breadcrumb{font-size:.8rem;color:var(--text-light);margin-bottom:32px}
 .breadcrumb a{color:var(--text-light);text-decoration:none;transition:color .2s}
 .breadcrumb a:hover{color:var(--gold)}
@@ -537,7 +549,7 @@ function buildIndexPage(posts) {
 </div>`;
 
   const extraCss = `
-.blog-index-wrap{max-width:1100px;margin:0 auto;padding:120px 48px 80px}
+.blog-index-wrap{max-width:1100px;margin:0 auto;padding:140px 48px 80px}
 .label-tag{font-size:.7rem;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:var(--gold);margin-bottom:16px}
 .blog-index-header{text-align:center;margin-bottom:56px}
 .blog-index-title{font-size:clamp(2.5rem,5vw,4rem);margin-bottom:16px;color:var(--text)}
@@ -567,7 +579,7 @@ function buildIndexPage(posts) {
 .card-read{font-size:.75rem;color:var(--text-light)}
 .card-link{font-size:.82rem;font-weight:700;color:var(--gold);text-decoration:none;letter-spacing:.04em}
 .card-link:hover{color:var(--gold-deep)}
-@media(max-width:768px){.blog-index-wrap{padding:100px 24px 60px}.blog-featured{padding:28px 24px}.posts-grid{grid-template-columns:1fr}}`;
+@media(max-width:768px){.blog-index-wrap{padding:120px 24px 60px}.blog-featured{padding:28px 24px}.posts-grid{grid-template-columns:1fr}}`;
 
   return buildPageShell({
     title: `Blog | Crown Media Group`,
@@ -609,7 +621,7 @@ function buildArchivePage({ label, title, description, canonical, posts }) {
 </div>`;
 
   const extraCss = `
-.blog-index-wrap{max-width:1100px;margin:0 auto;padding:120px 48px 80px}
+.blog-index-wrap{max-width:1100px;margin:0 auto;padding:140px 48px 80px}
 .label-tag{font-size:.7rem;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:var(--gold);margin-bottom:16px}
 .blog-index-header{text-align:center;margin-bottom:56px}
 .blog-index-title{font-size:clamp(2rem,5vw,3.5rem);margin-bottom:16px;color:var(--text)}
@@ -627,7 +639,7 @@ function buildArchivePage({ label, title, description, canonical, posts }) {
 .card-footer{display:flex;align-items:center;justify-content:space-between}
 .card-read{font-size:.75rem;color:var(--text-light)}
 .card-link{font-size:.82rem;font-weight:700;color:var(--gold);text-decoration:none;letter-spacing:.04em}
-@media(max-width:768px){.blog-index-wrap{padding:100px 24px 60px}.posts-grid{grid-template-columns:1fr}}`;
+@media(max-width:768px){.blog-index-wrap{padding:120px 24px 60px}.posts-grid{grid-template-columns:1fr}}`;
 
   return buildPageShell({ title, description, canonical, body, extraCss });
 }

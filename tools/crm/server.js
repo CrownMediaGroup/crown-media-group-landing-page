@@ -301,6 +301,34 @@ app.post('/api/register', loginLimiter, (req, res) => {
   const cookieOpts = `Path=/; HttpOnly; SameSite=Lax; Max-Age=${30 * 24 * 60 * 60}${isProd ? '; Secure' : ''}`;
   res.setHeader('Set-Cookie', `crm_session=${token}; ${cookieOpts}`);
   res.json({ ok: true, trialEnds });
+
+  // Welcome email (fire-and-forget — don't delay response)
+  if (mailer) {
+    const trialEndFmt = new Date(trialEnds).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+    mailer.sendMail({
+      from: `"Crown Media Group" <${process.env.GMAIL_USER}>`,
+      to: normalizedEmail,
+      subject: `Welcome to Crown Media Group CRM — Your 33-Day Trial Starts Now`,
+      html: `
+<div style="font-family:Arial,sans-serif;max-width:560px;margin:0 auto;background:#0A1628;color:#e8e8e8;border-radius:8px;overflow:hidden">
+  <div style="background:#C9A84C;padding:24px 32px">
+    <h1 style="margin:0;font-size:22px;color:#0A1628">Crown Media Group CRM</h1>
+  </div>
+  <div style="padding:32px">
+    <p style="font-size:18px;margin:0 0 16px">Welcome, ${name.split(' ')[0]}.</p>
+    <p style="margin:0 0 16px;line-height:1.6">Your free trial is live. You have <strong style="color:#C9A84C">33 days</strong> to explore the full CRM — contacts, outreach, AI drafts, and more.</p>
+    <table style="width:100%;border-collapse:collapse;margin:0 0 24px">
+      <tr><td style="padding:8px 0;color:#aaa;width:140px">Business</td><td style="padding:8px 0;font-weight:bold">${businessName.trim()}</td></tr>
+      <tr><td style="padding:8px 0;color:#aaa">Email</td><td style="padding:8px 0">${normalizedEmail}</td></tr>
+      <tr><td style="padding:8px 0;color:#aaa">Trial ends</td><td style="padding:8px 0;color:#C9A84C;font-weight:bold">${trialEndFmt}</td></tr>
+    </table>
+    <a href="https://crm.crownmediagroup.co" style="display:inline-block;background:#C9A84C;color:#0A1628;padding:12px 28px;border-radius:6px;text-decoration:none;font-weight:bold;font-size:15px">Open My CRM</a>
+    <p style="margin:24px 0 0;font-size:13px;color:#888">Questions? Reply to this email or reach King directly at king@crownmediagroup.co</p>
+  </div>
+  <div style="padding:16px 32px;border-top:1px solid #1e3a5f;font-size:12px;color:#666">All Glory to Jesus Global LLC | Crown Media Group | Columbia, SC</div>
+</div>`,
+    }).catch(err => console.error('[Welcome email]', err.message));
+  }
 });
 
 // ── Google OAuth (Sign in with Google — ID token verification) ────────────────
@@ -346,6 +374,33 @@ app.post('/api/auth/google', loginLimiter, async (req, res) => {
       ).run(email, 'google:' + googleId, ws.lastInsertRowid, googleId, displayName, avatarUrl);
 
       user = db.prepare('SELECT * FROM users WHERE id = ?').get(result.lastInsertRowid);
+
+      // Welcome email for new Google signup (fire-and-forget)
+      if (mailer) {
+        const trialEndFmt = new Date(trialEnds).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+        mailer.sendMail({
+          from: `"Crown Media Group" <${process.env.GMAIL_USER}>`,
+          to: email,
+          subject: `Welcome to Crown Media Group CRM — Your 33-Day Trial Starts Now`,
+          html: `
+<div style="font-family:Arial,sans-serif;max-width:560px;margin:0 auto;background:#0A1628;color:#e8e8e8;border-radius:8px;overflow:hidden">
+  <div style="background:#C9A84C;padding:24px 32px">
+    <h1 style="margin:0;font-size:22px;color:#0A1628">Crown Media Group CRM</h1>
+  </div>
+  <div style="padding:32px">
+    <p style="font-size:18px;margin:0 0 16px">Welcome, ${displayName.split(' ')[0]}.</p>
+    <p style="margin:0 0 16px;line-height:1.6">Your free trial is live. You have <strong style="color:#C9A84C">33 days</strong> to explore the full CRM — contacts, outreach, AI drafts, and more.</p>
+    <table style="width:100%;border-collapse:collapse;margin:0 0 24px">
+      <tr><td style="padding:8px 0;color:#aaa;width:140px">Email</td><td style="padding:8px 0">${email}</td></tr>
+      <tr><td style="padding:8px 0;color:#aaa">Trial ends</td><td style="padding:8px 0;color:#C9A84C;font-weight:bold">${trialEndFmt}</td></tr>
+    </table>
+    <a href="https://crm.crownmediagroup.co" style="display:inline-block;background:#C9A84C;color:#0A1628;padding:12px 28px;border-radius:6px;text-decoration:none;font-weight:bold;font-size:15px">Open My CRM</a>
+    <p style="margin:24px 0 0;font-size:13px;color:#888">Questions? Reply to this email or reach King directly at king@crownmediagroup.co</p>
+  </div>
+  <div style="padding:16px 32px;border-top:1px solid #1e3a5f;font-size:12px;color:#666">All Glory to Jesus Global LLC | Crown Media Group | Columbia, SC</div>
+</div>`,
+        }).catch(err => console.error('[Welcome email - Google]', err.message));
+      }
     }
 
     db.prepare("DELETE FROM sessions WHERE expires_at < datetime('now')").run();
@@ -476,6 +531,69 @@ app.put('/api/admin/workspaces/:id/subscription', requireSuperAdmin, (req, res) 
   }
 
   res.json({ ok: true });
+});
+
+// ── Admin: trial dashboard ────────────────────────────────────────────────────
+app.get('/api/admin/trials', requireSuperAdmin, (req, res) => {
+  const rows = db.prepare(`
+    SELECT
+      w.id, w.name, w.subscription_status, w.trial_ends_at, w.subscription_ends_at, w.created_at,
+      u.email, u.display_name,
+      CAST(
+        (julianday(w.trial_ends_at) - julianday('now'))
+      AS INTEGER) AS days_left
+    FROM workspaces w
+    LEFT JOIN users u ON u.workspace_id = w.id
+    WHERE w.id != 1
+    ORDER BY w.trial_ends_at ASC
+  `).all();
+  res.json(rows);
+});
+
+// ── Admin: send manual trial reminder ─────────────────────────────────────────
+app.post('/api/admin/trials/:id/remind', requireSuperAdmin, (req, res) => {
+  const wsId = parseInt(req.params.id);
+  if (isNaN(wsId)) return res.status(400).json({ error: 'Invalid id' });
+  const row = db.prepare(`
+    SELECT w.name, w.trial_ends_at, u.email, u.display_name
+    FROM workspaces w LEFT JOIN users u ON u.workspace_id = w.id
+    WHERE w.id = ?
+  `).get(wsId);
+  if (!row || !row.email) return res.status(404).json({ error: 'Workspace/user not found' });
+
+  if (!mailer) return res.status(503).json({ error: 'Email not configured' });
+
+  const daysLeft = Math.max(0, Math.ceil((new Date(row.trial_ends_at) - new Date()) / 86400000));
+  const firstName = (row.display_name || row.email)?.split(' ')[0];
+  const trialEndFmt = new Date(row.trial_ends_at).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+
+  mailer.sendMail({
+    from: `"Crown Media Group" <${process.env.GMAIL_USER}>`,
+    to: row.email,
+    subject: `${daysLeft <= 3 ? 'Last chance — ' : ''}Your Crown Media Group CRM trial ends ${daysLeft <= 0 ? 'today' : `in ${daysLeft} day${daysLeft === 1 ? '' : 's'}`}`,
+    html: `
+<div style="font-family:Arial,sans-serif;max-width:560px;margin:0 auto;background:#0A1628;color:#e8e8e8;border-radius:8px;overflow:hidden">
+  <div style="background:#C9A84C;padding:24px 32px">
+    <h1 style="margin:0;font-size:22px;color:#0A1628">Crown Media Group CRM</h1>
+  </div>
+  <div style="padding:32px">
+    <p style="font-size:18px;margin:0 0 16px">Hey ${firstName},</p>
+    <p style="margin:0 0 16px;line-height:1.6">Your free trial ${daysLeft <= 0 ? 'has ended' : `ends on <strong style="color:#C9A84C">${trialEndFmt}</strong>`}. Don't lose your contacts and history.</p>
+    <p style="margin:0 0 24px;line-height:1.6">Activate your subscription for <strong>$97/month</strong> and keep full access — AI outreach drafts, contact management, email tracking, and more.</p>
+    <a href="https://crm.crownmediagroup.co" style="display:inline-block;background:#C9A84C;color:#0A1628;padding:12px 28px;border-radius:6px;text-decoration:none;font-weight:bold;font-size:15px">Keep My Access</a>
+    <p style="margin:24px 0 0;font-size:13px;color:#888">Reply to this email or reach King at king@crownmediagroup.co to activate.</p>
+  </div>
+  <div style="padding:16px 32px;border-top:1px solid #1e3a5f;font-size:12px;color:#666">All Glory to Jesus Global LLC | Crown Media Group | Columbia, SC</div>
+</div>`,
+  }).then(() => res.json({ ok: true }))
+    .catch(err => res.status(500).json({ error: err.message }));
+});
+
+// ── Admin: serve trials dashboard page ────────────────────────────────────────
+app.get('/trials', (req, res) => {
+  const session = validateSession(getCookie(req, 'crm_session'));
+  if (!session || session.user.role !== 'superadmin') return res.redirect('/login');
+  res.sendFile(join(__dirname, 'public', 'trials.html'));
 });
 
 // ── Config ────────────────────────────────────────────────────────────────────

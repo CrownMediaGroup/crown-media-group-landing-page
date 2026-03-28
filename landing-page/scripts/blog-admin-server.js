@@ -7,9 +7,18 @@ import cron from 'node-cron';
 import { readFileSync, writeFileSync, existsSync, readdirSync } from 'fs';
 import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
-import { execSync, spawn } from 'child_process';
+import { exec, spawn } from 'child_process';
 import axios from 'axios';
 import * as cheerio from 'cheerio';
+
+// CRM database (node:sqlite — requires --experimental-sqlite flag)
+let crmDb = null;
+try {
+  const { DatabaseSync } = await import('node:sqlite');
+  const CRM_DB = join(__dirname, '..', '..', 'tools', 'crm', 'crm.db');
+  if (existsSync(CRM_DB)) { crmDb = new DatabaseSync(CRM_DB); log('CRM database connected.'); }
+  else log('CRM database not found at ' + CRM_DB);
+} catch (e) { log('CRM DB unavailable (run with --experimental-sqlite): ' + e.message); }
 
 const __dirname  = dirname(fileURLToPath(import.meta.url));
 const ROOT       = join(__dirname, '..');
@@ -233,6 +242,39 @@ app.get('/api/research', async (req, res) => {
 });
 
 // ── Start ───────────────────────────────────────────────────────────────────
+
+// ── CRM API ─────────────────────────────────────────────────────────────────
+
+app.get('/api/crm/stats', (_, res) => {
+  if (!crmDb) return res.json({ available: false });
+  try {
+    const today = new Date().toISOString().split('T')[0];
+    const total     = crmDb.prepare('SELECT COUNT(*) as n FROM contacts').get().n;
+    const clients   = crmDb.prepare("SELECT COUNT(*) as n FROM contacts WHERE status='Client'").get().n;
+    const leads     = crmDb.prepare("SELECT COUNT(*) as n FROM contacts WHERE status NOT IN ('Client','Dead')").get().n;
+    const overdue   = crmDb.prepare("SELECT COUNT(*) as n FROM contacts WHERE next_followup <= ? AND status NOT IN ('Client','Dead')").get(today).n;
+    const pipeline  = crmDb.prepare('SELECT COALESCE(SUM(deal_value),0) as v FROM contacts').get().v;
+    const newThisWeek = crmDb.prepare("SELECT COUNT(*) as n FROM contacts WHERE date(created_at) >= date(?,'weekday 0','-7 days')").get(today).n;
+    res.json({ available: true, total, clients, leads, overdue, pipeline, newThisWeek });
+  } catch (e) { res.json({ available: false, error: e.message }); }
+});
+
+app.get('/api/crm/contacts', (_, res) => {
+  if (!crmDb) return res.json([]);
+  try {
+    const rows = crmDb.prepare("SELECT id,name,business,phone,status,priority,next_followup,deal_value FROM contacts ORDER BY priority DESC, next_followup ASC LIMIT 20").all();
+    res.json(rows);
+  } catch (e) { res.json([]); }
+});
+
+app.get('/api/crm/followups', (_, res) => {
+  if (!crmDb) return res.json([]);
+  try {
+    const today = new Date().toISOString().split('T')[0];
+    const rows = crmDb.prepare("SELECT id,name,business,phone,status,next_followup FROM contacts WHERE next_followup <= date(?,'start of day','+3 days') AND status NOT IN ('Client','Dead') ORDER BY next_followup ASC LIMIT 10").all(today);
+    res.json(rows);
+  } catch (e) { res.json([]); }
+});
 
 const PORT = 4001;
 app.listen(PORT, () => {

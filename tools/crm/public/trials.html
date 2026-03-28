@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Trial Dashboard — Crown Media Group CRM</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#0A1628;color:#e8e8e8;font-family:'Segoe UI',Arial,sans-serif;min-height:100vh}
+header{background:#111e35;border-bottom:1px solid #1e3a5f;padding:16px 28px;display:flex;align-items:center;justify-content:space-between}
+header h1{font-size:18px;color:#C9A84C;letter-spacing:.3px}
+header a{color:#aaa;font-size:13px;text-decoration:none}
+header a:hover{color:#C9A84C}
+.container{padding:28px 28px 60px;max-width:1100px;margin:0 auto}
+.summary{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:16px;margin-bottom:28px}
+.card{background:#111e35;border:1px solid #1e3a5f;border-radius:8px;padding:18px 20px}
+.card .val{font-size:28px;font-weight:700;color:#C9A84C}
+.card .lbl{font-size:12px;color:#888;margin-top:4px;text-transform:uppercase;letter-spacing:.5px}
+table{width:100%;border-collapse:collapse;background:#111e35;border-radius:8px;overflow:hidden;font-size:14px}
+th{background:#0d1a2d;color:#888;text-transform:uppercase;font-size:11px;letter-spacing:.6px;padding:12px 14px;text-align:left;border-bottom:1px solid #1e3a5f}
+td{padding:12px 14px;border-bottom:1px solid #162035;vertical-align:middle}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:#162035}
+.badge{display:inline-block;padding:3px 9px;border-radius:12px;font-size:11px;font-weight:600;letter-spacing:.3px}
+.badge-trial{background:#1a3a5c;color:#5a9fd4}
+.badge-active{background:#0f3020;color:#4caf82}
+.badge-expired{background:#3a1010;color:#e05555}
+.badge-cancelled{background:#2a1a2a;color:#a060a0}
+.days-critical{color:#e05555;font-weight:700}
+.days-warning{color:#e8a020;font-weight:700}
+.days-ok{color:#4caf82}
+.days-expired{color:#888}
+.btn-remind{background:transparent;border:1px solid #C9A84C;color:#C9A84C;padding:4px 12px;border-radius:4px;font-size:12px;cursor:pointer;transition:background .15s}
+.btn-remind:hover{background:#C9A84C;color:#0A1628}
+.btn-remind:disabled{opacity:.4;cursor:default}
+.btn-remind.sent{border-color:#4caf82;color:#4caf82}
+.empty{text-align:center;padding:60px 20px;color:#555}
+.search-bar{margin-bottom:16px;display:flex;gap:12px;align-items:center}
+.search-bar input{background:#111e35;border:1px solid #1e3a5f;color:#e8e8e8;padding:8px 14px;border-radius:6px;font-size:14px;width:260px}
+.search-bar input::placeholder{color:#555}
+.search-bar select{background:#111e35;border:1px solid #1e3a5f;color:#e8e8e8;padding:8px 12px;border-radius:6px;font-size:13px}
+</style>
+</head>
+<body>
+<header>
+  <h1>Trial Dashboard</h1>
+  <div style="display:flex;gap:20px;align-items:center">
+    <span id="lastRefresh" style="font-size:12px;color:#555"></span>
+    <a href="/">← Back to CRM</a>
+  </div>
+</header>
+
+<div class="container">
+  <div class="summary" id="summary">
+    <div class="card"><div class="val" id="s-total">—</div><div class="lbl">Total Trials</div></div>
+    <div class="card"><div class="val" id="s-active">—</div><div class="lbl">Active Trials</div></div>
+    <div class="card"><div class="val" id="s-expiring">—</div><div class="lbl">Expiring ≤ 7 Days</div></div>
+    <div class="card"><div class="val" id="s-expired">—</div><div class="lbl">Expired</div></div>
+    <div class="card"><div class="val" id="s-paid">—</div><div class="lbl">Paid / Active</div></div>
+  </div>
+
+  <div class="search-bar">
+    <input type="text" id="searchInput" placeholder="Search by name or email…" oninput="renderTable()">
+    <select id="filterStatus" onchange="renderTable()">
+      <option value="">All statuses</option>
+      <option value="trial">Trial</option>
+      <option value="active">Active</option>
+      <option value="expired">Expired</option>
+      <option value="cancelled">Cancelled</option>
+    </select>
+  </div>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Business</th>
+        <th>Email</th>
+        <th>Status</th>
+        <th>Trial Ends</th>
+        <th>Days Left</th>
+        <th>Joined</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody id="tbody"></tbody>
+  </table>
+  <div id="emptyState" class="empty" style="display:none">No trial accounts found.</div>
+</div>
+
+<script>
+let allRows = [];
+
+async function load() {
+  try {
+    const res = await fetch('/api/admin/trials');
+    if (res.status === 403) { location.href = '/'; return; }
+    allRows = await res.json();
+    updateSummary();
+    renderTable();
+    document.getElementById('lastRefresh').textContent = 'Updated ' + new Date().toLocaleTimeString();
+  } catch (e) {
+    document.getElementById('tbody').innerHTML = '<tr><td colspan="7" style="text-align:center;color:#e05555;padding:40px">Failed to load data.</td></tr>';
+  }
+}
+
+function updateSummary() {
+  const trials    = allRows.filter(r => r.subscription_status === 'trial');
+  const expired   = allRows.filter(r => r.subscription_status === 'expired');
+  const paid      = allRows.filter(r => r.subscription_status === 'active');
+  const expiring7 = trials.filter(r => r.days_left !== null && r.days_left <= 7 && r.days_left >= 0);
+  document.getElementById('s-total').textContent    = allRows.length;
+  document.getElementById('s-active').textContent   = trials.length;
+  document.getElementById('s-expiring').textContent = expiring7.length;
+  document.getElementById('s-expired').textContent  = expired.length;
+  document.getElementById('s-paid').textContent     = paid.length;
+}
+
+function renderTable() {
+  const q      = document.getElementById('searchInput').value.toLowerCase();
+  const status = document.getElementById('filterStatus').value;
+  const rows   = allRows.filter(r => {
+    const matchSearch = !q || (r.name||'').toLowerCase().includes(q) || (r.email||'').toLowerCase().includes(q);
+    const matchStatus = !status || r.subscription_status === status;
+    return matchSearch && matchStatus;
+  });
+
+  const tbody = document.getElementById('tbody');
+  document.getElementById('emptyState').style.display = rows.length ? 'none' : 'block';
+
+  tbody.innerHTML = rows.map(r => {
+    const statusBadge = {
+      trial:     '<span class="badge badge-trial">Trial</span>',
+      active:    '<span class="badge badge-active">Active</span>',
+      expired:   '<span class="badge badge-expired">Expired</span>',
+      cancelled: '<span class="badge badge-cancelled">Cancelled</span>',
+    }[r.subscription_status] || `<span class="badge">${r.subscription_status}</span>`;
+
+    const d = r.days_left;
+    let daysHtml = '—';
+    if (r.subscription_status === 'trial' && d !== null) {
+      if (d < 0)       daysHtml = `<span class="days-expired">Ended</span>`;
+      else if (d <= 3) daysHtml = `<span class="days-critical">${d}d</span>`;
+      else if (d <= 7) daysHtml = `<span class="days-warning">${d}d</span>`;
+      else             daysHtml = `<span class="days-ok">${d}d</span>`;
+    }
+
+    const trialEnd = r.trial_ends_at
+      ? new Date(r.trial_ends_at).toLocaleDateString('en-US', { month:'short', day:'numeric', year:'numeric' })
+      : '—';
+    const joined = r.created_at
+      ? new Date(r.created_at).toLocaleDateString('en-US', { month:'short', day:'numeric', year:'numeric' })
+      : '—';
+
+    const canRemind = r.subscription_status === 'trial' && r.email;
+    return `<tr>
+      <td style="font-weight:600">${esc(r.name)}</td>
+      <td style="color:#aaa">${esc(r.email||'—')}</td>
+      <td>${statusBadge}</td>
+      <td>${trialEnd}</td>
+      <td>${daysHtml}</td>
+      <td style="color:#666;font-size:13px">${joined}</td>
+      <td>${canRemind ? `<button class="btn-remind" onclick="remind(this,${r.id})">Remind</button>` : ''}</td>
+    </tr>`;
+  }).join('');
+}
+
+async function remind(btn, wsId) {
+  btn.disabled = true;
+  btn.textContent = '…';
+  try {
+    const res = await fetch(`/api/admin/trials/${wsId}/remind`, { method:'POST' });
+    const data = await res.json();
+    if (data.ok) { btn.textContent = 'Sent'; btn.classList.add('sent'); }
+    else { btn.textContent = 'Error'; btn.disabled = false; }
+  } catch { btn.textContent = 'Error'; btn.disabled = false; }
+}
+
+function esc(s) {
+  return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+load();
+setInterval(load, 60000); // auto-refresh every minute
+</script>
+</body>
+</html>
