@@ -23,7 +23,10 @@
     "lionheart-clean": "node Agency/tools/lionheart-clean.js",
     "lionheart-pdf": "node Agency/tools/lionheart-pdf.js",
     "lionheart-whisper": "python Agency/tools/lionheart-whisper.py",
-    "lionheart-all": "npm run lionheart-harvest && npm run lionheart-transcribe && npm run lionheart-whisper && npm run lionheart-clean && npm run lionheart-pdf"
+    "lionheart-dashboard": "node Agency/tools/lionheart-dashboard.js",
+    "lionheart-all": "npm run lionheart-harvest && npm run lionheart-transcribe && npm run lionheart-whisper && npm run lionheart-clean && npm run lionheart-pdf && npm run lionheart-dashboard",
+    "gov-monitor": "node Agency/tools/gov-monitor.js",
+    "gov-monitor:daemon": "node Agency/tools/gov-monitor.js --daemon"
   },
   "devDependencies": {
     "playwright": "^1.58.2"

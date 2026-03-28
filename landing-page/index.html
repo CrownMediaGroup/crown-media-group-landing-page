@@ -338,17 +338,17 @@ footer{background:#0F0F28;padding:56px 64px;display:flex;align-items:center;just
 #portfolio-lightbox{display:none;position:fixed;inset:0;background:rgba(10,10,30,.92);z-index:9999;align-items:center;justify-content:center;padding:40px;cursor:pointer}
 #portfolio-lightbox.open{display:flex}
 #portfolio-lightbox img{max-width:90vw;max-height:85vh;object-fit:contain;box-shadow:0 32px 80px rgba(0,0,0,.6);cursor:default;pointer-events:none}
-#lightbox-close{position:fixed;top:24px;right:32px;color:rgba(255,255,255,.7);font-size:2rem;cursor:pointer;background:none;border:none;line-height:1;padding:8px;transition:color .2s;z-index:10000}
+#lightbox-close{position:fixed;top:24px;right:32px;color:rgba(255,255,255,.7);font-size:2rem;cursor:pointer;background:none;border:none;line-height:1;padding:14px 16px;min-width:44px;min-height:44px;transition:color .2s;z-index:10000}
 #lightbox-close:hover{color:var(--gold)}
 @media(max-width:1024px){.portfolio-grid{grid-template-columns:repeat(2,1fr)}}
-@media(max-width:768px){#portfolio{padding:80px 24px}.portfolio-grid{grid-template-columns:1fr}}
+@media(max-width:768px){#portfolio{padding:80px 24px}.portfolio-grid{grid-template-columns:1fr}#music-vol-wrap{display:none!important}}
 /* ── Music Toggle ── */
 #music-bar{position:fixed;bottom:32px;right:32px;z-index:9000;display:flex;flex-direction:column;align-items:center;padding:10px 10px 0;background:rgba(26,26,62,0.82);border:1px solid rgba(201,152,26,0.35);border-radius:40px;-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);box-shadow:0 4px 24px rgba(0,0,0,.32)}
 .music-vol-wrap{display:none;padding-bottom:10px;}
 #music-vol{writing-mode:vertical-lr;direction:rtl;width:4px;height:80px;cursor:pointer;accent-color:var(--gold);display:block}
 #music-btn{width:44px;height:44px;border-radius:50%;background:rgba(201,152,26,0.15);border:1.5px solid rgba(201,152,26,0.5);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:border-color .2s,background .2s,color .2s;font-size:1.2rem;color:rgba(232,184,50,.75);outline:none;margin-bottom:10px}
 #music-btn:hover,#music-btn.music-on{background:rgba(201,152,26,0.25);border-color:var(--gold);color:var(--gold)}
-#music-shuffle{width:36px;height:36px;border-radius:50%;background:transparent;border:1px solid rgba(201,152,26,0.3);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:border-color .2s,color .2s;font-size:1rem;color:rgba(232,184,50,.5);outline:none;margin-bottom:10px}
+#music-shuffle{width:44px;height:44px;border-radius:50%;background:transparent;border:1px solid rgba(201,152,26,0.3);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:border-color .2s,color .2s;font-size:1rem;color:rgba(232,184,50,.5);outline:none;margin-bottom:10px}
 #music-shuffle:hover{border-color:var(--gold);color:var(--gold)}
 </style>
 </head>
@@ -371,7 +371,7 @@ footer{background:#0F0F28;padding:56px 64px;display:flex;align-items:center;just
     <li><a href="/ai-tools.html" class="nav-link-gold">AI Tools</a></li>
   </ul>
   <a href="https://calendly.com/crownmediagroupco" target="_blank" class="btn-royal nav-cta">Book a Call</a>
-  <div class="hamburger" id="hamburger" role="button" aria-label="Menu"><span></span><span></span><span></span></div>
+  <button type="button" class="hamburger" id="hamburger" aria-label="Menu"><span></span><span></span><span></span></button>
 </nav>
 <div class="mobile-menu" id="mobile-menu">
   <a href="/blog/" class="nav-link-gold">Blog</a>
@@ -957,9 +957,11 @@ document.querySelectorAll('.counters').forEach(el=>cObs.observe(el));
   var bar=document.getElementById('music-bar');
   var shuf=document.getElementById('music-shuffle');
 
-  // Sticky volume panel — JS controlled so no gap between button and slider
+  // Sticky volume panel — mouse + touch support
   bar.addEventListener('mouseenter',function(){wrap.style.display='block';});
   bar.addEventListener('mouseleave',function(){wrap.style.display='none';});
+  bar.addEventListener('touchstart',function(e){e.stopPropagation();wrap.style.display=wrap.style.display==='block'?'none':'block';},{passive:true});
+  document.addEventListener('touchstart',function(e){if(!bar.contains(e.target))wrap.style.display='none';},{passive:true});
 
   function setOn(){ytPlayer.unMute();ytPlayer.setVolume(parseInt(vol.value));ytPlayer.playVideo();musicOn=true;btn.classList.add('music-on');localStorage.setItem('cmg_music','on');}
   function setOff(){ytPlayer.mute();musicOn=false;btn.classList.remove('music-on');localStorage.setItem('cmg_music','off');}
