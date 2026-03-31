@@ -85,23 +85,24 @@
 
   input[type="email"],
   input[type="password"],
-  input[type="text"].pw-input {
+  input[type="text"] {
     width: 100%;
     background: var(--input-bg);
     border: 1px solid var(--border);
     border-radius: var(--radius);
-    padding: 12px 44px 12px 14px;
+    padding: 12px 14px;
     color: var(--text);
     font-size: 0.93rem;
     outline: none;
     transition: border-color 0.2s;
   }
 
-  input[type="email"] { padding: 12px 14px; }
+  input[type="text"].pw-input,
+  input[type="password"] { padding: 12px 44px 12px 14px; }
 
   input[type="email"]:focus,
   input[type="password"]:focus,
-  input[type="text"].pw-input:focus {
+  input[type="text"]:focus {
     border-color: var(--gold);
   }
 
