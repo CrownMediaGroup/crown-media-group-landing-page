@@ -11,6 +11,15 @@ import { exec, spawn } from 'child_process';
 import axios from 'axios';
 import * as cheerio from 'cheerio';
 
+// ── Path constants (must be defined FIRST before any use) ───────────────────
+const __dirname  = dirname(fileURLToPath(import.meta.url));
+const ROOT       = join(__dirname, '..');
+const BLOG_DIR   = join(ROOT, 'content', 'blog');
+const QUEUE_FILE = join(BLOG_DIR, 'topics-queue.json');
+const SCHED_FILE = join(BLOG_DIR, 'schedule.json');
+
+function log(msg) { console.log(`[Blog] ${new Date().toISOString()} — ${msg}`); }
+
 // CRM database (node:sqlite — requires --experimental-sqlite flag)
 let crmDb = null;
 try {
@@ -20,21 +29,20 @@ try {
   else log('CRM database not found at ' + CRM_DB);
 } catch (e) { log('CRM DB unavailable (run with --experimental-sqlite): ' + e.message); }
 
-const __dirname  = dirname(fileURLToPath(import.meta.url));
-const ROOT       = join(__dirname, '..');
-const BLOG_DIR   = join(ROOT, 'content', 'blog');
-const QUEUE_FILE = join(BLOG_DIR, 'topics-queue.json');
-const SCHED_FILE = join(BLOG_DIR, 'schedule.json');
-
-function log(msg) { console.log(`[Blog] ${new Date().toISOString()} — ${msg}`); }
-
 // ── File helpers ────────────────────────────────────────────────────────────
 
 function readQueue() {
   if (!existsSync(QUEUE_FILE)) return [];
-  try { return JSON.parse(readFileSync(QUEUE_FILE, 'utf8')); } catch { return []; }
+  try {
+    const data = JSON.parse(readFileSync(QUEUE_FILE, 'utf8'));
+    // Queue file uses {queue:[...]} format (blog-writer.js expects this)
+    return Array.isArray(data) ? data : (Array.isArray(data.queue) ? data.queue : []);
+  } catch { return []; }
 }
-function saveQueue(q) { writeFileSync(QUEUE_FILE, JSON.stringify(q, null, 2)); }
+function saveQueue(q) {
+  // Always persist in {queue:[...]} format so blog-writer.js stays compatible
+  writeFileSync(QUEUE_FILE, JSON.stringify({ queue: q }, null, 2));
+}
 
 function readSchedule() {
   const defaults = { postsPerDay: 4, skipSabbath: true, autoResearch: true, lastRun: null };
@@ -67,33 +75,17 @@ function getPosts() {
 
 function isSabbath() { return new Date().getDay() === 6; }
 
-async function autoFillQueue() {
-  const topics = [];
+// ── Auto-researcher helper ───────────────────────────────────────────────────
+async function ensureQueue() {
+  const q = readQueue();
+  if (q.length >= 10) return; // Queue is healthy
+  log(`Queue low (${q.length} topics) — running researcher...`);
   try {
-    for (const sub of ['smallbusiness', 'marketing']) {
-      const r = await axios.get(`https://www.reddit.com/r/${sub}/hot.json?limit=6`, {
-        headers: { 'User-Agent': 'CrownMediaGroup/1.0' }, timeout: 8000,
-      });
-      for (const p of (r.data?.data?.children || [])) {
-        const t = p.data?.title;
-        if (t && t.length > 20)
-          topics.push({ topic: `How Columbia SC businesses can address: ${t}`, keyword: 'Columbia SC marketing', category: 'Local Business', source: `r/${sub}`, addedAt: new Date().toISOString() });
-      }
-    }
-  } catch (_) {}
-  try {
-    const r = await axios.get('https://trends.google.com/trends/trendingsearches/daily/rss?geo=US', { timeout: 8000 });
-    const $ = cheerio.load(r.data, { xmlMode: true });
-    $('item title').each((_, el) => {
-      const t = $(el).text();
-      if (t) topics.push({ topic: `${t} — what Columbia SC business owners need to know`, keyword: t, category: 'Marketing', source: 'Google Trends', addedAt: new Date().toISOString() });
-    });
-  } catch (_) {}
-  if (topics.length) {
-    const q = readQueue();
-    q.push(...topics.slice(0, 8));
-    saveQueue(q);
-    log(`Auto-filled ${Math.min(topics.length, 8)} topics into queue.`);
+    const { research } = await import('./blog-researcher.js');
+    const added = await research(20);
+    log(`Researcher added ${added} topics. Queue now: ${readQueue().length}`);
+  } catch (e) {
+    log(`Researcher failed: ${e.message}`);
   }
 }
 
@@ -103,7 +95,7 @@ function generatePost() {
   const queue = readQueue();
   if (!queue.length) {
     log('Queue empty — auto-researching...');
-    if (sched.autoResearch) autoFillQueue().then(() => {
+    if (sched.autoResearch) ensureQueue().then(() => {
       const q2 = readQueue();
       if (q2.length) generatePost();
     });
@@ -121,7 +113,7 @@ function generatePost() {
   proc.on('close', (code) => {
     if (code === 0) {
       const s = readSchedule(); s.lastRun = new Date().toISOString(); saveSchedule(s);
-      log(`Post published.`);
+      log('Post published.');
     } else {
       log(`Writer failed (code ${code}) — re-queuing.`);
       const q2 = readQueue(); q2.unshift(next); saveQueue(q2);
@@ -129,9 +121,15 @@ function generatePost() {
   });
 }
 
-// CRON: 6am, 10am, 2pm, 6pm
-for (const time of ['0 6 * * *', '0 10 * * *', '0 14 * * *', '0 18 * * *']) {
-  cron.schedule(time, () => { log(`Cron fired — ${time}`); generatePost(); });
+// ── CRON: 8am, 12pm, 4pm, 8pm EST — Skip Saturday ────────────────────────────
+for (const time of ['0 8 * * 0-5', '0 12 * * 0-5', '0 16 * * 0-5', '0 20 * * 0-5']) {
+  cron.schedule(time, async () => {
+    const day = new Date().getDay();
+    if (day === 6) { log('Saturday — Sabbath rest. Skipping post.'); return; }
+    log(`Cron fired — ${time}`);
+    await ensureQueue();
+    generatePost();
+  });
 }
 
 // ── Express API ─────────────────────────────────────────────────────────────
@@ -241,19 +239,17 @@ app.get('/api/research', async (req, res) => {
   res.json({ topics: topics.slice(0, 40), niche });
 });
 
-// ── Start ───────────────────────────────────────────────────────────────────
-
 // ── CRM API ─────────────────────────────────────────────────────────────────
 
 app.get('/api/crm/stats', (_, res) => {
   if (!crmDb) return res.json({ available: false });
   try {
     const today = new Date().toISOString().split('T')[0];
-    const total     = crmDb.prepare('SELECT COUNT(*) as n FROM contacts').get().n;
-    const clients   = crmDb.prepare("SELECT COUNT(*) as n FROM contacts WHERE status='Client'").get().n;
-    const leads     = crmDb.prepare("SELECT COUNT(*) as n FROM contacts WHERE status NOT IN ('Client','Dead')").get().n;
-    const overdue   = crmDb.prepare("SELECT COUNT(*) as n FROM contacts WHERE next_followup <= ? AND status NOT IN ('Client','Dead')").get(today).n;
-    const pipeline  = crmDb.prepare('SELECT COALESCE(SUM(deal_value),0) as v FROM contacts').get().v;
+    const total      = crmDb.prepare('SELECT COUNT(*) as n FROM contacts').get().n;
+    const clients    = crmDb.prepare("SELECT COUNT(*) as n FROM contacts WHERE status='Client'").get().n;
+    const leads      = crmDb.prepare("SELECT COUNT(*) as n FROM contacts WHERE status NOT IN ('Client','Dead')").get().n;
+    const overdue    = crmDb.prepare("SELECT COUNT(*) as n FROM contacts WHERE next_followup <= ? AND status NOT IN ('Client','Dead')").get(today).n;
+    const pipeline   = crmDb.prepare('SELECT COALESCE(SUM(deal_value),0) as v FROM contacts').get().v;
     const newThisWeek = crmDb.prepare("SELECT COUNT(*) as n FROM contacts WHERE date(created_at) >= date(?,'weekday 0','-7 days')").get(today).n;
     res.json({ available: true, total, clients, leads, overdue, pipeline, newThisWeek });
   } catch (e) { res.json({ available: false, error: e.message }); }
@@ -276,15 +272,16 @@ app.get('/api/crm/followups', (_, res) => {
   } catch (e) { res.json([]); }
 });
 
+// ── Start ───────────────────────────────────────────────────────────────────
+
 const PORT = 4001;
 app.listen(PORT, () => {
   console.log('\n================================================');
   console.log('  Crown Media Group — Blog Admin + Scheduler');
   console.log('================================================');
   console.log(`  Dashboard:  http://localhost:${PORT}`);
-  console.log('  Scheduler:  ACTIVE (6am, 10am, 2pm, 6pm)');
+  console.log('  Scheduler:  ACTIVE (8am, 12pm, 4pm, 8pm EST)');
   console.log('  Sabbath:    Saturday posts SKIPPED');
   console.log('================================================\n');
-  // Auto-open browser (non-blocking)
   try { exec(`start http://localhost:${PORT}`); } catch (_) {}
 });
