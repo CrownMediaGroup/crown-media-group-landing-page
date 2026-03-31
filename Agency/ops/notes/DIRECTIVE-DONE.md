@@ -1,4 +1,4 @@
-# Directive 000 — 2026-03-27T06:34:21.909Z
+# Directive 000 — 2026-03-30T20:56:54.914Z
 
 # CC Session Opening Prompt
 # Paste into bridge at the start of every session

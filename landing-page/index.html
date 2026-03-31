@@ -1020,28 +1020,96 @@ if (/iPhone|iPad/.test(navigator.userAgent) && !navigator.standalone) {
 #support-pop .sup-label{font-family:'Cormorant Garamond',serif;font-size:.7rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:rgba(201,152,26,.5);padding:8px 16px 4px;display:block}
 #support-pop .sup-divider{height:1px;background:rgba(201,152,26,.15);margin:4px 8px}
 </style>
-<button type="button" id="support-btn" aria-label="Contact support" title="Get in touch">
+<style>
+#email-trigger-btn{display:flex;align-items:center;gap:12px;padding:12px 16px;border-radius:8px;text-decoration:none;color:rgba(255,255,255,.85);font-family:'Inter',sans-serif;font-size:.82rem;font-weight:600;letter-spacing:.04em;transition:background .15s,color .15s;background:transparent;border:none;cursor:pointer;width:100%;text-align:left;}
+#email-trigger-btn:hover{background:rgba(201,152,26,.12);color:#C9981A;}
+#email-trigger-btn svg{width:18px;height:18px;flex-shrink:0;fill:rgba(201,152,26,.7);transition:fill .2s;}
+#email-trigger-btn:hover svg{fill:#C9981A;}
+#email-fallback{display:none;padding:0 8px 8px;}
+#email-fallback .ef-addr{font-size:.72rem;color:rgba(201,152,26,.7);padding:6px 8px 10px;word-break:break-all;font-family:'Inter',sans-serif;}
+#email-fallback .ef-btn{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:6px;text-decoration:none;color:rgba(255,255,255,.75);font-family:'Inter',sans-serif;font-size:.76rem;font-weight:600;background:rgba(255,255,255,.04);border:1px solid rgba(201,152,26,.15);cursor:pointer;transition:background .15s,color .15s;margin-bottom:4px;width:100%;text-align:left;}
+#email-fallback .ef-btn:hover{background:rgba(201,152,26,.12);color:#C9981A;}
+#copy-email-btn{border:1px solid rgba(201,152,26,.35);}
+</style>
+<button type="button" id="support-btn" aria-label="Customer support" title="Customer Support">
   <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M20 10.5C20 6.36 16.41 3 12 3S4 6.36 4 10.5v6c0 1.1.9 2 2 2h1c.55 0 1-.45 1-1v-5c0-.55-.45-1-1-1H6v-1c0-3.31 2.69-6 6-6s6 2.69 6 6v1h-1c-.55 0-1 .45-1 1v5c0 .55.45 1 1 1h1c1.1 0 2-.9 2-2v-6z"/></svg>
 </button>
-<div id="support-pop" role="dialog" aria-label="Contact options">
-  <span class="sup-label">Get in Touch</span>
+<div id="support-pop" role="dialog" aria-label="Customer support options">
+  <span class="sup-label">Customer Support</span>
   <a href="tel:9088481436">
     <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M6.62 10.79a15.53 15.53 0 006.59 6.59l2.2-2.2a1 1 0 011.11-.24c1.21.49 2.53.76 3.88.76a1 1 0 011 1v3.8a1 1 0 01-1 1C10.36 22.5 1.5 13.64 1.5 3a1 1 0 011-1H6.3a1 1 0 011 1c0 1.35.27 2.67.76 3.88a1 1 0 01-.24 1.11l-2.2 2.2z"/></svg>
     Call (908) 848-1436
   </a>
   <div class="sup-divider"></div>
-  <a href="mailto:king@crownmediagroup.co?subject=Hello%20Crown%20Media%20Group">
+  <button type="button" id="email-trigger-btn">
     <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg>
     Email Us
-  </a>
+  </button>
+  <div id="email-fallback">
+    <div class="ef-addr">king@crownmediagroup.co</div>
+    <button type="button" id="copy-email-btn" class="ef-btn">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+      Copy Email
+    </button>
+    <a href="https://mail.google.com/mail/?view=cm&to=king@crownmediagroup.co&subject=Hello%20Crown%20Media%20Group" target="_blank" rel="noopener noreferrer" class="ef-btn">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+      Open Gmail
+    </a>
+    <a href="https://outlook.live.com/mail/0/deeplink/compose?to=king@crownmediagroup.co&subject=Hello%20Crown%20Media%20Group" target="_blank" rel="noopener noreferrer" class="ef-btn">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+      Open Outlook
+    </a>
+    <a href="https://compose.mail.yahoo.com/?to=king@crownmediagroup.co&subject=Hello%20Crown%20Media%20Group" target="_blank" rel="noopener noreferrer" class="ef-btn">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+      Open Yahoo Mail
+    </a>
+  </div>
 </div>
 <script>
 (function(){
   var btn=document.getElementById('support-btn');
   var pop=document.getElementById('support-pop');
-  btn.addEventListener('click',function(e){e.stopPropagation();pop.classList.toggle('open');btn.classList.toggle('open');});
-  document.addEventListener('click',function(){pop.classList.remove('open');btn.classList.remove('open');});
+  var emailBtn=document.getElementById('email-trigger-btn');
+  var emailFallback=document.getElementById('email-fallback');
+  var copyBtn=document.getElementById('copy-email-btn');
+  var EMAIL='king@crownmediagroup.co';
+  var SUBJECT='Hello%20Crown%20Media%20Group';
+
+  btn.addEventListener('click',function(e){e.stopPropagation();pop.classList.toggle('open');btn.classList.toggle('open');emailFallback.style.display='none';});
+  document.addEventListener('click',function(){pop.classList.remove('open');btn.classList.remove('open');emailFallback.style.display='none';});
   pop.addEventListener('click',function(e){e.stopPropagation();});
+
+  emailBtn.addEventListener('click',function(e){
+    e.stopPropagation();
+    var opened=false;
+    var t;
+    function onBlur(){opened=true;clearTimeout(t);window.removeEventListener('blur',onBlur);}
+    window.addEventListener('blur',onBlur);
+    window.location.href='mailto:'+EMAIL+'?subject='+SUBJECT;
+    t=setTimeout(function(){
+      window.removeEventListener('blur',onBlur);
+      if(!opened){emailFallback.style.display='block';}
+    },700);
+  });
+
+  copyBtn.addEventListener('click',function(e){
+    e.stopPropagation();
+    if(navigator.clipboard&&navigator.clipboard.writeText){
+      navigator.clipboard.writeText(EMAIL).then(function(){
+        copyBtn.childNodes[copyBtn.childNodes.length-1].textContent=' Copied!';
+        setTimeout(function(){copyBtn.childNodes[copyBtn.childNodes.length-1].textContent=' Copy Email';},2000);
+      }).catch(function(){legacyCopy();});
+    } else { legacyCopy(); }
+  });
+
+  function legacyCopy(){
+    var ta=document.createElement('textarea');
+    ta.value=EMAIL;ta.style.cssText='position:fixed;opacity:0;top:0;left:0';
+    document.body.appendChild(ta);ta.focus();ta.select();
+    try{document.execCommand('copy');copyBtn.childNodes[copyBtn.childNodes.length-1].textContent=' Copied!';}catch(err){}
+    document.body.removeChild(ta);
+    setTimeout(function(){copyBtn.childNodes[copyBtn.childNodes.length-1].textContent=' Copy Email';},2000);
+  }
 })();
 </script>
 </body>

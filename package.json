@@ -29,7 +29,8 @@
     "gov-monitor:daemon": "node Agency/tools/gov-monitor.js --daemon"
   },
   "devDependencies": {
-    "playwright": "^1.58.2"
+    "playwright": "^1.58.2",
+    "sharp": "^0.34.5"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.79.0",
@@ -44,7 +45,6 @@
     "playwright-extra": "^4.3.6",
     "playwright-extra-plugin-stealth": "^0.0.1",
     "puppeteer-extra-plugin-stealth": "^2.11.2",
-    "sharp": "^0.34.5",
     "twilio": "^5.13.0"
   }
 }
