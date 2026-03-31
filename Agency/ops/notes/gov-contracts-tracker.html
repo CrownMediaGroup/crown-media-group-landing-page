@@ -1,0 +1,844 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Crown Media Group — Government Contracts Tracker</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700;900&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0b0b14;
+    --bg2: #13131f;
+    --bg3: #1a1a2e;
+    --gold: #B8860B;
+    --gold-light: #d4a017;
+    --gold-pale: #f0d88a;
+    --text: #e8e0d0;
+    --text-dim: #7a7060;
+    --border: #222030;
+    --green: #3d8c5a;
+    --green-glow: rgba(61,140,90,0.15);
+    --amber: #c8860a;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Cormorant Garamond', Georgia, serif;
+    font-size: 16px;
+    line-height: 1.6;
+    min-height: 100vh;
+  }
+
+  /* ── HEADER ── */
+  .header {
+    background: linear-gradient(150deg, #06060e 0%, #12111e 60%, #0a0906 100%);
+    border-bottom: 1px solid var(--border);
+    padding: 44px 64px 36px;
+    position: relative;
+  }
+  .header::after {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 64px; right: 64px;
+    height: 1px;
+    background: linear-gradient(to right, transparent, var(--gold), transparent);
+  }
+  .eyebrow {
+    font-family: 'Cinzel Decorative', serif;
+    font-size: 9px;
+    letter-spacing: 6px;
+    color: var(--gold);
+    opacity: 0.75;
+    text-transform: uppercase;
+    margin-bottom: 10px;
+  }
+  h1 {
+    font-family: 'Cinzel Decorative', serif;
+    font-size: 26px;
+    font-weight: 900;
+    color: var(--gold-pale);
+    line-height: 1.2;
+    margin-bottom: 6px;
+  }
+  .header-sub {
+    font-size: 14px;
+    font-style: italic;
+    color: var(--text-dim);
+  }
+  .verse {
+    margin-top: 18px;
+    padding-top: 18px;
+    border-top: 1px solid var(--border);
+    font-size: 12px;
+    font-style: italic;
+    color: var(--text-dim);
+  }
+  .verse cite { color: var(--gold); font-style: normal; }
+
+  /* ── MASTER PROGRESS ── */
+  .master-progress {
+    background: var(--bg2);
+    border-bottom: 1px solid var(--border);
+    padding: 28px 64px;
+    display: flex;
+    align-items: center;
+    gap: 48px;
+  }
+  .master-pct {
+    font-family: 'Cinzel Decorative', serif;
+    font-size: 52px;
+    font-weight: 900;
+    color: var(--gold-pale);
+    line-height: 1;
+    flex-shrink: 0;
+  }
+  .master-pct span {
+    font-size: 22px;
+    color: var(--gold);
+    opacity: 0.7;
+  }
+  .master-bar-wrap { flex: 1; }
+  .master-label {
+    font-family: 'Cinzel Decorative', serif;
+    font-size: 10px;
+    letter-spacing: 3px;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    margin-bottom: 10px;
+  }
+  .bar-bg {
+    height: 8px;
+    background: var(--bg3);
+    border-radius: 4px;
+    overflow: hidden;
+  }
+  .bar-fill {
+    height: 100%;
+    background: linear-gradient(to right, var(--gold), var(--gold-light));
+    border-radius: 4px;
+    transition: width 0.6s ease;
+  }
+  .master-stats {
+    display: flex;
+    gap: 32px;
+    margin-top: 10px;
+  }
+  .master-stat { font-size: 12px; color: var(--text-dim); }
+  .master-stat strong { color: var(--gold-pale); font-style: normal; }
+
+  /* ── LAYOUT ── */
+  .container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 48px 64px;
+    display: grid;
+    grid-template-columns: 1fr 320px;
+    gap: 32px;
+    align-items: start;
+  }
+
+  /* ── PHASE BLOCKS ── */
+  .phase-block {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    margin-bottom: 20px;
+    overflow: hidden;
+    transition: border-color 0.2s;
+  }
+  .phase-block:hover { border-color: rgba(184,134,11,0.3); }
+  .phase-header {
+    padding: 20px 24px 16px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    cursor: pointer;
+    user-select: none;
+  }
+  .phase-num {
+    font-family: 'Cinzel Decorative', serif;
+    font-size: 22px;
+    font-weight: 900;
+    color: var(--border);
+    line-height: 1;
+    flex-shrink: 0;
+    width: 32px;
+    text-align: center;
+    transition: color 0.3s;
+  }
+  .phase-block.complete .phase-num { color: var(--green); }
+  .phase-block.active .phase-num { color: var(--gold); }
+  .phase-title-wrap { flex: 1; }
+  .phase-title {
+    font-family: 'Cinzel Decorative', serif;
+    font-size: 13px;
+    color: var(--text);
+    margin-bottom: 2px;
+  }
+  .phase-subtitle { font-size: 12px; color: var(--text-dim); font-style: italic; }
+  .phase-mini-bar {
+    width: 80px;
+    height: 4px;
+    background: var(--bg3);
+    border-radius: 2px;
+    overflow: hidden;
+    flex-shrink: 0;
+  }
+  .phase-mini-fill {
+    height: 100%;
+    background: var(--gold);
+    border-radius: 2px;
+    transition: width 0.4s ease;
+  }
+  .phase-block.complete .phase-mini-fill { background: var(--green); }
+  .phase-count-badge {
+    font-size: 11px;
+    color: var(--text-dim);
+    flex-shrink: 0;
+    text-align: right;
+    min-width: 48px;
+  }
+
+  /* ── CHECKLIST ITEMS ── */
+  .phase-items { padding: 8px 0; }
+  .item {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    padding: 12px 24px;
+    cursor: pointer;
+    transition: background 0.15s;
+    border-bottom: 1px solid rgba(255,255,255,0.03);
+  }
+  .item:last-child { border-bottom: none; }
+  .item:hover { background: rgba(255,255,255,0.02); }
+  .item.done { background: var(--green-glow); }
+  .checkbox {
+    width: 20px;
+    height: 20px;
+    border: 1.5px solid var(--border);
+    border-radius: 4px;
+    flex-shrink: 0;
+    margin-top: 2px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+    background: var(--bg3);
+  }
+  .item.done .checkbox {
+    background: var(--green);
+    border-color: var(--green);
+    color: #fff;
+    font-size: 12px;
+  }
+  .item-content { flex: 1; }
+  .item-title {
+    font-size: 14px;
+    color: var(--text);
+    transition: color 0.2s;
+    line-height: 1.4;
+  }
+  .item.done .item-title {
+    color: var(--text-dim);
+    text-decoration: line-through;
+    text-decoration-color: var(--green);
+  }
+  .item-detail { font-size: 12px; color: var(--text-dim); margin-top: 3px; font-style: italic; }
+  .item-link {
+    font-size: 11px;
+    color: var(--gold);
+    text-decoration: none;
+    letter-spacing: 0.5px;
+    margin-top: 4px;
+    display: inline-block;
+    opacity: 0.8;
+    transition: opacity 0.2s;
+  }
+  .item-link:hover { opacity: 1; text-decoration: underline; }
+  .item-tag {
+    font-size: 10px;
+    padding: 2px 8px;
+    border-radius: 10px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    flex-shrink: 0;
+    margin-top: 3px;
+    align-self: flex-start;
+  }
+  .tag-free { background: rgba(61,140,90,0.15); color: var(--green); border: 1px solid rgba(61,140,90,0.3); }
+  .tag-call { background: rgba(184,134,11,0.12); color: var(--gold); border: 1px solid rgba(184,134,11,0.25); }
+  .tag-paid { background: rgba(150,80,60,0.15); color: #c07060; border: 1px solid rgba(150,80,60,0.3); }
+  .tag-key { background: rgba(100,80,200,0.15); color: #a090e0; border: 1px solid rgba(100,80,200,0.3); }
+
+  /* ── SIDEBAR ── */
+  .sidebar { display: flex; flex-direction: column; gap: 20px; }
+
+  .sidebar-card {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+  }
+  .sidebar-card-header {
+    padding: 14px 20px;
+    border-bottom: 1px solid var(--border);
+    font-family: 'Cinzel Decorative', serif;
+    font-size: 9px;
+    letter-spacing: 4px;
+    color: var(--gold);
+    text-transform: uppercase;
+  }
+  .sidebar-card-body { padding: 16px 20px; }
+
+  /* Revenue table */
+  .rev-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    padding: 8px 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 13px;
+  }
+  .rev-row:last-child { border-bottom: none; }
+  .rev-type { color: var(--text-dim); }
+  .rev-amount { color: var(--gold-pale); font-weight: 600; }
+  .rev-when { font-size: 11px; color: var(--text-dim); font-style: italic; }
+
+  /* Contacts */
+  .contact-item {
+    padding: 10px 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 13px;
+  }
+  .contact-item:last-child { border-bottom: none; }
+  .contact-name { color: var(--gold-pale); font-weight: 600; margin-bottom: 3px; }
+  .contact-role { font-size: 11px; color: var(--text-dim); font-style: italic; margin-bottom: 4px; }
+  .contact-info { font-size: 12px; color: var(--text-dim); }
+  .contact-info a { color: var(--gold); text-decoration: none; }
+
+  /* NAICS */
+  .naics-row {
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+    padding: 8px 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 13px;
+  }
+  .naics-row:last-child { border-bottom: none; }
+  .naics-code {
+    font-family: 'Courier New', monospace;
+    font-size: 12px;
+    color: var(--gold);
+    background: rgba(184,134,11,0.08);
+    padding: 2px 7px;
+    border-radius: 4px;
+    flex-shrink: 0;
+  }
+  .naics-desc { color: var(--text-dim); font-size: 12px; line-height: 1.4; }
+
+  /* Reset button */
+  .reset-btn {
+    display: block;
+    width: 100%;
+    padding: 10px;
+    background: transparent;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    color: var(--text-dim);
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 13px;
+    cursor: pointer;
+    letter-spacing: 1px;
+    transition: all 0.2s;
+    margin-top: 8px;
+  }
+  .reset-btn:hover { border-color: var(--gold); color: var(--gold); }
+
+  /* ── FOOTER ── */
+  .footer {
+    border-top: 1px solid var(--border);
+    padding: 20px 64px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 11px;
+    color: var(--text-dim);
+    letter-spacing: 1px;
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="eyebrow">Crown Media Group · All Glory to Jesus Global LLC</div>
+  <h1>Government Contracts<br>Progress Tracker</h1>
+  <div class="header-sub">Columbia, SC 29229 · 90-Day Entry Plan</div>
+  <div class="verse">"Plans fail for lack of counsel, but with many advisers they succeed." <cite>— Proverbs 15:22</cite></div>
+</div>
+
+<div class="master-progress">
+  <div class="master-pct" id="masterPct">0<span>%</span></div>
+  <div class="master-bar-wrap">
+    <div class="master-label">Overall Completion</div>
+    <div class="bar-bg"><div class="bar-fill" id="masterBar" style="width:0%"></div></div>
+    <div class="master-stats">
+      <div class="master-stat"><strong id="doneCount">0</strong> completed</div>
+      <div class="master-stat"><strong id="leftCount">0</strong> remaining</div>
+      <div class="master-stat"><strong id="totalCount">0</strong> total tasks</div>
+    </div>
+  </div>
+</div>
+
+<div class="container">
+  <div class="main-col" id="phases"></div>
+
+  <div class="sidebar">
+
+    <!-- Revenue Potential -->
+    <div class="sidebar-card">
+      <div class="sidebar-card-header">Revenue Potential</div>
+      <div class="sidebar-card-body">
+        <div class="rev-row">
+          <div>
+            <div class="rev-type">Micro-purchase</div>
+            <div class="rev-when">Months 1–3 after SAM</div>
+          </div>
+          <div class="rev-amount">$5K–$15K</div>
+        </div>
+        <div class="rev-row">
+          <div>
+            <div class="rev-type">Simplified Acquisition</div>
+            <div class="rev-when">Months 3–9</div>
+          </div>
+          <div class="rev-amount">$15K–$350K</div>
+        </div>
+        <div class="rev-row">
+          <div>
+            <div class="rev-type">Small Biz Set-Aside</div>
+            <div class="rev-when">Year 2+</div>
+          </div>
+          <div class="rev-amount">$100K–$2.5M</div>
+        </div>
+        <div class="rev-row">
+          <div>
+            <div class="rev-type">8(a) Sole-Source</div>
+            <div class="rev-when">Year 3+ (2028)</div>
+          </div>
+          <div class="rev-amount">Up to $4.5M</div>
+        </div>
+        <div class="rev-row">
+          <div>
+            <div class="rev-type">Year 1 Target</div>
+            <div class="rev-when">Alongside private clients</div>
+          </div>
+          <div class="rev-amount">$35K–$150K</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Key Contacts -->
+    <div class="sidebar-card">
+      <div class="sidebar-card-header">Key Contacts</div>
+      <div class="sidebar-card-body">
+        <div class="contact-item">
+          <div class="contact-name">Katherine Romero</div>
+          <div class="contact-role">Fort Jackson MWR — Commercial Sponsorship</div>
+          <div class="contact-info">
+            📞 803-751-6990<br>
+            <a href="mailto:katherine.d.romero2.naf@army.mil">katherine.d.romero2.naf@army.mil</a>
+          </div>
+        </div>
+        <div class="contact-item">
+          <div class="contact-name">SC PTAC</div>
+          <div class="contact-role">Free contracting counselors (use them)</div>
+          <div class="contact-info"><a href="https://scptac.com" target="_blank">scptac.com</a></div>
+        </div>
+        <div class="contact-item">
+          <div class="contact-name">SC SBDC at USC</div>
+          <div class="contact-role">Free one-on-one advising</div>
+          <div class="contact-info">
+            📞 803-777-4907<br>
+            <a href="https://sbdc.sc.edu" target="_blank">sbdc.sc.edu</a>
+          </div>
+        </div>
+        <div class="contact-item">
+          <div class="contact-name">MICC Fort Jackson</div>
+          <div class="contact-role">Federal contracting office</div>
+          <div class="contact-info">4340 Magruder Ave, Fort Jackson SC 29207</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- NAICS Codes -->
+    <div class="sidebar-card">
+      <div class="sidebar-card-header">Your NAICS Codes</div>
+      <div class="sidebar-card-body">
+        <div class="naics-row"><span class="naics-code">541810</span><span class="naics-desc">Advertising Agencies — lead with this</span></div>
+        <div class="naics-row"><span class="naics-code">541613</span><span class="naics-desc">Marketing Consulting Services</span></div>
+        <div class="naics-row"><span class="naics-code">541511</span><span class="naics-desc">Custom Computer Programming (AI tools)</span></div>
+        <div class="naics-row"><span class="naics-code">541519</span><span class="naics-desc">Other Computer Related Services</span></div>
+        <div class="naics-row"><span class="naics-code">711510</span><span class="naics-desc">Independent Artists / Content Creation</span></div>
+      </div>
+    </div>
+
+    <!-- Actions -->
+    <div class="sidebar-card">
+      <div class="sidebar-card-header">Actions</div>
+      <div class="sidebar-card-body">
+        <button class="reset-btn" onclick="resetAll()">Reset All Progress</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<div class="footer">
+  <div>All Glory to Jesus Global LLC · Crown Media Group</div>
+  <div>Progress saved automatically in your browser</div>
+</div>
+
+<script>
+const PHASES = [
+  {
+    title: "Week 1 — Foundations",
+    subtitle: "Register everywhere. Costs nothing. Do it all in one sitting.",
+    items: [
+      {
+        id: "hubzone",
+        title: "Check HUBZone eligibility for 29229",
+        detail: "If your address qualifies, apply immediately — gives 10% price preference over large companies",
+        link: "https://maps.certify.sba.gov/hubzone/map",
+        linkText: "maps.certify.sba.gov/hubzone/map",
+        tag: "free"
+      },
+      {
+        id: "ein",
+        title: "Get your EIN (Employer ID Number)",
+        detail: "Free, takes 10 minutes. Required for SAM.gov and all government work",
+        link: "https://www.irs.gov/businesses/small-businesses-self-employed/apply-for-an-employer-identification-number-ein-online",
+        linkText: "irs.gov/ein",
+        tag: "free"
+      },
+      {
+        id: "logingov",
+        title: "Create Login.gov account",
+        detail: "The SSO gateway for all federal systems — SAM.gov requires this first",
+        link: "https://login.gov",
+        linkText: "login.gov",
+        tag: "free"
+      },
+      {
+        id: "samgov",
+        title: "Register on SAM.gov",
+        detail: "Check the SDB (Small Disadvantaged Business) box. Takes 2–3 hrs. Activates in 10 business days. Renew annually.",
+        link: "https://sam.gov",
+        linkText: "sam.gov → Register New Entity",
+        tag: "key"
+      },
+      {
+        id: "scbo",
+        title: "Register on SCBO (SC state contracts)",
+        detail: "South Carolina's equivalent of SAM.gov — required for all state agency bids",
+        link: "https://scbo.sc.gov",
+        linkText: "scbo.sc.gov",
+        tag: "free"
+      },
+      {
+        id: "scprocurement",
+        title: "Register on SC Division of Procurement",
+        detail: "Separate from SCBO — covers larger SC state solicitations",
+        link: "https://procurement.sc.gov/doing-biz/new-vendor",
+        linkText: "procurement.sc.gov/doing-biz/new-vendor",
+        tag: "free"
+      },
+      {
+        id: "uscvendor",
+        title: "Register as USC vendor",
+        detail: "University of South Carolina buys marketing services — athletics, enrollment, alumni outreach",
+        link: "https://supplier.ps.sc.edu",
+        linkText: "supplier.ps.sc.edu",
+        tag: "free"
+      }
+    ]
+  },
+  {
+    title: "Week 2 — Credibility Assets",
+    subtitle: "Build the documents agencies want to see before they call you.",
+    items: [
+      {
+        id: "insurance_gl",
+        title: "Get General Liability Insurance ($1M/$2M)",
+        detail: "Required for most government contracts. Try Next Insurance online — fast quote, competitive rates",
+        link: "https://www.nextinsurance.com",
+        linkText: "nextinsurance.com",
+        tag: "paid"
+      },
+      {
+        id: "insurance_eo",
+        title: "Get Professional Liability / E&O Insurance ($1M)",
+        detail: "Errors & Omissions coverage — required for marketing/consulting contracts",
+        link: "https://www.nextinsurance.com",
+        linkText: "nextinsurance.com",
+        tag: "paid"
+      },
+      {
+        id: "capstatement",
+        title: "Build Capability Statement (1-page PDF)",
+        detail: "Include: UEI number, CAGE code, NAICS codes, Shatiea results, contact info, Crown Media branding. This is your government business card.",
+        link: "https://canva.com",
+        linkText: "Build in Canva",
+        tag: "free"
+      },
+      {
+        id: "samalerts",
+        title: "Set up SAM.gov email alerts",
+        detail: "Search: \"social media\", \"advertising\", \"541810\" — set to daily digest so opportunities hit your inbox",
+        link: "https://sam.gov/opportunities",
+        linkText: "sam.gov/opportunities",
+        tag: "free"
+      }
+    ]
+  },
+  {
+    title: "Week 3 — Warm Calls",
+    subtitle: "These are conversations, not bids. Pick up the phone.",
+    items: [
+      {
+        id: "ftjackson_call",
+        title: "Call Fort Jackson MWR — Katherine Romero",
+        detail: "NAF contracts — simpler than federal, no SAM required. Introduce Crown Media, ask about sponsorship/advertising opportunities",
+        link: "tel:8037516990",
+        linkText: "803-751-6990",
+        tag: "call"
+      },
+      {
+        id: "micc_call",
+        title: "Contact MICC Fort Jackson contracting office",
+        detail: "Introduce Crown Media Group. Ask about upcoming marketing/advertising solicitations and vendor days",
+        link: null,
+        linkText: "4340 Magruder Ave, Fort Jackson SC 29207",
+        tag: "call"
+      },
+      {
+        id: "scptac_call",
+        title: "Contact SC PTAC — free government contracting counselors",
+        detail: "They review your capability statement, match you to open bids, and review proposals for FREE. Use them every step.",
+        link: "https://scptac.com",
+        linkText: "scptac.com",
+        tag: "free"
+      },
+      {
+        id: "sbdc_call",
+        title: "Contact SC SBDC at USC",
+        detail: "Free one-on-one advising. Tell them you're targeting government marketing contracts — they know who's buying",
+        link: "https://sbdc.sc.edu",
+        linkText: "803-777-4907 · sbdc.sc.edu",
+        tag: "free"
+      }
+    ]
+  },
+  {
+    title: "Month 2 — First Opportunities",
+    subtitle: "Find your first contract. Focus on subcontracting and simplified acquisitions.",
+    items: [
+      {
+        id: "subnet",
+        title: "Browse SUBNet for subcontracting openings",
+        detail: "Prime contractors post subcontracting needs here. No past performance required. Fastest way to build a government record.",
+        link: "https://sam.gov/subcontracting",
+        linkText: "sam.gov/subcontracting",
+        tag: "free"
+      },
+      {
+        id: "capstatement_send",
+        title: "Send capability statement to 5 prime contractors",
+        detail: "Targets: Yes& Agency, Mythics, Social Marketing, GS&F — all have active Schedule 541 contracts and need subs",
+        link: null,
+        linkText: null,
+        tag: "key"
+      },
+      {
+        id: "first_proposal",
+        title: "Draft first proposal for a simplified acquisition",
+        detail: "$15K–$350K range. Reduced past performance standards. Shatiea counts as commercial past performance.",
+        link: "https://sam.gov/opportunities",
+        linkText: "sam.gov/opportunities",
+        tag: "key"
+      }
+    ]
+  },
+  {
+    title: "Month 3 — Submit & Document",
+    subtitle: "First bid in. Past performance on record. 8(a) clock ticking.",
+    items: [
+      {
+        id: "first_bid",
+        title: "Submit first bid",
+        detail: "Even if you don't win — submitting a bid builds your record and teaches you the process",
+        link: null,
+        linkText: null,
+        tag: "key"
+      },
+      {
+        id: "teaming",
+        title: "Pursue one subcontracting teaming agreement",
+        detail: "Formal teaming agreement with a prime = access to their contract vehicles. Get this in writing.",
+        link: null,
+        linkText: null,
+        tag: "key"
+      },
+      {
+        id: "pastperf",
+        title: "Document Shatiea results in past performance format",
+        detail: "Write it in CPARS language: scope, period of performance, dollar value, deliverables, outcomes. This is what evaluators read.",
+        link: null,
+        linkText: null,
+        tag: "key"
+      }
+    ]
+  },
+  {
+    title: "Long Game — 2027–2028",
+    subtitle: "Plant the seeds now. These unlock the big contracts.",
+    items: [
+      {
+        id: "gsa541",
+        title: "Apply for GSA Schedule 541 AIMS",
+        detail: "Target Q4 2027. Requires 2 years operation + auditable financials. Once on Schedule, agencies buy from you like Amazon — no competition.",
+        link: "https://www.gsa.gov/technology/technology-purchasing-programs/mas-information-technology/sell-through-our-it-schedule-70",
+        linkText: "GSA Schedule 541 info",
+        tag: "key"
+      },
+      {
+        id: "8a_docs",
+        title: "Start documenting your 8(a) story NOW",
+        detail: "Social/economic disadvantage narrative, business history, revenue records. Apply Q1 2028. Once certified: sole-source awards up to $4.5M, ZERO competition.",
+        link: "https://www.sba.gov/federal-contracting/contracting-assistance-programs/8a-business-development-program",
+        linkText: "SBA 8(a) Program",
+        tag: "key"
+      }
+    ]
+  }
+];
+
+const STORAGE_KEY = "crown_gov_tracker_v1";
+
+function loadState() {
+  try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || {}; }
+  catch { return {}; }
+}
+
+function saveState(state) {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+}
+
+function updateProgress() {
+  const state = loadState();
+  let total = 0, done = 0;
+  PHASES.forEach(phase => phase.items.forEach(item => {
+    total++;
+    if (state[item.id]) done++;
+  }));
+  const pct = total > 0 ? Math.round((done / total) * 100) : 0;
+  document.getElementById("masterPct").innerHTML = pct + '<span>%</span>';
+  document.getElementById("masterBar").style.width = pct + "%";
+  document.getElementById("doneCount").textContent = done;
+  document.getElementById("leftCount").textContent = total - done;
+  document.getElementById("totalCount").textContent = total;
+
+  // Update phase bars
+  PHASES.forEach((phase, pi) => {
+    let pDone = 0;
+    phase.items.forEach(item => { if (state[item.id]) pDone++; });
+    const pPct = Math.round((pDone / phase.items.length) * 100);
+    const block = document.getElementById("phase-" + pi);
+    if (!block) return;
+    block.querySelector(".phase-mini-fill").style.width = pPct + "%";
+    block.querySelector(".phase-count-badge").textContent = pDone + "/" + phase.items.length;
+    if (pDone === phase.items.length) block.className = "phase-block complete";
+    else if (pDone > 0) block.className = "phase-block active";
+    else block.className = "phase-block";
+  });
+}
+
+function toggleItem(id) {
+  const state = loadState();
+  state[id] = !state[id];
+  saveState(state);
+  const el = document.getElementById("item-" + id);
+  if (state[id]) {
+    el.classList.add("done");
+    el.querySelector(".checkbox").textContent = "✓";
+  } else {
+    el.classList.remove("done");
+    el.querySelector(".checkbox").textContent = "";
+  }
+  updateProgress();
+}
+
+function resetAll() {
+  if (confirm("Reset all progress?")) {
+    localStorage.removeItem(STORAGE_KEY);
+    location.reload();
+  }
+}
+
+function tagHTML(tag) {
+  const labels = { free: "Free", call: "Call", paid: "Paid", key: "Key Step" };
+  return `<span class="item-tag tag-${tag}">${labels[tag] || tag}</span>`;
+}
+
+function render() {
+  const state = loadState();
+  const container = document.getElementById("phases");
+
+  PHASES.forEach((phase, pi) => {
+    let pDone = 0;
+    phase.items.forEach(item => { if (state[item.id]) pDone++; });
+    const pPct = Math.round((pDone / phase.items.length) * 100);
+    const cls = pDone === phase.items.length ? "complete" : pDone > 0 ? "active" : "";
+
+    const itemsHTML = phase.items.map(item => {
+      const done = state[item.id];
+      const linkHTML = item.link
+        ? `<a class="item-link" href="${item.link}" target="_blank" onclick="event.stopPropagation()">${item.linkText} ↗</a>`
+        : item.linkText ? `<span class="item-link" style="cursor:default;color:var(--text-dim)">${item.linkText}</span>` : "";
+      return `
+        <div class="item${done ? " done" : ""}" id="item-${item.id}" onclick="toggleItem('${item.id}')">
+          <div class="checkbox">${done ? "✓" : ""}</div>
+          <div class="item-content">
+            <div class="item-title">${item.title}</div>
+            <div class="item-detail">${item.detail}</div>
+            ${linkHTML}
+          </div>
+          ${tagHTML(item.tag)}
+        </div>`;
+    }).join("");
+
+    container.innerHTML += `
+      <div class="phase-block ${cls}" id="phase-${pi}">
+        <div class="phase-header">
+          <div class="phase-num">${String(pi + 1).padStart(2, "0")}</div>
+          <div class="phase-title-wrap">
+            <div class="phase-title">${phase.title}</div>
+            <div class="phase-subtitle">${phase.subtitle}</div>
+          </div>
+          <div class="phase-mini-bar"><div class="phase-mini-fill" style="width:${pPct}%"></div></div>
+          <div class="phase-count-badge">${pDone}/${phase.items.length}</div>
+        </div>
+        <div class="phase-items">${itemsHTML}</div>
+      </div>`;
+  });
+
+  updateProgress();
+}
+
+render();
+</script>
+</body>
+</html>
