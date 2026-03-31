@@ -283,13 +283,23 @@ app.post('/api/login', loginLimiter, (req, res) => {
   const dummyHash = 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa$' + 'a'.repeat(128);
   const valid = user ? verifyPassword(password, user.password_hash) : (verifyPassword(password, dummyHash), false);
 
+  const clientIp = (req.headers['x-forwarded-for'] || '').split(',')[0].trim() || req.ip || 'unknown';
+
   if (!valid) {
     // Generic error — never reveal whether email or password was wrong
+    console.log(`[CRM LOGIN FAIL] email=${email?.toLowerCase().trim().slice(0,60)} | ${new Date().toISOString()} | ip=${clientIp}`);
     return res.status(401).json({ error: 'Wrong email or password.' });
   }
 
   // Login success — clean expired sessions
   db.prepare("DELETE FROM sessions WHERE expires_at < datetime('now')").run();
+
+  // Secure login log — email + trial status, never password
+  const ws = db.prepare('SELECT trial_ends_at, subscription_status FROM workspaces WHERE id = ?').get(user.workspace_id);
+  const trialDaysLeft = ws?.trial_ends_at
+    ? Math.max(0, Math.ceil((new Date(ws.trial_ends_at) - Date.now()) / (1000 * 60 * 60 * 24)))
+    : null;
+  console.log(`[CRM LOGIN] email=${user.email} | ${new Date().toISOString()} | ip=${clientIp} | role=${user.role} | status=${ws?.subscription_status || 'unknown'}${trialDaysLeft !== null ? ` | trial_days_left=${trialDaysLeft}` : ''}`);
 
   const token = createSession(user.id, user.workspace_id);
   const isProd = process.env.NODE_ENV === 'production';
