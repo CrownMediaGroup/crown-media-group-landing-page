@@ -79,9 +79,8 @@ if (!db.prepare('SELECT id FROM users WHERE email = ?').get(KING_EMAIL)) {
   const initPassword = process.env.KING_PASSWORD || randomBytes(8).toString('hex');
   db.prepare("INSERT INTO users (email, password_hash, role, workspace_id) VALUES (?, ?, 'superadmin', 1)").run(KING_EMAIL, hashPassword(initPassword));
   console.log('\n[CRM AUTH] ─────────────────────────────────────────────');
-  console.log(`  King's login created — save this password now:`);
-  console.log(`  Email:    ${KING_EMAIL}`);
-  console.log(`  Password: ${initPassword}`);
+  console.log(`  King's login created. Email: ${KING_EMAIL}`);
+  console.log(`  Set KING_PASSWORD in .env before restarting to use a custom password.`);
   console.log('[CRM AUTH] ─────────────────────────────────────────────\n');
 }
 
