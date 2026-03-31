@@ -1,6 +1,7 @@
 ---
 title: "5 Signs Your Columbia SC Business Needs a Marketing Refresh in 2026"
 date: "2026-03-27"
+publishTime: "09:00"
 slug: "5-signs-your-columbia-sc-business-needs-a-marketing-refresh-"
 category: "Marketing"
 tags: ["Columbia SC", "Marketing", "Columbia", "Agency"]

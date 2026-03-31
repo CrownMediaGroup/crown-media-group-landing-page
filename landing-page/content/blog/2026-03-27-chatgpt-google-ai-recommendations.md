@@ -1,6 +1,7 @@
 ---
 title: "How to Get Your Business Recommended by ChatGPT and Google AI"
 date: "2026-03-27"
+publishTime: "09:00"
 slug: "chatgpt-google-ai-recommendations"
 category: "GEO"
 tags: ["GEO", "ChatGPT", "Google AI", "AI Search", "Local Business"]
