@@ -319,6 +319,7 @@ function applyFilter(f) {
   if (f === 'all')      filtered = base;
   else if (f === 'new') filtered = base.filter(i => i.source === 'crm');
   else if (f === 'video') filtered = base.filter(i => i.type === 'video');
+  else if (f === 'image') filtered = base.filter(i => i.type === 'image');
   else                  filtered = base.filter(i => getCategory(i) === f);
 
   // Sort
