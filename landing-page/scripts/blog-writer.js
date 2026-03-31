@@ -1,5 +1,4 @@
 #!/usr/bin/env node
-'use strict';
 
 /**
  * Crown Media Group — AI Blog Writer
@@ -11,19 +10,23 @@
  * --from-queue  Pops next topic from content/blog/topics-queue.json
  */
 
-const Anthropic = require('@anthropic-ai/sdk');
-const fs = require('fs');
-const path = require('path');
-const { execSync } = require('child_process');
+import Anthropic from '@anthropic-ai/sdk';
+import { readFileSync, writeFileSync, existsSync } from 'fs';
+import { resolve, join, dirname } from 'path';
+import { execSync } from 'child_process';
+import { fileURLToPath } from 'url';
 
-const ROOT = path.resolve(__dirname, '..');
-const CONTENT_DIR = path.join(ROOT, 'content', 'blog');
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+
+const ROOT = resolve(__dirname, '..');
+const CONTENT_DIR = join(ROOT, 'content', 'blog');
 
 // ─── Auto-load .env from repo root ────────────────────────────────────────────
 (function loadEnv() {
-  const envFile = path.join(ROOT, '..', '.env');
-  if (!fs.existsSync(envFile)) return;
-  const lines = fs.readFileSync(envFile, 'utf8').split('\n');
+  const envFile = join(ROOT, '..', '.env');
+  if (!existsSync(envFile)) return;
+  const lines = readFileSync(envFile, 'utf8').split('\n');
   for (const line of lines) {
     const trimmed = line.trim();
     if (!trimmed || trimmed.startsWith('#')) continue;
@@ -34,8 +37,9 @@ const CONTENT_DIR = path.join(ROOT, 'content', 'blog');
     if (key && !process.env[key]) process.env[key] = val;
   }
 })();
-const QUEUE_FILE = path.join(CONTENT_DIR, 'topics-queue.json');
-const REPO_ROOT = path.resolve(ROOT, '..');  // AllGloryAgency/
+
+const QUEUE_FILE = join(CONTENT_DIR, 'topics-queue.json');
+const REPO_ROOT = resolve(ROOT, '..');  // AllGloryAgency/
 
 // ─── CLI argument parsing ─────────────────────────────────────────────────────
 const args = process.argv.slice(2);
@@ -55,15 +59,15 @@ let category = getArg('--category') || 'Marketing';
 
 // ─── Queue management ─────────────────────────────────────────────────────────
 function popFromQueue() {
-  if (!fs.existsSync(QUEUE_FILE)) {
+  if (!existsSync(QUEUE_FILE)) {
     throw new Error(`Queue file not found: ${QUEUE_FILE}`);
   }
-  const queue = JSON.parse(fs.readFileSync(QUEUE_FILE, 'utf8'));
+  const queue = JSON.parse(readFileSync(QUEUE_FILE, 'utf8'));
   if (!queue.queue || queue.queue.length === 0) {
     throw new Error('Topic queue is empty. Add topics to content/blog/topics-queue.json');
   }
   const next = queue.queue.shift();
-  fs.writeFileSync(QUEUE_FILE, JSON.stringify(queue, null, 2));
+  writeFileSync(QUEUE_FILE, JSON.stringify(queue, null, 2));
   return next;
 }
 
@@ -75,7 +79,6 @@ function makeSlug(str) {
 // ─── FAQ extractor ────────────────────────────────────────────────────────────
 function extractFaqs(body) {
   const faqs = [];
-  // Match patterns like: **Q: ...?**\nA: ... or ## FAQ section
   const faqSection = body.match(/##\s*Frequently Asked Questions([\s\S]*?)(?=\n##|$)/i);
   if (!faqSection) return faqs;
 
@@ -89,9 +92,9 @@ function extractFaqs(body) {
 }
 
 // ─── Front matter builder ─────────────────────────────────────────────────────
-function buildFrontMatter({ title, date, slug, category, keyword, excerpt, draft, faq }) {
+function buildFrontMatter({ title, date, publishTime, slug, category, keyword, excerpt, draft, faq }) {
   const tags = buildTags(category, keyword);
-  let fm = `---\ntitle: "${title.replace(/"/g, '\\"')}"\ndate: "${date}"\nslug: "${slug}"\ncategory: "${category}"\ntags: [${tags.map(t => `"${t}"`).join(', ')}]\nexcerpt: "${excerpt.replace(/"/g, '\\"').slice(0, 160)}"\nauthor: "David King"\ndraft: ${draft}`;
+  let fm = `---\ntitle: "${title.replace(/"/g, '\\"')}"\ndate: "${date}"\npublishTime: "${publishTime}"\nslug: "${slug}"\ncategory: "${category}"\ntags: [${tags.map(t => `"${t}"`).join(', ')}]\nexcerpt: "${excerpt.replace(/"/g, '\\"').slice(0, 160)}"\nauthor: "David King"\ndraft: ${draft}`;
   if (faq && faq.length > 0) {
     fm += '\nfaq:';
     for (const item of faq) {
@@ -170,7 +173,6 @@ async function main() {
     process.exit(1);
   }
 
-  // Resolve topic
   if (fromQueue) {
     const queued = popFromQueue();
     topic = queued.topic;
@@ -192,7 +194,7 @@ async function main() {
   const client = new Anthropic({ apiKey });
 
   const message = await client.messages.create({
-    model: 'claude-sonnet-4-20250514',
+    model: 'claude-sonnet-4-6',
     max_tokens: 4096,
     system: SYSTEM_PROMPT,
     messages: [{ role: 'user', content: buildUserPrompt(topic, keyword, category) }],
@@ -201,14 +203,14 @@ async function main() {
   const body = message.content[0].text;
   console.log(`Generated ${body.split(/\s+/).length} words.`);
 
-  // Extract data for front matter
   const faqs = extractFaqs(body);
-  const dateStr = new Date().toISOString().split('T')[0];
+  const now = new Date();
+  const dateStr = now.toISOString().split('T')[0];
+  const publishTime = now.toTimeString().slice(0, 5); // HH:MM e.g. "09:00"
   const slug = makeSlug(topic);
   const filename = `${dateStr}-${slug}.md`;
-  const filepath = path.join(CONTENT_DIR, filename);
+  const filepath = join(CONTENT_DIR, filename);
 
-  // Build excerpt from first non-heading paragraph
   const excerpt = body
     .split('\n')
     .map(l => l.trim())
@@ -217,6 +219,7 @@ async function main() {
   const frontMatter = buildFrontMatter({
     title: topic,
     date: dateStr,
+    publishTime,
     slug,
     category,
     keyword,
@@ -225,13 +228,12 @@ async function main() {
     faq: faqs,
   });
 
-  // Write file
-  fs.writeFileSync(filepath, frontMatter + '\n\n' + body);
+  writeFileSync(filepath, frontMatter + '\n\n' + body);
   console.log(`\nWritten: content/blog/${filename}`);
+  console.log(`Published at: ${dateStr} ${publishTime}`);
   console.log(`Status: ${shouldPublish ? 'PUBLISHED (draft: false)' : 'DRAFT — set draft: false to publish'}`);
   if (faqs.length > 0) console.log(`FAQs extracted: ${faqs.length}`);
 
-  // Commit and push if --publish and NOT in CI
   if (shouldPublish && !inCI) {
     console.log('\nPushing to GitHub (Netlify rebuild will trigger)...');
     try {

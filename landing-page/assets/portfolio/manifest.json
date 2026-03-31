@@ -1,5 +1,12 @@
 [
   {
+    "type": "image",
+    "file": "jim-reese-website.jpg",
+    "src": "/images/portfolio-jim-reese.jpg",
+    "category": "website",
+    "label": "Jim Reese for Richland County Council \u2014 Campaign Website"
+  },
+  {
     "type": "video",
     "file": "05ac501ac3304860b2350437af47885c.mp4",
     "src": "assets/portfolio/Crown Media Group/05ac501ac3304860b2350437af47885c.mp4",
@@ -2465,12 +2472,12 @@
   },
   {
     "type": "image",
-    "file": "IT’S TIME FOR REVIVAL(1).png",
+    "file": "IT\u00e2\u20ac\u2122S TIME FOR REVIVAL(1).png",
     "src": "assets/portfolio/Crown Media Group/IT%E2%80%99S%20TIME%20FOR%20REVIVAL(1).png"
   },
   {
     "type": "image",
-    "file": "IT’S TIME FOR REVIVAL.png",
+    "file": "IT\u00e2\u20ac\u2122S TIME FOR REVIVAL.png",
     "src": "assets/portfolio/Crown Media Group/IT%E2%80%99S%20TIME%20FOR%20REVIVAL.png"
   },
   {

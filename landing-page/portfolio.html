@@ -69,6 +69,17 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:18px 64px;display:fl
 .del-btn:hover{background:var(--red)}
 .admin-mode .del-btn{display:flex}
 
+/* NEW badge */
+.new-badge{position:absolute;top:8px;right:8px;background:var(--gold);color:var(--royal);font-size:.55rem;font-weight:800;letter-spacing:.12em;text-transform:uppercase;padding:3px 7px;pointer-events:none;z-index:5}
+
+/* Hover label */
+.item-label{position:absolute;bottom:0;left:0;right:0;padding:8px 10px;background:linear-gradient(transparent,rgba(10,10,30,.85));color:rgba(255,255,255,.8);font-size:.65rem;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;opacity:0;transition:opacity .25s;pointer-events:none}
+.gallery-item:hover .item-label{opacity:1}
+
+/* Source tag */
+.source-tag{position:absolute;bottom:8px;right:8px;background:rgba(201,152,26,.85);color:var(--royal);font-size:.55rem;font-weight:800;letter-spacing:.1em;text-transform:uppercase;padding:2px 6px;pointer-events:none;z-index:5;opacity:0;transition:opacity .25s}
+.gallery-item:hover .source-tag{opacity:1}
+
 /* LOAD MORE */
 .load-more-wrap{text-align:center;padding:40px 0;display:none}
 #load-more-btn{background:var(--royal);color:var(--gold);font-size:.85rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:16px 48px;border:none;cursor:pointer;transition:background .2s}
@@ -102,6 +113,14 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:18px 64px;display:fl
 
 /* EMPTY */
 #empty-msg{display:none;text-align:center;padding:80px 20px;color:var(--text-light)}
+
+/* Deleted state */
+.gallery-item.deleted-item{pointer-events:none;cursor:default}
+.gallery-item.deleted-item img.thumb{filter:grayscale(1);opacity:.3}
+.deleted-stamp{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;background:rgba(192,57,43,.55);gap:6px}
+.deleted-stamp span{color:#fff;font-size:.7rem;font-weight:800;letter-spacing:.15em;text-transform:uppercase;background:rgba(192,57,43,.9);padding:4px 10px;border:1px solid rgba(255,255,255,.3)}
+.deleted-stamp .del-undo{pointer-events:all;background:transparent;border:1px solid rgba(255,255,255,.4);color:rgba(255,255,255,.65);font-size:.65rem;padding:3px 8px;cursor:pointer;margin-top:4px;font-weight:600;letter-spacing:.06em;text-transform:uppercase}
+.deleted-stamp .del-undo:hover{background:rgba(255,255,255,.15)}
 
 /* ADMIN LOGIN MODAL */
 #admin-login-modal .modal-inner{background:var(--white);padding:48px;max-width:400px;width:90%}
@@ -158,7 +177,13 @@ footer a{color:var(--gold);text-decoration:none;font-size:.82rem}
     <button type="button" class="filter-btn" data-filter="image">Photos</button>
     <button type="button" class="filter-btn" data-filter="video">Videos</button>
   </div>
-  <span class="filter-count" id="filter-count">Loading...</span>
+  <div style="display:flex;align-items:center;gap:12px;flex-shrink:0">
+    <select id="sort-select" style="background:var(--white);border:1px solid rgba(201,152,26,.25);color:var(--text-mid);font-size:.78rem;font-weight:600;padding:7px 12px;cursor:pointer;outline:none;font-family:inherit">
+      <option value="newest">Newest First</option>
+      <option value="oldest">Oldest First</option>
+    </select>
+    <span class="filter-count" id="filter-count">Loading...</span>
+  </div>
 </div>
 
 <div class="gallery-wrap">
@@ -221,181 +246,197 @@ footer a{color:var(--gold);text-decoration:none;font-size:.82rem}
 
 <script>
 // ── Config ─────────────────────────────────────────────────────────────────────
-const CRM_URL   = 'https://allglory-onboarding-production.up.railway.app'; // CRM endpoint
-const BATCH     = 40;
-const ADMIN_KEY = 'crm_portfolio_admin';
+const CRM_URL     = 'https://allglory-onboarding-production.up.railway.app';
+const BATCH       = 40;
+const ADMIN_KEY   = 'crm_portfolio_admin';
+const DELETED_KEY = 'portfolio_deleted_ids';
 
 // ── State ──────────────────────────────────────────────────────────────────────
-let allItems    = [];
-let filtered    = [];
-let loaded      = 0;
-let adminMode   = false;
+let allItems     = [];
+let filtered     = [];
+let loaded       = 0;
+let adminMode    = false;
 let pendingFiles = [];
-let crmSession  = localStorage.getItem(ADMIN_KEY);
+let currentFilter = 'all';
+let currentSort   = 'newest';
+let crmSession    = localStorage.getItem(ADMIN_KEY);
+
+// ── Deleted helpers ────────────────────────────────────────────────────────────
+function getDeletedIds() { try { return JSON.parse(localStorage.getItem(DELETED_KEY) || '[]'); } catch(_) { return []; } }
+function saveDeletedId(id) { const ids = getDeletedIds(), k = String(id); if (!ids.includes(k)) { ids.push(k); localStorage.setItem(DELETED_KEY, JSON.stringify(ids)); } }
+function removeDeletedId(id) { localStorage.setItem(DELETED_KEY, JSON.stringify(getDeletedIds().filter(x => x !== String(id)))); }
 
 // ── Init ───────────────────────────────────────────────────────────────────────
 loadPortfolio();
 if (crmSession) enableAdminUI();
 
-// ── Load items (local manifest + CRM uploads merged) ──────────────────────────
+// ── Load — CRM (newest) first, then local manifest ────────────────────────────
 async function loadPortfolio() {
-  let items = [];
+  let crmItems = [], localItems = [];
 
-  // Local static manifest
-  try {
-    const r = await fetch('assets/portfolio/manifest.json');
-    const data = await r.json();
-    items = data.map(i => ({ ...i, source: 'local' }));
-  } catch (_) {}
-
-  // CRM uploaded items (if accessible)
   try {
     const r = await fetch(CRM_URL + '/api/portfolio/items', { signal: AbortSignal.timeout(4000) });
-    if (r.ok) {
-      const { items: crmItems } = await r.json();
-      items = [...items, ...crmItems.map(i => ({ ...i, source: 'crm' }))];
-    }
+    if (r.ok) { const d = await r.json(); crmItems = (d.items || []).map(i => ({ ...i, source: 'crm', isNew: true })); }
   } catch (_) {}
 
-  allItems = items;
+  try {
+    const r = await fetch('assets/portfolio/manifest.json');
+    const d = await r.json();
+    localItems = d.map(i => ({ ...i, source: 'local' }));
+  } catch (_) {}
+
+  allItems = [...crmItems, ...localItems];
   updateStats();
   applyFilter('all');
 }
 
 function updateStats() {
-  const imgs = allItems.filter(i => i.type === 'image').length;
-  const vids = allItems.filter(i => i.type === 'video').length;
-  document.getElementById('stat-total').textContent  = allItems.length;
-  document.getElementById('stat-images').textContent = imgs;
-  document.getElementById('stat-videos').textContent = vids;
+  const del  = getDeletedIds();
+  const live = allItems.filter(i => !del.includes(String(i.id || i.file)));
+  document.getElementById('stat-total').textContent  = live.length;
+  document.getElementById('stat-images').textContent = live.filter(i => i.type === 'image').length;
+  document.getElementById('stat-videos').textContent = live.filter(i => i.type === 'video').length;
 }
 
-// ── Filter ─────────────────────────────────────────────────────────────────────
-function applyFilter(type) {
-  filtered = type === 'all' ? allItems : allItems.filter(i => i.type === type);
-  loaded   = 0;
+// ── Category detection ────────────────────────────────────────────────────────
+function getCategory(item) {
+  if (item.category) return item.category.toLowerCase();
+  const n = (item.file || '').toLowerCase();
+  if (n.endsWith('.mp4') || n.endsWith('.mov') || item.type === 'video') return 'video';
+  if (n.includes('instagram') || n.includes('social') || n.includes('story') || n.includes('gym') || n.includes('post')) return 'social';
+  if (n.includes('card') || n.includes('logo') || n.includes('brand') || n.includes('price-list') || n.includes('photography')) return 'branding';
+  if (n.includes('flyer') || n.includes('banner') || n.includes('hire') || n.includes('sale') || n.includes('car-sale')) return 'ad';
+  if (n.includes('website') || n.includes('web') || n.includes('jim-reese') || n.includes('reese')) return 'website';
+  return 'other';
+}
+
+// ── Filter + Sort ─────────────────────────────────────────────────────────────
+function applyFilter(f) {
+  currentFilter = f;
+  const del  = getDeletedIds();
+  let base = adminMode ? allItems : allItems.filter(i => !del.includes(String(i.id || i.file)));
+
+  if (f === 'all')      filtered = base;
+  else if (f === 'new') filtered = base.filter(i => i.source === 'crm');
+  else if (f === 'video') filtered = base.filter(i => i.type === 'video');
+  else if (f === 'image') filtered = base.filter(i => i.type === 'image');
+  else                  filtered = base.filter(i => getCategory(i) === f);
+
+  // Sort
+  if (currentSort === 'oldest') filtered = [...filtered].reverse();
+
+  loaded = 0;
   document.getElementById('gallery-grid').innerHTML = '';
-  document.getElementById('filter-count').textContent =
-    filtered.length + ' piece' + (filtered.length !== 1 ? 's' : '');
-  document.querySelectorAll('.filter-btn').forEach(b => {
-    b.classList.toggle('active', b.dataset.filter === type);
-  });
+  document.getElementById('filter-count').textContent = filtered.length + ' piece' + (filtered.length !== 1 ? 's' : '');
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.toggle('active', b.dataset.filter === f));
   loadBatch();
 }
 
-document.querySelectorAll('.filter-btn').forEach(b => {
-  b.addEventListener('click', () => applyFilter(b.dataset.filter));
-});
+document.querySelectorAll('.filter-btn').forEach(b => b.addEventListener('click', () => applyFilter(b.dataset.filter)));
+document.getElementById('sort-select').addEventListener('change', function() { currentSort = this.value; applyFilter(currentFilter); });
+
+// ── Build card ────────────────────────────────────────────────────────────────
+function buildCard(item) {
+  const itemKey   = String(item.id || item.file);
+  const isDeleted = getDeletedIds().includes(itemKey);
+  if (isDeleted && !adminMode) return null;
+
+  const div = document.createElement('div');
+  div.className      = 'gallery-item' + (isDeleted ? ' deleted-item' : '');
+  div.dataset.id     = itemKey;
+  div.dataset.source = item.source || 'local';
+
+  // Delete button
+  const delBtn = document.createElement('button');
+  delBtn.type = 'button'; delBtn.className = 'del-btn'; delBtn.innerHTML = '&times;'; delBtn.title = 'Delete';
+  delBtn.addEventListener('click', e => { e.stopPropagation(); deleteItem(item, div); });
+  div.appendChild(delBtn);
+
+  const isVideo = item.type === 'video';
+  const imgSrc  = isVideo ? (item.thumb || item.src) : item.src;
+
+  const img = document.createElement('img');
+  img.className = 'thumb'; img.src = imgSrc; img.alt = item.file || ''; img.loading = 'lazy';
+  if (!isDeleted) img.onerror = () => div.remove();
+  div.appendChild(img);
+
+  if (isVideo) {
+    const badge = document.createElement('div');
+    badge.className = 'vid-badge';
+    badge.textContent = (item.file || '').toLowerCase().endsWith('.mov') ? 'MOV' : 'MP4';
+    div.appendChild(badge);
+
+    const ov = document.createElement('div');
+    ov.className = 'play-overlay';
+    ov.innerHTML = '<div class="play-circle"><svg width="18" height="18" viewBox="0 0 24 24" fill="#1A1A3E"><polygon points="5,3 19,12 5,21"/></svg></div>';
+    div.appendChild(ov);
+  }
+
+  if (!isDeleted) {
+    // NEW badge
+    if (item.isNew) { const nb = document.createElement('div'); nb.className = 'new-badge'; nb.textContent = 'NEW'; div.appendChild(nb); }
+
+    // Hover label
+    const lbl = document.createElement('div');
+    lbl.className = 'item-label';
+    lbl.textContent = (item.label || item.file || '').replace(/\.[^/.]+$/, '').replace(/[-_]/g, ' ').slice(0, 50);
+    div.appendChild(lbl);
+
+    // Click
+    div.addEventListener('click', () => isVideo ? openVideo(item.src) : openLightbox(item.src));
+  } else {
+    // Deleted stamp
+    const stamp = document.createElement('div');
+    stamp.className = 'deleted-stamp';
+    stamp.innerHTML = '<span>DELETED</span><button type="button" class="del-undo">Restore</button>';
+    stamp.querySelector('.del-undo').addEventListener('click', e => { e.stopPropagation(); restoreItem(item); });
+    div.appendChild(stamp);
+  }
+
+  return div;
+}
 
 // ── Render batch ───────────────────────────────────────────────────────────────
 function loadBatch() {
   const grid  = document.getElementById('gallery-grid');
   const batch = filtered.slice(loaded, loaded + BATCH);
-
-  batch.forEach(item => {
-    const div = document.createElement('div');
-    div.className = 'gallery-item';
-    div.dataset.id     = item.id || item.file;
-    div.dataset.source = item.source || 'local';
-
-    // Delete button (admin only, hidden via CSS)
-    const delBtn = document.createElement('button');
-    delBtn.type        = 'button';
-    delBtn.className   = 'del-btn';
-    delBtn.textContent = '×';
-    delBtn.title       = 'Delete';
-    delBtn.addEventListener('click', e => { e.stopPropagation(); deleteItem(item, div); });
-    div.appendChild(delBtn);
-
-    if (item.type === 'image') {
-      const img = document.createElement('img');
-      img.className = 'thumb';
-      img.src       = item.src;
-      img.alt       = item.file;
-      img.loading   = 'lazy';
-      img.onerror   = () => div.remove();
-      div.appendChild(img);
-      div.addEventListener('click', () => openLightbox(item.src));
-
-    } else {
-      // Video thumbnail
-      const thumb = item.thumb || item.src;
-      const img   = document.createElement('img');
-      img.className = 'thumb';
-      img.src       = thumb;
-      img.alt       = item.file;
-      img.loading   = 'lazy';
-      img.onerror   = () => { img.src = 'logo.png'; img.style.padding = '20%'; img.style.objectFit = 'contain'; };
-
-      const badge = document.createElement('div');
-      badge.className   = 'vid-badge';
-      badge.textContent = item.file.toLowerCase().endsWith('.mov') ? 'MOV' : 'MP4';
-
-      const overlay = document.createElement('div');
-      overlay.className = 'play-overlay';
-      overlay.innerHTML = '<div class="play-circle"><svg width="18" height="18" viewBox="0 0 24 24" fill="#1A1A3E"><polygon points="5,3 19,12 5,21"/></svg></div>';
-
-      div.appendChild(img);
-      div.appendChild(badge);
-      div.appendChild(overlay);
-      div.addEventListener('click', () => openVideo(item.src));
-    }
-
-    grid.appendChild(div);
-  });
-
+  batch.forEach(item => { const card = buildCard(item); if (card) grid.appendChild(card); });
   loaded += batch.length;
 
+  const remaining = filtered.length - loaded;
   const wrap = document.getElementById('load-more-wrap');
-  const btn  = document.getElementById('load-more-btn');
-  if (loaded < filtered.length) {
-    wrap.style.display = 'block';
-    btn.textContent    = 'Load More (' + (filtered.length - loaded) + ' remaining)';
-  } else {
-    wrap.style.display = 'none';
-  }
-
+  wrap.style.display = loaded < filtered.length ? 'block' : 'none';
+  if (loaded < filtered.length) document.getElementById('load-more-btn').textContent = 'Load More (' + remaining + ' remaining)';
   document.getElementById('empty-msg').style.display = filtered.length === 0 ? 'block' : 'none';
 }
 
 document.getElementById('load-more-btn').addEventListener('click', loadBatch);
 
 // ── Lightbox ───────────────────────────────────────────────────────────────────
-const lb = document.getElementById('lightbox');
-const lbImg = document.getElementById('lb-img');
+const lb = document.getElementById('lightbox'), lbImg = document.getElementById('lb-img');
 function openLightbox(src) { lbImg.src = src; lb.classList.add('open'); document.body.style.overflow = 'hidden'; }
 function closeLb() { lb.classList.remove('open'); document.body.style.overflow = ''; }
 document.getElementById('lb-close').addEventListener('click', closeLb);
 lb.addEventListener('click', e => { if (e.target === lb) closeLb(); });
 
 // ── Video Modal ────────────────────────────────────────────────────────────────
-const vm = document.getElementById('video-modal');
-const vmVid = document.getElementById('vm-video');
+const vm = document.getElementById('video-modal'), vmVid = document.getElementById('vm-video');
 function openVideo(src) { vmVid.src = src; vm.classList.add('open'); vmVid.play(); document.body.style.overflow = 'hidden'; }
 function closeVm() { vm.classList.remove('open'); vmVid.pause(); vmVid.src = ''; document.body.style.overflow = ''; }
 document.getElementById('vm-close').addEventListener('click', closeVm);
 vm.addEventListener('click', e => { if (e.target === vm) closeVm(); });
 
-// ── ESC close ──────────────────────────────────────────────────────────────────
-document.addEventListener('keydown', e => {
-  if (e.key === 'Escape') { closeLb(); closeVm(); closeUploadModal(); closeAdminLogin(); }
-});
+document.addEventListener('keydown', e => { if (e.key === 'Escape') { closeLb(); closeVm(); closeUploadModal(); closeAdminLogin(); } });
 
-// ── Admin Toggle ───────────────────────────────────────────────────────────────
+// ── Admin ──────────────────────────────────────────────────────────────────────
 document.getElementById('admin-toggle').style.display = 'block';
 document.getElementById('admin-toggle').addEventListener('click', () => {
-  if (adminMode) {
-    disableAdminMode();
-  } else if (crmSession) {
-    toggleAdminMode(true);
-  } else {
-    openAdminLogin();
-  }
+  if (adminMode) disableAdminMode();
+  else if (crmSession) toggleAdminMode(true);
+  else openAdminLogin();
 });
 
-function enableAdminUI() {
-  document.getElementById('admin-toggle').style.display = 'block';
-}
+function enableAdminUI() { document.getElementById('admin-toggle').style.display = 'block'; }
 
 function toggleAdminMode(on) {
   adminMode = on;
@@ -404,15 +445,13 @@ function toggleAdminMode(on) {
   document.getElementById('gallery-grid').classList.toggle('admin-mode', on);
   document.getElementById('admin-toggle').classList.toggle('active', on);
   document.getElementById('admin-toggle').textContent = on ? 'Exit Admin' : 'Admin';
+  applyFilter(currentFilter); // re-render so deleted stamps show/hide
 }
-
-function disableAdminMode() {
-  toggleAdminMode(false);
-}
+function disableAdminMode() { toggleAdminMode(false); }
 
 // ── Admin Login ────────────────────────────────────────────────────────────────
 const alm = document.getElementById('admin-login-modal');
-function openAdminLogin() { alm.classList.add('open'); document.getElementById('admin-password').focus(); }
+function openAdminLogin() { alm.classList.add('open'); setTimeout(() => document.getElementById('admin-password').focus(), 50); }
 function closeAdminLogin() { alm.classList.remove('open'); }
 document.getElementById('alm-close').addEventListener('click', closeAdminLogin);
 alm.addEventListener('click', e => { if (e.target === alm) closeAdminLogin(); });
@@ -421,29 +460,19 @@ document.getElementById('admin-login-btn').addEventListener('click', async () =>
   const email = document.getElementById('admin-email').value.trim();
   const pass  = document.getElementById('admin-password').value;
   const err   = document.getElementById('login-error');
-
-  // Local auth check — no CRM round-trip needed to unlock admin UI
-  const validEmail = email.toLowerCase() === 'king@crownmediagroup.co';
-  const validPass  = pass === 'AllGlory2026!';
-
-  if (validEmail && validPass) {
+  if (email.toLowerCase() === 'king@crownmediagroup.co' && pass === 'AllGlory2026!') {
     crmSession = 'ok';
     localStorage.setItem(ADMIN_KEY, crmSession);
-    // Also attempt CRM login in background so upload/delete cookies are set
-    fetch(CRM_URL + '/api/login', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      credentials: 'include',
-      body: JSON.stringify({ email, password: pass })
-    }).catch(() => {});
+    fetch(CRM_URL + '/api/login', { method:'POST', headers:{'Content-Type':'application/json'}, credentials:'include', body:JSON.stringify({email, password:pass}) }).catch(()=>{});
     err.style.display = 'none';
     closeAdminLogin();
     toggleAdminMode(true);
   } else {
-    err.style.display = 'block';
-    err.textContent = 'Invalid credentials.';
+    err.style.display = 'block'; err.textContent = 'Invalid credentials.';
   }
 });
+
+document.getElementById('admin-password').addEventListener('keydown', e => { if (e.key === 'Enter') document.getElementById('admin-login-btn').click(); });
 
 // ── Upload Modal ───────────────────────────────────────────────────────────────
 const uModal = document.getElementById('upload-modal');
@@ -457,18 +486,11 @@ function openUploadModal() {
   document.getElementById('do-upload-btn').style.display = 'none';
   document.getElementById('upload-result').textContent = '';
   document.getElementById('upload-progress').style.display = 'none';
-  uModal.classList.add('open');
-  document.body.style.overflow = 'hidden';
+  uModal.classList.add('open'); document.body.style.overflow = 'hidden';
 }
-function closeUploadModal() {
-  uModal.classList.remove('open');
-  document.body.style.overflow = '';
-}
+function closeUploadModal() { uModal.classList.remove('open'); document.body.style.overflow = ''; }
 
-// Drop zone
-const dropZone = document.getElementById('drop-zone');
-const fileInput = document.getElementById('file-input');
-
+const dropZone = document.getElementById('drop-zone'), fileInput = document.getElementById('file-input');
 dropZone.addEventListener('click', () => fileInput.click());
 dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('drag-over'); });
 dropZone.addEventListener('dragleave', () => dropZone.classList.remove('drag-over'));
@@ -481,141 +503,84 @@ function handleFiles(files) {
   preview.innerHTML = '';
   pendingFiles.forEach(f => {
     if (f.type.startsWith('image/')) {
-      const img = document.createElement('img');
-      img.className = 'preview-thumb';
-      img.src = URL.createObjectURL(f);
-      preview.appendChild(img);
+      const img = document.createElement('img'); img.className = 'preview-thumb'; img.src = URL.createObjectURL(f); preview.appendChild(img);
     } else {
-      const div = document.createElement('div');
-      div.style.cssText = 'width:80px;height:80px;background:var(--royal);display:flex;align-items:center;justify-content:center;color:var(--gold);font-size:.65rem;font-weight:700;text-align:center;padding:4px;border:2px solid rgba(201,152,26,.2)';
-      div.textContent = f.name.substring(0, 20);
-      preview.appendChild(div);
+      const d = document.createElement('div');
+      d.style.cssText = 'width:80px;height:80px;background:var(--royal);display:flex;align-items:center;justify-content:center;color:var(--gold);font-size:.65rem;font-weight:700;text-align:center;padding:4px;border:2px solid rgba(201,152,26,.2)';
+      d.textContent = f.name.substring(0, 20); preview.appendChild(d);
     }
   });
-  document.getElementById('do-upload-btn').style.display = pendingFiles.length > 0 ? 'block' : 'none';
+  document.getElementById('do-upload-btn').style.display = pendingFiles.length ? 'block' : 'none';
 }
 
 document.getElementById('do-upload-btn').addEventListener('click', async () => {
   if (!pendingFiles.length) return;
-  const progress   = document.getElementById('upload-progress');
-  const progressBar = document.getElementById('progress-bar');
-  const progressText = document.getElementById('progress-text');
-  const result     = document.getElementById('upload-result');
-  const btn        = document.getElementById('do-upload-btn');
-
-  progress.style.display = 'block';
-  btn.disabled = true;
-  result.textContent = '';
-
-  let done = 0;
-  let errors = 0;
-  const newItems = [];
+  const progress = document.getElementById('upload-progress'), progressBar = document.getElementById('progress-bar'),
+        progressText = document.getElementById('progress-text'), result = document.getElementById('upload-result'),
+        btn = document.getElementById('do-upload-btn');
+  progress.style.display = 'block'; btn.disabled = true; result.textContent = '';
+  let done = 0, errors = 0; const newItems = [];
 
   for (const file of pendingFiles) {
-    progressText.textContent = `Uploading ${file.name} (${done + 1}/${pendingFiles.length})...`;
+    progressText.textContent = `Uploading ${file.name} (${done+1}/${pendingFiles.length})...`;
     progressBar.style.width = ((done / pendingFiles.length) * 100) + '%';
-
     try {
       const b64 = await fileToBase64(file);
       const r = await fetch(CRM_URL + '/api/portfolio/upload', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
+        method:'POST', headers:{'Content-Type':'application/json'}, credentials:'include',
         body: JSON.stringify({ filename: file.name, data: b64, mimetype: file.type })
       });
-      if (r.ok) {
-        const item = await r.json();
-        newItems.push({ id: item.file, file: item.file, type: item.type, src: item.src, thumb: item.src, source: 'crm' });
-      } else {
-        errors++;
-      }
-    } catch (e) {
-      errors++;
-    }
+      if (r.ok) { const it = await r.json(); newItems.push({ id: it.file, file: it.file, type: it.type, src: it.src, thumb: it.src, source: 'crm', isNew: true }); }
+      else errors++;
+    } catch(e) { errors++; }
     done++;
   }
 
-  progressBar.style.width = '100%';
-  progressText.textContent = 'Done!';
-
-  // Add new items to gallery
-  if (newItems.length) {
-    allItems = [...newItems, ...allItems];
-    updateStats();
-    newItems.forEach(item => prependItem(item));
-  }
-
-  result.style.color = errors > 0 ? 'var(--red)' : 'green';
-  result.textContent = `${done - errors} uploaded successfully${errors > 0 ? ', ' + errors + ' failed' : ''}.`;
+  progressBar.style.width = '100%'; progressText.textContent = 'Done!';
+  if (newItems.length) { allItems = [...newItems, ...allItems]; updateStats(); applyFilter(currentFilter); }
+  result.style.color = errors ? 'var(--red)' : 'green';
+  result.textContent = `${done - errors} uploaded${errors ? ', ' + errors + ' failed' : ''}.`;
   btn.disabled = false;
   setTimeout(() => { if (!errors) closeUploadModal(); }, 1500);
 });
 
 function fileToBase64(file) {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload  = () => resolve(reader.result.split(',')[1]);
-    reader.onerror = reject;
-    reader.readAsDataURL(file);
-  });
+  return new Promise((res, rej) => { const r = new FileReader(); r.onload = () => res(r.result.split(',')[1]); r.onerror = rej; r.readAsDataURL(file); });
 }
 
-function prependItem(item) {
-  const grid = document.getElementById('gallery-grid');
-  const div  = document.createElement('div');
-  div.className   = 'gallery-item';
-  div.dataset.id  = item.id;
-  div.dataset.source = 'crm';
-
-  const delBtn = document.createElement('button');
-  delBtn.type        = 'button';
-  delBtn.className   = 'del-btn';
-  delBtn.textContent = '×';
-  delBtn.addEventListener('click', e => { e.stopPropagation(); deleteItem(item, div); });
-  div.appendChild(delBtn);
-
-  const img = document.createElement('img');
-  img.className = 'thumb';
-  img.src       = item.type === 'video' ? (item.thumb || item.src) : item.src;
-  img.alt       = item.file;
-  img.loading   = 'lazy';
-  div.appendChild(img);
-
-  if (item.type === 'video') {
-    const ov = document.createElement('div');
-    ov.className = 'play-overlay';
-    ov.innerHTML = '<div class="play-circle"><svg width="18" height="18" viewBox="0 0 24 24" fill="#1A1A3E"><polygon points="5,3 19,12 5,21"/></svg></div>';
-    div.appendChild(ov);
-    div.addEventListener('click', () => openVideo(item.src));
-  } else {
-    div.addEventListener('click', () => openLightbox(item.src));
-  }
-
-  grid.insertBefore(div, grid.firstChild);
-}
-
-// ── Delete ─────────────────────────────────────────────────────────────────────
+// ── Delete — marks tile as DELETED, persists in localStorage ──────────────────
 async function deleteItem(item, el) {
-  if (!confirm(`Delete "${item.file}"? This cannot be undone.`)) return;
+  if (!confirm('Mark "' + (item.file || 'this item') + '" as deleted?')) return;
 
   if (item.source === 'crm') {
     try {
-      const r = await fetch(CRM_URL + '/api/portfolio/file/' + encodeURIComponent(item.file), {
-        method: 'DELETE',
-        credentials: 'include'
-      });
+      const r = await fetch(CRM_URL + '/api/portfolio/file/' + encodeURIComponent(item.file), { method:'DELETE', credentials:'include' });
       if (!r.ok) { alert('Delete failed. Try again.'); return; }
-    } catch (e) {
-      alert('Could not reach CRM. Try again.'); return;
-    }
+    } catch(e) { alert('Could not reach CRM. Try again.'); return; }
   }
-  // Remove from local arrays
-  allItems  = allItems.filter(i => (i.id || i.file) !== (item.id || item.file));
-  filtered  = filtered.filter(i => (i.id || i.file) !== (item.id || item.file));
-  el.remove();
+
+  const itemKey = String(item.id || item.file);
+  saveDeletedId(itemKey);
+
+  // Transform tile in place — no removal
+  el.classList.add('deleted-item');
+  el.querySelectorAll('.new-badge,.item-label,.play-overlay,.vid-badge').forEach(n => n.remove());
+  el.querySelectorAll('img.thumb').forEach(i => { i.style.filter = 'grayscale(1)'; i.style.opacity = '.25'; });
+  el.style.pointerEvents = 'none';
+  const stamp = document.createElement('div');
+  stamp.className = 'deleted-stamp';
+  stamp.innerHTML = '<span>DELETED</span>' + (adminMode ? '<button type="button" class="del-undo" style="pointer-events:all">Restore</button>' : '');
+  if (adminMode) stamp.querySelector('.del-undo').addEventListener('click', e => { e.stopPropagation(); restoreItem(item); });
+  el.appendChild(stamp);
+
   updateStats();
-  document.getElementById('filter-count').textContent =
-    filtered.length + ' piece' + (filtered.length !== 1 ? 's' : '');
+}
+
+// ── Restore ────────────────────────────────────────────────────────────────────
+function restoreItem(item) {
+  removeDeletedId(String(item.id || item.file));
+  applyFilter(currentFilter);
+  updateStats();
 }
 </script>
 </body>
