@@ -2,7 +2,7 @@
   {
     "type": "image",
     "file": "jim-reese-website.jpg",
-    "src": "images/portfolio-jim-reese.jpg",
+    "src": "/images/portfolio-jim-reese.jpg",
     "category": "website",
     "label": "Jim Reese for Richland County Council \u2014 Campaign Website"
   },
