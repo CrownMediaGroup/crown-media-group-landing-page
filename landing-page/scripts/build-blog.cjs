@@ -360,16 +360,23 @@ ${AMBIENT_HTML}
   <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M20 10.5C20 6.36 16.41 3 12 3S4 6.36 4 10.5v6c0 1.1.9 2 2 2h1c.55 0 1-.45 1-1v-5c0-.55-.45-1-1-1H6v-1c0-3.31 2.69-6 6-6s6 2.69 6 6v1h-1c-.55 0-1 .45-1 1v5c0 .55.45 1 1 1h1c1.1 0 2-.9 2-2v-6z"/></svg>
 </button>
 <div id="support-pop" role="dialog" aria-label="Contact options">
-  <span class="sup-label">Get in Touch</span>
+  <span class="sup-label">Customer Support</span>
   <a href="tel:9088481436">
     <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M6.62 10.79a15.53 15.53 0 006.59 6.59l2.2-2.2a1 1 0 011.11-.24c1.21.49 2.53.76 3.88.76a1 1 0 011 1v3.8a1 1 0 01-1 1C10.36 22.5 1.5 13.64 1.5 3a1 1 0 011-1H6.3a1 1 0 011 1c0 1.35.27 2.67.76 3.88a1 1 0 01-.24 1.11l-2.2 2.2z"/></svg>
     Call (908) 848-1436
   </a>
   <div class="sup-divider"></div>
-  <a href="mailto:king@crownmediagroup.co?subject=Hello%20Crown%20Media%20Group">
-    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg>
+  <button type="button" id="email-trigger-btn" style="display:flex;align-items:center;gap:12px;padding:12px 16px;border-radius:8px;color:rgba(255,255,255,.85);font-family:'Inter',sans-serif;font-size:.82rem;font-weight:600;letter-spacing:.04em;background:transparent;border:none;cursor:pointer;width:100%;text-align:left">
+    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" style="width:18px;height:18px;flex-shrink:0;fill:rgba(201,152,26,.7)"><path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg>
     Email Us
-  </a>
+  </button>
+  <div id="email-fallback" style="display:none;padding:8px 16px 4px;border-top:1px solid rgba(201,152,26,.15);margin-top:4px">
+    <div style="font-size:.72rem;color:rgba(255,255,255,.45);margin-bottom:6px">king@crownmediagroup.co</div>
+    <button type="button" id="copy-email-btn" style="display:block;width:100%;padding:6px 10px;margin-bottom:5px;background:rgba(201,152,26,.15);border:1px solid rgba(201,152,26,.3);border-radius:3px;color:#E8B832;font-size:.75rem;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;text-align:left">Copy Address</button>
+    <a href="https://mail.google.com/mail/?view=cm&to=king%40crownmediagroup.co&su=Hello%20Crown%20Media%20Group" target="_blank" rel="noopener" style="display:block;padding:5px 10px;margin-bottom:2px;color:rgba(255,255,255,.65);font-size:.75rem;text-decoration:none;border-radius:3px">Open Gmail</a>
+    <a href="https://outlook.live.com/mail/0/deeplink/compose?to=king%40crownmediagroup.co&subject=Hello%20Crown%20Media%20Group" target="_blank" rel="noopener" style="display:block;padding:5px 10px;margin-bottom:2px;color:rgba(255,255,255,.65);font-size:.75rem;text-decoration:none;border-radius:3px">Open Outlook</a>
+    <a href="https://compose.mail.yahoo.com/?to=king%40crownmediagroup.co&subj=Hello%20Crown%20Media%20Group" target="_blank" rel="noopener" style="display:block;padding:5px 10px;color:rgba(255,255,255,.65);font-size:.75rem;text-decoration:none;border-radius:3px">Open Yahoo</a>
+  </div>
 </div>
 <script>
 (function(){
@@ -378,6 +385,11 @@ ${AMBIENT_HTML}
   btn.addEventListener('click',function(e){e.stopPropagation();pop.classList.toggle('open');btn.classList.toggle('open');});
   document.addEventListener('click',function(){pop.classList.remove('open');btn.classList.remove('open');});
   pop.addEventListener('click',function(e){e.stopPropagation();});
+  var emailBtn=document.getElementById('email-trigger-btn');
+  var emailFallback=document.getElementById('email-fallback');
+  var copyBtn=document.getElementById('copy-email-btn');
+  if(emailBtn&&emailFallback){emailBtn.addEventListener('click',function(e){e.stopPropagation();var opened=false,t;function onBlur(){opened=true;clearTimeout(t);window.removeEventListener('blur',onBlur);}window.addEventListener('blur',onBlur);window.location.href='mailto:king@crownmediagroup.co?subject=Hello%20Crown%20Media%20Group';t=setTimeout(function(){window.removeEventListener('blur',onBlur);if(!opened)emailFallback.style.display='block';},700);});}
+  if(copyBtn){copyBtn.addEventListener('click',function(e){e.stopPropagation();var addr='king@crownmediagroup.co';function fb(){var ta=document.createElement('textarea');ta.value=addr;ta.style.position='fixed';ta.style.opacity='0';document.body.appendChild(ta);ta.select();try{document.execCommand('copy');copyBtn.textContent='Copied!';}catch(ex){copyBtn.textContent='Failed';}document.body.removeChild(ta);setTimeout(function(){copyBtn.textContent='Copy Address';},2000);}if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(addr).then(function(){copyBtn.textContent='Copied!';setTimeout(function(){copyBtn.textContent='Copy Address';},2000);}).catch(fb);}else{fb();}});}
 })();
 </script>
 </body>
@@ -561,7 +573,7 @@ function buildIndexPage(posts) {
 </div>` : '';
 
   const cardsHtml = rest.map(p => `
-<article class="post-card">
+<article class="post-card" data-category="${slugify(p.category)}" data-date="${p.dateIso}">
   <div class="card-meta">
     <a href="/blog/category/${slugify(p.category)}/" class="card-cat">${escapeHtml(p.category)}</a>
     <span class="card-dot">&middot;</span>

@@ -81,9 +81,12 @@ footer{background:#0F0F28;padding:56px 64px;display:flex;align-items:center;just
 .blog-index-title{font-size:clamp(2.5rem,5vw,4rem);margin-bottom:16px;color:var(--text)}
 .blog-index-title em{font-style:italic}
 .blog-index-sub{color:var(--text-mid);font-size:1.05rem;max-width:520px;margin:0 auto;line-height:1.7}
-.cat-filter{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-bottom:40px}
+.cat-filter{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-bottom:16px}
 .cat-btn{padding:7px 18px;border-radius:2px;border:1.5px solid var(--border);color:var(--text-mid);font-size:.8rem;font-weight:600;letter-spacing:.05em;text-decoration:none;background:transparent;cursor:pointer;font-family:'Inter',sans-serif;transition:border-color .2s,color .2s,background .2s}
 .cat-btn:hover,.cat-btn.active{border-color:var(--gold);color:var(--gold);background:var(--gold-pale)}
+.blog-sort-row{display:flex;justify-content:flex-end;gap:8px;margin-bottom:32px}
+.sort-btn{padding:5px 14px;border-radius:2px;border:1.5px solid var(--border);color:var(--text-light);font-size:.72rem;font-weight:600;letter-spacing:.05em;background:transparent;cursor:pointer;font-family:'Inter',sans-serif;transition:border-color .2s,color .2s,background .2s}
+.sort-btn.active{border-color:var(--gold);color:var(--gold);background:var(--gold-pale)}
 .blog-featured{background:var(--royal);color:#fff;padding:48px 56px;border-radius:12px;margin-bottom:56px}
 .featured-meta{display:flex;align-items:center;gap:10px;font-size:.8rem;color:rgba(255,255,255,.5);margin-bottom:16px}
 .featured-cat{color:var(--gold);font-weight:700;text-transform:uppercase;letter-spacing:.08em;font-size:.72rem;text-decoration:none}
@@ -150,7 +153,10 @@ footer{background:#0F0F28;padding:56px 64px;display:flex;align-items:center;just
   <button type="button" class="cat-btn" data-filter="faith">Faith</button>
   <button type="button" class="cat-btn" data-filter="geo">GEO</button>
 </div>
-  
+<div class="blog-sort-row">
+  <button type="button" class="sort-btn active" data-sort="newest">Newest First</button>
+  <button type="button" class="sort-btn" data-sort="oldest">Oldest First</button>
+</div>
 <div class="blog-featured">
   <div class="featured-meta">
     <a href="/blog/category/seo/" class="featured-cat">SEO</a>
@@ -164,12 +170,11 @@ footer{background:#0F0F28;padding:56px 64px;display:flex;align-items:center;just
   <a href="/blog/seo-vs-geo-columbia-sc/" class="btn-royal">Read Article</a>
 </div>
   <div class="posts-grid">
-    
-<article class="post-card" data-category="marketing">
+<article class="post-card" data-category="marketing" data-date="2026-03-27">
   <div class="card-meta">
     <a href="/blog/category/marketing/" class="card-cat">Marketing</a>
     <span class="card-dot">&middot;</span>
-    <time datetime="2026-03-27">March 27, 2026</time>
+    <time datetime="2026-03-27">March 27, 2026 &middot; 9:00 AM</time>
   </div>
   <h3><a href="/blog/real-cost-no-marketing/">The Real Cost of Not Having a Marketing Strategy (And How to Fix It)</a></h3>
   <p class="card-excerpt">Most small business owners think they can't afford marketing. The truth is they can't afford NOT to have it. Here's what neglecting your marketing strategy is actually costing you.</p>
@@ -178,11 +183,11 @@ footer{background:#0F0F28;padding:56px 64px;display:flex;align-items:center;just
     <a href="/blog/real-cost-no-marketing/" class="card-link">Read &rarr;</a>
   </div>
 </article>
-<article class="post-card" data-category="faith">
+<article class="post-card" data-category="faith" data-date="2026-03-27">
   <div class="card-meta">
     <a href="/blog/category/faith/" class="card-cat">Faith</a>
     <span class="card-dot">&middot;</span>
-    <time datetime="2026-03-27">March 27, 2026</time>
+    <time datetime="2026-03-27">March 27, 2026 &middot; 9:00 AM</time>
   </div>
   <h3><a href="/blog/faith-and-business-proverbs/">Faith and Business: How Proverbs 16:3 Changed How I Run My Agency</a></h3>
   <p class="card-excerpt">Running a business is hard. Running a business God's way is harder — and infinitely better. Here's what Proverbs taught me about strategy, integrity, and why Crown Media Group is built the way it is.</p>
@@ -191,11 +196,11 @@ footer{background:#0F0F28;padding:56px 64px;display:flex;align-items:center;just
     <a href="/blog/faith-and-business-proverbs/" class="card-link">Read &rarr;</a>
   </div>
 </article>
-<article class="post-card" data-category="marketing">
+<article class="post-card" data-category="marketing" data-date="2026-03-27">
   <div class="card-meta">
     <a href="/blog/category/marketing/" class="card-cat">Marketing</a>
     <span class="card-dot">&middot;</span>
-    <time datetime="2026-03-27">March 27, 2026</time>
+    <time datetime="2026-03-27">March 27, 2026 &middot; 9:00 AM</time>
   </div>
   <h3><a href="/blog/columbia-sc-ai-marketing-2026/">Why Every Small Business in Columbia SC Needs AI Marketing in 2026</a></h3>
   <p class="card-excerpt">AI-powered marketing is no longer reserved for Fortune 500 companies. Here's why Columbia SC small businesses that adopt it now will dominate their local market.</p>
@@ -204,11 +209,11 @@ footer{background:#0F0F28;padding:56px 64px;display:flex;align-items:center;just
     <a href="/blog/columbia-sc-ai-marketing-2026/" class="card-link">Read &rarr;</a>
   </div>
 </article>
-<article class="post-card" data-category="geo">
+<article class="post-card" data-category="geo" data-date="2026-03-27">
   <div class="card-meta">
     <a href="/blog/category/geo/" class="card-cat">GEO</a>
     <span class="card-dot">&middot;</span>
-    <time datetime="2026-03-27">March 27, 2026</time>
+    <time datetime="2026-03-27">March 27, 2026 &middot; 9:00 AM</time>
   </div>
   <h3><a href="/blog/chatgpt-google-ai-recommendations/">How to Get Your Business Recommended by ChatGPT and Google AI</a></h3>
   <p class="card-excerpt">AI assistants like ChatGPT, Perplexity, and Google AI Overviews are now answering customer questions directly. If your business isn't optimized for them, you're missing a fast-growing source of local referrals.</p>
@@ -217,11 +222,11 @@ footer{background:#0F0F28;padding:56px 64px;display:flex;align-items:center;just
     <a href="/blog/chatgpt-google-ai-recommendations/" class="card-link">Read &rarr;</a>
   </div>
 </article>
-<article class="post-card" data-category="marketing">
+<article class="post-card" data-category="marketing" data-date="2026-03-27">
   <div class="card-meta">
     <a href="/blog/category/marketing/" class="card-cat">Marketing</a>
     <span class="card-dot">&middot;</span>
-    <time datetime="2026-03-27">March 27, 2026</time>
+    <time datetime="2026-03-27">March 27, 2026 &middot; 9:00 AM</time>
   </div>
   <h3><a href="/blog/ai-marketing-small-business-columbia-sc/">AI Marketing for Small Businesses in Columbia SC</a></h3>
   <p class="card-excerpt">AI marketing for small businesses in Columbia SC is no longer optional. Here's how local businesses are using it to outcompete brands with 10x their budget.</p>
@@ -230,11 +235,11 @@ footer{background:#0F0F28;padding:56px 64px;display:flex;align-items:center;just
     <a href="/blog/ai-marketing-small-business-columbia-sc/" class="card-link">Read &rarr;</a>
   </div>
 </article>
-<article class="post-card" data-category="marketing">
+<article class="post-card" data-category="marketing" data-date="2026-03-27">
   <div class="card-meta">
     <a href="/blog/category/marketing/" class="card-cat">Marketing</a>
     <span class="card-dot">&middot;</span>
-    <time datetime="2026-03-27">March 27, 2026</time>
+    <time datetime="2026-03-27">March 27, 2026 &middot; 9:00 AM</time>
   </div>
   <h3><a href="/blog/5-signs-your-columbia-sc-business-needs-a-marketing-refresh-/">5 Signs Your Columbia SC Business Needs a Marketing Refresh in 2026</a></h3>
   <p class="card-excerpt">Your Columbia SC business might be cruising along with the same marketing strategies you've used for years, but if you're not seeing the growth you expected in 2026, it's time for a refresh.</p>
@@ -266,22 +271,41 @@ footer{background:#0F0F28;padding:56px 64px;display:flex;align-items:center;just
 <script>
 (function(){
   var filterBtns=document.querySelectorAll('.cat-btn[data-filter]');
-  var cards=document.querySelectorAll('.post-card[data-category]');
+  var sortBtns=document.querySelectorAll('.sort-btn[data-sort]');
+  var grid=document.querySelector('.posts-grid');
   var featured=document.querySelector('.blog-featured');
+  var currentFilter='all';
+  var currentSort='newest';
+
+  function applyFilterSort(){
+    var cards=Array.from(document.querySelectorAll('.post-card[data-category]'));
+    cards.sort(function(a,b){
+      var da=a.getAttribute('data-date')||'';
+      var db=b.getAttribute('data-date')||'';
+      return currentSort==='newest'?(db>da?1:db<da?-1:0):(da>db?1:da<db?-1:0);
+    });
+    cards.forEach(function(c){grid.appendChild(c);});
+    cards.forEach(function(c){
+      c.style.display=(currentFilter==='all'||c.getAttribute('data-category')===currentFilter)?'':'none';
+    });
+    if(featured)featured.style.display=(currentFilter==='all')?'':'none';
+  }
+
   filterBtns.forEach(function(btn){
     btn.addEventListener('click',function(){
-      var f=btn.getAttribute('data-filter');
+      currentFilter=btn.getAttribute('data-filter');
       filterBtns.forEach(function(b){b.classList.remove('active');});
       btn.classList.add('active');
-      if(f==='all'){
-        cards.forEach(function(c){c.style.display='';});
-        if(featured)featured.style.display='';
-      } else {
-        if(featured)featured.style.display='none';
-        cards.forEach(function(c){
-          c.style.display=(c.getAttribute('data-category')===f)?'':'none';
-        });
-      }
+      applyFilterSort();
+    });
+  });
+
+  sortBtns.forEach(function(btn){
+    btn.addEventListener('click',function(){
+      currentSort=btn.getAttribute('data-sort');
+      sortBtns.forEach(function(b){b.classList.remove('active');});
+      btn.classList.add('active');
+      applyFilterSort();
     });
   });
 })();
@@ -368,16 +392,23 @@ footer{background:#0F0F28;padding:56px 64px;display:flex;align-items:center;just
   <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M20 10.5C20 6.36 16.41 3 12 3S4 6.36 4 10.5v6c0 1.1.9 2 2 2h1c.55 0 1-.45 1-1v-5c0-.55-.45-1-1-1H6v-1c0-3.31 2.69-6 6-6s6 2.69 6 6v1h-1c-.55 0-1 .45-1 1v5c0 .55.45 1 1 1h1c1.1 0 2-.9 2-2v-6z"/></svg>
 </button>
 <div id="support-pop" role="dialog" aria-label="Contact options">
-  <span class="sup-label">Get in Touch</span>
+  <span class="sup-label">Customer Support</span>
   <a href="tel:9088481436">
     <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M6.62 10.79a15.53 15.53 0 006.59 6.59l2.2-2.2a1 1 0 011.11-.24c1.21.49 2.53.76 3.88.76a1 1 0 011 1v3.8a1 1 0 01-1 1C10.36 22.5 1.5 13.64 1.5 3a1 1 0 011-1H6.3a1 1 0 011 1c0 1.35.27 2.67.76 3.88a1 1 0 01-.24 1.11l-2.2 2.2z"/></svg>
     Call (908) 848-1436
   </a>
   <div class="sup-divider"></div>
-  <a href="mailto:king@crownmediagroup.co?subject=Hello%20Crown%20Media%20Group">
-    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg>
+  <button type="button" id="email-trigger-btn" style="display:flex;align-items:center;gap:12px;padding:12px 16px;border-radius:8px;color:rgba(255,255,255,.85);font-family:'Inter',sans-serif;font-size:.82rem;font-weight:600;letter-spacing:.04em;background:transparent;border:none;cursor:pointer;width:100%;text-align:left">
+    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" style="width:18px;height:18px;flex-shrink:0;fill:rgba(201,152,26,.7)"><path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg>
     Email Us
-  </a>
+  </button>
+  <div id="email-fallback" style="display:none;padding:8px 16px 4px;border-top:1px solid rgba(201,152,26,.15);margin-top:4px">
+    <div style="font-size:.72rem;color:rgba(255,255,255,.45);margin-bottom:6px">king@crownmediagroup.co</div>
+    <button type="button" id="copy-email-btn" style="display:block;width:100%;padding:6px 10px;margin-bottom:5px;background:rgba(201,152,26,.15);border:1px solid rgba(201,152,26,.3);border-radius:3px;color:#E8B832;font-size:.75rem;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;text-align:left">Copy Address</button>
+    <a href="https://mail.google.com/mail/?view=cm&to=king%40crownmediagroup.co&su=Hello%20Crown%20Media%20Group" target="_blank" rel="noopener" style="display:block;padding:5px 10px;margin-bottom:2px;color:rgba(255,255,255,.65);font-size:.75rem;text-decoration:none;border-radius:3px">Open Gmail</a>
+    <a href="https://outlook.live.com/mail/0/deeplink/compose?to=king%40crownmediagroup.co&subject=Hello%20Crown%20Media%20Group" target="_blank" rel="noopener" style="display:block;padding:5px 10px;margin-bottom:2px;color:rgba(255,255,255,.65);font-size:.75rem;text-decoration:none;border-radius:3px">Open Outlook</a>
+    <a href="https://compose.mail.yahoo.com/?to=king%40crownmediagroup.co&subj=Hello%20Crown%20Media%20Group" target="_blank" rel="noopener" style="display:block;padding:5px 10px;color:rgba(255,255,255,.65);font-size:.75rem;text-decoration:none;border-radius:3px">Open Yahoo</a>
+  </div>
 </div>
 <script>
 (function(){
@@ -386,6 +417,11 @@ footer{background:#0F0F28;padding:56px 64px;display:flex;align-items:center;just
   btn.addEventListener('click',function(e){e.stopPropagation();pop.classList.toggle('open');btn.classList.toggle('open');});
   document.addEventListener('click',function(){pop.classList.remove('open');btn.classList.remove('open');});
   pop.addEventListener('click',function(e){e.stopPropagation();});
+  var emailBtn=document.getElementById('email-trigger-btn');
+  var emailFallback=document.getElementById('email-fallback');
+  var copyBtn=document.getElementById('copy-email-btn');
+  if(emailBtn&&emailFallback){emailBtn.addEventListener('click',function(e){e.stopPropagation();var opened=false,t;function onBlur(){opened=true;clearTimeout(t);window.removeEventListener('blur',onBlur);}window.addEventListener('blur',onBlur);window.location.href='mailto:king@crownmediagroup.co?subject=Hello%20Crown%20Media%20Group';t=setTimeout(function(){window.removeEventListener('blur',onBlur);if(!opened)emailFallback.style.display='block';},700);});}
+  if(copyBtn){copyBtn.addEventListener('click',function(e){e.stopPropagation();var addr='king@crownmediagroup.co';function fb(){var ta=document.createElement('textarea');ta.value=addr;ta.style.position='fixed';ta.style.opacity='0';document.body.appendChild(ta);ta.select();try{document.execCommand('copy');copyBtn.textContent='Copied!';}catch(ex){copyBtn.textContent='Failed';}document.body.removeChild(ta);setTimeout(function(){copyBtn.textContent='Copy Address';},2000);}if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(addr).then(function(){copyBtn.textContent='Copied!';setTimeout(function(){copyBtn.textContent='Copy Address';},2000);}).catch(fb);}else{fb();}});}
 })();
 </script>
 </body>
