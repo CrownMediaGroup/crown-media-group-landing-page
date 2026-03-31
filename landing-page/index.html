@@ -108,7 +108,7 @@ body{background:var(--cream);color:var(--text);font-family:'Inter',sans-serif;ov
 .grad-gold{background:linear-gradient(135deg,var(--gold-deep) 0%,var(--gold-light) 50%,var(--gold-deep) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
 .reveal{opacity:0;transform:translateY(32px);transition:opacity .9s ease,transform .9s ease}
 .reveal.visible{opacity:1;transform:translateY(0)}
-nav{position:fixed;top:0;left:0;right:0;z-index:1000;padding:20px 64px;display:flex;align-items:center;justify-content:space-between;background:rgba(253,251,247,0.93);backdrop-filter:blur(20px);border-bottom:1px solid var(--border-soft);transition:box-shadow .3s}
+nav{position:fixed;top:0;left:0;right:0;z-index:1000;padding:20px 64px;display:flex;align-items:center;justify-content:space-between;background:rgba(253,251,247,0.93);-webkit-backdrop-filter:blur(20px);backdrop-filter:blur(20px);border-bottom:1px solid var(--border-soft);transition:box-shadow .3s}
 nav.scrolled{box-shadow:0 4px 30px rgba(201,152,26,.08)}
 .nav-logo{display:flex;align-items:center;gap:12px;text-decoration:none}
 .nav-logo img{height:38px;width:38px;object-fit:contain;border-radius:8px}
@@ -370,7 +370,7 @@ footer{background:#0F0F28;padding:56px 64px;display:flex;align-items:center;just
     <li><a href="#serve">Columbia SC</a></li>
     <li><a href="/ai-tools.html" class="nav-link-gold">AI Tools</a></li>
   </ul>
-  <a href="https://calendly.com/crownmediagroupco" target="_blank" class="btn-royal nav-cta">Book a Call</a>
+  <a href="https://calendly.com/crownmediagroupco" target="_blank" rel="noopener noreferrer" class="btn-royal nav-cta">Book a Call</a>
   <button type="button" class="hamburger" id="hamburger" aria-label="Menu"><span></span><span></span><span></span></button>
 </nav>
 <div class="mobile-menu" id="mobile-menu">
@@ -398,8 +398,8 @@ footer{background:#0F0F28;padding:56px 64px;display:flex;align-items:center;just
     <h1 class="hero-headline">Crown Your Brand.<br><em>Own Your Market.</em></h1>
     <p class="hero-sub">AI-powered marketing that puts your business in a class of its own. Content, ads, brand &mdash; fast turnaround. Built for Columbia SC businesses ready to grow.</p>
     <div class="hero-ctas">
-      <a href="https://calendly.com/crownmediagroupco" target="_blank" class="btn-royal">Claim Your Free Strategy Session</a>
-      <a href="https://crm.crownmediagroup.co" target="_blank" class="btn-crm-trial">Try CRM Free &rarr;</a>
+      <a href="https://calendly.com/crownmediagroupco" target="_blank" rel="noopener noreferrer" class="btn-royal">Claim Your Free Strategy Session</a>
+      <a href="https://crm.crownmediagroup.co" target="_blank" rel="noopener noreferrer" class="btn-crm-trial">Try CRM Free &rarr;</a>
     </div>
   </div>
   <div class="scroll-indicator"><div class="scroll-line"></div></div>
@@ -428,6 +428,10 @@ footer{background:#0F0F28;padding:56px 64px;display:flex;align-items:center;just
         <p>He built an AI-powered content and automation stack that can serve 1 client or 100,000 &mdash; the same system, the same quality, every time. Every strategy starts with prayer. Every result gets documented. Every client gets treated like family.</p>
         <p>While big agencies charge $5,000/month and hand you off to an intern, <strong>Crown Media Group gives you the founder, real AI tools, and real results &mdash; fast.</strong></p>
         <blockquote>"All Glory to Jesus."</blockquote>
+        <div style="margin-top:32px;display:flex;flex-direction:column;gap:12px;align-items:flex-start;">
+          <a href="/ai-tools.html#speaking" class="btn-gold-large" style="display:inline-block;">Book 1-on-1 Training or Speaking</a>
+          <p style="font-size:.82rem;color:var(--text-light);margin:0;line-height:1.6;">$100/hr &middot; Faith-based coaching, AI training, speaking, worship, preaching &amp; motivational &mdash; <a href="/ai-tools.html#speaking" style="color:var(--gold);text-decoration:none;font-weight:600;">see full details</a></p>
+        </div>
       </div>
       <div class="about-visual">
         <div class="crown-orb">
@@ -532,7 +536,7 @@ footer{background:#0F0F28;padding:56px 64px;display:flex;align-items:center;just
       <p class="case-quote">"Crown Media Group transformed our brand from the ground up. Professional content, a beautiful logo, and an online store &mdash; all delivered in under 30 days. We went from invisible to unstoppable."</p>
       <p class="case-attr">&mdash; Shatiea, Founder</p>
       <p class="case-body">We rebranded the entire business around Galatians 5:22-23, built a complete content library, launched paid ads, and set up e-commerce &mdash; proving that Crown Media Group delivers at the highest level from day one.</p>
-      <div class="case-cta"><a href="https://calendly.com/crownmediagroupco" target="_blank" class="btn-gold-large">Your business is next &rarr;</a></div>
+      <div class="case-cta"><a href="https://calendly.com/crownmediagroupco" target="_blank" rel="noopener noreferrer" class="btn-gold-large">Your business is next &rarr;</a></div>
     </div>
   </div>
 </div>
@@ -618,7 +622,7 @@ footer{background:#0F0F28;padding:56px 64px;display:flex;align-items:center;just
           <li class="price-feature">Monthly check-in call</li>
           <li class="price-feature">Brand voice guide</li>
         </ul>
-        <a href="https://calendly.com/crownmediagroupco" target="_blank" class="btn-outline" style="width:100%;text-align:center;">Book a Call</a>
+        <a href="https://calendly.com/crownmediagroupco" target="_blank" rel="noopener noreferrer" class="btn-outline" style="width:100%;text-align:center;">Book a Call</a>
       </div>
       <div class="price-card featured">
         <div class="featured-badge"></div>
@@ -634,7 +638,7 @@ footer{background:#0F0F28;padding:56px 64px;display:flex;align-items:center;just
           <li class="price-feature">E-commerce support</li>
           <li class="price-feature">Performance analytics dashboard</li>
         </ul>
-        <a href="https://calendly.com/crownmediagroupco" target="_blank" class="btn-gold-large" style="width:100%;text-align:center;padding:14px 28px;">Book a Call</a>
+        <a href="https://calendly.com/crownmediagroupco" target="_blank" rel="noopener noreferrer" class="btn-gold-large" style="width:100%;text-align:center;padding:14px 28px;">Book a Call</a>
       </div>
       <div class="price-card">
         <div class="price-tier">Premium</div>
@@ -650,7 +654,7 @@ footer{background:#0F0F28;padding:56px 64px;display:flex;align-items:center;just
           <li class="price-feature">Dedicated account support</li>
           <li class="price-feature">Competitor monitoring</li>
         </ul>
-        <a href="https://calendly.com/crownmediagroupco" target="_blank" class="btn-outline" style="width:100%;text-align:center;">Book a Call</a>
+        <a href="https://calendly.com/crownmediagroupco" target="_blank" rel="noopener noreferrer" class="btn-outline" style="width:100%;text-align:center;">Book a Call</a>
       </div>
     </div>
     <p class="pricing-note reveal">Ad spend billed separately at 10-15% management fee. Month-to-month &mdash; no long-term contracts required.</p>
@@ -670,7 +674,7 @@ footer{background:#0F0F28;padding:56px 64px;display:flex;align-items:center;just
         <span class="crm-feat">&#10003; Follow-up reminders &amp; task tracker</span>
       </div>
       <div class="crm-spot-cta">
-        <a href="https://crm.crownmediagroup.co" target="_blank" class="btn-royal">Start Free — 33 Days, No Card</a>
+        <a href="https://crm.crownmediagroup.co" target="_blank" rel="noopener noreferrer" class="btn-royal">Start Free — 33 Days, No Card</a>
         <span class="crm-price">Then $97/month. Cancel anytime.</span>
       </div>
     </div>
@@ -756,7 +760,7 @@ footer{background:#0F0F28;padding:56px 64px;display:flex;align-items:center;just
       <div class="city-block reveal">
         <div class="city-name">Columbia</div>
         <div class="city-state">South Carolina</div>
-        <a href="https://calendly.com/crownmediagroupco" target="_blank" class="btn-royal" style="font-size:.9rem;padding:16px 40px;">Book a Call Today</a>
+        <a href="https://calendly.com/crownmediagroupco" target="_blank" rel="noopener noreferrer" class="btn-royal" style="font-size:.9rem;padding:16px 40px;">Book a Call Today</a>
       </div>
     </div>
   </div>
@@ -800,7 +804,7 @@ footer{background:#0F0F28;padding:56px 64px;display:flex;align-items:center;just
     <span class="label">Get Started</span>
     <h2 class="cta-headline">Ready to <em style="color:var(--gold-light)">reign</em><br>in your market?</h2>
     <p class="cta-sub">15 minutes. No pressure. Real strategy. Free.</p>
-    <a href="https://calendly.com/crownmediagroupco" target="_blank" class="btn-gold-large">Claim Your Free Strategy Session</a>
+    <a href="https://calendly.com/crownmediagroupco" target="_blank" rel="noopener noreferrer" class="btn-gold-large">Claim Your Free Strategy Session</a>
     <span class="cta-email">Or email: <a href="mailto:king@crownmediagroup.co">king@crownmediagroup.co</a></span>
   </div>
 </div>
@@ -815,7 +819,7 @@ footer{background:#0F0F28;padding:56px 64px;display:flex;align-items:center;just
     <li><a href="#services">Services</a></li>
     <li><a href="/blog/">Blog</a></li>
     <li><a href="#pricing">Pricing</a></li>
-    <li><a href="https://calendly.com/crownmediagroupco" target="_blank">Book a Call</a></li>
+    <li><a href="https://calendly.com/crownmediagroupco" target="_blank" rel="noopener noreferrer">Book a Call</a></li>
   </ul>
   <div class="footer-copy" itemscope itemtype="https://schema.org/LocalBusiness">
     <span itemprop="name">Crown Media Group</span> &middot;
@@ -1031,9 +1035,48 @@ window._installPWA = function() {
 // iOS prompt
 if (/iPhone|iPad/.test(navigator.userAgent) && !navigator.standalone) {
   const b = document.createElement('div');
-  b.innerHTML = '<div style="position:fixed;bottom:0;left:0;right:0;background:#1A237E;padding:16px 20px;z-index:9999;border-top:2px solid #D4A843;font-family:system-ui,sans-serif;text-align:center;"><div style="color:#D4A843;font-weight:700;font-size:15px;">Install Crown Media App</div><div style="color:#E5E7EB;font-size:13px;margin-top:4px;">Tap &#x2B06; Share &rarr; then &ldquo;Add to Home Screen&rdquo;</div><button onclick="this.parentElement.remove()" style="background:none;border:none;color:#9CA3AF;font-size:12px;cursor:pointer;margin-top:8px;">Dismiss</button></div>';
+  b.innerHTML = '<div style="position:fixed;bottom:0;left:0;right:0;background:#1A237E;padding:16px 20px;z-index:9999;border-top:2px solid #D4A843;font-family:system-ui,sans-serif;text-align:center;"><div style="color:#D4A843;font-weight:700;font-size:15px;">Install Crown Media App</div><div style="color:#E5E7EB;font-size:13px;margin-top:4px;">Tap &#x2B06; Share &rarr; then &ldquo;Add to Home Screen&rdquo;</div><button type="button" onclick="this.parentElement.remove()" style="background:none;border:none;color:#9CA3AF;font-size:12px;cursor:pointer;margin-top:8px;">Dismiss</button></div>';
   document.body.appendChild(b);
 }
+</script>
+<!-- Support Widget -->
+<style>
+#support-btn{position:fixed;bottom:32px;left:32px;z-index:9000;width:52px;height:52px;border-radius:50%;background:var(--royal);border:1.5px solid rgba(201,152,26,0.5);display:flex;align-items:center;justify-content:center;cursor:pointer;-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);box-shadow:0 4px 24px rgba(0,0,0,.32);transition:border-color .2s,background .2s;outline:none}
+#support-btn:hover,#support-btn.open{background:rgba(26,26,62,0.95);border-color:#C9981A}
+#support-btn svg{width:22px;height:22px;fill:rgba(232,184,50,.8);transition:fill .2s}
+#support-btn:hover svg,#support-btn.open svg{fill:#C9981A}
+#support-pop{display:none;position:fixed;bottom:92px;left:32px;z-index:8999;background:rgba(26,26,62,0.97);border:1px solid rgba(201,152,26,0.4);border-radius:12px;padding:8px;min-width:200px;box-shadow:0 8px 32px rgba(0,0,0,.4);-webkit-backdrop-filter:blur(16px);backdrop-filter:blur(16px)}
+#support-pop.open{display:block}
+#support-pop a{display:flex;align-items:center;gap:12px;padding:12px 16px;border-radius:8px;text-decoration:none;color:rgba(255,255,255,.85);font-family:'Inter',sans-serif;font-size:.82rem;font-weight:600;letter-spacing:.04em;transition:background .15s,color .15s}
+#support-pop a:hover{background:rgba(201,152,26,.12);color:#C9981A}
+#support-pop a svg{width:18px;height:18px;flex-shrink:0;fill:rgba(201,152,26,.7)}
+#support-pop a:hover svg{fill:#C9981A}
+#support-pop .sup-label{font-family:'Cormorant Garamond',serif;font-size:.7rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:rgba(201,152,26,.5);padding:8px 16px 4px;display:block}
+#support-pop .sup-divider{height:1px;background:rgba(201,152,26,.15);margin:4px 8px}
+</style>
+<button type="button" id="support-btn" aria-label="Contact support" title="Get in touch">
+  <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M20 10.5C20 6.36 16.41 3 12 3S4 6.36 4 10.5v6c0 1.1.9 2 2 2h1c.55 0 1-.45 1-1v-5c0-.55-.45-1-1-1H6v-1c0-3.31 2.69-6 6-6s6 2.69 6 6v1h-1c-.55 0-1 .45-1 1v5c0 .55.45 1 1 1h1c1.1 0 2-.9 2-2v-6z"/></svg>
+</button>
+<div id="support-pop" role="dialog" aria-label="Contact options">
+  <span class="sup-label">Get in Touch</span>
+  <a href="tel:9088481436">
+    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M6.62 10.79a15.53 15.53 0 006.59 6.59l2.2-2.2a1 1 0 011.11-.24c1.21.49 2.53.76 3.88.76a1 1 0 011 1v3.8a1 1 0 01-1 1C10.36 22.5 1.5 13.64 1.5 3a1 1 0 011-1H6.3a1 1 0 011 1c0 1.35.27 2.67.76 3.88a1 1 0 01-.24 1.11l-2.2 2.2z"/></svg>
+    Call (908) 848-1436
+  </a>
+  <div class="sup-divider"></div>
+  <a href="mailto:king@crownmediagroup.co?subject=Hello%20Crown%20Media%20Group">
+    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg>
+    Email Us
+  </a>
+</div>
+<script>
+(function(){
+  var btn=document.getElementById('support-btn');
+  var pop=document.getElementById('support-pop');
+  btn.addEventListener('click',function(e){e.stopPropagation();pop.classList.toggle('open');btn.classList.toggle('open');});
+  document.addEventListener('click',function(){pop.classList.remove('open');btn.classList.remove('open');});
+  pop.addEventListener('click',function(e){e.stopPropagation();});
+})();
 </script>
 </body>
 </html>

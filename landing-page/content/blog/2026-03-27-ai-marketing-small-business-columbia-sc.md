@@ -1,6 +1,7 @@
 ---
 title: "AI Marketing for Small Businesses in Columbia SC"
 date: "2026-03-27"
+publishTime: "09:00"
 slug: "ai-marketing-small-business-columbia-sc"
 category: "Marketing"
 tags: ["AI Marketing", "Columbia SC", "Small Business", "Local Marketing", "Digital Marketing"]

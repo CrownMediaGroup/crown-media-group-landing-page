@@ -1,6 +1,7 @@
 ---
 title: "SEO vs GEO: What Columbia SC Business Owners Need to Know"
 date: "2026-03-27"
+publishTime: "09:00"
 slug: "seo-vs-geo-columbia-sc"
 category: "SEO"
 tags: ["SEO", "GEO", "Columbia SC", "AI Search", "Digital Marketing"]

@@ -1,6 +1,7 @@
 ---
 title: "Why Every Small Business in Columbia SC Needs AI Marketing in 2026"
 date: "2026-03-27"
+publishTime: "09:00"
 slug: "columbia-sc-ai-marketing-2026"
 category: "Marketing"
 tags: ["Columbia SC", "AI Marketing", "Small Business", "Local SEO"]

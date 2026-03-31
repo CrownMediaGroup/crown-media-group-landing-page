@@ -1,6 +1,7 @@
 ---
 title: "Faith and Business: How Proverbs 16:3 Changed How I Run My Agency"
 date: "2026-03-27"
+publishTime: "09:00"
 slug: "faith-and-business-proverbs"
 category: "Faith"
 tags: ["Faith", "Business", "Proverbs", "Christian Entrepreneur", "Columbia SC"]

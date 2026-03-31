@@ -67,7 +67,8 @@ nav.scrolled{box-shadow:0 4px 30px rgba(201,152,26,.08)}
 .label{font-size:.7rem;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:var(--gold);display:block;margin-bottom:16px}
 
 /* TABS */
-.tab-bar{background:var(--royal);padding:0 64px;display:flex;align-items:center;gap:4px;border-bottom:1px solid rgba(201,152,26,.15)}
+.tab-bar{background:var(--royal);padding:0 64px;display:flex;align-items:center;gap:4px;border-bottom:1px solid rgba(201,152,26,.15);overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+.tab-bar::-webkit-scrollbar{display:none}
 .tab-btn{padding:18px 32px;background:transparent;border:none;font-family:'Inter',sans-serif;font-size:.82rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.4);cursor:pointer;transition:all .2s;border-bottom:2px solid transparent;position:relative}
 .tab-btn.active{color:var(--gold-light);border-bottom-color:var(--gold)}
 .tab-btn:hover:not(.active){color:rgba(255,255,255,.7)}
@@ -220,10 +221,14 @@ nav.scrolled{box-shadow:0 4px 30px rgba(201,152,26,.08)}
   .site-footer{padding:40px 28px;flex-direction:column;text-align:center}
   .footer-links{flex-wrap:wrap;justify-content:center;gap:20px}
 }
+@media(max-width:480px){
+  .tab-bar{padding:0 16px}
+  .tab-btn{padding:14px 14px;font-size:.7rem;white-space:nowrap;flex-shrink:0}
+}
 @media(max-width:600px){
   .product-grid{grid-template-columns:1fr}
   .product-card{padding:40px 28px}
-  .modal{padding:36px 24px}
+  .modal{padding:36px 24px;max-height:90vh;overflow-y:auto}
   .modal-actions{flex-direction:column}
   .hero-ctas{flex-direction:column;align-items:center}
   .contact-direct{flex-direction:column;align-items:stretch}
@@ -303,6 +308,7 @@ nav.scrolled{box-shadow:0 4px 30px rgba(201,152,26,.08)}
   <button type="button" class="tab-btn" id="tab-banners" onclick="switchTab('banners')">Banners</button>
   <button type="button" class="tab-btn" id="tab-websites" onclick="switchTab('websites')">Websites</button>
   <button type="button" class="tab-btn" id="tab-social" onclick="switchTab('social')">Social Media</button>
+  <button type="button" class="tab-btn" id="tab-ads" onclick="switchTab('ads')">Social Ads</button>
   <button type="button" class="tab-btn" id="tab-crm" onclick="switchTab('crm')">CRM</button>
 </div>
 
@@ -393,7 +399,7 @@ nav.scrolled{box-shadow:0 4px 30px rgba(201,152,26,.08)}
         <div class="product-card featured premium">
           <div class="card-tier">Most Popular &mdash; New</div>
           <div class="card-name">AI Website</div>
-          <div class="card-desc">We build your business a full website and put it live on the internet. It looks great on phones and computers. No monthly fees &mdash; just pay once and it stays up.</div>
+          <div class="card-desc">We build your business a full website and put it live on the internet. It looks great on phones and computers. Pay once and it&rsquo;s yours — or add monthly upkeep so it stays fast, secure, and current.</div>
           <div class="card-price"><sup>$</sup>197</div>
           <div class="card-price-note">One-time payment &mdash; your site stays up forever</div>
           <div class="card-divider"></div>
@@ -405,6 +411,17 @@ nav.scrolled{box-shadow:0 4px 30px rgba(201,152,26,.08)}
             <li>Live and working within 24 hours</li>
             <li>No monthly hosting fees</li>
           </ul>
+          <div style="margin:24px 0 8px;padding:20px;background:rgba(201,152,26,.07);border:1px solid rgba(201,152,26,.25);border-radius:6px;">
+            <div style="font-size:.7rem;font-weight:700;letter-spacing:.15em;text-transform:uppercase;color:var(--gold-deep);margin-bottom:10px;">Optional Add-on &mdash; $35/month Website Upkeep</div>
+            <ul style="margin:0;padding:0 0 0 16px;list-style:disc;color:var(--text-mid);font-size:.82rem;line-height:1.8;">
+              <li>Monthly content updates &mdash; text, photos, hours</li>
+              <li>Security monitoring &amp; SSL renewal</li>
+              <li>Uptime monitoring &mdash; we know before you do</li>
+              <li>Speed optimization checks</li>
+              <li>Priority 24-hour support response</li>
+            </ul>
+            <p style="margin:10px 0 0;font-size:.78rem;color:var(--text-light);font-style:italic;">Websites break, get hacked, go slow, and get outdated. $35/mo keeps yours clean, secure, and current &mdash; forever.</p>
+          </div>
           <button type="button" class="btn-gold-large btn-full" onclick="openModal('website-basic')">Get My Website</button>
         </div>
       </div>
@@ -477,6 +494,68 @@ nav.scrolled{box-shadow:0 4px 30px rgba(201,152,26,.08)}
       </div>
     </div>
 
+    <!-- SOCIAL ADS -->
+    <div id="panel-ads" class="panel">
+      <div class="section-header reveal">
+        <span class="label">Paid Social Advertising</span>
+        <div class="divider"></div>
+        <h2>Stop boosting posts.<br>Start running real ads.</h2>
+        <p>We build, launch, and manage your Meta and Google ad campaigns — creative included. You set the budget. We make every dollar work.</p>
+      </div>
+      <div class="product-grid reveal">
+        <div class="product-card">
+          <div class="card-tier">Starter Ads</div>
+          <div class="card-name">Launch</div>
+          <div class="card-desc">Perfect for businesses spending $500–$1,500/mo on ads. We handle the creative, targeting, and reporting.</div>
+          <div class="card-price">10%</div>
+          <div class="card-price-note">of monthly ad spend &middot; min $150/mo &middot; no setup fee</div>
+          <div class="card-divider"></div>
+          <ul class="card-features">
+            <li>Meta Ads (Facebook &amp; Instagram)</li>
+            <li>Ad creative &mdash; copy + graphics designed for you</li>
+            <li>Audience targeting &amp; A/B testing</li>
+            <li>Weekly performance report</li>
+            <li>ROAS tracking &amp; optimization</li>
+          </ul>
+          <a href="https://calendly.com/crownmediagroupco" target="_blank" rel="noopener noreferrer" class="btn-royal btn-full">Run My Ads</a>
+        </div>
+        <div class="product-card featured">
+          <div class="card-tier">Growth Ads &mdash; Most Popular</div>
+          <div class="card-name">Scale</div>
+          <div class="card-desc">For businesses spending $1,500–$5,000/mo ready to scale with Meta + Google running together.</div>
+          <div class="card-price">12%</div>
+          <div class="card-price-note">of monthly ad spend &middot; min $250/mo &middot; no setup fee</div>
+          <div class="card-divider"></div>
+          <ul class="card-features">
+            <li>Meta Ads + Google Ads managed together</li>
+            <li>AI-generated video ad creatives</li>
+            <li>Retargeting campaigns for warm audiences</li>
+            <li>Landing page review &amp; CTA optimization</li>
+            <li>Bi-weekly strategy call with King</li>
+            <li>Full monthly analytics report</li>
+          </ul>
+          <a href="https://calendly.com/crownmediagroupco" target="_blank" rel="noopener noreferrer" class="btn-gold-large btn-full">Run My Ads</a>
+        </div>
+        <div class="product-card premium">
+          <div class="card-tier">Premium Ads</div>
+          <div class="card-name">Dominate</div>
+          <div class="card-desc">Included in Growth and Premium social media packages. Full ad management with no separate fee.</div>
+          <div class="card-price">15%</div>
+          <div class="card-price-note">of monthly ad spend &middot; max $500/mo cap &middot; included in Growth/Premium packages</div>
+          <div class="card-divider"></div>
+          <ul class="card-features">
+            <li>Full Meta + Google Ads management</li>
+            <li>Professional AI video ads produced monthly</li>
+            <li>Competitor ad analysis</li>
+            <li>Custom audiences &amp; lookalike targeting</li>
+            <li>Weekly check-in &amp; real-time optimization</li>
+            <li>Ad spend billed directly to your card</li>
+          </ul>
+          <a href="https://calendly.com/crownmediagroupco" target="_blank" rel="noopener noreferrer" class="btn-gold-large btn-full">Let&rsquo;s Talk</a>
+        </div>
+      </div>
+    </div>
+
     <div id="panel-crm" class="panel">
       <div class="section-header reveal">
         <span class="label">Lead Management</span>
@@ -511,6 +590,41 @@ nav.scrolled{box-shadow:0 4px 30px rgba(201,152,26,.08)}
   </div>
 </div>
 
+
+<!-- SPEAKING SECTION -->
+<div id="speaking" style="background:var(--royal);padding:100px 64px;">
+  <div style="max-width:1000px;margin:0 auto;">
+    <div class="reveal" style="text-align:center;margin-bottom:64px;">
+      <span class="label" style="color:var(--gold);">Book David King</span>
+      <div class="divider"></div>
+      <h2 style="font-family:'Cormorant Garamond',serif;font-size:clamp(2.2rem,4vw,3.5rem);font-weight:700;color:var(--white);line-height:1.1;margin-bottom:16px;">1-on-1 Training &amp; Speaking<br><em style="color:var(--gold-light);font-style:italic;">From a Kingdom Perspective</em></h2>
+      <p style="color:rgba(255,255,255,.65);font-size:1rem;max-width:560px;margin:0 auto;line-height:1.75;">David King is available for private coaching, business training, speaking engagements, worship, preaching, and motivational sessions — all grounded in faith.</p>
+    </div>
+    <div class="reveal" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:2px;margin-bottom:64px;">
+      <div style="background:rgba(255,255,255,.04);border:1px solid rgba(201,152,26,.2);padding:40px 32px;">
+        <div style="font-size:1.5rem;margin-bottom:16px;">&#128200;</div>
+        <h3 style="font-family:'Cormorant Garamond',serif;font-size:1.3rem;font-weight:700;color:var(--white);margin-bottom:10px;">Business &amp; Marketing Coaching</h3>
+        <p style="color:rgba(255,255,255,.55);font-size:.88rem;line-height:1.7;">1-on-1 strategy sessions for entrepreneurs — AI tools, content, lead generation, and growth from a faith-first framework.</p>
+      </div>
+      <div style="background:rgba(255,255,255,.04);border:1px solid rgba(201,152,26,.2);padding:40px 32px;">
+        <div style="font-size:1.5rem;margin-bottom:16px;">&#127908;</div>
+        <h3 style="font-family:'Cormorant Garamond',serif;font-size:1.3rem;font-weight:700;color:var(--white);margin-bottom:10px;">Speaking Engagements</h3>
+        <p style="color:rgba(255,255,255,.55);font-size:.88rem;line-height:1.7;">Churches, business conferences, events, and schools. Topics include entrepreneurship, faith &amp; work, AI in business, and Kingdom purpose.</p>
+      </div>
+      <div style="background:rgba(201,152,26,.08);border:1px solid rgba(201,152,26,.4);padding:40px 32px;">
+        <div style="font-size:1.5rem;margin-bottom:16px;">&#9996;&#65039;</div>
+        <h3 style="font-family:'Cormorant Garamond',serif;font-size:1.3rem;font-weight:700;color:var(--gold-light);margin-bottom:10px;">Worship, Preaching &amp; Motivational</h3>
+        <p style="color:rgba(255,255,255,.55);font-size:.88rem;line-height:1.7;">Available to lead worship, deliver a message, teach on Kingdom principles, or bring a motivational word to your team or congregation.</p>
+      </div>
+    </div>
+    <div class="reveal" style="text-align:center;background:rgba(201,152,26,.06);border:1px solid rgba(201,152,26,.3);border-radius:8px;padding:48px 40px;">
+      <div style="font-family:'Cormorant Garamond',serif;font-size:clamp(2rem,4vw,3rem);font-weight:700;color:var(--gold-light);margin-bottom:4px;"><sup style="font-size:1.2rem;vertical-align:super;">$</sup>100<span style="font-size:1.2rem;font-weight:400;color:rgba(255,255,255,.5);">/hr</span></div>
+      <p style="color:rgba(255,255,255,.5);font-size:.82rem;margin-bottom:32px;letter-spacing:.05em;">Speaking engagements priced by project &mdash; reach out to talk.</p>
+      <p style="color:rgba(255,255,255,.7);font-size:.95rem;max-width:480px;margin:0 auto 32px;line-height:1.7;">"Whatever you do, work at it with all your heart, as working for the Lord." &mdash; Colossians 3:23</p>
+      <a href="https://calendly.com/crownmediagroupco" target="_blank" rel="noopener noreferrer" class="btn-gold-large">Schedule a Call</a>
+    </div>
+  </div>
+</div>
 
 <!-- FOOTER -->
 <footer class="site-footer">
@@ -926,6 +1040,45 @@ const sleep = ms => new Promise(r => setTimeout(r, ms));
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => navigator.serviceWorker.register('/sw.js'));
 }
+</script>
+<!-- Support Widget -->
+<style>
+#support-btn{position:fixed;bottom:32px;left:32px;z-index:9000;width:52px;height:52px;border-radius:50%;background:var(--royal);border:1.5px solid rgba(201,152,26,0.5);display:flex;align-items:center;justify-content:center;cursor:pointer;-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);box-shadow:0 4px 24px rgba(0,0,0,.32);transition:border-color .2s,background .2s;outline:none}
+#support-btn:hover,#support-btn.open{background:rgba(26,26,62,0.95);border-color:#C9981A}
+#support-btn svg{width:22px;height:22px;fill:rgba(232,184,50,.8);transition:fill .2s}
+#support-btn:hover svg,#support-btn.open svg{fill:#C9981A}
+#support-pop{display:none;position:fixed;bottom:92px;left:32px;z-index:8999;background:rgba(26,26,62,0.97);border:1px solid rgba(201,152,26,0.4);border-radius:12px;padding:8px;min-width:200px;box-shadow:0 8px 32px rgba(0,0,0,.4);-webkit-backdrop-filter:blur(16px);backdrop-filter:blur(16px)}
+#support-pop.open{display:block}
+#support-pop a{display:flex;align-items:center;gap:12px;padding:12px 16px;border-radius:8px;text-decoration:none;color:rgba(255,255,255,.85);font-family:'Inter',sans-serif;font-size:.82rem;font-weight:600;letter-spacing:.04em;transition:background .15s,color .15s}
+#support-pop a:hover{background:rgba(201,152,26,.12);color:#C9981A}
+#support-pop a svg{width:18px;height:18px;flex-shrink:0;fill:rgba(201,152,26,.7)}
+#support-pop a:hover svg{fill:#C9981A}
+#support-pop .sup-label{font-family:'Cormorant Garamond',serif;font-size:.7rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:rgba(201,152,26,.5);padding:8px 16px 4px;display:block}
+#support-pop .sup-divider{height:1px;background:rgba(201,152,26,.15);margin:4px 8px}
+</style>
+<button type="button" id="support-btn" aria-label="Contact support" title="Get in touch">
+  <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M20 10.5C20 6.36 16.41 3 12 3S4 6.36 4 10.5v6c0 1.1.9 2 2 2h1c.55 0 1-.45 1-1v-5c0-.55-.45-1-1-1H6v-1c0-3.31 2.69-6 6-6s6 2.69 6 6v1h-1c-.55 0-1 .45-1 1v5c0 .55.45 1 1 1h1c1.1 0 2-.9 2-2v-6z"/></svg>
+</button>
+<div id="support-pop" role="dialog" aria-label="Contact options">
+  <span class="sup-label">Get in Touch</span>
+  <a href="tel:9088481436">
+    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M6.62 10.79a15.53 15.53 0 006.59 6.59l2.2-2.2a1 1 0 011.11-.24c1.21.49 2.53.76 3.88.76a1 1 0 011 1v3.8a1 1 0 01-1 1C10.36 22.5 1.5 13.64 1.5 3a1 1 0 011-1H6.3a1 1 0 011 1c0 1.35.27 2.67.76 3.88a1 1 0 01-.24 1.11l-2.2 2.2z"/></svg>
+    Call (908) 848-1436
+  </a>
+  <div class="sup-divider"></div>
+  <a href="mailto:king@crownmediagroup.co?subject=Hello%20Crown%20Media%20Group">
+    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg>
+    Email Us
+  </a>
+</div>
+<script>
+(function(){
+  var btn=document.getElementById('support-btn');
+  var pop=document.getElementById('support-pop');
+  btn.addEventListener('click',function(e){e.stopPropagation();pop.classList.toggle('open');btn.classList.toggle('open');});
+  document.addEventListener('click',function(){pop.classList.remove('open');btn.classList.remove('open');});
+  pop.addEventListener('click',function(e){e.stopPropagation();});
+})();
 </script>
 </body>
 </html>

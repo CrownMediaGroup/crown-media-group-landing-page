@@ -153,10 +153,19 @@ function slugify(str) {
   return str.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
 }
 
-function formatDate(dateStr) {
+function formatDate(dateStr, publishTime) {
   try {
     const d = parseISO(String(dateStr));
-    if (isValid(d)) return format(d, 'MMMM d, yyyy');
+    if (isValid(d)) {
+      const datePart = format(d, 'MMMM d, yyyy');
+      if (publishTime) {
+        const [h, m] = publishTime.split(':').map(Number);
+        const suffix = h >= 12 ? 'PM' : 'AM';
+        const h12 = h % 12 || 12;
+        return `${datePart} · ${h12}:${String(m).padStart(2,'0')} ${suffix}`;
+      }
+      return datePart;
+    }
   } catch (_) {}
   return String(dateStr);
 }
@@ -204,7 +213,8 @@ function loadPosts() {
       slug,
       title: data.title || 'Untitled',
       date: data.date || '2026-01-01',
-      dateFormatted: formatDate(data.date || '2026-01-01'),
+      publishTime: data.publishTime || null,
+      dateFormatted: formatDate(data.date || '2026-01-01', data.publishTime || null),
       dateIso: isoDate(data.date || '2026-01-01'),
       category: data.category || 'General',
       tags: data.tags || [],
@@ -332,6 +342,44 @@ ${body}
 ${FOOTER_HTML}
 ${NAV_SCRIPT}
 ${AMBIENT_HTML}
+<style>
+#support-btn{position:fixed;bottom:32px;left:32px;z-index:9000;width:52px;height:52px;border-radius:50%;background:#1A1A3E;border:1.5px solid rgba(201,152,26,0.5);display:flex;align-items:center;justify-content:center;cursor:pointer;-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);box-shadow:0 4px 24px rgba(0,0,0,.32);transition:border-color .2s,background .2s;outline:none}
+#support-btn:hover,#support-btn.open{background:rgba(26,26,62,0.95);border-color:#C9981A}
+#support-btn svg{width:22px;height:22px;fill:rgba(232,184,50,.8);transition:fill .2s}
+#support-btn:hover svg,#support-btn.open svg{fill:#C9981A}
+#support-pop{display:none;position:fixed;bottom:92px;left:32px;z-index:8999;background:rgba(26,26,62,0.97);border:1px solid rgba(201,152,26,0.4);border-radius:12px;padding:8px;min-width:200px;box-shadow:0 8px 32px rgba(0,0,0,.4);-webkit-backdrop-filter:blur(16px);backdrop-filter:blur(16px)}
+#support-pop.open{display:block}
+#support-pop a{display:flex;align-items:center;gap:12px;padding:12px 16px;border-radius:8px;text-decoration:none;color:rgba(255,255,255,.85);font-family:'Inter',sans-serif;font-size:.82rem;font-weight:600;letter-spacing:.04em;transition:background .15s,color .15s}
+#support-pop a:hover{background:rgba(201,152,26,.12);color:#C9981A}
+#support-pop a svg{width:18px;height:18px;flex-shrink:0;fill:rgba(201,152,26,.7)}
+#support-pop a:hover svg{fill:#C9981A}
+#support-pop .sup-label{font-family:'Cormorant Garamond',serif;font-size:.7rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:rgba(201,152,26,.5);padding:8px 16px 4px;display:block}
+#support-pop .sup-divider{height:1px;background:rgba(201,152,26,.15);margin:4px 8px}
+</style>
+<button type="button" id="support-btn" aria-label="Contact support" title="Get in touch">
+  <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M20 10.5C20 6.36 16.41 3 12 3S4 6.36 4 10.5v6c0 1.1.9 2 2 2h1c.55 0 1-.45 1-1v-5c0-.55-.45-1-1-1H6v-1c0-3.31 2.69-6 6-6s6 2.69 6 6v1h-1c-.55 0-1 .45-1 1v5c0 .55.45 1 1 1h1c1.1 0 2-.9 2-2v-6z"/></svg>
+</button>
+<div id="support-pop" role="dialog" aria-label="Contact options">
+  <span class="sup-label">Get in Touch</span>
+  <a href="tel:9088481436">
+    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M6.62 10.79a15.53 15.53 0 006.59 6.59l2.2-2.2a1 1 0 011.11-.24c1.21.49 2.53.76 3.88.76a1 1 0 011 1v3.8a1 1 0 01-1 1C10.36 22.5 1.5 13.64 1.5 3a1 1 0 011-1H6.3a1 1 0 011 1c0 1.35.27 2.67.76 3.88a1 1 0 01-.24 1.11l-2.2 2.2z"/></svg>
+    Call (908) 848-1436
+  </a>
+  <div class="sup-divider"></div>
+  <a href="mailto:king@crownmediagroup.co?subject=Hello%20Crown%20Media%20Group">
+    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg>
+    Email Us
+  </a>
+</div>
+<script>
+(function(){
+  var btn=document.getElementById('support-btn');
+  var pop=document.getElementById('support-pop');
+  btn.addEventListener('click',function(e){e.stopPropagation();pop.classList.toggle('open');btn.classList.toggle('open');});
+  document.addEventListener('click',function(){pop.classList.remove('open');btn.classList.remove('open');});
+  pop.addEventListener('click',function(e){e.stopPropagation();});
+})();
+</script>
 </body>
 </html>`;
 }

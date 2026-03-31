@@ -1,6 +1,7 @@
 ---
 title: "The Real Cost of Not Having a Marketing Strategy (And How to Fix It)"
 date: "2026-03-27"
+publishTime: "09:00"
 slug: "real-cost-no-marketing"
 category: "Marketing"
 tags: ["Small Business", "Marketing Strategy", "Columbia SC", "ROI"]
