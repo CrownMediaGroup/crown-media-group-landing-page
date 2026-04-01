@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /**
  * Crown Media Group — Blog Social Promoter (API-based)
- * Posts each new blog post to X, LinkedIn, Facebook, and Reddit via their APIs.
+ * Posts each new blog post to X, LinkedIn, Facebook, Reddit, Medium, and Hashnode via their APIs.
  * Runs as a GitHub Actions step — no browser, no computer needed.
  *
  * Required GitHub Secrets (add at github.com/settings/secrets/actions):
@@ -10,6 +10,8 @@
  *   Facebook:      FACEBOOK_PAGE_ID, FACEBOOK_PAGE_ACCESS_TOKEN
  *   Reddit:        REDDIT_CLIENT_ID, REDDIT_CLIENT_SECRET, REDDIT_USERNAME, REDDIT_PASSWORD
  *                  REDDIT_SUBREDDITS (comma-separated: "smallbusiness,columbiasc,marketing")
+ *   Medium:        MEDIUM_INTEGRATION_TOKEN  (get at medium.com/me/settings → Integration Tokens)
+ *   Hashnode:      HASHNODE_ACCESS_TOKEN, HASHNODE_PUBLICATION_ID  (get at hashnode.com/settings → API)
  *
  * Usage:
  *   node scripts/blog-social-promoter-api.js
@@ -273,6 +275,80 @@ async function postToReddit({ title, text }) {
   return results;
 }
 
+// ── Medium ────────────────────────────────────────────────────────────────────
+// Publishes full post to Medium as a cross-post linking back to the canonical URL.
+async function postToMedium(fm, content, canonicalUrl) {
+  const token = process.env.MEDIUM_INTEGRATION_TOKEN;
+  if (!token) {
+    console.log('[Medium] Skipping — MEDIUM_INTEGRATION_TOKEN not set. Get it at medium.com/me/settings → Integration Tokens');
+    return { skipped: true };
+  }
+  // Get user ID
+  const meRes = await axios.get('https://api.medium.com/v1/me', {
+    headers: { Authorization: `Bearer ${token}` }, timeout: 10000,
+  });
+  const userId = meRes.data?.data?.id;
+  if (!userId) throw new Error('Medium: could not get user ID');
+
+  const title   = fm.title || 'New Post';
+  const tags    = (fm.tags || fm.category || 'Marketing,Small Business,Columbia SC')
+    .split(',').map(t => t.trim()).slice(0, 5);
+  // Strip frontmatter and use body as markdown content
+  const body    = content.replace(/^---[\s\S]*?---\n/, '').trim();
+
+  const res = await axios.post(`https://api.medium.com/v1/users/${userId}/posts`, {
+    title,
+    contentFormat: 'markdown',
+    content:       `# ${title}\n\n${body}`,
+    tags,
+    canonicalUrl,
+    publishStatus: 'public',
+  }, {
+    headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+    timeout: 20000,
+  });
+  return { id: res.data?.data?.id, url: res.data?.data?.url };
+}
+
+// ── Hashnode ──────────────────────────────────────────────────────────────────
+// Publishes full post to Hashnode via GraphQL API with canonical URL set.
+async function postToHashnode(fm, content, canonicalUrl) {
+  const token         = process.env.HASHNODE_ACCESS_TOKEN;
+  const publicationId = process.env.HASHNODE_PUBLICATION_ID;
+  if (!token || !publicationId) {
+    console.log('[Hashnode] Skipping — HASHNODE_ACCESS_TOKEN or HASHNODE_PUBLICATION_ID not set. Get them at hashnode.com/settings → API');
+    return { skipped: true };
+  }
+  const title    = fm.title || 'New Post';
+  const body     = content.replace(/^---[\s\S]*?---\n/, '').trim();
+  const tags     = (fm.tags || fm.category || 'Marketing')
+    .split(',').map(t => ({ name: t.trim(), slug: t.trim().toLowerCase().replace(/\s+/g, '-') })).slice(0, 5);
+
+  const query = `
+    mutation CreatePost($input: CreatePostInput!) {
+      createPost(input: $input) {
+        post { id url title }
+      }
+    }
+  `;
+  const variables = {
+    input: {
+      title,
+      publicationId,
+      contentMarkdown: body,
+      originalArticleURL: canonicalUrl,
+      tags,
+    },
+  };
+  const res = await axios.post('https://gql.hashnode.com', { query, variables }, {
+    headers: { Authorization: token, 'Content-Type': 'application/json' },
+    timeout: 20000,
+  });
+  const post = res.data?.data?.createPost?.post;
+  if (!post) throw new Error(`Hashnode error: ${JSON.stringify(res.data?.errors)}`);
+  return { id: post.id, url: post.url };
+}
+
 // ── Main ──────────────────────────────────────────────────────────────────────
 async function main() {
   const post = findPost();
@@ -281,8 +357,8 @@ async function main() {
     return;
   }
 
-  const content = readFileSync(post.path, 'utf8');
-  const fm = parseFrontmatter(content);
+  const rawContent = readFileSync(post.path, 'utf8');
+  const fm = parseFrontmatter(rawContent);
   if (fm.draft === 'true') {
     console.log('[Social Promoter] Post is draft — skipping.');
     return;
@@ -305,6 +381,8 @@ async function main() {
     console.log('\n[Facebook]:\n' + captions.facebook);
     console.log('\n[Reddit title]:\n' + captions.reddit.title);
     console.log('[Reddit body]:\n' + captions.reddit.text);
+    console.log('\n[Medium]: Full post published with canonical URL → ' + url);
+    console.log('[Hashnode]: Full post published with canonical URL → ' + url);
     return;
   }
 
@@ -316,6 +394,8 @@ async function main() {
     { name: 'linkedin', fn: () => postToLinkedIn(captions.linkedin) },
     { name: 'facebook', fn: () => postToFacebook(captions.facebook) },
     { name: 'reddit',   fn: () => postToReddit(captions.reddit) },
+    { name: 'medium',   fn: () => postToMedium(fm, rawContent, url) },
+    { name: 'hashnode', fn: () => postToHashnode(fm, rawContent, url) },
   ];
 
   for (const task of tasks) {

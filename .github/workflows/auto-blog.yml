@@ -187,6 +187,9 @@ jobs:
           REDDIT_USERNAME:             ${{ secrets.REDDIT_USERNAME }}
           REDDIT_PASSWORD:             ${{ secrets.REDDIT_PASSWORD }}
           REDDIT_SUBREDDITS:           ${{ secrets.REDDIT_SUBREDDITS }}
+          MEDIUM_INTEGRATION_TOKEN:    ${{ secrets.MEDIUM_INTEGRATION_TOKEN }}
+          HASHNODE_ACCESS_TOKEN:       ${{ secrets.HASHNODE_ACCESS_TOKEN }}
+          HASHNODE_PUBLICATION_ID:     ${{ secrets.HASHNODE_PUBLICATION_ID }}
         run: node scripts/blog-social-promoter-api.js || echo "Social promotion had errors — post still live"
 
       # ── 9. Failure notification (all 3 contingencies failed) ─────────────────
