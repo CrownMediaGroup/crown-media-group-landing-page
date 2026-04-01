@@ -1,10 +1,20 @@
-name: Auto-Blog
+name: Auto-Blog — Crown Media Group
 
-# Runs Mon/Wed/Fri at 6 AM EST (11:00 UTC)
-# Also triggerable manually from GitHub Actions tab
+# ── Best times to publish for Columbia SC small business audience ──────────────
+# Research-backed optimal blog posting times (EST → UTC):
+#   8:00 AM EST  = 13:00 UTC  (morning commute / coffee)
+#  12:00 PM EST  = 17:00 UTC  (lunch break browsing)
+#   4:00 PM EST  = 21:00 UTC  (end-of-workday wind-down)
+#   8:00 PM EST  = 01:00 UTC  (evening research / planning)
+# Saturday is skipped (Sabbath). Sunday runs normally.
+
 on:
   schedule:
-    - cron: '0 11 * * 1,3,5'
+    - cron: '0 13 * * 0,1,2,3,4'   # 8:00 AM EST  — Mon–Fri + Sun
+    - cron: '0 17 * * 0,1,2,3,4'   # 12:00 PM EST — Mon–Fri + Sun
+    - cron: '0 21 * * 0,1,2,3,4'   # 4:00 PM EST  — Mon–Fri + Sun
+    - cron: '0 1  * * 0,1,2,3,4'   # 8:00 PM EST  — Mon–Fri + Sun
+
   workflow_dispatch:
     inputs:
       topic:
@@ -14,9 +24,13 @@ on:
         description: 'Primary keyword'
         required: false
       category:
-        description: 'Category (default: Marketing)'
+        description: 'Category'
         required: false
         default: 'Marketing'
+      skip_research:
+        description: 'Skip queue research step'
+        required: false
+        default: 'false'
 
 jobs:
   write-post:
@@ -25,28 +39,64 @@ jobs:
       contents: write
 
     steps:
+      # ── 1. Checkout ──────────────────────────────────────────────────────────
       - name: Checkout
         uses: actions/checkout@v4
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
 
+      # ── 2. Node setup ────────────────────────────────────────────────────────
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: landing-page/package-lock.json
 
-      - name: Install blog dependencies
+      # ── 3. Install dependencies ──────────────────────────────────────────────
+      - name: Install dependencies
         working-directory: landing-page
         run: npm install
 
+      # ── 4. Research + Auto-fill queue ────────────────────────────────────────
+      - name: Research & fill queue
+        if: ${{ !inputs.topic && inputs.skip_research != 'true' }}
+        working-directory: landing-page
+        env:
+          CI: true
+        run: |
+          echo "Running research to ensure queue has topics..."
+          node scripts/blog-researcher.js --count 20 || echo "Research had issues — continuing with existing queue"
+          echo "Current queue size:"
+          node -e "
+            import { readFileSync, existsSync } from 'fs';
+            import { join } from 'path';
+            const f = join('content', 'blog', 'topics-queue.json');
+            if (existsSync(f)) {
+              const d = JSON.parse(readFileSync(f, 'utf8'));
+              const q = Array.isArray(d) ? d : (d.queue || []);
+              console.log('Queue topics:', q.length);
+              if (q[0]) console.log('Next up:', q[0].topic);
+            } else { console.log('No queue file found'); }
+          " || true
+        shell: bash
+
+      # ── 5a. Generate post from queue ─────────────────────────────────────────
       - name: Generate post from queue
         if: ${{ !inputs.topic }}
         working-directory: landing-page
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
           CI: true
-        run: node scripts/blog-writer.js --from-queue --publish
+        run: |
+          node scripts/blog-writer.js --from-queue --publish || \
+          node scripts/blog-writer.js \
+            --topic "Top Marketing Strategies for Columbia SC Businesses This Month" \
+            --keyword "marketing strategies Columbia SC businesses" \
+            --category "Marketing" \
+            --publish
 
+      # ── 5b. Generate post from custom topic (manual trigger) ─────────────────
       - name: Generate post from custom topic
         if: ${{ inputs.topic }}
         working-directory: landing-page
@@ -60,29 +110,29 @@ jobs:
             --category "${{ inputs.category }}" \
             --publish
 
+      # ── 6. Build blog HTML from markdown ─────────────────────────────────────
+      - name: Build blog HTML
+        working-directory: landing-page
+        run: node scripts/build-blog.cjs
+
+      # ── 7. Commit and push ────────────────────────────────────────────────────
       - name: Commit and push new post
         run: |
           git config user.name "Crown Media Bot"
           git config user.email "king@crownmediagroup.co"
-          git add landing-page/content/blog/
-          git diff --staged --quiet || git commit -m "auto-blog: scheduled post $(date +%Y-%m-%d)"
+          git add landing-page/content/blog/ landing-page/blog/ landing-page/feed.xml landing-page/sitemap.xml
+          git diff --staged --quiet || git commit -m "auto-blog: $(date +'%Y-%m-%d %H:%M') EST post"
           git push
 
-      - name: Send email notification
+      # ── 8. Distribute — email King with social captions ───────────────────────
+      - name: Distribute post (email + social captions)
         if: success()
+        working-directory: landing-page
         env:
           RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
-        run: |
-          curl -s -X POST https://api.resend.com/emails \
-            -H "Authorization: Bearer $RESEND_API_KEY" \
-            -H "Content-Type: application/json" \
-            -d '{
-              "from": "Crown Media Group <king@crownmediagroup.co>",
-              "to": ["king@crownmediagroup.co"],
-              "subject": "New blog post published — crownmediagroup.co/blog",
-              "html": "<p>A new blog post was auto-published to <a href=\"https://crownmediagroup.co/blog\">crownmediagroup.co/blog</a>. Netlify will rebuild in ~2 minutes.</p><p>Review the post and edit the markdown if needed: <code>landing-page/content/blog/</code></p><p>All Glory to Jesus.</p>"
-            }'
+        run: node scripts/blog-distributor.js || echo "Distribution step failed — post still published"
 
+      # ── 9. Failure notification ───────────────────────────────────────────────
       - name: Notify on failure
         if: failure()
         env:
@@ -95,5 +145,5 @@ jobs:
               "from": "Crown Media Group <king@crownmediagroup.co>",
               "to": ["king@crownmediagroup.co"],
               "subject": "Auto-blog failed — check GitHub Actions",
-              "html": "<p>The scheduled auto-blog workflow failed. Check the GitHub Actions log for details.</p>"
-            }'
+              "html": "<p>The scheduled auto-blog workflow failed at <strong>$(date)</strong>.</p><p><a href=\"https://github.com/CrownMediaGroup/crown-media-group-landing-page/actions\">Check the Actions log here</a></p><p>All Glory to Jesus. The system will try again at the next scheduled time.</p>"
+            }' || true

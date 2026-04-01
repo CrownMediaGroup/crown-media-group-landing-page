@@ -1,6 +1,14 @@
 {
   "queue": [
     {
+<<<<<<< HEAD
+=======
+      "topic": "How AI Video Ads Are Changing the Game for Local Businesses",
+      "keyword": "AI video marketing Columbia SC",
+      "category": "AI Marketing"
+    },
+    {
+>>>>>>> c88d365 (feat: Jim Reese featured press card + file cleanup + blog admin auto-refresh)
       "topic": "The Complete Social Media Guide for Columbia SC Restaurants",
       "keyword": "restaurant social media Columbia SC",
       "category": "Social Media"
@@ -39,6 +47,121 @@
       "topic": "The Faith-Driven Entrepreneur's Guide to Marketing Without Manipulation",
       "keyword": "ethical marketing Christian business",
       "category": "Faith"
+<<<<<<< HEAD
+=======
+    },
+    {
+      "topic": "What Columbia SC Business Owners Need to Know About AI-Powered Content Creation in 2026",
+      "keyword": "AI content creation Columbia SC",
+      "category": "AI Marketing",
+      "source": "Evergreen",
+      "addedAt": "2026-03-31T19:41:33.323Z"
+    },
+    {
+      "topic": "From Zero to 1,000 Followers: The Columbia SC Small Business Social Media Growth Playbook",
+      "keyword": "grow social media followers Columbia SC business",
+      "category": "Social Media",
+      "source": "Evergreen",
+      "addedAt": "2026-03-31T19:41:33.323Z"
+    },
+    {
+      "topic": "How to Turn Your Google Business Profile Into a Lead Machine for Your Columbia SC Business",
+      "keyword": "Google Business Profile Columbia SC leads",
+      "category": "SEO",
+      "source": "Evergreen",
+      "addedAt": "2026-03-31T19:41:33.323Z"
+    },
+    {
+      "topic": "How to Create 30 Days of Content in One Afternoon for Your Columbia SC Business",
+      "keyword": "content creation small business batch",
+      "category": "Content Marketing",
+      "source": "Evergreen",
+      "addedAt": "2026-03-31T19:41:33.323Z"
+    },
+    {
+      "topic": "How Crown Media Group Helps Columbia SC Businesses Get More Customers With Less Effort",
+      "keyword": "Crown Media Group Columbia SC marketing results",
+      "category": "Local Business",
+      "source": "Evergreen",
+      "addedAt": "2026-03-31T19:41:33.323Z"
+    },
+    {
+      "topic": "How to Build a Faith-Driven Brand That Actually Converts: The Crown Media Group Approach",
+      "keyword": "faith-driven business marketing Columbia SC",
+      "category": "Faith & Business",
+      "source": "Evergreen",
+      "addedAt": "2026-03-31T19:41:33.323Z"
+    },
+    {
+      "topic": "Brand Identity 101: What Columbia SC Small Businesses Get Wrong (And How to Fix It)",
+      "keyword": "brand identity small business Columbia SC",
+      "category": "Branding",
+      "source": "Evergreen",
+      "addedAt": "2026-03-31T19:41:33.323Z"
+    },
+    {
+      "topic": "Why Short-Form Video Is Non-Negotiable for Columbia SC Businesses Right Now",
+      "keyword": "video marketing Columbia SC local business",
+      "category": "Video Marketing",
+      "source": "Evergreen",
+      "addedAt": "2026-03-31T19:41:33.323Z"
+    },
+    {
+      "topic": "The Email Marketing Playbook for Columbia SC Service Businesses: Build a List That Buys",
+      "keyword": "email marketing Columbia SC service business",
+      "category": "Email Marketing",
+      "source": "Evergreen",
+      "addedAt": "2026-03-31T19:41:33.323Z"
+    },
+    {
+      "topic": "Why Your Columbia SC Business Needs a Marketing Agency (Not Just a Freelancer)",
+      "keyword": "marketing agency vs freelancer Columbia SC",
+      "category": "Local Business",
+      "source": "Evergreen",
+      "addedAt": "2026-03-31T19:41:33.323Z"
+    },
+    {
+      "topic": "How to Use Testimonials and Social Proof to Grow Your Columbia SC Business",
+      "keyword": "social proof testimonials local business",
+      "category": "Marketing",
+      "source": "Evergreen",
+      "addedAt": "2026-03-31T19:41:33.323Z"
+    },
+    {
+      "topic": "5 Reasons Your Columbia SC Business Needs a Professional Instagram Presence Right Now",
+      "keyword": "Instagram marketing Columbia SC business",
+      "category": "Social Media",
+      "source": "Evergreen",
+      "addedAt": "2026-03-31T19:41:33.323Z"
+    },
+    {
+      "topic": "The Faith-Driven Entrepreneur's Marketing Blueprint: Grow With Integrity",
+      "keyword": "Christian entrepreneur marketing strategy",
+      "category": "Faith & Business",
+      "source": "Evergreen",
+      "addedAt": "2026-03-31T19:41:33.323Z"
+    },
+    {
+      "topic": "The Complete Facebook Ads Guide for Columbia SC Restaurants, Retail, and Service Businesses",
+      "keyword": "Facebook ads Columbia SC restaurants",
+      "category": "Paid Ads",
+      "source": "Evergreen",
+      "addedAt": "2026-03-31T19:41:33.323Z"
+    },
+    {
+      "topic": "TikTok vs Instagram Reels: Which Platform Should Columbia SC Businesses Prioritize?",
+      "keyword": "TikTok Instagram Reels Columbia SC business",
+      "category": "Social Media",
+      "source": "Evergreen",
+      "addedAt": "2026-03-31T19:41:33.323Z"
+    },
+    {
+      "topic": "How AI Is Transforming Social Media Marketing for Columbia SC Small Businesses in 2026",
+      "keyword": "AI social media marketing Columbia SC",
+      "category": "AI Marketing",
+      "source": "Evergreen",
+      "addedAt": "2026-03-31T19:41:33.323Z"
+>>>>>>> c88d365 (feat: Jim Reese featured press card + file cleanup + blog admin auto-refresh)
     }
   ]
 }

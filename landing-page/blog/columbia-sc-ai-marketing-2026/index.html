@@ -268,7 +268,7 @@ footer{background:#0F0F28;padding:56px 64px;display:flex;align-items:center;just
       <div class="post-eyebrow">
         <a href="/blog/category/marketing/" class="post-category">Marketing</a>
         <span class="post-dot">&middot;</span>
-        <time datetime="2026-03-27">March 27, 2026</time>
+        <time datetime="2026-03-27">March 27, 2026 · 9:00 AM</time>
         <span class="post-dot">&middot;</span>
         <span>4 min read</span>
       </div>
@@ -370,17 +370,17 @@ footer{background:#0F0F28;padding:56px 64px;display:flex;align-items:center;just
     <a href="/blog/ai-marketing-small-business-columbia-sc/" class="related-card">
       <span class="related-cat">Marketing</span>
       <span class="related-title">AI Marketing for Small Businesses in Columbia SC</span>
-      <span class="related-meta">March 27, 2026 &middot; 5 min read</span>
+      <span class="related-meta">March 27, 2026 · 9:00 AM &middot; 5 min read</span>
     </a>
     <a href="/blog/real-cost-no-marketing/" class="related-card">
       <span class="related-cat">Marketing</span>
       <span class="related-title">The Real Cost of Not Having a Marketing Strategy (And How to Fix It)</span>
-      <span class="related-meta">March 27, 2026 &middot; 4 min read</span>
+      <span class="related-meta">March 27, 2026 · 9:00 AM &middot; 4 min read</span>
     </a>
     <a href="/blog/5-signs-your-columbia-sc-business-needs-a-marketing-refresh-/" class="related-card">
       <span class="related-cat">Marketing</span>
       <span class="related-title">5 Signs Your Columbia SC Business Needs a Marketing Refresh in 2026</span>
-      <span class="related-meta">March 27, 2026 &middot; 7 min read</span>
+      <span class="related-meta">March 27, 2026 · 9:00 AM &middot; 7 min read</span>
     </a>
   </div>
 </section>
@@ -479,6 +479,56 @@ footer{background:#0F0F28;padding:56px 64px;display:flex;align-items:center;just
   shuf.addEventListener('click',function(){if(!ytReady)return;ytPlayer.setShuffle(true);ytPlayer.nextVideo();if(!musicOn)setOn();});
   vol.addEventListener('input',function(){if(ytReady)ytPlayer.setVolume(parseInt(this.value));});
   document.addEventListener('visibilitychange',function(){if(!ytReady)return;if(document.hidden)ytPlayer.mute();else if(musicOn)ytPlayer.unMute();});
+})();
+</script>
+<style>
+#support-btn{position:fixed;bottom:32px;left:32px;z-index:9000;width:52px;height:52px;border-radius:50%;background:#1A1A3E;border:1.5px solid rgba(201,152,26,0.5);display:flex;align-items:center;justify-content:center;cursor:pointer;-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);box-shadow:0 4px 24px rgba(0,0,0,.32);transition:border-color .2s,background .2s;outline:none}
+#support-btn:hover,#support-btn.open{background:rgba(26,26,62,0.95);border-color:#C9981A}
+#support-btn svg{width:22px;height:22px;fill:rgba(232,184,50,.8);transition:fill .2s}
+#support-btn:hover svg,#support-btn.open svg{fill:#C9981A}
+#support-pop{display:none;position:fixed;bottom:92px;left:32px;z-index:8999;background:rgba(26,26,62,0.97);border:1px solid rgba(201,152,26,0.4);border-radius:12px;padding:8px;min-width:200px;box-shadow:0 8px 32px rgba(0,0,0,.4);-webkit-backdrop-filter:blur(16px);backdrop-filter:blur(16px)}
+#support-pop.open{display:block}
+#support-pop a{display:flex;align-items:center;gap:12px;padding:12px 16px;border-radius:8px;text-decoration:none;color:rgba(255,255,255,.85);font-family:'Inter',sans-serif;font-size:.82rem;font-weight:600;letter-spacing:.04em;transition:background .15s,color .15s}
+#support-pop a:hover{background:rgba(201,152,26,.12);color:#C9981A}
+#support-pop a svg{width:18px;height:18px;flex-shrink:0;fill:rgba(201,152,26,.7)}
+#support-pop a:hover svg{fill:#C9981A}
+#support-pop .sup-label{font-family:'Cormorant Garamond',serif;font-size:.7rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:rgba(201,152,26,.5);padding:8px 16px 4px;display:block}
+#support-pop .sup-divider{height:1px;background:rgba(201,152,26,.15);margin:4px 8px}
+</style>
+<button type="button" id="support-btn" aria-label="Contact support" title="Get in touch">
+  <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M20 10.5C20 6.36 16.41 3 12 3S4 6.36 4 10.5v6c0 1.1.9 2 2 2h1c.55 0 1-.45 1-1v-5c0-.55-.45-1-1-1H6v-1c0-3.31 2.69-6 6-6s6 2.69 6 6v1h-1c-.55 0-1 .45-1 1v5c0 .55.45 1 1 1h1c1.1 0 2-.9 2-2v-6z"/></svg>
+</button>
+<div id="support-pop" role="dialog" aria-label="Contact options">
+  <span class="sup-label">Customer Support</span>
+  <a href="tel:9088481436">
+    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M6.62 10.79a15.53 15.53 0 006.59 6.59l2.2-2.2a1 1 0 011.11-.24c1.21.49 2.53.76 3.88.76a1 1 0 011 1v3.8a1 1 0 01-1 1C10.36 22.5 1.5 13.64 1.5 3a1 1 0 011-1H6.3a1 1 0 011 1c0 1.35.27 2.67.76 3.88a1 1 0 01-.24 1.11l-2.2 2.2z"/></svg>
+    Call (908) 848-1436
+  </a>
+  <div class="sup-divider"></div>
+  <button type="button" id="email-trigger-btn" style="display:flex;align-items:center;gap:12px;padding:12px 16px;border-radius:8px;color:rgba(255,255,255,.85);font-family:'Inter',sans-serif;font-size:.82rem;font-weight:600;letter-spacing:.04em;background:transparent;border:none;cursor:pointer;width:100%;text-align:left">
+    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" style="width:18px;height:18px;flex-shrink:0;fill:rgba(201,152,26,.7)"><path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg>
+    Email Us
+  </button>
+  <div id="email-fallback" style="display:none;padding:8px 16px 4px;border-top:1px solid rgba(201,152,26,.15);margin-top:4px">
+    <div style="font-size:.72rem;color:rgba(255,255,255,.45);margin-bottom:6px">king@crownmediagroup.co</div>
+    <button type="button" id="copy-email-btn" style="display:block;width:100%;padding:6px 10px;margin-bottom:5px;background:rgba(201,152,26,.15);border:1px solid rgba(201,152,26,.3);border-radius:3px;color:#E8B832;font-size:.75rem;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;text-align:left">Copy Address</button>
+    <a href="https://mail.google.com/mail/?view=cm&to=king%40crownmediagroup.co&su=Hello%20Crown%20Media%20Group" target="_blank" rel="noopener" style="display:block;padding:5px 10px;margin-bottom:2px;color:rgba(255,255,255,.65);font-size:.75rem;text-decoration:none;border-radius:3px">Open Gmail</a>
+    <a href="https://outlook.live.com/mail/0/deeplink/compose?to=king%40crownmediagroup.co&subject=Hello%20Crown%20Media%20Group" target="_blank" rel="noopener" style="display:block;padding:5px 10px;margin-bottom:2px;color:rgba(255,255,255,.65);font-size:.75rem;text-decoration:none;border-radius:3px">Open Outlook</a>
+    <a href="https://compose.mail.yahoo.com/?to=king%40crownmediagroup.co&subj=Hello%20Crown%20Media%20Group" target="_blank" rel="noopener" style="display:block;padding:5px 10px;color:rgba(255,255,255,.65);font-size:.75rem;text-decoration:none;border-radius:3px">Open Yahoo</a>
+  </div>
+</div>
+<script>
+(function(){
+  var btn=document.getElementById('support-btn');
+  var pop=document.getElementById('support-pop');
+  btn.addEventListener('click',function(e){e.stopPropagation();pop.classList.toggle('open');btn.classList.toggle('open');});
+  document.addEventListener('click',function(){pop.classList.remove('open');btn.classList.remove('open');});
+  pop.addEventListener('click',function(e){e.stopPropagation();});
+  var emailBtn=document.getElementById('email-trigger-btn');
+  var emailFallback=document.getElementById('email-fallback');
+  var copyBtn=document.getElementById('copy-email-btn');
+  if(emailBtn&&emailFallback){emailBtn.addEventListener('click',function(e){e.stopPropagation();var opened=false,t;function onBlur(){opened=true;clearTimeout(t);window.removeEventListener('blur',onBlur);}window.addEventListener('blur',onBlur);window.location.href='mailto:king@crownmediagroup.co?subject=Hello%20Crown%20Media%20Group';t=setTimeout(function(){window.removeEventListener('blur',onBlur);if(!opened)emailFallback.style.display='block';},700);});}
+  if(copyBtn){copyBtn.addEventListener('click',function(e){e.stopPropagation();var addr='king@crownmediagroup.co';function fb(){var ta=document.createElement('textarea');ta.value=addr;ta.style.position='fixed';ta.style.opacity='0';document.body.appendChild(ta);ta.select();try{document.execCommand('copy');copyBtn.textContent='Copied!';}catch(ex){copyBtn.textContent='Failed';}document.body.removeChild(ta);setTimeout(function(){copyBtn.textContent='Copy Address';},2000);}if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(addr).then(function(){copyBtn.textContent='Copied!';setTimeout(function(){copyBtn.textContent='Copy Address';},2000);}).catch(fb);}else{fb();}});}
 })();
 </script>
 </body>
