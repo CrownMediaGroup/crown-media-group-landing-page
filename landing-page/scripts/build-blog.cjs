@@ -178,6 +178,59 @@ function isoDate(dateStr) {
   return String(dateStr);
 }
 
+// ─── Service hyperlink injection ──────────────────────────────────────────────
+// Scans post HTML for key phrases and injects contextual service hyperlinks.
+// Only links the FIRST occurrence of each phrase per post (avoids over-linking).
+// Skips text already inside an <a> tag.
+const SERVICE_LINKS = [
+  // Social media
+  { phrase: 'social media management',   url: 'https://crownmediagroup.co/#services',      title: 'Social media management — Crown Media Group' },
+  { phrase: 'social media manager',      url: 'https://crownmediagroup.co/#services',      title: 'Social media management — Crown Media Group' },
+  // Paid ads
+  { phrase: 'Meta Ads',                  url: 'https://crownmediagroup.co/#services',      title: 'Paid advertising — Crown Media Group' },
+  { phrase: 'Facebook Ads',              url: 'https://crownmediagroup.co/#services',      title: 'Paid advertising — Crown Media Group' },
+  { phrase: 'Google Ads',                url: 'https://crownmediagroup.co/#services',      title: 'Paid advertising — Crown Media Group' },
+  { phrase: 'paid advertising',          url: 'https://crownmediagroup.co/#services',      title: 'Paid advertising — Crown Media Group' },
+  { phrase: 'ad management',             url: 'https://crownmediagroup.co/#services',      title: 'Paid ad management — Crown Media Group' },
+  // SEO
+  { phrase: 'local SEO',                 url: 'https://crownmediagroup.co/#services',      title: 'Local SEO — Crown Media Group' },
+  { phrase: 'Google Business Profile',   url: 'https://crownmediagroup.co/#services',      title: 'Local SEO & Google Business Profile — Crown Media Group' },
+  // Brand
+  { phrase: 'brand identity',            url: 'https://crownmediagroup.co/#services',      title: 'Brand identity design — Crown Media Group' },
+  { phrase: 'logo design',               url: 'https://crownmediagroup.co/#services',      title: 'Brand identity & logo design — Crown Media Group' },
+  // Website
+  { phrase: 'landing page',              url: 'https://crownmediagroup.co/#services',      title: 'Website & landing page design — Crown Media Group' },
+  // Email
+  { phrase: 'email marketing',           url: 'https://crownmediagroup.co/#services',      title: 'Email marketing — Crown Media Group' },
+  // AI tools
+  { phrase: 'AI-powered marketing',      url: 'https://crownmediagroup.co/ai-tools.html',  title: 'AI marketing tools — Crown Media Group' },
+  { phrase: 'marketing automation',      url: 'https://crownmediagroup.co/ai-tools.html',  title: 'AI marketing automation — Crown Media Group' },
+  // Content marketing
+  { phrase: 'content marketing',         url: 'https://crownmediagroup.co/#services',      title: 'Content marketing — Crown Media Group' },
+  // Video
+  { phrase: 'short-form video',          url: 'https://crownmediagroup.co/#services',      title: 'Video & Reels — Crown Media Group' },
+  // CTA
+  { phrase: 'free strategy session',     url: 'https://calendly.com/crownmediagroupco',    title: 'Book a free strategy session — Crown Media Group' },
+  { phrase: 'strategy session',          url: 'https://calendly.com/crownmediagroupco',    title: 'Book a free strategy session — Crown Media Group' },
+  { phrase: 'Crown Media Group',         url: 'https://crownmediagroup.co',                title: 'Crown Media Group — AI-powered marketing, Columbia SC' },
+];
+
+function injectServiceLinks(html) {
+  const linked = new Set(); // track which phrases have been linked (first-occurrence only)
+  let result = html;
+
+  for (const { phrase, url, title } of SERVICE_LINKS) {
+    if (linked.has(phrase)) continue;
+    // Case-insensitive match, but don't match text already inside an <a ...> tag
+    const re = new RegExp(`(?<!<a[^>]*?>)(?<!href="[^"]*?)\\b(${phrase.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})\\b(?![^<]*?</a>)`, 'i');
+    if (re.test(result)) {
+      result = result.replace(re, `<a href="${url}" title="${title}" target="_blank" rel="noopener" class="svc-link">$1</a>`);
+      linked.add(phrase);
+    }
+  }
+  return result;
+}
+
 function escapeHtml(str) {
   return (str || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 }
@@ -208,7 +261,7 @@ function loadPosts() {
     const { data, content } = matter(raw);
     if (data.draft && process.env.BUILD_DRAFTS !== '1') continue;
     const slug = data.slug || slugify(data.title || path.basename(file, '.md'));
-    const html = marked.parse(content);
+    const html = injectServiceLinks(marked.parse(content));
     posts.push({
       slug,
       title: data.title || 'Untitled',
@@ -517,6 +570,7 @@ function buildPostPage(post, allPosts) {
 .ai-summary-loading{display:flex;align-items:center;gap:8px;color:var(--text-light,#666);font-size:.88rem}
 .ai-summary-loading::before{content:'';width:14px;height:14px;border:2px solid rgba(201,152,26,.3);border-top-color:var(--gold,#C9981A);border-radius:50%;animation:spin .7s linear infinite;display:inline-block}
 @keyframes spin{to{transform:rotate(360deg)}}
+.svc-link{color:var(--gold,#C9981A);text-decoration:underline;text-decoration-color:rgba(201,152,26,.35);text-underline-offset:2px;font-weight:600;transition:color .2s,text-decoration-color .2s}.svc-link:hover{color:var(--gold-deep,#9A720D);text-decoration-color:var(--gold,#C9981A)}
 .blog-page-wrap{max-width:780px;margin:0 auto;padding:140px 24px 80px}
 .breadcrumb{font-size:.8rem;color:var(--text-light);margin-bottom:32px}
 .breadcrumb a{color:var(--text-light);text-decoration:none;transition:color .2s}
