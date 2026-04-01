@@ -103,6 +103,28 @@ _Any additional context, special instructions, or client-specific considerations
 - [ ] Ad account access granted
 - [ ] Social media access granted
 - [ ] Brand assets received
-- [ ] Client folder created in `/clients`
+- [ ] Client folder created in `/clients/active/ClientName/`
 - [ ] First content batch scheduled
 - [ ] Kickoff call completed
+
+---
+
+## Client Folder Structure (create this for every new client)
+
+```
+Agency/clients/active/ClientName/
+├── client-name.md          ← Full brief: brand voice, goals, audience, hashtags
+├── assets/
+│   ├── brand/              ← Logo, business card, OG cover, source ZIPs
+│   ├── graphics/           ← Campaign graphics (designed PNGs/SVGs)
+│   ├── photos/             ← Client photos (headshots, events, products)
+│   └── maps/               ← Location maps or district maps if needed
+├── content/                ← Deliverable HTML files, ad copy, scripts
+├── docs/                   ← PDFs: brief, contract, press release, SAM.gov
+└── notes/                  ← Session notes, call prep, follow-up logs
+```
+
+**Naming rules:**
+- All filenames lowercase, hyphens not spaces: `jim-headshot-1.png` not `Jim Headshot 1.png`
+- High-res originals: suffix `-hires` — e.g. `jim-cookout-hires.jpg`
+- Archives/duplicates: prefix `_archive` — e.g. `_archive-duplicates/`
