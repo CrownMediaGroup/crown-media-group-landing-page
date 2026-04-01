@@ -136,6 +136,7 @@ textarea { resize: vertical; min-height: 80px; }
       <div class="nav-item" onclick="showPanel('generate')">Generate Now</div>
       <div class="nav-item" onclick="showPanel('research')">Topic Research</div>
       <div class="nav-item" onclick="showPanel('schedule')">Schedule Settings</div>
+      <div class="nav-item" onclick="showPanel('analytics')">Analytics</div>
     </div>
   </div>
 
@@ -342,6 +343,108 @@ textarea { resize: vertical; min-height: 80px; }
       </div>
     </div>
 
+    <!-- ANALYTICS -->
+    <div id="panel-analytics" class="panel">
+      <div class="section-head" style="margin-bottom:24px;">
+        <div>
+          <h3 style="font-size:1.4rem;">Analytics</h3>
+          <p id="analytics-updated" style="margin-top:4px;color:var(--muted);font-size:.8rem;">Loading...</p>
+        </div>
+        <button class="btn btn-gold" onclick="loadAnalytics()">Refresh</button>
+      </div>
+
+      <!-- KPI Row -->
+      <div class="stats-row" style="margin-bottom:32px;">
+        <div class="stat-card">
+          <div class="stat-num" id="an-total">—</div>
+          <div class="stat-label">Total Views</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-num" id="an-today">—</div>
+          <div class="stat-label">Today</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-num" id="an-week">—</div>
+          <div class="stat-label">This Week</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-num" id="an-month">—</div>
+          <div class="stat-label">This Month</div>
+        </div>
+      </div>
+
+      <!-- Top 2 columns -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-bottom:24px;">
+
+        <!-- Top Posts -->
+        <div class="form-card" style="padding:24px;">
+          <h4 style="margin-bottom:16px;font-size:.9rem;text-transform:uppercase;letter-spacing:.06em;color:var(--gold);">Top Posts</h4>
+          <div id="an-top-posts" style="display:flex;flex-direction:column;gap:10px;">
+            <div style="color:var(--muted);font-size:.82rem;">Loading...</div>
+          </div>
+        </div>
+
+        <!-- Traffic Sources -->
+        <div class="form-card" style="padding:24px;">
+          <h4 style="margin-bottom:16px;font-size:.9rem;text-transform:uppercase;letter-spacing:.06em;color:var(--gold);">Traffic Sources</h4>
+          <div id="an-referrers" style="display:flex;flex-direction:column;gap:10px;">
+            <div style="color:var(--muted);font-size:.82rem;">Loading...</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 30-day Timeline -->
+      <div class="form-card" style="padding:24px;margin-bottom:24px;">
+        <h4 style="margin-bottom:20px;font-size:.9rem;text-transform:uppercase;letter-spacing:.06em;color:var(--gold);">Views — Last 30 Days</h4>
+        <div id="an-timeline" style="display:flex;align-items:flex-end;gap:3px;height:80px;"></div>
+        <div style="display:flex;justify-content:space-between;margin-top:6px;">
+          <span id="an-tl-start" style="font-size:.7rem;color:var(--muted);"></span>
+          <span id="an-tl-end" style="font-size:.7rem;color:var(--muted);"></span>
+        </div>
+      </div>
+
+      <!-- Bottom 2 columns -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-bottom:24px;">
+        <!-- Category Performance -->
+        <div class="form-card" style="padding:24px;">
+          <h4 style="margin-bottom:16px;font-size:.9rem;text-transform:uppercase;letter-spacing:.06em;color:var(--gold);">Category Performance</h4>
+          <div id="an-categories" style="display:flex;flex-direction:column;gap:10px;">
+            <div style="color:var(--muted);font-size:.82rem;">Loading...</div>
+          </div>
+        </div>
+
+        <!-- Live Adjustments -->
+        <div class="form-card" style="padding:24px;">
+          <h4 style="margin-bottom:16px;font-size:.9rem;text-transform:uppercase;letter-spacing:.06em;color:var(--gold);">Live Adjustments</h4>
+          <div style="display:flex;flex-direction:column;gap:16px;">
+            <div>
+              <label style="font-size:.75rem;color:var(--muted);display:block;margin-bottom:6px;">Posts Per Day</label>
+              <div style="display:flex;align-items:center;gap:12px;">
+                <input type="range" min="1" max="8" value="4" id="adj-ppd" oninput="document.getElementById('adj-ppd-val').textContent=this.value" style="flex:1;accent-color:var(--gold);">
+                <span id="adj-ppd-val" style="font-size:1.1rem;font-weight:700;color:var(--gold);min-width:20px;">4</span>
+              </div>
+            </div>
+            <div>
+              <label style="font-size:.75rem;color:var(--muted);display:block;margin-bottom:6px;">Skip Saturday (Sabbath)</label>
+              <label style="display:flex;align-items:center;gap:8px;cursor:pointer;">
+                <input type="checkbox" id="adj-sabbath" checked style="accent-color:var(--gold);width:16px;height:16px;">
+                <span style="font-size:.85rem;">Rest on Saturday</span>
+              </label>
+            </div>
+            <div>
+              <label style="font-size:.75rem;color:var(--muted);display:block;margin-bottom:6px;">Auto-Research When Queue Low</label>
+              <label style="display:flex;align-items:center;gap:8px;cursor:pointer;">
+                <input type="checkbox" id="adj-research" checked style="accent-color:var(--gold);width:16px;height:16px;">
+                <span style="font-size:.85rem;">Auto-refill topics</span>
+              </label>
+            </div>
+            <div id="adj-insight" style="background:rgba(201,168,76,.08);border:1px solid var(--border);border-radius:6px;padding:12px;font-size:.8rem;color:var(--muted);line-height:1.6;"></div>
+            <button class="btn btn-gold" onclick="applyAdjustments()" style="margin-top:4px;">Apply Changes</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
   </div>
 </div>
 
@@ -363,6 +466,7 @@ function showPanel(name) {
   if (name === 'posts')     loadPosts();
   if (name === 'queue')     loadQueue();
   if (name === 'schedule')  loadSchedule();
+  if (name === 'analytics') loadAnalytics();
 }
 
 function toast(msg, type = 'success') {
@@ -564,6 +668,143 @@ async function loadCRM() {
     </tr>`).join('') : '<tr><td colspan="5" style="text-align:center;color:var(--muted);padding:16px;">No contacts yet.</td></tr>';
 }
 
+// ── Analytics ─────────────────────────────────────────────────────────────────
+const PLATFORM_COLORS = {
+  search: '#4caf7d', linkedin: '#0A66C2', x: '#1DA1F2',
+  facebook: '#1877F2', reddit: '#FF4500', medium: '#00ab6c',
+  hashnode: '#2962FF', instagram: '#E1306C', direct: '#C9A84C', other: '#888',
+};
+
+async function loadAnalytics() {
+  document.getElementById('analytics-updated').textContent =
+    'Last updated: ' + new Date().toLocaleTimeString();
+
+  const [overview, topPosts, referrers, timeline, categories, sched] = await Promise.all([
+    fetch('/api/analytics/overview').then(r => r.json()).catch(() => ({})),
+    fetch('/api/analytics/top-posts').then(r => r.json()).catch(() => []),
+    fetch('/api/analytics/referrers').then(r => r.json()).catch(() => []),
+    fetch('/api/analytics/timeline').then(r => r.json()).catch(() => []),
+    fetch('/api/analytics/categories').then(r => r.json()).catch(() => []),
+    fetch('/api/schedule').then(r => r.json()).catch(() => ({})),
+  ]);
+
+  // KPI cards
+  if (overview.available === false) {
+    document.getElementById('an-total').textContent = '—';
+    document.getElementById('analytics-updated').textContent =
+      'Supabase not connected. Set SUPABASE_URL + SUPABASE_ANON_KEY in .env, then run: CREATE TABLE blog_analytics (id BIGSERIAL PRIMARY KEY, slug TEXT, title TEXT, referrer TEXT, platform TEXT, viewed_at TIMESTAMPTZ DEFAULT NOW());';
+  } else {
+    document.getElementById('an-total').textContent = (overview.total || 0).toLocaleString();
+    document.getElementById('an-today').textContent = (overview.today || 0).toLocaleString();
+    document.getElementById('an-week').textContent  = (overview.week  || 0).toLocaleString();
+    document.getElementById('an-month').textContent = (overview.month || 0).toLocaleString();
+  }
+
+  // Top Posts — horizontal bar chart
+  const topEl = document.getElementById('an-top-posts');
+  if (!topPosts.length) {
+    topEl.innerHTML = '<div style="color:var(--muted);font-size:.82rem;">No data yet — views will appear after posts are read.</div>';
+  } else {
+    const max = topPosts[0].views;
+    topEl.innerHTML = topPosts.map((p, i) => `
+      <div>
+        <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:4px;">
+          <span style="font-size:.78rem;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:200px;" title="${p.title || p.slug}">${i + 1}. ${(p.title || p.slug).slice(0, 36)}${(p.title || p.slug).length > 36 ? '…' : ''}</span>
+          <span style="font-size:.78rem;font-weight:700;color:var(--gold);margin-left:8px;">${p.views.toLocaleString()}</span>
+        </div>
+        <div style="height:5px;background:rgba(255,255,255,.06);border-radius:3px;">
+          <div style="height:5px;background:var(--gold);border-radius:3px;width:${Math.round(p.views / max * 100)}%;transition:width .4s;"></div>
+        </div>
+      </div>`).join('');
+  }
+
+  // Referrers — colored source bars
+  const refEl = document.getElementById('an-referrers');
+  if (!referrers.length) {
+    refEl.innerHTML = '<div style="color:var(--muted);font-size:.82rem;">No referrer data yet.</div>';
+  } else {
+    refEl.innerHTML = referrers.map(r => {
+      const color = PLATFORM_COLORS[r.platform] || '#888';
+      const label = r.platform.charAt(0).toUpperCase() + r.platform.slice(1);
+      return `
+        <div>
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
+            <span style="font-size:.8rem;display:flex;align-items:center;gap:6px;">
+              <span style="width:8px;height:8px;border-radius:50%;background:${color};display:inline-block;"></span>
+              ${label}
+            </span>
+            <span style="font-size:.78rem;color:var(--muted);">${r.views} (${r.pct}%)</span>
+          </div>
+          <div style="height:4px;background:rgba(255,255,255,.06);border-radius:2px;">
+            <div style="height:4px;border-radius:2px;width:${r.pct}%;background:${color};transition:width .4s;"></div>
+          </div>
+        </div>`;
+    }).join('');
+  }
+
+  // 30-day Timeline — CSS bar chart
+  const tlEl = document.getElementById('an-timeline');
+  if (timeline.length) {
+    const maxV = Math.max(...timeline.map(d => d.views), 1);
+    tlEl.innerHTML = timeline.map(d => {
+      const h = Math.max(2, Math.round(d.views / maxV * 76));
+      const isToday = d.date === new Date().toISOString().split('T')[0];
+      return `<div title="${d.date}: ${d.views} views" style="flex:1;height:${h}px;background:${isToday ? 'var(--gold)' : 'rgba(201,168,76,.35)'};border-radius:2px 2px 0 0;cursor:default;transition:background .2s;" onmouseover="this.style.background='var(--gold)'" onmouseout="this.style.background='${isToday ? 'var(--gold)' : 'rgba(201,168,76,.35)'}';"></div>`;
+    }).join('');
+    document.getElementById('an-tl-start').textContent = timeline[0]?.date || '';
+    document.getElementById('an-tl-end').textContent   = timeline[timeline.length - 1]?.date || '';
+  }
+
+  // Categories
+  const catEl = document.getElementById('an-categories');
+  if (!categories.length) {
+    catEl.innerHTML = '<div style="color:var(--muted);font-size:.82rem;">No category data yet.</div>';
+  } else {
+    catEl.innerHTML = categories.map(c => `
+      <div>
+        <div style="display:flex;justify-content:space-between;margin-bottom:4px;">
+          <span style="font-size:.8rem;">${c.cat}</span>
+          <span style="font-size:.78rem;color:var(--muted);">${c.views} views (${c.pct}%)</span>
+        </div>
+        <div style="height:4px;background:rgba(255,255,255,.06);border-radius:2px;">
+          <div style="height:4px;background:var(--blue);border-radius:2px;width:${c.pct}%;transition:width .4s;"></div>
+        </div>
+      </div>`).join('');
+  }
+
+  // Sync adjustment controls with current schedule
+  if (sched.postsPerDay) {
+    const s = document.getElementById('adj-ppd');
+    s.value = sched.postsPerDay;
+    document.getElementById('adj-ppd-val').textContent = sched.postsPerDay;
+  }
+  if (sched.skipSabbath !== undefined)
+    document.getElementById('adj-sabbath').checked = sched.skipSabbath;
+  if (sched.autoResearch !== undefined)
+    document.getElementById('adj-research').checked = sched.autoResearch;
+
+  // AI insight based on data
+  const topPlatform = referrers[0]?.platform || 'direct';
+  const topCat = categories[0]?.cat || 'Marketing';
+  const growthStr = (overview.week || 0) > (overview.month || 1) / 4
+    ? 'Traffic is trending up this week.' : 'Traffic is steady.';
+  document.getElementById('adj-insight').textContent =
+    `${growthStr} Top traffic source: ${topPlatform}. Best performing category: ${topCat}. Consider adding more "${topCat}" topics to the queue.`;
+}
+
+async function applyAdjustments() {
+  const ppd      = parseInt(document.getElementById('adj-ppd').value);
+  const sabbath  = document.getElementById('adj-sabbath').checked;
+  const research = document.getElementById('adj-research').checked;
+  await fetch('/api/schedule', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ postsPerDay: ppd, skipSabbath: sabbath, autoResearch: research }),
+  });
+  toast(`Saved — ${ppd} posts/day, Sabbath ${sabbath ? 'ON' : 'OFF'}`);
+  loadAnalytics();
+}
+
 // Init + auto-refresh every 30s
 loadDashboard();
 setInterval(() => {
@@ -571,6 +812,7 @@ setInterval(() => {
   if (currentPanel === 'posts')     loadPosts();
   if (currentPanel === 'queue')     loadQueue();
   if (currentPanel === 'crm')       loadCRM();
+  if (currentPanel === 'analytics') loadAnalytics();
 }, 30000);
 </script>
 </body>

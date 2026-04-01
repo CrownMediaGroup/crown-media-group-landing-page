@@ -392,6 +392,7 @@ ${AMBIENT_HTML}
   if(copyBtn){copyBtn.addEventListener('click',function(e){e.stopPropagation();var addr='king@crownmediagroup.co';function fb(){var ta=document.createElement('textarea');ta.value=addr;ta.style.position='fixed';ta.style.opacity='0';document.body.appendChild(ta);ta.select();try{document.execCommand('copy');copyBtn.textContent='Copied!';}catch(ex){copyBtn.textContent='Failed';}document.body.removeChild(ta);setTimeout(function(){copyBtn.textContent='Copy Address';},2000);}if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(addr).then(function(){copyBtn.textContent='Copied!';setTimeout(function(){copyBtn.textContent='Copy Address';},2000);}).catch(fb);}else{fb();}});}
 })();
 </script>
+<script>(function(){try{var s=window.location.pathname.replace(/^\/blog\//,'').replace(/\/$/,'');if(!s||s==='blog')return;var ref='direct';try{if(document.referrer){var u=new URL(document.referrer);ref=u.hostname;}}catch(e){}fetch('/.netlify/functions/track',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({slug:s,referrer:ref,title:document.title}),keepalive:true}).catch(function(){});}catch(e){}})();</script>
 </body>
 </html>`;
 }

@@ -239,6 +239,116 @@ app.get('/api/research', async (req, res) => {
   res.json({ topics: topics.slice(0, 40), niche });
 });
 
+// ── Analytics API (Supabase) ─────────────────────────────────────────────────
+
+async function supaQuery(path, params = '') {
+  const url  = process.env.SUPABASE_URL;
+  const key  = process.env.SUPABASE_ANON_KEY;
+  if (!url || !key) return null;
+  try {
+    const r = await axios.get(`${url}/rest/v1/${path}${params}`, {
+      headers: { apikey: key, Authorization: `Bearer ${key}`, 'Content-Type': 'application/json' },
+      timeout: 8000,
+    });
+    return r.data;
+  } catch (e) { log(`Supabase error: ${e.message}`); return null; }
+}
+
+app.get('/api/analytics/overview', async (_, res) => {
+  const today  = new Date().toISOString().split('T')[0];
+  const weekAgo  = new Date(Date.now() - 7  * 86400000).toISOString();
+  const monthAgo = new Date(Date.now() - 30 * 86400000).toISOString();
+
+  const [total, todayRows, weekRows, monthRows] = await Promise.all([
+    supaQuery('blog_analytics', '?select=id&limit=1&order=id.desc'),
+    supaQuery('blog_analytics', `?select=id&viewed_at=gte.${today}T00:00:00Z`),
+    supaQuery('blog_analytics', `?select=id&viewed_at=gte.${weekAgo}`),
+    supaQuery('blog_analytics', `?select=id&viewed_at=gte.${monthAgo}`),
+  ]);
+
+  if (!total) return res.json({ available: false });
+  // Supabase returns rows but we need count — use head + Prefer:count header via direct call
+  const url = process.env.SUPABASE_URL;
+  const key  = process.env.SUPABASE_ANON_KEY;
+  try {
+    const [t, d, w, m] = await Promise.all([
+      axios.get(`${url}/rest/v1/blog_analytics?select=id`, { headers: { apikey: key, Authorization: `Bearer ${key}`, Prefer: 'count=exact', 'Range-Unit': 'items', Range: '0-0' }, timeout: 8000 }),
+      axios.get(`${url}/rest/v1/blog_analytics?select=id&viewed_at=gte.${today}T00:00:00Z`, { headers: { apikey: key, Authorization: `Bearer ${key}`, Prefer: 'count=exact', 'Range-Unit': 'items', Range: '0-0' }, timeout: 8000 }),
+      axios.get(`${url}/rest/v1/blog_analytics?select=id&viewed_at=gte.${weekAgo}`, { headers: { apikey: key, Authorization: `Bearer ${key}`, Prefer: 'count=exact', 'Range-Unit': 'items', Range: '0-0' }, timeout: 8000 }),
+      axios.get(`${url}/rest/v1/blog_analytics?select=id&viewed_at=gte.${monthAgo}`, { headers: { apikey: key, Authorization: `Bearer ${key}`, Prefer: 'count=exact', 'Range-Unit': 'items', Range: '0-0' }, timeout: 8000 }),
+    ]);
+    const parseCount = r => parseInt(r.headers['content-range']?.split('/')[1] || '0', 10);
+    res.json({ available: true, total: parseCount(t), today: parseCount(d), week: parseCount(w), month: parseCount(m) });
+  } catch (e) { res.json({ available: false, error: e.message }); }
+});
+
+app.get('/api/analytics/top-posts', async (_, res) => {
+  const data = await supaQuery('blog_analytics', '?select=slug,title&limit=1000&order=viewed_at.desc');
+  if (!data) return res.json([]);
+  const counts = {};
+  const titles = {};
+  for (const row of data) {
+    counts[row.slug] = (counts[row.slug] || 0) + 1;
+    if (row.title && !titles[row.slug]) titles[row.slug] = row.title;
+  }
+  const sorted = Object.entries(counts)
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 10)
+    .map(([slug, views]) => ({ slug, views, title: titles[slug] || slug }));
+  res.json(sorted);
+});
+
+app.get('/api/analytics/referrers', async (_, res) => {
+  const data = await supaQuery('blog_analytics', '?select=platform&limit=2000&order=viewed_at.desc');
+  if (!data) return res.json([]);
+  const counts = {};
+  for (const row of data) counts[row.platform || 'direct'] = (counts[row.platform || 'direct'] || 0) + 1;
+  const total = Object.values(counts).reduce((a, b) => a + b, 0);
+  const sorted = Object.entries(counts)
+    .sort((a, b) => b[1] - a[1])
+    .map(([platform, views]) => ({ platform, views, pct: total ? Math.round(views / total * 100) : 0 }));
+  res.json(sorted);
+});
+
+app.get('/api/analytics/timeline', async (_, res) => {
+  const monthAgo = new Date(Date.now() - 30 * 86400000).toISOString();
+  const data = await supaQuery('blog_analytics', `?select=viewed_at&viewed_at=gte.${monthAgo}&order=viewed_at.asc&limit=5000`);
+  if (!data) return res.json([]);
+  const days = {};
+  for (const row of data) {
+    const d = row.viewed_at?.split('T')[0];
+    if (d) days[d] = (days[d] || 0) + 1;
+  }
+  // Fill in missing days with 0
+  const result = [];
+  for (let i = 29; i >= 0; i--) {
+    const d = new Date(Date.now() - i * 86400000).toISOString().split('T')[0];
+    result.push({ date: d, views: days[d] || 0 });
+  }
+  res.json(result);
+});
+
+app.get('/api/analytics/categories', async (_, res) => {
+  const data = await supaQuery('blog_analytics', '?select=slug&limit=2000');
+  if (!data) return res.json([]);
+  // Match slugs to published posts to get category
+  const posts = getPosts();
+  const catMap = {};
+  for (const p of posts) {
+    const slug = p.file.replace(/^\d{4}-\d{2}-\d{2}-/, '').replace('.md', '');
+    catMap[slug] = p.category;
+  }
+  const counts = {};
+  for (const row of data) {
+    const cat = catMap[row.slug] || 'Other';
+    counts[cat] = (counts[cat] || 0) + 1;
+  }
+  const total = Object.values(counts).reduce((a, b) => a + b, 0);
+  res.json(Object.entries(counts)
+    .sort((a, b) => b[1] - a[1])
+    .map(([cat, views]) => ({ cat, views, pct: total ? Math.round(views / total * 100) : 0 })));
+});
+
 // ── CRM API ─────────────────────────────────────────────────────────────────
 
 app.get('/api/crm/stats', (_, res) => {
