@@ -122,6 +122,19 @@ footer{background:#0F0F28;padding:56px 64px;display:flex;align-items:center;just
   <div class="posts-grid">
 <article class="post-card">
   <div class="card-meta">
+    <a href="/blog/category/marketing/" class="card-cat">Marketing</a>
+    <span class="card-dot">&middot;</span>
+    <time datetime="DATE_PLACEHOLDER">DATE_PLACEHOLDER</time>
+  </div>
+  <h3><a href="/blog/local-marketing-guide-columbia-sc/">The Complete Local Marketing Guide for Columbia SC Business Owners</a></h3>
+  <p class="card-excerpt">If you own a business in Columbia SC and you're not showing up where your customers are looking, you're losing revenue every single day. Here's exactly what to do about it.</p>
+  <div class="card-footer">
+    <span class="card-read">7 min read</span>
+    <a href="/blog/local-marketing-guide-columbia-sc/" class="card-link">Read &rarr;</a>
+  </div>
+</article>
+<article class="post-card">
+  <div class="card-meta">
     <a href="/blog/category/seo/" class="card-cat">SEO</a>
     <span class="card-dot">&middot;</span>
     <time datetime="2026-03-27">March 27, 2026 · 9:00 AM</time>
@@ -278,6 +291,10 @@ footer{background:#0F0F28;padding:56px 64px;display:flex;align-items:center;just
   if(emailBtn&&emailFallback){emailBtn.addEventListener('click',function(e){e.stopPropagation();var opened=false,t;function onBlur(){opened=true;clearTimeout(t);window.removeEventListener('blur',onBlur);}window.addEventListener('blur',onBlur);window.location.href='mailto:king@crownmediagroup.co?subject=Hello%20Crown%20Media%20Group';t=setTimeout(function(){window.removeEventListener('blur',onBlur);if(!opened)emailFallback.style.display='block';},700);});}
   if(copyBtn){copyBtn.addEventListener('click',function(e){e.stopPropagation();var addr='king@crownmediagroup.co';function fb(){var ta=document.createElement('textarea');ta.value=addr;ta.style.position='fixed';ta.style.opacity='0';document.body.appendChild(ta);ta.select();try{document.execCommand('copy');copyBtn.textContent='Copied!';}catch(ex){copyBtn.textContent='Failed';}document.body.removeChild(ta);setTimeout(function(){copyBtn.textContent='Copy Address';},2000);}if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(addr).then(function(){copyBtn.textContent='Copied!';setTimeout(function(){copyBtn.textContent='Copy Address';},2000);}).catch(fb);}else{fb();}});}
 })();
+</script>
+<script>(function(){try{var s=window.location.pathname.replace(/^/blog//,'').replace(//$/,'');if(!s||s==='blog')return;var ref='direct';try{if(document.referrer){var u=new URL(document.referrer);ref=u.hostname;}}catch(e){}fetch('/.netlify/functions/track',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({slug:s,referrer:ref,title:document.title}),keepalive:true}).catch(function(){});}catch(e){}})();
+function generateSummary(){var btn=document.getElementById('ai-summary-btn');var body=document.getElementById('ai-summary-body');if(!btn||!body)return;btn.disabled=true;btn.textContent='Thinking...';body.style.display='block';body.innerHTML='<div class="ai-summary-loading">Reading the article...</div>';var text=document.querySelector('.post-body')?.innerText||'';var title=document.querySelector('.post-title')?.innerText||document.title;fetch('/.netlify/functions/summarize',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({text:text,title:title})}).then(function(r){return r.json();}).then(function(d){if(d.error){body.innerHTML='<p style="color:#c33;font-size:.85rem;">'+d.error+'</p>';btn.textContent='Try Again';btn.disabled=false;return;}var bullets=d.summary.split('
+').filter(function(l){return l.trim().startsWith('•')||l.trim().startsWith('-');}).map(function(l){return l.replace(/^[•-]s*/,'').trim();}).filter(Boolean);body.innerHTML='<ul>'+bullets.map(function(b){return'<li>'+b+'</li>';}).join('')+'</ul>';btn.textContent='Done';btn.style.background='#4caf7d';}).catch(function(e){body.innerHTML='<p style="color:#c33;font-size:.85rem;">Could not generate summary. Try again.</p>';btn.textContent='Retry';btn.disabled=false;});}
 </script>
 </body>
 </html>

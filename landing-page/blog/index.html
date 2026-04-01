@@ -145,23 +145,36 @@ footer{background:#0F0F28;padding:56px 64px;display:flex;align-items:center;just
   
 <div class="cat-filter">
   <a href="/blog/" class="cat-btn active">All</a>
-  <a href="/blog/category/ai-marketing/" class="cat-btn">AI Marketing</a><a href="/blog/category/seo/" class="cat-btn">SEO</a><a href="/blog/category/marketing/" class="cat-btn">Marketing</a><a href="/blog/category/faith/" class="cat-btn">Faith</a><a href="/blog/category/geo/" class="cat-btn">GEO</a>
+  <a href="/blog/category/marketing/" class="cat-btn">Marketing</a><a href="/blog/category/ai-marketing/" class="cat-btn">AI Marketing</a><a href="/blog/category/seo/" class="cat-btn">SEO</a><a href="/blog/category/faith/" class="cat-btn">Faith</a><a href="/blog/category/geo/" class="cat-btn">GEO</a>
 </div>
   
 <div class="blog-featured">
   <div class="featured-meta">
-    <a href="/blog/category/ai-marketing/" class="featured-cat">AI Marketing</a>
+    <a href="/blog/category/marketing/" class="featured-cat">Marketing</a>
     <span>&middot;</span>
-    <time datetime="2026-04-01">April 1, 2026 · 11:55 AM</time>
+    <time datetime="DATE_PLACEHOLDER">DATE_PLACEHOLDER</time>
     <span>&middot;</span>
-    <span>8 min read</span>
+    <span>7 min read</span>
   </div>
-  <h2><a href="/blog/how-ai-video-ads-are-changing-the-game-for-local-businesses/">How AI Video Ads Are Changing the Game for Local Businesses</a></h2>
-  <p class="featured-excerpt">If you're a local business owner in Columbia, SC wondering why your competitors suddenly look like they have a full production team behind them — AI video marke</p>
-  <a href="/blog/how-ai-video-ads-are-changing-the-game-for-local-businesses/" class="btn-royal">Read Article</a>
+  <h2><a href="/blog/local-marketing-guide-columbia-sc/">The Complete Local Marketing Guide for Columbia SC Business Owners</a></h2>
+  <p class="featured-excerpt">If you own a business in Columbia SC and you're not showing up where your customers are looking, you're losing revenue every single day. Here's exactly what to do about it.</p>
+  <a href="/blog/local-marketing-guide-columbia-sc/" class="btn-royal">Read Article</a>
 </div>
   <div class="posts-grid">
     
+<article class="post-card" data-category="ai-marketing" data-date="2026-04-01">
+  <div class="card-meta">
+    <a href="/blog/category/ai-marketing/" class="card-cat">AI Marketing</a>
+    <span class="card-dot">&middot;</span>
+    <time datetime="2026-04-01">April 1, 2026 · 11:55 AM</time>
+  </div>
+  <h3><a href="/blog/how-ai-video-ads-are-changing-the-game-for-local-businesses/">How AI Video Ads Are Changing the Game for Local Businesses</a></h3>
+  <p class="card-excerpt">If you're a local business owner in Columbia, SC wondering why your competitors suddenly look like they have a full production team behind them — AI video marke</p>
+  <div class="card-footer">
+    <span class="card-read">8 min read</span>
+    <a href="/blog/how-ai-video-ads-are-changing-the-game-for-local-businesses/" class="card-link">Read &rarr;</a>
+  </div>
+</article>
 <article class="post-card" data-category="ai-marketing" data-date="2026-04-01">
   <div class="card-meta">
     <a href="/blog/category/ai-marketing/" class="card-cat">AI Marketing</a>
@@ -400,6 +413,10 @@ footer{background:#0F0F28;padding:56px 64px;display:flex;align-items:center;just
   if(emailBtn&&emailFallback){emailBtn.addEventListener('click',function(e){e.stopPropagation();var opened=false,t;function onBlur(){opened=true;clearTimeout(t);window.removeEventListener('blur',onBlur);}window.addEventListener('blur',onBlur);window.location.href='mailto:king@crownmediagroup.co?subject=Hello%20Crown%20Media%20Group';t=setTimeout(function(){window.removeEventListener('blur',onBlur);if(!opened)emailFallback.style.display='block';},700);});}
   if(copyBtn){copyBtn.addEventListener('click',function(e){e.stopPropagation();var addr='king@crownmediagroup.co';function fb(){var ta=document.createElement('textarea');ta.value=addr;ta.style.position='fixed';ta.style.opacity='0';document.body.appendChild(ta);ta.select();try{document.execCommand('copy');copyBtn.textContent='Copied!';}catch(ex){copyBtn.textContent='Failed';}document.body.removeChild(ta);setTimeout(function(){copyBtn.textContent='Copy Address';},2000);}if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(addr).then(function(){copyBtn.textContent='Copied!';setTimeout(function(){copyBtn.textContent='Copy Address';},2000);}).catch(fb);}else{fb();}});}
 })();
+</script>
+<script>(function(){try{var s=window.location.pathname.replace(/^/blog//,'').replace(//$/,'');if(!s||s==='blog')return;var ref='direct';try{if(document.referrer){var u=new URL(document.referrer);ref=u.hostname;}}catch(e){}fetch('/.netlify/functions/track',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({slug:s,referrer:ref,title:document.title}),keepalive:true}).catch(function(){});}catch(e){}})();
+function generateSummary(){var btn=document.getElementById('ai-summary-btn');var body=document.getElementById('ai-summary-body');if(!btn||!body)return;btn.disabled=true;btn.textContent='Thinking...';body.style.display='block';body.innerHTML='<div class="ai-summary-loading">Reading the article...</div>';var text=document.querySelector('.post-body')?.innerText||'';var title=document.querySelector('.post-title')?.innerText||document.title;fetch('/.netlify/functions/summarize',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({text:text,title:title})}).then(function(r){return r.json();}).then(function(d){if(d.error){body.innerHTML='<p style="color:#c33;font-size:.85rem;">'+d.error+'</p>';btn.textContent='Try Again';btn.disabled=false;return;}var bullets=d.summary.split('
+').filter(function(l){return l.trim().startsWith('•')||l.trim().startsWith('-');}).map(function(l){return l.replace(/^[•-]s*/,'').trim();}).filter(Boolean);body.innerHTML='<ul>'+bullets.map(function(b){return'<li>'+b+'</li>';}).join('')+'</ul>';btn.textContent='Done';btn.style.background='#4caf7d';}).catch(function(e){body.innerHTML='<p style="color:#c33;font-size:.85rem;">Could not generate summary. Try again.</p>';btn.textContent='Retry';btn.disabled=false;});}
 </script>
 </body>
 </html>

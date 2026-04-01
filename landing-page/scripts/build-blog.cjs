@@ -392,7 +392,9 @@ ${AMBIENT_HTML}
   if(copyBtn){copyBtn.addEventListener('click',function(e){e.stopPropagation();var addr='king@crownmediagroup.co';function fb(){var ta=document.createElement('textarea');ta.value=addr;ta.style.position='fixed';ta.style.opacity='0';document.body.appendChild(ta);ta.select();try{document.execCommand('copy');copyBtn.textContent='Copied!';}catch(ex){copyBtn.textContent='Failed';}document.body.removeChild(ta);setTimeout(function(){copyBtn.textContent='Copy Address';},2000);}if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(addr).then(function(){copyBtn.textContent='Copied!';setTimeout(function(){copyBtn.textContent='Copy Address';},2000);}).catch(fb);}else{fb();}});}
 })();
 </script>
-<script>(function(){try{var s=window.location.pathname.replace(/^\/blog\//,'').replace(/\/$/,'');if(!s||s==='blog')return;var ref='direct';try{if(document.referrer){var u=new URL(document.referrer);ref=u.hostname;}}catch(e){}fetch('/.netlify/functions/track',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({slug:s,referrer:ref,title:document.title}),keepalive:true}).catch(function(){});}catch(e){}})();</script>
+<script>(function(){try{var s=window.location.pathname.replace(/^\/blog\//,'').replace(/\/$/,'');if(!s||s==='blog')return;var ref='direct';try{if(document.referrer){var u=new URL(document.referrer);ref=u.hostname;}}catch(e){}fetch('/.netlify/functions/track',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({slug:s,referrer:ref,title:document.title}),keepalive:true}).catch(function(){});}catch(e){}})();
+function generateSummary(){var btn=document.getElementById('ai-summary-btn');var body=document.getElementById('ai-summary-body');if(!btn||!body)return;btn.disabled=true;btn.textContent='Thinking...';body.style.display='block';body.innerHTML='<div class="ai-summary-loading">Reading the article...</div>';var text=document.querySelector('.post-body')?.innerText||'';var title=document.querySelector('.post-title')?.innerText||document.title;fetch('/.netlify/functions/summarize',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({text:text,title:title})}).then(function(r){return r.json();}).then(function(d){if(d.error){body.innerHTML='<p style="color:#c33;font-size:.85rem;">'+d.error+'</p>';btn.textContent='Try Again';btn.disabled=false;return;}var bullets=d.summary.split('\n').filter(function(l){return l.trim().startsWith('•')||l.trim().startsWith('-');}).map(function(l){return l.replace(/^[•\-]\s*/,'').trim();}).filter(Boolean);body.innerHTML='<ul>'+bullets.map(function(b){return'<li>'+b+'</li>';}).join('')+'</ul>';btn.textContent='Done';btn.style.background='#4caf7d';}).catch(function(e){body.innerHTML='<p style="color:#c33;font-size:.85rem;">Could not generate summary. Try again.</p>';btn.textContent='Retry';btn.disabled=false;});}
+</script>
 </body>
 </html>`;
 }
@@ -472,6 +474,17 @@ function buildPostPage(post, allPosts) {
         </div>
       </div>
     </header>
+    <div class="ai-summary-widget" id="ai-summary-widget">
+      <div class="ai-summary-header">
+        <span class="ai-summary-icon">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2z"/><path d="M12 6v6l4 2"/></svg>
+        </span>
+        <span class="ai-summary-title">AI Summary</span>
+        <span class="ai-summary-sub">Get the key takeaways in 5 bullets</span>
+        <button class="ai-summary-btn" id="ai-summary-btn" type="button" onclick="generateSummary()">Summarize</button>
+      </div>
+      <div class="ai-summary-body" id="ai-summary-body" style="display:none;"></div>
+    </div>
     <div class="post-body">
       ${post.html}
     </div>
@@ -488,6 +501,22 @@ function buildPostPage(post, allPosts) {
 </div>`;
 
   const extraCss = `
+.ai-summary-widget{background:linear-gradient(135deg,rgba(26,26,62,.04) 0%,rgba(201,152,26,.06) 100%);border:1px solid rgba(201,152,26,.25);border-radius:12px;padding:20px 24px;margin:0 0 36px;position:relative;overflow:hidden}
+.ai-summary-widget::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--gold) 0%,var(--royal,#1a1a3e) 100%)}
+.ai-summary-header{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.ai-summary-icon{color:var(--gold);display:flex;align-items:center}
+.ai-summary-title{font-family:'Cormorant Garamond',serif;font-size:1rem;font-weight:700;color:var(--text)}
+.ai-summary-sub{font-size:.78rem;color:var(--text-light,#666);flex:1}
+.ai-summary-btn{background:var(--gold,#C9981A);color:#fff;border:none;border-radius:6px;padding:8px 18px;font-size:.82rem;font-weight:600;cursor:pointer;letter-spacing:.04em;transition:opacity .2s,transform .15s}
+.ai-summary-btn:hover{opacity:.88;transform:translateY(-1px)}
+.ai-summary-btn:disabled{opacity:.5;cursor:not-allowed;transform:none}
+.ai-summary-body{margin-top:16px;padding-top:16px;border-top:1px solid rgba(201,152,26,.15)}
+.ai-summary-body ul{list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:10px}
+.ai-summary-body li{font-size:.9rem;line-height:1.55;color:var(--text);padding-left:20px;position:relative}
+.ai-summary-body li::before{content:'→';position:absolute;left:0;color:var(--gold,#C9981A);font-weight:700}
+.ai-summary-loading{display:flex;align-items:center;gap:8px;color:var(--text-light,#666);font-size:.88rem}
+.ai-summary-loading::before{content:'';width:14px;height:14px;border:2px solid rgba(201,152,26,.3);border-top-color:var(--gold,#C9981A);border-radius:50%;animation:spin .7s linear infinite;display:inline-block}
+@keyframes spin{to{transform:rotate(360deg)}}
 .blog-page-wrap{max-width:780px;margin:0 auto;padding:140px 24px 80px}
 .breadcrumb{font-size:.8rem;color:var(--text-light);margin-bottom:32px}
 .breadcrumb a{color:var(--text-light);text-decoration:none;transition:color .2s}
