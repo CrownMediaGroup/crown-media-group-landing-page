@@ -1,7 +1,3 @@
-<<<<<<< HEAD
-tools/crm/crm.db
-tools/daemon/*.exe
-=======
 # ============================================================
 # ALL GLORY TO JESUS GLOBAL LLC — .gitignore
 # ============================================================
@@ -78,6 +74,12 @@ uploads/
 *.zip
 *.tar.gz
 *.rar
+# Exception: hero background video for crownmediagroup.co
+!landing-page/assets/video/hero-bg.mp4
+
+# --- CRM local db ---
+tools/crm/crm.db
+tools/daemon/*.exe
 
 # --- Netlify ---
 .netlify/
@@ -95,4 +97,3 @@ assets/personal/
 # --- Misc ---
 .temp/
 tmp/
->>>>>>> c88d365 (feat: Jim Reese featured press card + file cleanup + blog admin auto-refresh)
