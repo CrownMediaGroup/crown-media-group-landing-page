@@ -1,0 +1,19 @@
+{
+  "name": "crown-media-autoblogger",
+  "version": "1.0.0",
+  "description": "Auto-Blogger SaaS — Crown Media Group",
+  "type": "module",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.39.0",
+    "axios": "^1.14.0",
+    "better-sqlite3": "^9.4.3",
+    "cheerio": "^1.2.0",
+    "express": "^5.2.1",
+    "resend": "^4.0.0"
+  }
+}
