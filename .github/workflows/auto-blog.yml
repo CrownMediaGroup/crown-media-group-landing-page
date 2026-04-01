@@ -58,30 +58,36 @@ jobs:
         working-directory: landing-page
         run: npm install
 
-      # ── 4. Research + Auto-fill queue ────────────────────────────────────────
-      - name: Research & fill queue
-        if: ${{ !inputs.topic && inputs.skip_research != 'true' }}
+      # ── 4. CONTINGENCY 1: Queue health check + auto-refill ───────────────────
+      # If queue drops below 5, regenerate 25 fresh topics before writing.
+      # This ensures the system NEVER runs out of content to write.
+      - name: Queue health check & auto-refill
+        if: ${{ !inputs.topic }}
         working-directory: landing-page
         env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
           CI: true
         run: |
-          echo "Running research to ensure queue has topics..."
-          node scripts/blog-researcher.js --count 20 || echo "Research had issues — continuing with existing queue"
-          echo "Current queue size:"
-          node -e "
-            import { readFileSync, existsSync } from 'fs';
-            import { join } from 'path';
-            const f = join('content', 'blog', 'topics-queue.json');
-            if (existsSync(f)) {
-              const d = JSON.parse(readFileSync(f, 'utf8'));
-              const q = Array.isArray(d) ? d : (d.queue || []);
-              console.log('Queue topics:', q.length);
-              if (q[0]) console.log('Next up:', q[0].topic);
-            } else { console.log('No queue file found'); }
-          " || true
+          QUEUE_COUNT=$(node -e "
+            const { readFileSync, existsSync } = require('fs');
+            const f = 'content/blog/topics-queue.json';
+            if (!existsSync(f)) { console.log('0'); process.exit(0); }
+            const d = JSON.parse(readFileSync(f, 'utf8'));
+            const q = Array.isArray(d) ? d : (d.queue || []);
+            console.log(q.length);
+          " 2>/dev/null || echo "0")
+          echo "Queue size: $QUEUE_COUNT"
+          if [ "$QUEUE_COUNT" -lt 5 ]; then
+            echo "Queue below 5 — auto-refilling 25 topics..."
+            node scripts/blog-researcher.js --count 25 || echo "Researcher failed — will use fallback topics"
+          else
+            echo "Queue healthy ($QUEUE_COUNT topics). No refill needed."
+          fi
         shell: bash
 
-      # ── 5a. Generate post from queue ─────────────────────────────────────────
+      # ── 5a. Generate post from queue (with retry + fallback) ─────────────────
+      # Attempt 1: from queue. Attempt 2: hardcoded evergreen topic. Attempt 3: static fallback post.
+      # CONTINGENCY 2: 3-attempt retry chain so failures NEVER skip a publishing slot.
       - name: Generate post from queue
         if: ${{ !inputs.topic }}
         working-directory: landing-page
@@ -89,12 +95,41 @@ jobs:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
           CI: true
         run: |
-          node scripts/blog-writer.js --from-queue --publish || \
+          echo "=== Attempt 1: from queue ==="
+          node scripts/blog-writer.js --from-queue --publish && exit 0 || echo "Attempt 1 failed"
+
+          echo "=== Attempt 2: evergreen fallback topic ==="
+          FALLBACK_TOPICS=(
+            "How Columbia SC Small Businesses Can Use AI to Get More Customers|AI marketing for Columbia SC small businesses|Marketing"
+            "Why Your Columbia SC Business Needs Social Media Management in 2026|social media management Columbia SC|Marketing"
+            "The Beginner's Guide to Facebook Ads for Columbia SC Business Owners|Facebook ads Columbia SC|Ads"
+            "5 Signs Your Columbia SC Business Needs a New Marketing Strategy|marketing strategy Columbia SC|Marketing"
+            "How to Get Your Columbia SC Business Found on Google|local SEO Columbia SC|SEO"
+            "Email Marketing for Columbia SC Businesses — The Complete Guide|email marketing Columbia SC|Marketing"
+          )
+          RANDOM_IDX=$((RANDOM % ${#FALLBACK_TOPICS[@]}))
+          IFS='|' read -r FB_TOPIC FB_KEYWORD FB_CAT <<< "${FALLBACK_TOPICS[$RANDOM_IDX]}"
+          echo "Fallback topic: $FB_TOPIC"
           node scripts/blog-writer.js \
-            --topic "Top Marketing Strategies for Columbia SC Businesses This Month" \
-            --keyword "marketing strategies Columbia SC businesses" \
-            --category "Marketing" \
-            --publish
+            --topic "$FB_TOPIC" \
+            --keyword "$FB_KEYWORD" \
+            --category "$FB_CAT" \
+            --publish && exit 0 || echo "Attempt 2 failed"
+
+          echo "=== Attempt 3: static fallback post ==="
+          # CONTINGENCY 3: Pre-written evergreen post committed to repo as ultimate safety net.
+          # If Claude API is completely down, we still publish something.
+          if [ -f "content/blog/fallback-post.md" ]; then
+            FALLBACK_DATE=$(date +'%Y-%m-%d')
+            cp content/blog/fallback-post.md "content/blog/${FALLBACK_DATE}-local-marketing-guide.md"
+            sed -i "s/DATE_PLACEHOLDER/${FALLBACK_DATE}/g" "content/blog/${FALLBACK_DATE}-local-marketing-guide.md" || true
+            echo "Fallback post deployed for ${FALLBACK_DATE}"
+            exit 0
+          fi
+
+          echo "All 3 attempts failed — sending alert"
+          exit 1
+        shell: bash
 
       # ── 5b. Generate post from custom topic (manual trigger) ─────────────────
       - name: Generate post from custom topic
@@ -132,7 +167,7 @@ jobs:
           RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
         run: node scripts/blog-distributor.js || echo "Distribution step failed — post still published"
 
-      # ── 9. Failure notification ───────────────────────────────────────────────
+      # ── 9. Failure notification (all 3 contingencies failed) ─────────────────
       - name: Notify on failure
         if: failure()
         env:
@@ -144,6 +179,6 @@ jobs:
             -d '{
               "from": "Crown Media Group <king@crownmediagroup.co>",
               "to": ["king@crownmediagroup.co"],
-              "subject": "Auto-blog failed — check GitHub Actions",
-              "html": "<p>The scheduled auto-blog workflow failed at <strong>$(date)</strong>.</p><p><a href=\"https://github.com/CrownMediaGroup/crown-media-group-landing-page/actions\">Check the Actions log here</a></p><p>All Glory to Jesus. The system will try again at the next scheduled time.</p>"
+              "subject": "Auto-blog FAILED — all 3 contingencies triggered",
+              "html": "<p><strong>All 3 contingency plans failed</strong> for the auto-blog run at <strong>'"$(date)"'</strong>.</p><p>This means: the Claude API may be down, the queue is empty, AND the fallback post is missing.</p><p>Action needed: <a href=\"https://github.com/CrownMediaGroup/crown-media-group-landing-page/actions\">Check GitHub Actions</a></p><p><em>Next scheduled attempt in ~6 hours. All Glory to Jesus.</em></p>"
             }' || true
