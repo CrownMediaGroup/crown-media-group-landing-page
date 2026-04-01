@@ -3,11 +3,11 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Jim Reese for Richland County Council District 1 â Reese for Richland</title>
-  <meta name="description" content="Jim Reese is running for Richland County Council District 1 as a Republican. Born and raised in Irmo, SC â committed to responsible growth, efficient government, and transparency for Richland County.">
+  <title>Jim Reese for Richland County Council District 1 — Reese for Richland</title>
+  <meta name="description" content="Jim Reese is running for Richland County Council District 1 as a Republican. Born and raised in Irmo, SC — committed to responsible growth, efficient government, and transparency for Richland County.">
   <link rel="canonical" href="https://reeseforrichland.com">
-  <meta property="og:title" content="Jim Reese for Richland County Council District 1 â Reese for Richland">
-  <meta property="og:description" content="Responsible growth, transparent leadership, and a stronger Richland County. Republican â District 1.">
+  <meta property="og:title" content="Jim Reese for Richland County Council District 1 — Reese for Richland">
+  <meta property="og:description" content="Responsible growth, transparent leadership, and a stronger Richland County. Republican — District 1.">
   <meta property="og:image" content="https://reeseforrichland.com/images/og-preview.jpg?v=2">
   <meta property="og:image:secure_url" content="https://reeseforrichland.com/images/og-preview.jpg?v=2">
   <meta property="og:image:width" content="1200">
@@ -143,10 +143,10 @@
     ============================================================ */
     #hero{min-height:100vh;display:flex;align-items:center;background:linear-gradient(135deg,#0a0202 0%,#220505 45%,#140202 100%);position:relative;overflow:hidden;padding-top:72px}
     #hero::before{content:'';position:absolute;top:-10%;right:-5%;width:60%;height:120%;background:radial-gradient(ellipse at center,rgba(183,28,28,.18) 0%,transparent 65%);pointer-events:none}
-    #hero::after{content:'â  â  â  â  â';position:absolute;bottom:28px;left:50%;transform:translateX(-50%);font-size:1.2rem;color:rgba(183,28,28,.3);letter-spacing:2rem;pointer-events:none;white-space:nowrap}
+    #hero::after{content:'★  ★  ★  ★  ★';position:absolute;bottom:28px;left:50%;transform:translateX(-50%);font-size:1.2rem;color:rgba(183,28,28,.3);letter-spacing:2rem;pointer-events:none;white-space:nowrap}
     .hero-wrap{display:grid;grid-template-columns:1fr 1fr;gap:56px;align-items:center;max-width:1200px;margin:0 auto;padding:80px 36px;min-height:calc(100vh - 72px);position:relative;z-index:1}
     .hero-badge{display:inline-flex;align-items:center;gap:8px;background:var(--red-semi);border:1px solid rgba(183,28,28,.35);color:var(--red-light);font-family:var(--font-b);font-size:.68rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;padding:8px 18px;border-radius:50px;margin-bottom:28px;animation:fadeIn .9s ease both}
-    .hero-badge::before{content:'â';font-size:.6rem}
+    .hero-badge::before{content:'★';font-size:.6rem}
     .hero-name{font-family:var(--font-h);font-size:clamp(3.2rem,7.5vw,6rem);font-weight:800;color:var(--white);line-height:.95;margin-bottom:10px;animation:fadeInUp .9s ease .15s both}
     .hero-name em{color:var(--red);font-style:normal}
     .hero-sl{font-family:var(--font-h);font-size:clamp(1.15rem,2.5vw,1.6rem);color:rgba(255,220,220,.85);font-style:italic;margin-bottom:22px;animation:fadeInUp .9s ease .3s both}
@@ -249,6 +249,19 @@
     ============================================================ */
     #news{background:var(--off-white)}
     .news-hd{margin-bottom:52px}
+<<<<<<< HEAD
+    /* Featured press card */
+    .news-featured{margin-bottom:32px}
+    .n-card-featured{display:grid;grid-template-columns:45% 1fr;min-height:300px;background:var(--white);border-radius:var(--r);overflow:hidden;box-shadow:0 6px 40px rgba(198,12,48,.13),0 2px 14px rgba(0,0,0,.06);border-left:4px solid var(--red);transition:transform var(--ease),box-shadow var(--ease);position:relative}
+    .n-card-featured:hover{transform:translateY(-5px);box-shadow:0 12px 56px rgba(198,12,48,.2),0 4px 20px rgba(0,0,0,.1)}
+    .n-card-featured .n-img{height:100%;min-height:300px}
+    .n-card-featured .n-body{padding:40px 36px;display:flex;flex-direction:column;justify-content:center}
+    .n-card-featured h3{font-family:var(--font-h);font-size:1.45rem;line-height:1.3}
+    .n-feat-ribbon{position:absolute;top:20px;left:-4px;background:var(--red);color:#fff;font-size:.62rem;font-weight:800;letter-spacing:.12em;text-transform:uppercase;padding:5px 16px 5px 12px;clip-path:polygon(0 0,calc(100% - 10px) 0,100% 50%,calc(100% - 10px) 100%,0 100%);z-index:2;box-shadow:0 2px 8px rgba(198,12,48,.35)}
+    .n-badge-press{display:inline-block;background:rgba(180,130,0,.1);color:#8B6914;font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;padding:4px 12px;border-radius:50px;margin-bottom:10px;border:1px solid rgba(180,130,0,.25)}
+    /* Standard cards */
+=======
+>>>>>>> c88d365 (feat: Jim Reese featured press card + file cleanup + blog admin auto-refresh)
     .news-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:28px}
     .n-card{background:var(--white);border-radius:var(--r);overflow:hidden;box-shadow:0 2px 14px rgba(0,0,0,.06);transition:transform var(--ease),box-shadow var(--ease)}
     .n-card:hover{transform:translateY(-4px);box-shadow:var(--sh)}
@@ -400,6 +413,12 @@
       .end-grid,.vid-grid,.news-grid,.join-grid{grid-template-columns:1fr 1fr}
       .merch-grid{grid-template-columns:1fr 1fr}
       .footer-grid{grid-template-columns:1fr 1fr;gap:40px}
+<<<<<<< HEAD
+      .n-card-featured{grid-template-columns:40% 1fr}
+      .n-card-featured .n-img{min-height:240px}
+      .n-card-featured h3{font-size:1.2rem}
+=======
+>>>>>>> c88d365 (feat: Jim Reese featured press card + file cleanup + blog admin auto-refresh)
     }
     @media(max-width:768px){
       section{padding:72px 0}
@@ -412,6 +431,13 @@
       .plat-q{padding:28px 24px}
       .cd-inner{flex-direction:column;align-items:flex-start}
       .cd-right{max-width:100%;width:100%}
+<<<<<<< HEAD
+      .n-card-featured{grid-template-columns:1fr;border-left:none;border-top:4px solid var(--red)}
+      .n-card-featured .n-img{min-height:220px;height:220px}
+      .n-card-featured .n-body{padding:28px}
+      .news-featured{max-width:480px;margin-left:auto;margin-right:auto}
+=======
+>>>>>>> c88d365 (feat: Jim Reese featured press card + file cleanup + blog admin auto-refresh)
     }
     @media(max-width:480px){
       .hero-ctas{flex-direction:column;align-items:stretch}
@@ -461,7 +487,7 @@
     <a href="#news" class="mob-link">News</a>
     <a href="#join" class="mob-link">Join the Team</a>
     <a href="#faq" class="mob-link">FAQ</a>
-    <a href="https://checkout.square.site/merchant/ML9WCRJ17N0KD/checkout/U7UBS6VTNZU4UOKC4LVSSCU6?src=sheet" class="mob-don" target="_blank" rel="noopener">Donate Now â</a>
+    <a href="https://checkout.square.site/merchant/ML9WCRJ17N0KD/checkout/U7UBS6VTNZU4UOKC4LVSSCU6?src=sheet" class="mob-don" target="_blank" rel="noopener">Donate Now →</a>
   </div>
 
   <main>
@@ -478,7 +504,7 @@
           <p class="hero-tag">Fighting for responsible growth, transparent leadership, and a stronger Richland County. Join the movement.</p>
           <a href="https://scvotes.gov" target="_blank" rel="noopener" class="hero-vote">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
-            Check Voter Registration â scvotes.gov
+            Check Voter Registration — scvotes.gov
           </a>
           <div class="hero-ctas">
             <a href="https://checkout.square.site/merchant/ML9WCRJ17N0KD/checkout/U7UBS6VTNZU4UOKC4LVSSCU6?src=sheet" class="btn btn-red" target="_blank" rel="noopener">Donate Now</a>
@@ -486,7 +512,7 @@
           </div>
         </div>
         <div class="hero-photo">
-          <img src="images/fb-campaign-1.jpg" alt="Jim Reese â Republican Candidate for Richland County Council District 1" width="960" height="355" loading="eager">
+          <img src="images/fb-campaign-1.jpg" alt="Jim Reese — Republican Candidate for Richland County Council District 1" width="960" height="355" loading="eager">
           <!--
             PHOTO UPGRADE: Replace with a portrait headshot (600x750px recommended).
             The current landscape campaign banner works but a portrait will fill this space better.
@@ -506,7 +532,7 @@
           <!-- Countdown -->
           <div class="cd-left">
             <p class="cd-lbl" id="cd-label">Countdown to the Campaign Cookout</p>
-            <p class="cd-event" id="cd-event">Jim's Backyard Cookout â April 18th, 6:30 PM</p>
+            <p class="cd-event" id="cd-event">Jim's Backyard Cookout — April 18th, 6:30 PM</p>
           </div>
           <div class="cd-units" aria-live="polite" aria-label="Countdown timer">
             <div class="cd-unit"><span class="cd-num" id="cd-days">--</span><span class="cd-name">Days</span></div>
@@ -531,7 +557,7 @@
     </div>
 
     <!-- ============================================================
-         4. PLATFORM â "Why I'm Running"
+         4. PLATFORM — "Why I'm Running"
     ============================================================ -->
     <section id="platform" aria-labelledby="platform-h2">
       <div class="wrap">
@@ -546,14 +572,14 @@
               <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
             </div>
             <h3>Responsible Growth</h3>
-            <p>Managing county growth thoughtfully and sustainably while respecting the character of Irmo, Dutch Fork, Ballentine, Chapin, and surrounding communities. Growth is inevitable â but it must be responsible growth anchored in tradition, with infrastructure that keeps pace.</p>
+            <p>Managing county growth thoughtfully and sustainably while respecting the character of Irmo, Dutch Fork, Ballentine, Chapin, and surrounding communities. Growth is inevitable — but it must be responsible growth anchored in tradition, with infrastructure that keeps pace.</p>
           </div>
           <div class="p-card anim d2">
             <div class="p-icon">
               <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M4.93 4.93a10 10 0 0 0 0 14.14"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07M8.46 8.46a5 5 0 0 0 0 7.07"/></svg>
             </div>
             <h3>Efficient Government</h3>
-            <p>Delivering results and reducing waste. A more efficient county government that works for the people it serves â ensuring taxpayer dollars are spent wisely and county services run effectively for every family in District 1.</p>
+            <p>Delivering results and reducing waste. A more efficient county government that works for the people it serves — ensuring taxpayer dollars are spent wisely and county services run effectively for every family in District 1.</p>
           </div>
           <div class="p-card anim d3">
             <div class="p-icon">
@@ -565,22 +591,22 @@
         </div>
         <div class="plat-q anim">
           <blockquote>"Richland County is growing, and we need leadership that manages that growth responsibly while protecting the communities people already call home. I'm running to ensure taxpayer dollars are used wisely, decisions are made transparently, and residents have a real voice in shaping the future of this county."</blockquote>
-          <cite>â Jim Reese</cite>
+          <cite>— Jim Reese</cite>
         </div>
       </div>
     </section>
 
     <!-- ============================================================
-         5. ABOUT â "Meet Jim"
+         5. ABOUT — "Meet Jim"
     ============================================================ -->
     <section id="about" aria-labelledby="about-h2">
       <div class="wrap">
         <div class="about-grid">
           <div class="about-photo anim">
-            <!-- Family photo slideshow â 5 real photos from Jim -->
+            <!-- Family photo slideshow — 5 real photos from Jim -->
             <div class="slideshow" id="famSlide" aria-label="Jim Reese family photos">
               <div class="slideshow-inner" id="famInner">
-                <div class="slideshow-slide"><img src="images/jim-family-studio.jpg" alt="Jim Reese with his family â professional portrait" loading="lazy"></div>
+                <div class="slideshow-slide"><img src="images/jim-family-studio.jpg" alt="Jim Reese with his family — professional portrait" loading="lazy"></div>
                 <div class="slideshow-slide"><img src="images/jim-family-2.jpg" alt="Jim Reese with wife Elisa and four children" loading="lazy"></div>
                 <div class="slideshow-slide"><img src="images/jim-family-church.jpg" alt="The Reese family at Forward City Church" loading="lazy"></div>
               </div>
@@ -596,9 +622,9 @@
           <div class="about-txt anim d2">
             <span class="lbl">About Jim</span>
             <h2 class="sec-h" id="about-h2">A Husband, Father &amp; Community Leader</h2>
-            <p>Born and raised in Irmo, South Carolina, Jim is the youngest child of parents who met at Fort Jackson and chose to build their lives in the Midlands. After graduating from Newberry College with a B.A. in Communications, he married his childhood sweetheart, Elisa Meetze â who has also lived in Irmo her whole life.</p>
+            <p>Born and raised in Irmo, South Carolina, Jim is the youngest child of parents who met at Fort Jackson and chose to build their lives in the Midlands. After graduating from Newberry College with a B.A. in Communications, he married his childhood sweetheart, Elisa Meetze — who has also lived in Irmo her whole life.</p>
             <p>Jim pastors at <a href="https://www.forwardcity.com/" target="_blank" rel="noopener" style="color:var(--red);font-weight:600;">Forward City Church</a> in Columbia, where he serves on the Lead Team as Ministries Pastor. He and Elisa are raising their four children in the Irmo community, deeply rooted in the neighborhoods they love.</p>
-            <p>Jim is a homegrown conservative Republican leader building on the good work of Councilman Jason Branham. He draws inspiration from public servants like Nathan Ballentine, Chip Huggins, Bill Malinowski, and Jason Branham â leaders who have faithfully served this community.</p>
+            <p>Jim is a homegrown conservative Republican leader building on the good work of Councilman Jason Branham. He draws inspiration from public servants like Nathan Ballentine, Chip Huggins, Bill Malinowski, and Jason Branham — leaders who have faithfully served this community.</p>
             <blockquote class="about-q">"I'm running for Richland County Council because I love this community. Irmo, Dutch Fork, Ballentine, and Chapin are home for our family, and I want to leave them better than I found them."</blockquote>
             <div class="hls">
               <div class="hl"><p>Lifelong Irmo Resident</p></div>
@@ -613,7 +639,7 @@
 
     <!-- ============================================================
          6b. VOTER REGISTRATION BAR
-         Enhancement 7 â Voter Registration prominently placed
+         Enhancement 7 — Voter Registration prominently placed
     ============================================================ -->
     <div style="background:var(--red);padding:20px 0;text-align:center" aria-label="Voter registration">
       <div class="wrap" style="display:flex;align-items:center;justify-content:center;gap:20px;flex-wrap:wrap">
@@ -624,7 +650,7 @@
 
     <!-- ============================================================
          7. VIDEO SECTION
-         Enhancement 6 â Instagram Video Embeds
+         Enhancement 6 — Instagram Video Embeds
     ============================================================ -->
     <section id="video-sec" aria-labelledby="vid-h2">
       <div class="wrap">
@@ -636,7 +662,7 @@
           <!--
             REPLACE: Get Instagram Reel/post URLs from Jim.
             Use the oEmbed API: https://graph.facebook.com/v18.0/instagram_oembed?url=POST_URL&access_token=TOKEN
-            Or paste the Instagram embed code from the "..." â "Embed" option on each post.
+            Or paste the Instagram embed code from the "..." → "Embed" option on each post.
           -->
           <div class="v-card anim d1">
             <a href="https://www.instagram.com/reel/DWCjRrzCACL/" target="_blank" rel="noopener" aria-label="Watch Jim's campaign announcement on Instagram">
@@ -648,7 +674,7 @@
             <div class="v-body">
               <h3>Campaign Announcement</h3>
               <p>Jim officially announces his run for Richland County Council District 1.</p>
-              <a href="https://www.instagram.com/reel/DWCjRrzCACL/" class="v-link" target="_blank" rel="noopener">Watch on Instagram â</a>
+              <a href="https://www.instagram.com/reel/DWCjRrzCACL/" class="v-link" target="_blank" rel="noopener">Watch on Instagram →</a>
             </div>
           </div>
           <div class="v-card anim d2">
@@ -661,7 +687,7 @@
             <div class="v-body">
               <h3>Jim's Vision for District 1</h3>
               <p>Hear Jim speak about responsible growth and what it means for our communities.</p>
-              <a href="https://www.instagram.com/p/DWHMqJzjqAk/" class="v-link" target="_blank" rel="noopener">Watch on Instagram â</a>
+              <a href="https://www.instagram.com/p/DWHMqJzjqAk/" class="v-link" target="_blank" rel="noopener">Watch on Instagram →</a>
             </div>
           </div>
           <div class="v-card anim d3">
@@ -674,7 +700,7 @@
             <div class="v-body">
               <h3>Community First</h3>
               <p>Jim talks about why Irmo, Dutch Fork, Ballentine, and Chapin are home for his family.</p>
-              <a href="https://www.instagram.com/reel/DWU98SZiC0B/" class="v-link" target="_blank" rel="noopener">Watch on Instagram â</a>
+              <a href="https://www.instagram.com/reel/DWU98SZiC0B/" class="v-link" target="_blank" rel="noopener">Watch on Instagram →</a>
             </div>
           </div>
         </div>
@@ -690,48 +716,65 @@
           <span class="lbl">News &amp; Updates</span>
           <h2 class="sec-h" id="news-h2">Campaign Updates</h2>
         </div>
+<<<<<<< HEAD
+        <!-- Featured press card — full width above grid -->
+        <div class="news-featured anim d1">
+          <article class="n-card-featured">
+            <span class="n-feat-ribbon">Featured Coverage</span>
+            <div class="n-img">
+              <img src="images/post-and-courier-richland-council.png" alt="Richland County Council candidates 2026 — The Post and Courier" loading="lazy">
+            </div>
+            <div class="n-body">
+              <span class="n-badge-press">In the Press</span>
+              <p class="n-date">April 2026 &bull; The Post and Courier</p>
+              <h3>Jim Reese Featured in The Post and Courier</h3>
+              <p>Jim Reese is among the Richland County Council candidates profiled by The Post and Courier ahead of the June 2026 Republican primary. Read where he stands on growth, taxes, and the priorities of District 1 families.</p>
+              <a href="https://www.postandcourier.com/columbia/news/richland-county-sc-council-candidates-2026-election/article_80fde573-5d50-462e-b966-2eb38fe6c224.html" class="n-link" target="_blank" rel="noopener">Read the Full Article →</a>
+            </div>
+          </article>
+        </div>
+        <!-- Standard cards grid -->
+        <div class="news-grid">
+          <article class="n-card anim d2">
+=======
         <div class="news-grid">
           <article class="n-card anim d1">
-              <div class="n-img" style="background:linear-gradient(135deg,#1a3a5c 0%,#0d2137 100%);display:flex;align-items:center;justify-content:center;flex-direction:column;gap:8px">
-                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.5" aria-hidden="true"><path d="M4 22h16a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2z"/><path d="M16 2v4"/><path d="M8 2v4"/><path d="M3 10h18"/><path d="M8 14h.01"/><path d="M12 14h.01"/><path d="M16 14h.01"/><path d="M8 18h.01"/><path d="M12 18h.01"/></svg>
-                <span style="color:white;font-size:13px;font-weight:600;letter-spacing:.05em">POST AND COURIER</span>
-              </div>
-              <div class="n-body">
-                <span class="n-badge" style="background:#1a3a5c;color:#fff">In the News</span>
-                <p class="n-date">April 2026 &bull; Post and Courier</p>
-                <h3>Jim Reese Among Richland County Council Candidates Covered by Post &amp; Courier</h3>
-                <p>Jim Reese is featured in the Post and Courier’s coverage of the 2026 Richland County Council election — a sign the campaign is gaining real visibility across the Midlands.</p>
-                <a href="https://www.postandcourier.com/columbia/news/richland-county-sc-council-candidates-2026-election/article_80fde573-5d50-462e-b966-2eb38fe6c224.html" class="n-link" target="_blank" rel="noopener">Read the Article →</a>
-              </div>
-            </article>
-            <article class="n-card anim d2">
+>>>>>>> c88d365 (feat: Jim Reese featured press card + file cleanup + blog admin auto-refresh)
             <div class="n-img"><img src="images/jim-filed.jpg" alt="Jim Reese officially files for Richland County Council District 1" loading="lazy"></div>
             <div class="n-body">
               <span class="n-badge">Campaign News</span>
               <p class="n-date">March 2026</p>
               <h3>Jim Reese Announces Campaign for Richland County Council District 1</h3>
-              <p>Jim Reese, a Republican and lifelong Irmo resident, officially launched his campaign for District 1 â pledging responsible growth and transparent leadership for all of Richland County.</p>
-              <a href="https://www.facebook.com/profile.php?id=61580771050300" class="n-link" target="_blank" rel="noopener">Follow the Campaign â</a>
+              <p>Jim Reese, a Republican and lifelong Irmo resident, officially launched his campaign for District 1 — pledging responsible growth and transparent leadership for all of Richland County.</p>
+              <a href="https://www.facebook.com/profile.php?id=61580771050300" class="n-link" target="_blank" rel="noopener">Follow the Campaign →</a>
             </div>
           </article>
+<<<<<<< HEAD
           <article class="n-card anim d3">
-            <div class="n-img"><img src="images/jim-cookout.jpg" alt="Backyard cookout grill â Jim's Campaign Cookout April 18th" loading="lazy"></div>
+=======
+          <article class="n-card anim d2">
+>>>>>>> c88d365 (feat: Jim Reese featured press card + file cleanup + blog admin auto-refresh)
+            <div class="n-img"><img src="images/jim-cookout.jpg" alt="Backyard cookout grill — Jim's Campaign Cookout April 18th" loading="lazy"></div>
             <div class="n-body">
               <span class="n-badge">Upcoming Event</span>
-              <p class="n-date">Saturday, April 18th &bull; 6:30â8:30 PM</p>
+              <p class="n-date">Saturday, April 18th &bull; 6:30–8:30 PM</p>
               <h3>Jim's Backyard Campaign Cookout</h3>
               <p>Come hang out and kick the campaign into high gear! Kids and families welcome. Meet Jim, get plugged in, and be part of something real.</p>
-              <a href="https://docs.google.com/forms/d/e/1FAIpQLScczEVYCx8NIzD_1l_o0RBkaj6DfMqiN2hI0b2JSVzcaQek8w/viewform?pli=1" class="n-link" target="_blank" rel="noopener">RSVP Now â</a>
+              <a href="https://docs.google.com/forms/d/e/1FAIpQLScczEVYCx8NIzD_1l_o0RBkaj6DfMqiN2hI0b2JSVzcaQek8w/viewform?pli=1" class="n-link" target="_blank" rel="noopener">RSVP Now →</a>
             </div>
           </article>
+<<<<<<< HEAD
           <article class="n-card anim d4">
+=======
+          <article class="n-card anim d3">
+>>>>>>> c88d365 (feat: Jim Reese featured press card + file cleanup + blog admin auto-refresh)
             <div class="n-img"><img src="images/jim-voting.jpg" alt="Person casting a ballot on Election Day" loading="lazy"></div>
             <div class="n-body">
               <span class="n-badge">Mark Your Calendar</span>
               <p class="n-date">Tuesday, June 9, 2026</p>
-              <h3>Statewide Primary Election Day â Go Vote!</h3>
+              <h3>Statewide Primary Election Day — Go Vote!</h3>
               <p>The Republican primary is June 9th. Mark your calendar, register to vote, and get your neighbors to the polls for Richland County District 1.</p>
-              <a href="https://scvotes.gov" class="n-link" target="_blank" rel="noopener">Register to Vote â</a>
+              <a href="https://scvotes.gov" class="n-link" target="_blank" rel="noopener">Register to Vote →</a>
             </div>
           </article>
         </div>
@@ -740,7 +783,7 @@
 
     <!-- ============================================================
          9. MERCH / YARD SIGN REQUEST
-         Enhancement 4 â Show Your Support
+         Enhancement 4 — Show Your Support
     ============================================================ -->
     <section id="merch" aria-labelledby="merch-h2">
       <div class="wrap">
@@ -763,7 +806,7 @@
             </div>
             <div class="m-body">
               <h3>Yard Sign</h3>
-              <p>Put a sign in your yard and show your support. We'll deliver right to your door â free of charge.</p>
+              <p>Put a sign in your yard and show your support. We'll deliver right to your door — free of charge.</p>
               <a href="https://docs.google.com/forms/d/e/1FAIpQLSczX8uhw9S1uXDzRudFQx6ehHUB-STDL-oS-VljG8c59S94gA/viewform" class="btn btn-red" target="_blank" rel="noopener">Request a Sign</a>
             </div>
           </div>
@@ -818,7 +861,7 @@
         <div class="join-hd anim">
           <span class="lbl">Get Involved</span>
           <h2 class="sec-h" id="join-h2">Join the Team</h2>
-          <p class="sec-sub">Whether you can donate, volunteer, plant a sign, or just spread the word â every bit helps win District 1.</p>
+          <p class="sec-sub">Whether you can donate, volunteer, plant a sign, or just spread the word — every bit helps win District 1.</p>
         </div>
         <div class="join-grid">
           <div class="j-card anim d1">
@@ -826,7 +869,7 @@
               <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
             </div>
             <h3>Donate</h3>
-            <p>Even $20 goes a long way â that's about what one big campaign roadside sign costs. Sponsor a sign today and help us win District 1.</p>
+            <p>Even $20 goes a long way — that's about what one big campaign roadside sign costs. Sponsor a sign today and help us win District 1.</p>
             <a href="https://checkout.square.site/merchant/ML9WCRJ17N0KD/checkout/U7UBS6VTNZU4UOKC4LVSSCU6?src=sheet" class="btn btn-red" target="_blank" rel="noopener">Donate Now</a>
           </div>
           <div class="j-card anim d2">
@@ -854,7 +897,7 @@
 
     <!-- ============================================================
          11. DISTRICT MAP
-         Enhancement 5 â Find Your District
+         Enhancement 5 — Find Your District
     ============================================================ -->
     <section id="district-map" aria-labelledby="map-h2">
       <div class="wrap">
@@ -873,7 +916,7 @@
               -->
               <iframe
                 src="https://www.openstreetmap.org/export/embed.html?bbox=-81.42%2C34.00%2C-81.05%2C34.20&layer=mapnik&marker=34.082%2C-81.178"
-                title="Richland County District 1 â Irmo, Dutch Fork, Ballentine, Chapin"
+                title="Richland County District 1 — Irmo, Dutch Fork, Ballentine, Chapin"
                 allowfullscreen
                 loading="lazy"
                 referrerpolicy="no-referrer-when-downgrade">
@@ -883,7 +926,7 @@
           <div class="map-info anim d2">
             <span class="lbl">District 1 Communities</span>
             <h3 class="sec-h" style="font-size:1.6rem">Irmo, Dutch Fork, Chapin &amp; Beyond</h3>
-            <p>Richland County Council District 1 covers the communities of Irmo, Dutch Fork, Ballentine, and Chapin â the heart of the Midlands. Jim Reese was born and raised right here, and he's running to keep these communities strong.</p>
+            <p>Richland County Council District 1 covers the communities of Irmo, Dutch Fork, Ballentine, and Chapin — the heart of the Midlands. Jim Reese was born and raised right here, and he's running to keep these communities strong.</p>
             <div class="map-communities">
               <span class="map-tag">Irmo</span>
               <span class="map-tag">Dutch Fork</span>
@@ -891,7 +934,7 @@
               <span class="map-tag">Chapin</span>
             </div>
             <div class="map-img">
-              <img src="images/district-map.jpg" alt="Where is District 1? Situated between the Broad River and Lake Murray â Irmo, Ballentine, Dutch Fork, and Chapin" loading="lazy">
+              <img src="images/district-map.jpg" alt="Where is District 1? Situated between the Broad River and Lake Murray — Irmo, Ballentine, Dutch Fork, and Chapin" loading="lazy">
             </div>
             <div class="map-vote-bar">
               <p>Not sure if you're in District 1? Check your voter registration or find your polling place.</p>
@@ -905,7 +948,7 @@
 
     <!-- ============================================================
          13. FAQ ACCORDION
-         Enhancement 9 â Got Questions? We've Got Answers.
+         Enhancement 9 — Got Questions? We've Got Answers.
     ============================================================ -->
     <section id="faq" aria-labelledby="faq-h2">
       <div class="wrap">
@@ -958,7 +1001,7 @@
             </button>
             <div class="faq-body" role="region" aria-label="How can I donate?">
               <div class="faq-body-inner">
-                Thank you for your generosity! Even $20 goes a long way â that's about what one big campaign roadside sign costs. <a href="https://checkout.square.site/merchant/ML9WCRJ17N0KD/checkout/U7UBS6VTNZU4UOKC4LVSSCU6?src=sheet" target="_blank" rel="noopener">Donate securely here</a>. Every contribution makes a real difference for our community.
+                Thank you for your generosity! Even $20 goes a long way — that's about what one big campaign roadside sign costs. <a href="https://checkout.square.site/merchant/ML9WCRJ17N0KD/checkout/U7UBS6VTNZU4UOKC4LVSSCU6?src=sheet" target="_blank" rel="noopener">Donate securely here</a>. Every contribution makes a real difference for our community.
               </div>
             </div>
           </div>
@@ -982,7 +1025,7 @@
             </button>
             <div class="faq-body" role="region" aria-label="Where can I meet Jim?">
               <div class="faq-body-inner">
-                <strong>Jim's Backyard Campaign Cookout</strong> is April 18th from 6:30â8:30 PM. Kids and families welcome! <a href="https://docs.google.com/forms/d/e/1FAIpQLScczEVYCx8NIzD_1l_o0RBkaj6DfMqiN2hI0b2JSVzcaQek8w/viewform?pli=1" target="_blank" rel="noopener">Sign up here</a>. Follow Jim on <a href="https://www.facebook.com/profile.php?id=61580771050300" target="_blank" rel="noopener">Facebook</a> and <a href="https://www.instagram.com/jimreeseforrichlandcounty" target="_blank" rel="noopener">Instagram</a> for more event announcements.
+                <strong>Jim's Backyard Campaign Cookout</strong> is April 18th from 6:30–8:30 PM. Kids and families welcome! <a href="https://docs.google.com/forms/d/e/1FAIpQLScczEVYCx8NIzD_1l_o0RBkaj6DfMqiN2hI0b2JSVzcaQek8w/viewform?pli=1" target="_blank" rel="noopener">Sign up here</a>. Follow Jim on <a href="https://www.facebook.com/profile.php?id=61580771050300" target="_blank" rel="noopener">Facebook</a> and <a href="https://www.instagram.com/jimreeseforrichlandcounty" target="_blank" rel="noopener">Instagram</a> for more event announcements.
               </div>
             </div>
           </div>
@@ -1086,7 +1129,7 @@
     document.querySelectorAll('.anim').forEach(el => observer.observe(el));
 
     // --- Countdown Timer ---
-    // Targets: Cookout April 18 2026 6:30 PM EST â then Primary June 9 2026 7 AM EST (polls open)
+    // Targets: Cookout April 18 2026 6:30 PM EST → then Primary June 9 2026 7 AM EST (polls open)
     const cookout  = new Date('2026-04-18T22:30:00Z'); // 6:30 PM EDT (UTC-4 in April)
     const primary  = new Date('2026-06-09T11:00:00Z'); // 7:00 AM EDT (UTC-4 in June)
 
@@ -1099,11 +1142,11 @@
       if (now < cookout) {
         target = cookout;
         label  = 'Countdown to the Campaign Cookout';
-        event  = "Jim's Backyard Cookout â April 18th, 6:30 PM";
+        event  = "Jim's Backyard Cookout — April 18th, 6:30 PM";
       } else if (now < primary) {
         target = primary;
         label  = 'Countdown to Primary Election Day';
-        event  = 'Primary Election Day â June 9, 2026';
+        event  = 'Primary Election Day — June 9, 2026';
       } else {
         document.getElementById('countdown-bar').style.display = 'none';
         return;

@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+tools/crm/crm.db
+tools/daemon/*.exe
+=======
 # ============================================================
 # ALL GLORY TO JESUS GLOBAL LLC — .gitignore
 # ============================================================
@@ -91,3 +95,4 @@ assets/personal/
 # --- Misc ---
 .temp/
 tmp/
+>>>>>>> c88d365 (feat: Jim Reese featured press card + file cleanup + blog admin auto-refresh)
