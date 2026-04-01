@@ -154,15 +154,16 @@ function checkVideoPoster() {
 }
 
 // Normal run
-log('Standalone runner started — polling every 60s (directives + content scheduler + video poster)');
-setInterval(() => { checkQueue(); checkScheduler(); checkVideoPoster(); }, POLL);
+log('Standalone runner started — polling every 60s (directives + content scheduler)');
+setInterval(() => { checkQueue(); checkScheduler(); /* checkVideoPoster() — DISABLED: WSL error */ }, POLL);
 checkQueue();
 checkScheduler();
-// Run video poster check immediately on start (tick 15 condition override)
-setTimeout(() => {
-  if (fs.existsSync(VIDEO_POSTER)) {
-    try {
-      execSync(`node "${VIDEO_POSTER}" --check`, { cwd: ROOT, shell: 'bash', timeout: 120000 });
-    } catch (e) { /* silent */ }
-  }
-}, 5000);
+// Video poster disabled — WSL environment error on this machine
+// Re-enable when video-service is fixed: uncomment checkVideoPoster() above + setTimeout block below
+// setTimeout(() => {
+//   if (fs.existsSync(VIDEO_POSTER)) {
+//     try {
+//       execSync(`node "${VIDEO_POSTER}" --check`, { cwd: ROOT, shell: 'bash', timeout: 120000 });
+//     } catch (e) { /* silent */ }
+//   }
+// }, 5000);
