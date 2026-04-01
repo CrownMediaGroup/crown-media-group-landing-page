@@ -16,7 +16,7 @@ import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
 import { readFileSync, writeFileSync, existsSync, mkdirSync, readdirSync, statSync } from 'fs';
 import { randomBytes, scryptSync, timingSafeEqual } from 'crypto';
-import Database from 'better-sqlite3';
+import initSqlJs from 'sql.js';
 import { Resend } from 'resend';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -43,10 +43,52 @@ const CLIENTS_DIR = join(__dirname, 'clients');
 mkdirSync(DATA_DIR, { recursive: true });
 mkdirSync(CLIENTS_DIR, { recursive: true });
 
-// ── Database ──────────────────────────────────────────────────────────────────
-const db = new Database(join(DATA_DIR, 'autoblogger.db'));
+// ── Database (sql.js — pure JS, no native build needed) ───────────────────────
+const DB_PATH = join(DATA_DIR, 'autoblogger.db');
+let db; // initialized in async main() below
 
-db.exec(`
+function buildDb(sqlJs) {
+  let inner;
+  try {
+    inner = existsSync(DB_PATH)
+      ? new sqlJs.Database(readFileSync(DB_PATH))
+      : new sqlJs.Database();
+  } catch { inner = new sqlJs.Database(); }
+
+  const save = () => writeFileSync(DB_PATH, inner.export());
+
+  return {
+    exec(sql) { inner.run(sql); save(); },
+    prepare(sql) {
+      return {
+        run(...args) {
+          const p = args.length === 1 && Array.isArray(args[0]) ? args[0] : args;
+          inner.run(sql, p.length ? p : undefined); save();
+        },
+        get(...args) {
+          const p = args.length === 1 && Array.isArray(args[0]) ? args[0] : args;
+          const stmt = inner.prepare(sql);
+          if (p.length) stmt.bind(p);
+          let row;
+          if (stmt.step()) row = stmt.getAsObject();
+          stmt.free();
+          return row;
+        },
+        all(...args) {
+          const p = args.length === 1 && Array.isArray(args[0]) ? args[0] : args;
+          const stmt = inner.prepare(sql);
+          if (p.length) stmt.bind(p);
+          const rows = [];
+          while (stmt.step()) rows.push(stmt.getAsObject());
+          stmt.free();
+          return rows;
+        },
+      };
+    },
+  };
+}
+
+const SCHEMA_SQL = `
   CREATE TABLE IF NOT EXISTS clients (
     id          INTEGER PRIMARY KEY AUTOINCREMENT,
     slug        TEXT    UNIQUE NOT NULL,
@@ -105,7 +147,7 @@ db.exec(`
     used        INTEGER DEFAULT 0,
     created_at  TEXT    DEFAULT (datetime('now'))
   );
-`);
+`;
 
 // ── Auth ──────────────────────────────────────────────────────────────────────
 const ADMIN_EMAIL    = 'king@crownmediagroup.co';
@@ -1084,11 +1126,17 @@ async function sendWelcomeEmail(email, businessName, slug) {
   });
 }
 
-// ── Start ─────────────────────────────────────────────────────────────────────
-const server = createServer(app);
-server.listen(PORT, () => {
-  console.log(`\nAuto-Blogger SaaS running on port ${PORT}`);
-  console.log(`Dashboard: http://localhost:${PORT}`);
-  console.log(`Login: king@crownmediagroup.co / AllGlory2026!`);
-  console.log(`\nAll Glory to Jesus.\n`);
-});
+// ── Start (async — waits for sql.js WASM init) ────────────────────────────────
+(async () => {
+  const SQL = await initSqlJs();
+  db = buildDb(SQL);
+  db.exec(SCHEMA_SQL);
+
+  const server = createServer(app);
+  server.listen(PORT, () => {
+    console.log(`\nAuto-Blogger SaaS running on port ${PORT}`);
+    console.log(`Dashboard: http://localhost:${PORT}`);
+    console.log(`Login: king@crownmediagroup.co / AllGlory2026!`);
+    console.log(`\nAll Glory to Jesus.\n`);
+  });
+})().catch(err => { console.error('Fatal startup error:', err); process.exit(1); });
