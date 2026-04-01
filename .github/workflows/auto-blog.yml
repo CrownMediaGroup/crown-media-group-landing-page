@@ -167,6 +167,28 @@ jobs:
           RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
         run: node scripts/blog-distributor.js || echo "Distribution step failed — post still published"
 
+      # ── 8b. Auto-post to X, LinkedIn, Facebook, Reddit ───────────────────────
+      # Skips any platform where secrets are not set — never fails the whole workflow
+      - name: Post to social platforms
+        if: success()
+        working-directory: landing-page
+        env:
+          X_API_KEY:                   ${{ secrets.X_API_KEY }}
+          X_API_SECRET:                ${{ secrets.X_API_SECRET }}
+          X_ACCESS_TOKEN:              ${{ secrets.X_ACCESS_TOKEN }}
+          X_ACCESS_TOKEN_SECRET:       ${{ secrets.X_ACCESS_TOKEN_SECRET }}
+          LINKEDIN_ACCESS_TOKEN:       ${{ secrets.LINKEDIN_ACCESS_TOKEN }}
+          LINKEDIN_PERSON_URN:         ${{ secrets.LINKEDIN_PERSON_URN }}
+          LINKEDIN_ORG_URN:            ${{ secrets.LINKEDIN_ORG_URN }}
+          FACEBOOK_PAGE_ID:            ${{ secrets.FACEBOOK_PAGE_ID }}
+          FACEBOOK_PAGE_ACCESS_TOKEN:  ${{ secrets.FACEBOOK_PAGE_ACCESS_TOKEN }}
+          REDDIT_CLIENT_ID:            ${{ secrets.REDDIT_CLIENT_ID }}
+          REDDIT_CLIENT_SECRET:        ${{ secrets.REDDIT_CLIENT_SECRET }}
+          REDDIT_USERNAME:             ${{ secrets.REDDIT_USERNAME }}
+          REDDIT_PASSWORD:             ${{ secrets.REDDIT_PASSWORD }}
+          REDDIT_SUBREDDITS:           ${{ secrets.REDDIT_SUBREDDITS }}
+        run: node scripts/blog-social-promoter-api.js || echo "Social promotion had errors — post still live"
+
       # ── 9. Failure notification (all 3 contingencies failed) ─────────────────
       - name: Notify on failure
         if: failure()
