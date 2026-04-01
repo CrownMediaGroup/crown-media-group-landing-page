@@ -1,6 +1,6 @@
 ---
 title: "The Complete Local Marketing Guide for Columbia SC Business Owners"
-date: "DATE_PLACEHOLDER"
+date: "2026-03-27"
 slug: "local-marketing-guide-columbia-sc"
 category: "Marketing"
 tags: ["Columbia SC", "Marketing", "Local Business", "Digital Marketing", "Small Business"]
