@@ -1,0 +1,73 @@
+{
+  "_comment": "Copy this file to clients/[client-slug]/config.json and fill in all fields",
+  "client": {
+    "slug": "client-slug",
+    "businessName": "Client Business Name",
+    "website": "https://client-website.com",
+    "blogUrl": "https://client-website.com/blog",
+    "contactEmail": "owner@client.com",
+    "notifyEmail": "owner@client.com"
+  },
+  "brand": {
+    "city": "Columbia SC",
+    "state": "SC",
+    "industry": "restaurant",
+    "niche": "Southern comfort food restaurant",
+    "services": [
+      "dine-in",
+      "takeout",
+      "catering",
+      "private events"
+    ],
+    "targetAudience": "Columbia SC families, young professionals, and event planners looking for Southern food",
+    "voiceWords": ["warm", "authentic", "community-focused"],
+    "voiceTone": "Conversational, warm, community-centered. Like talking to the restaurant owner at the counter.",
+    "avoidTopics": ["competitor restaurants", "politics", "controversial topics"],
+    "ctaUrl": "https://client-website.com/reservations",
+    "ctaText": "Make a reservation"
+  },
+  "content": {
+    "postsPerDay": 4,
+    "postTimes": ["8:00 AM", "12:00 PM", "4:00 PM", "8:00 PM"],
+    "timezone": "America/New_York",
+    "skipSabbath": true,
+    "categories": [
+      "Local Food",
+      "Events",
+      "Community",
+      "Behind the Scenes",
+      "Food Tips"
+    ],
+    "primaryKeywords": [
+      "Columbia SC restaurant",
+      "Southern food Columbia SC",
+      "best restaurant Columbia SC"
+    ],
+    "contentPillars": [
+      "Local community connection",
+      "Behind-the-scenes restaurant life",
+      "Food tips and recipes",
+      "Event and catering highlights",
+      "Customer stories and reviews"
+    ]
+  },
+  "distribution": {
+    "sendEmail": true,
+    "generateSocialCaptions": true,
+    "instagramHashtags": "#ColumbiaScFood #ColumbiaScRestaurant #SouthernFood #SCFoodie",
+    "facebookPageUrl": "https://facebook.com/clientpage"
+  },
+  "github": {
+    "repo": "clientowner/client-repo",
+    "branch": "main",
+    "blogContentPath": "content/blog",
+    "queuePath": "content/blog/topics-queue.json"
+  },
+  "billing": {
+    "tier": "growth",
+    "monthlyAmount": 350,
+    "setupPaid": true,
+    "startDate": "2026-04-01",
+    "anthropicKeySource": "crown-media-group"
+  }
+}
