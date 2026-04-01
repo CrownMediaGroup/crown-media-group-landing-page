@@ -77,6 +77,10 @@ uploads/
 # Exception: hero background video for crownmediagroup.co
 !landing-page/assets/video/hero-bg.mp4
 
+# --- Blog video output (large renders, never commit) ---
+landing-page/content/blog/video-output/
+*.mp3
+
 # --- CRM local db ---
 tools/crm/crm.db
 tools/daemon/*.exe
