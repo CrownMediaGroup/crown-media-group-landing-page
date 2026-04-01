@@ -4,7 +4,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "build": "node scripts/build-blog.js",
+    "build": "node scripts/build-blog.cjs",
     "blog:write": "node scripts/blog-writer.js",
     "blog:queue": "node scripts/blog-writer.js --from-queue --publish",
     "blog:admin": "node scripts/blog-admin-server.js",
