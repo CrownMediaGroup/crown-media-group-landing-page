@@ -183,32 +183,32 @@ function isoDate(dateStr) {
 // Only links the FIRST occurrence of each phrase per post (avoids over-linking).
 // Skips text already inside an <a> tag.
 const SERVICE_LINKS = [
-  // Social media
-  { phrase: 'social media management',   url: 'https://crownmediagroup.co/#services',      title: 'Social media management — Crown Media Group' },
-  { phrase: 'social media manager',      url: 'https://crownmediagroup.co/#services',      title: 'Social media management — Crown Media Group' },
-  // Paid ads
-  { phrase: 'Meta Ads',                  url: 'https://crownmediagroup.co/#services',      title: 'Paid advertising — Crown Media Group' },
-  { phrase: 'Facebook Ads',              url: 'https://crownmediagroup.co/#services',      title: 'Paid advertising — Crown Media Group' },
-  { phrase: 'Google Ads',                url: 'https://crownmediagroup.co/#services',      title: 'Paid advertising — Crown Media Group' },
-  { phrase: 'paid advertising',          url: 'https://crownmediagroup.co/#services',      title: 'Paid advertising — Crown Media Group' },
-  { phrase: 'ad management',             url: 'https://crownmediagroup.co/#services',      title: 'Paid ad management — Crown Media Group' },
-  // SEO
-  { phrase: 'local SEO',                 url: 'https://crownmediagroup.co/#services',      title: 'Local SEO — Crown Media Group' },
-  { phrase: 'Google Business Profile',   url: 'https://crownmediagroup.co/#services',      title: 'Local SEO & Google Business Profile — Crown Media Group' },
-  // Brand
-  { phrase: 'brand identity',            url: 'https://crownmediagroup.co/#services',      title: 'Brand identity design — Crown Media Group' },
-  { phrase: 'logo design',               url: 'https://crownmediagroup.co/#services',      title: 'Brand identity & logo design — Crown Media Group' },
-  // Website
-  { phrase: 'landing page',              url: 'https://crownmediagroup.co/#services',      title: 'Website & landing page design — Crown Media Group' },
-  // Email
-  { phrase: 'email marketing',           url: 'https://crownmediagroup.co/#services',      title: 'Email marketing — Crown Media Group' },
-  // AI tools
-  { phrase: 'AI-powered marketing',      url: 'https://crownmediagroup.co/ai-tools.html',  title: 'AI marketing tools — Crown Media Group' },
-  { phrase: 'marketing automation',      url: 'https://crownmediagroup.co/ai-tools.html',  title: 'AI marketing automation — Crown Media Group' },
-  // Content marketing
-  { phrase: 'content marketing',         url: 'https://crownmediagroup.co/#services',      title: 'Content marketing — Crown Media Group' },
-  // Video
-  { phrase: 'short-form video',          url: 'https://crownmediagroup.co/#services',      title: 'Video & Reels — Crown Media Group' },
+  // Social media → social tab
+  { phrase: 'social media management',   url: 'https://crownmediagroup.co/ai-tools.html#social',    title: 'Social media management — Crown Media Group' },
+  { phrase: 'social media manager',      url: 'https://crownmediagroup.co/ai-tools.html#social',    title: 'Social media management — Crown Media Group' },
+  // Paid ads → ads tab
+  { phrase: 'Meta Ads',                  url: 'https://crownmediagroup.co/ai-tools.html#ads',       title: 'Paid advertising — Crown Media Group' },
+  { phrase: 'Facebook Ads',              url: 'https://crownmediagroup.co/ai-tools.html#ads',       title: 'Paid advertising — Crown Media Group' },
+  { phrase: 'Google Ads',                url: 'https://crownmediagroup.co/ai-tools.html#ads',       title: 'Paid advertising — Crown Media Group' },
+  { phrase: 'paid advertising',          url: 'https://crownmediagroup.co/ai-tools.html#ads',       title: 'Paid advertising — Crown Media Group' },
+  { phrase: 'ad management',             url: 'https://crownmediagroup.co/ai-tools.html#ads',       title: 'Paid ad management — Crown Media Group' },
+  // SEO → ai-tools main
+  { phrase: 'local SEO',                 url: 'https://crownmediagroup.co/ai-tools.html',           title: 'Local SEO — Crown Media Group' },
+  { phrase: 'Google Business Profile',   url: 'https://crownmediagroup.co/ai-tools.html',           title: 'Local SEO & Google Business Profile — Crown Media Group' },
+  // Brand → logos tab
+  { phrase: 'brand identity',            url: 'https://crownmediagroup.co/ai-tools.html#logos',     title: 'Brand identity design — Crown Media Group' },
+  { phrase: 'logo design',               url: 'https://crownmediagroup.co/ai-tools.html#logos',     title: 'Brand identity & logo design — Crown Media Group' },
+  // Website → websites tab
+  { phrase: 'landing page',              url: 'https://crownmediagroup.co/ai-tools.html#websites',  title: 'Website & landing page design — Crown Media Group' },
+  // Email → ai-tools main
+  { phrase: 'email marketing',           url: 'https://crownmediagroup.co/ai-tools.html',           title: 'Email marketing — Crown Media Group' },
+  // AI tools → ai-tools main
+  { phrase: 'AI-powered marketing',      url: 'https://crownmediagroup.co/ai-tools.html',           title: 'AI marketing tools — Crown Media Group' },
+  { phrase: 'marketing automation',      url: 'https://crownmediagroup.co/ai-tools.html',           title: 'AI marketing automation — Crown Media Group' },
+  // Content marketing → social tab
+  { phrase: 'content marketing',         url: 'https://crownmediagroup.co/ai-tools.html#social',    title: 'Content marketing — Crown Media Group' },
+  // Video → social tab
+  { phrase: 'short-form video',          url: 'https://crownmediagroup.co/ai-tools.html#social',    title: 'Video & Reels — Crown Media Group' },
   // CTA
   { phrase: 'free strategy session',     url: 'https://calendly.com/crownmediagroupco',    title: 'Book a free strategy session — Crown Media Group' },
   { phrase: 'strategy session',          url: 'https://calendly.com/crownmediagroupco',    title: 'Book a free strategy session — Crown Media Group' },

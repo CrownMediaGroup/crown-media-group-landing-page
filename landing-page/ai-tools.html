@@ -820,6 +820,17 @@ function switchTab(tab) {
   document.getElementById('panel-' + tab).classList.add('active');
 }
 
+// Deep link support: ai-tools.html#social, #ads, #logos, #websites, #crm, #blog, #banners
+(function() {
+  const TABS = ['logos','banners','websites','social','ads','crm','blog'];
+  const hash = window.location.hash.replace('#','').toLowerCase();
+  if (TABS.includes(hash)) {
+    switchTab(hash);
+    const section = document.getElementById('products-section');
+    if (section) setTimeout(() => section.scrollIntoView({ behavior: 'smooth' }), 100);
+  }
+})();
+
 
 // ── Modal ────────────────────────────────────────────────────────────────────
 let selectedProduct = null;
