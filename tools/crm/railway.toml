@@ -1,5 +1,6 @@
 [build]
 builder = "NIXPACKS"
+rootDirectory = "tools/crm"
 
 [deploy]
 startCommand = "node --experimental-sqlite server.js"

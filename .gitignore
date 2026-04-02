@@ -101,3 +101,13 @@ assets/personal/
 # --- Misc ---
 .temp/
 tmp/
+
+# --- Loose media files at root ---
+CMG - Banner*.png
+"CMG - Banner*.png"
+
+# --- Screenshot captures ---
+tools/screen/*.png
+
+# --- Stale build artifacts ---
+landing-page/landing-page/
