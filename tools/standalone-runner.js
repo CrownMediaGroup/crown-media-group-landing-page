@@ -172,6 +172,34 @@ function checkScheduler() {
   triggerVideoForNewPosts();
 }
 
+// ── Topical map auto-refresh (daily at 3 AM) ─────────────────────────────────
+const TOPICAL_MAP = path.join(ROOT, 'Agency/tools/topical-map.js');
+const TOPICAL_LOG = path.join(ROOT, 'Agency/ops/topical-maps/.last-run');
+
+function checkTopicalMap() {
+  try {
+    if (!fs.existsSync(TOPICAL_MAP)) return;
+    const now = new Date();
+    if (now.getHours() !== 3) return; // only at 3 AM
+    const today = now.toISOString().slice(0, 10);
+    const lastRun = fs.existsSync(TOPICAL_LOG) ? fs.readFileSync(TOPICAL_LOG, 'utf8').trim() : '';
+    if (lastRun === today) return; // already ran today
+    fs.writeFileSync(TOPICAL_LOG, today);
+    log('[TopicalMap] Daily refresh starting...');
+    const { spawn } = require('child_process');
+    const child = spawn(process.execPath, [
+      TOPICAL_MAP,
+      '--topic', 'AI marketing agency Columbia SC small business',
+      '--client', 'Crown Media Group',
+      '--research'
+    ], { cwd: ROOT, detached: true, stdio: 'ignore' });
+    child.unref();
+    log('[TopicalMap] Refresh spawned — map will appear in Agency/ops/topical-maps/');
+  } catch (e) {
+    log(`[TopicalMap] Error: ${e.message}`);
+  }
+}
+
 // ── Video service auto-poster check (every 15 min = every 15th tick) ──────────
 const VIDEO_POSTER = path.join(__dirname, '../tools/video-service/automation/auto-poster.js');
 let videoPollTick = 0;
@@ -191,7 +219,7 @@ function checkVideoPoster() {
 
 // Normal run
 log('Standalone runner started — polling every 60s (directives + content scheduler)');
-setInterval(() => { checkQueue(); checkScheduler(); /* checkVideoPoster() — DISABLED: WSL error */ }, POLL);
+setInterval(() => { checkQueue(); checkScheduler(); checkTopicalMap(); /* checkVideoPoster() — DISABLED: WSL error */ }, POLL);
 checkQueue();
 checkScheduler();
 // Video poster disabled — WSL environment error on this machine
