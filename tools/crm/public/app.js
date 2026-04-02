@@ -1667,6 +1667,7 @@ function setImportMode(mode) {
   document.getElementById('importPreview').style.display = 'none';
   document.getElementById('importConfirm').disabled = true;
 }
+window.setImportMode = setImportMode;
 
 function handleOCRFile(file) {
   if (!file || !file.type.startsWith('image/')) { toast('Please select an image file', 'error'); return; }
