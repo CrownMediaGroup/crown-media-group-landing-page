@@ -624,7 +624,8 @@ function buildPostPage(post, allPosts) {
 .post-nav-link:hover{border-color:var(--gold)}
 .post-nav-next{text-align:right;margin-left:auto}
 .post-nav-label{font-size:.72rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--gold)}
-.post-nav-title{font-size:.88rem;font-weight:600;color:var(--text);line-height:1.3}`;
+.post-nav-title{font-size:.88rem;font-weight:600;color:var(--text);line-height:1.3}
+@media(max-width:600px){.blog-page-wrap{padding:100px 16px 60px}.post-cta{padding:32px 20px}.post-cta .btn-royal{display:block;width:100%;box-sizing:border-box;text-align:center}.post-nav-inner{flex-direction:column}.post-nav-link{max-width:100%}}`;
 
   return buildPageShell({
     title: `${post.title} | Crown Media Group`,
