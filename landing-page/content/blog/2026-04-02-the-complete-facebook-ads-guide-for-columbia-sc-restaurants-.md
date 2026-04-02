@@ -1,174 +1,181 @@
 ---
 title: "The Complete Facebook Ads Guide for Columbia SC Restaurants, Retail, and Service Businesses"
 date: "2026-04-02"
-publishTime: "20:01"
+publishTime: "03:43"
 slug: "the-complete-facebook-ads-guide-for-columbia-sc-restaurants-"
 category: "Paid Ads"
 tags: ["Columbia SC", "Paid Ads", "Facebook", "Columbia", "Restaurants"]
-excerpt: "If you're running Facebook ads for Columbia SC restaurants and not seeing a return, you're not alone — and it's probably not your food, your service, or your pr"
+excerpt: "If you're running Facebook ads for Columbia SC restaurants and not seeing a return, you're not alone — and you're probably not doing anything *wrong*. You're ju"
 author: "David King"
 draft: false
 faq:
   - q: "How much do Facebook ads cost for a restaurant in Columbia SC?"
-    a: "Most Columbia SC restaurants see strong results starting at $300–$500 per month in ad spend, plus management fees if using an agency. The key metric isn't total spend — it's cost per new customer acquired, which typically ranges from $5–$15 for a properly optimized restaurant campaign."
-  - q: "Are Facebook ads worth it for small businesses in Columbia SC?"
-    a: "Yes — when run correctly. Facebook ads offer the most precise local targeting available for small businesses, letting you reach people within miles of your location based on interests, behaviors, and demographics. The businesses that fail with Facebook ads almost always have a strategy problem, not a platform problem."
-  - q: "Should I boost posts or run ads through Meta Ads Manager?"
-    a: "Always use Meta Ads Manager. Boosted posts offer limited targeting, no funnel structure, and no conversion tracking. Ads Manager lets you build proper campaigns with custom audiences, retargeting, and pixel-based optimization — which is the difference between wasting money and making money."
-  - q: "How long does it take to see results from Facebook ads?"
-    a: "Most properly structured campaigns begin generating meaningful data within 7–14 days and start producing consistent results within 30–60 days. The first two weeks are a learning phase where Meta's algorithm optimizes delivery. Patience during this phase is critical — don't kill a campaign before it has enough data to work."
+    a: "Most Columbia SC restaurants see strong results with $500–$1,500 per month in ad spend. The local cost per click typically ranges from $0.40 to $1.20, which means your budget goes significantly further than in larger metro areas. Combined with smart targeting and retargeting, this budget can drive measurable foot traffic and online orders within the first week."
+  - q: "Are Facebook ads better than Google Ads for local businesses?"
+    a: "Both have a role, but Facebook ads are often better for local restaurants, retail, and service businesses because they create demand rather than just capturing it. Google Ads catch people who are already searching. Facebook ads put your business in front of people who weren't looking but are highly likely to be interested — which expands your total market."
   - q: "What type of Facebook ad works best for restaurants?"
-    a: "Short-form vertical video ads (15–30 seconds) featuring real food, real staff, and a specific offer consistently outperform static image ads for restaurants. Pair this with a retargeting campaign that reminds website visitors of your offer, and you have the highest-converting setup available."
+    a: "Video ads showing food preparation or finished dishes consistently outperform static images for restaurants. A 15–30 second vertical video optimized for Reels and Stories, paired with a clear offer or CTA like \"Reserve your table\" or \"Order online,\" generates the highest engagement and conversion rates for Columbia SC restaurants."
+  - q: "How long does it take for Facebook ads to start working?"
+    a: "Most properly structured campaigns begin generating clicks and engagement within 24–48 hours. However, Meta's algorithm needs 3–7 days and approximately 50 conversion events to fully optimize delivery. Expect meaningful, consistent results by weeks two through four of a well-managed campaign."
+  - q: "Should I run Facebook ads myself or hire an agency?"
+    a: "If you have the time to learn Ads Manager, build creative assets, write copy, set up tracking, monitor performance weekly, and refresh campaigns every 2–4 weeks — you can absolutely run them yourself. Most Columbia SC business owners find that their time is better spent running their business while a specialized team like Crown Media Group handles the strategy, execution, and optimization."
 ---
 
-If you're running Facebook ads for Columbia SC restaurants and not seeing a return, you're not alone — and it's probably not your food, your service, or your prices. It's your ad strategy. Every week, business owners across Columbia dump $500, $1,000, even $2,000 into Meta's ad platform and walk away with a handful of likes and zero new customers. Restaurants on Main Street, retail shops in the Vista, service businesses out in Northeast Columbia — they all hit the same wall. This guide is built to fix that. Whether you own a soul food spot near Fort Jackson, a boutique in Harbison, or a landscaping company serving Lexington and Irmo, this is the most specific, actionable Facebook ads playbook you'll find for the Columbia SC market.
+If you're running Facebook ads for Columbia SC restaurants and not seeing a return, you're not alone — and you're probably not doing anything *wrong*. You're just missing the local strategy that makes the difference between burning $500 a month and filling tables every weekend. The same applies to retail shops on Main Street and service businesses across the Midlands. Facebook ads are still one of the most powerful tools available to Columbia SC small businesses, but only when you build campaigns designed for *this* market, *this* audience, and *your* specific goals. This guide breaks down exactly how to do that — step by step, no fluff, no theory you can't use tomorrow.
 
-## Why Do Most Facebook Ads Fail for Columbia SC Small Businesses?
+## Why Do Facebook Ads Work So Well for Columbia SC Local Businesses?
 
-Let's start with the truth: Facebook ads don't fail because the platform is broken. They fail because most small business owners are guessing instead of following a system.
+Facebook and Instagram ads (both run through Meta's ad platform) remain the highest-ROI paid channel for most local businesses. The reason is simple: hyper-specific geographic targeting combined with intent-driven creative.
 
-Here's what we see over and over again when Columbia SC business owners come to [Crown Media Group](https://crownmediagroup.co) frustrated with their ad spend:
+Columbia SC has a metro population of roughly 838,000 people. Within Meta's ad platform, you can target by zip code, neighborhood radius, age, interest, behavior, and even life events. That means a restaurant in the Vista can show ads *only* to people within a 5-mile radius who have shown interest in dining out. A retail boutique in Harbison can target women aged 25–45 who recently engaged with fashion content. A plumber in Lexington can reach homeowners within 15 miles who just moved.
 
-- **Boosting posts instead of running real campaigns.** The "Boost Post" button is not a strategy. It's Meta's way of taking your money with minimal targeting. A proper ad campaign built in Ads Manager gives you 10x more control.
-- **Targeting "everyone in Columbia."** A 25-year-old college student at USC and a 52-year-old homeowner in Ballentine don't respond to the same message. Broad targeting wastes budget on people who will never buy.
-- **No clear offer.** "Come visit us!" is not an offer. "Get a free appetizer with any entrée this Friday" is. Specificity drives action.
-- **Sending traffic to a bad landing page — or no page at all.** If your ad clicks lead to a generic homepage with no clear next step, you're paying for attention and then throwing it away.
-- **No tracking.** If you don't have the Meta Pixel installed on your website, you're flying blind. You can't optimize what you can't measure.
+Here's why this matters for your budget:
 
-Most of these problems aren't about money — they're about knowledge. And once you fix them, the same $500 budget that was burning cash can start filling tables, booking appointments, and driving foot traffic.
+- **Low cost per impression locally.** Columbia SC is not Miami or New York. Ad costs here are significantly lower, which means your dollars stretch further.
+- **High intent audiences.** You're not competing with thousands of advertisers for the same eyeballs. The local ad auction is less crowded, which keeps your cost per click down.
+- **Immediate results.** Unlike SEO, which takes months, a well-built Facebook ad campaign can drive calls, reservations, and foot traffic within 48 hours of launch.
 
-If this sounds like where you're stuck, [paid advertising management](https://crownmediagroup.co/#services) from a team that actually understands the Columbia market is the fastest way to stop bleeding money and start seeing results.
+The problem most Columbia SC business owners face isn't that Facebook ads don't work — it's that they've been boosting posts randomly or running campaigns without a strategy. That's where [paid advertising management](https://crownmediagroup.co/#services) makes the difference between wasted spend and measurable growth.
 
 ## How Much Should a Columbia SC Restaurant Spend on Facebook Ads?
 
-This is the number one question we hear from restaurant owners, and the answer is more nuanced than most agencies will tell you.
+This is the number-one question we hear from restaurant owners across downtown Columbia, the Vista, Five Points, and Northeast Columbia. And the honest answer is: it depends on your goals, but there's a smart starting point.
 
-For a single-location restaurant in Columbia SC, here's a realistic starting framework:
+For a single-location restaurant in Columbia SC, a budget of **$500–$1,500 per month** on Meta ads is enough to generate meaningful results — if the strategy is right. That's not a guess. It's based on the local cost-per-click average in the Columbia metro area, which typically ranges from $0.40 to $1.20 for restaurant and food-related campaigns.
 
-- **Minimum viable test budget:** $300–$500 per month. This gives you enough data to test 2–3 ad sets and learn what works before scaling.
-- **Growth budget:** $750–$1,500 per month. At this level, you can run ongoing campaigns — one for awareness, one for a specific offer, and one for retargeting people who already visited your site or engaged with your page.
-- **Scaling budget:** $2,000+ per month. This is where multi-location restaurants or high-ticket service businesses start layering in Google Ads alongside Meta for full-funnel domination.
+### Breaking Down the Budget
 
-### The Real Math That Matters
+Here's how a $1,000/month restaurant ad budget could realistically be allocated:
 
-Stop thinking about ad spend and start thinking about cost per customer acquired. Here's a simple example:
+1. **Awareness campaign (30% — $300):** Video or carousel ads showcasing your best dishes, served to a broad local audience within a 10-mile radius. Goal: impressions and video views.
+2. **Engagement/traffic campaign (40% — $400):** Targeted ads driving clicks to your online menu, reservation page, or a special offer landing page. Goal: website visits and direct actions.
+3. **Retargeting campaign (30% — $300):** Ads shown *only* to people who already visited your website, engaged with your Instagram, or watched your video ads. Goal: conversions — reservations, orders, phone calls.
 
-Imagine you own a BBQ restaurant in West Columbia. You spend $500 on Facebook ads in a month. Those ads generate 40 link clicks to your online ordering page. 12 of those clicks turn into orders with an average ticket of $35. That's $420 in revenue from $500 in spend — which looks like a loss until you factor in that 6 of those 12 customers come back within 30 days without you spending another dime on ads. Now your $500 generated $630+ in total revenue, plus you've built a retargeting audience for next month.
+The retargeting layer is where most DIY advertisers leave money on the table. Someone who watched 75% of your food video but didn't take action is a *warm* prospect. Showing them a "This weekend only: free appetizer with any entrée" ad costs pennies and converts at 3–5x the rate of cold traffic.
 
-The point: Facebook ads for restaurants aren't about instant ROI on a single order. They're about acquiring customers you keep for months or years. Track your 90-day customer value, not just your first-week return.
+If building and managing these campaign layers sounds overwhelming, that's exactly what [Crown Media Group](https://crownmediagroup.co) handles for Columbia SC restaurants and food businesses — full campaign setup, creative, targeting, and optimization for one flat monthly rate.
 
-## What's the Best Facebook Ad Strategy for Restaurants in 2025?
+## What Facebook Ad Strategy Works Best for Retail Stores in Columbia SC?
 
-The Facebook ad landscape has shifted dramatically. The old playbook of "run a reach campaign and hope people walk in" doesn't cut it anymore. Here's the strategy that actually works for Columbia SC restaurants, retail shops, and service businesses right now.
+Retail is a different game than restaurants. Your customer journey is longer, your product range is wider, and your creative has to do more heavy lifting. But the local advantage still applies — especially for shops in Harbison, Columbiana Centre, the Vista, and Devine Street.
 
-### Step 1: Install the Meta Pixel and Set Up Conversions
+### The Catalog-Style Approach
 
-Before you spend a single dollar, install the Meta Pixel on your website. If you use an online ordering system like Toast, Square, or ChowNow, connect it there too. This lets Facebook track who clicks your ad, who places an order, and who bounces — so it can find more people like your best customers.
+The most effective Facebook ad format for Columbia SC retail stores is the **dynamic product carousel**. This lets you showcase 3–10 products in a single ad, each with its own image, description, and link. Shoppers scroll through like they're browsing a shelf.
 
-No website or your current site doesn't convert? That's a bigger problem than your ads. [Website and landing page design](https://crownmediagroup.co/#services) should come first — a high-converting landing page can double your ad performance overnight.
+Pair this with these targeting strategies:
 
-### Step 2: Build a 3-Campaign Funnel
+- **Lookalike audiences** built from your existing customer email list (even 100 emails is enough to create one)
+- **Interest-based targeting** aligned with your product category — fashion, home décor, gifts, fitness gear, etc.
+- **Geographic radius of 15–20 miles** centered on your store location
+- **Seasonal and event-based timing** — target "Columbia SC holiday shopping" periods, USC gameday weekends, Soda City Market Saturdays
 
-Don't run one ad and pray. Run three campaigns simultaneously:
+### The Offer-Driven Approach
 
-1. **Top of Funnel — Video Views or Engagement Campaign.** Show a 15–30 second Reel of your best dish being plated, your barber finishing a fresh cut, or your team in action. Target Columbia SC within a 10–15 mile radius. Objective: get eyeballs and build a warm audience.
-2. **Middle of Funnel — Traffic or Lead Campaign.** Retarget everyone who watched 50%+ of your video or engaged with your page in the last 30 days. Send them to a landing page with a specific offer: "$10 off your first order," "Free consultation," "Buy one get one this weekend."
-3. **Bottom of Funnel — Retargeting Conversion Campaign.** Target website visitors who didn't convert. Show them a testimonial, a limited-time offer, or a reminder of what they looked at. This is where the real money is made.
+Retail ads that include a specific offer outperform "brand awareness" ads by a wide margin. You don't need to give away the farm — a simple structure works:
 
-### Step 3: Creative That Stops the Scroll
+- "15% off your first in-store purchase — show this ad at checkout"
+- "Buy 2, get 1 free this weekend only — [Shop Location] on Harbison Blvd"
+- "New arrivals just dropped — see what's in store before it sells out"
 
-Your ad creative matters more than your targeting in 2025. Meta's algorithm is smart enough to find the right people — but only if your ad stops them from scrolling.
+The key is urgency, locality, and a clear next step. Every ad needs to answer: *What do I get, where do I go, and why should I go now?*
 
-- **Use vertical video (9:16).** Reels-style content outperforms static images by a wide margin.
-- **Show faces.** Ads with real people — your chef, your staff, your happy customers — outperform stock photos every time.
-- **Lead with the offer in the first 3 seconds.** Don't build up to it. Say "Half-price wings every Tuesday at [Your Restaurant]" in the opening frame.
-- **Use captions.** Most people scroll with sound off. If your message requires audio, you've already lost.
+If your creative is falling flat or you don't have the bandwidth to produce scroll-stopping visuals, [Crown Media Group's social media management](https://crownmediagroup.co/#services) includes content creation built specifically for paid and organic campaigns.
 
-## How Do You Target the Right Audience for Columbia SC Facebook Ads?
+## How Do Columbia SC Service Businesses Use Facebook Ads to Get Leads?
 
-Targeting is where most DIY advertisers go wrong. Here's how to build audiences that actually convert in the Columbia SC market.
+Service businesses — HVAC contractors, plumbers, landscapers, med spas, salons, cleaning companies, real estate agents — have the highest potential ROI from Facebook ads because their average customer value is often $500 to $5,000+. One closed lead can pay for an entire month of ad spend.
 
-### Geographic Targeting
+### The Lead Generation Funnel
 
-Don't just target "Columbia, SC." Get specific based on your actual customer base:
+Here's the exact funnel structure that works for Columbia SC service businesses:
 
-- **Downtown Columbia / USC area:** Great for fast-casual, nightlife, student-focused offers
-- **Harbison / Irmo / Dutch Fork:** Family-oriented, higher household income, ideal for sit-down restaurants and home services
-- **Lexington / West Columbia / Cayce:** Mix of young families and established homeowners — strong for contractors, salons, and retail
-- **Northeast Columbia / Fort Jackson area:** Military families, steady income, loyal repeat customers once you earn their trust
+1. **Top of funnel — Educational video ad.** A 30–60 second video explaining a common problem. Example for an HVAC company: "3 signs your AC is about to break down this Columbia SC summer." Target: homeowners within 20 miles, ages 30–65.
+2. **Middle of funnel — Lead magnet or offer.** Retarget video viewers with a specific offer: "Free AC inspection for Columbia SC homeowners — book this week." Use Meta's built-in Lead Form so prospects never leave Facebook.
+3. **Bottom of funnel — Testimonial or urgency ad.** Show a customer testimonial or "Only 5 spots left this month" ad to anyone who opened but didn't submit the lead form.
 
-Use a radius of 8–15 miles from your business location. Tighter is better for restaurants. Service businesses covering a wider area can go up to 25 miles.
-
-### Interest and Behavior Stacking
-
-Layer geographic targeting with interests and behaviors:
-
-- **Restaurants:** Target people interested in "Dining out," "Food delivery," "Southern cuisine," or specific competitors' cuisine types
-- **Retail:** Target "Online shopping," "Fashion," or product-specific interests
-- **Service businesses:** Target "Homeownership," "Home improvement," or life events like "Recently moved"
-
-### The Secret Weapon: Lookalike Audiences
-
-Upload your customer email list (even if it's just 100 emails) and let Meta build a 1% lookalike audience. This finds people in the Columbia SC area who behave like your existing customers. It's the single highest-ROI targeting method available, and most local businesses never use it.
-
-If you don't have an email list yet, [email marketing](https://crownmediagroup.co/#services) is the foundation you're missing — and it feeds every other marketing channel you run.
-
-## What Results Should a Columbia SC Business Expect From Facebook Ads?
-
-Let's set honest expectations. Here's what realistic performance looks like across industries in the Columbia SC market when campaigns are properly built:
-
-- **Restaurants:** $1–$4 cost per link click, 3–8% landing page conversion rate, $5–$15 cost per new customer acquired
-- **Retail stores:** $0.75–$3 cost per click, 2–5% conversion rate, $8–$20 cost per purchase or store visit
-- **Service businesses (HVAC, landscaping, salons, etc.):** $3–$10 cost per lead, $25–$75 cost per booked appointment depending on ticket size
-- **Real estate / high-ticket services:** $10–$30 cost per qualified lead
+This three-step process works because it mirrors how real people make decisions. They don't see one ad and call you. They see your name 3–5 times, build trust, and *then* take action.
 
 ### A Real-World Scenario
 
-Here's a composite example based on campaigns we've managed: A family-owned restaurant near the Vista was spending $600 per month boosting posts from their Facebook page. They were getting likes and comments — mostly from existing followers — but couldn't trace a single new customer to their ads.
+Imagine a Columbia SC-based landscaping company spending $800/month on Facebook ads. They run a video showing a before-and-after yard transformation in a Ballentine neighborhood. That video gets 15,000 views in two weeks. They retarget the 4,000 people who watched at least half the video with a "Free lawn assessment — limited to 10 spots this month" lead form ad.
 
-After switching to a proper 3-campaign funnel with video creative, a specific weekend brunch offer, and retargeting, the same $600 monthly budget generated an average of 47 new customers per month over a 90-day period. Their cost per acquired customer dropped to $12.76, and their weekend brunch revenue increased noticeably within the first 6 weeks.
+Result: 22 lead form submissions. They close 8 of them at an average job value of $1,200. That's $9,600 in revenue from $800 in ad spend — a 12x return. This isn't fantasy. It's what happens when targeting, creative, and follow-up are aligned.
 
-The difference wasn't more money. It was better strategy, better creative, and better targeting.
+The follow-up piece is critical. If you're collecting leads but not nurturing them through automated email or text sequences, you're losing half your potential revenue. [Crown Media Group's email marketing](https://crownmediagroup.co/#services) builds the automated follow-up that turns leads into booked jobs.
 
-## Can You Run Facebook Ads Yourself, or Should You Hire an Agency?
+## What Are the Biggest Facebook Ad Mistakes Columbia SC Business Owners Make?
 
-Here's the honest answer: you *can* run Facebook ads yourself. The question is whether you *should*.
+After managing campaigns across the Midlands — from Cayce to West Columbia to Irmo to Fort Jackson — we've seen the same mistakes over and over. Avoiding these alone will put you ahead of 80% of local advertisers.
 
-Running effective Facebook ad campaigns requires:
+### Mistake #1: Boosting Posts Instead of Running Real Campaigns
 
-- 3–5 hours per week minimum for setup, monitoring, and optimization
-- Knowledge of Meta Ads Manager (not the Boost button)
-- Ability to create scroll-stopping video and copy
-- Understanding of pixel tracking, conversion events, and attribution
-- Willingness to test, fail, adjust, and test again
+The "Boost Post" button is Meta's way of making money from business owners who don't know better. It gives you almost no control over targeting, placement, or optimization. A properly built campaign in Ads Manager will outperform a boosted post every single time — often by 3–5x.
 
-If you're a restaurant owner working 60-hour weeks, a salon owner managing staff, or a contractor out on job sites all day, those hours don't exist. And the learning curve costs real money — every dollar spent on a bad test is a dollar that could've gone toward a proven campaign.
+### Mistake #2: Targeting Too Broad or Too Narrow
 
-That's exactly why [Crown Media Group](https://crownmediagroup.co) exists. We handle strategy, creative, targeting, optimization, and reporting — so Columbia SC business owners can focus on running their business while their ads actually work. Our [paid advertising management](https://crownmediagroup.co/#services) includes everything from campaign buildout to monthly performance reporting, and we don't lock you into long-term contracts because we'd rather earn your business every month.
+Targeting "everyone in South Carolina" wastes money. Targeting "women aged 28–29 who like sushi and yoga in zip code 29229" is too narrow for Meta's algorithm to optimize. The sweet spot for most Columbia SC local businesses is an audience of 50,000–250,000 people.
 
-For business owners who want to leverage smarter systems without hiring a full marketing department, our [AI-powered marketing tools](https://crownmediagroup.co/ai-tools.html) can also automate follow-ups, audience segmentation, and performance tracking — so nothing falls through the cracks.
+### Mistake #3: No Landing Page Strategy
+
+Sending ad traffic to your homepage is like dropping someone in the middle of a mall with no map. Every campaign needs a dedicated landing page — or at minimum, a specific page on your site — that matches the ad's promise. If your ad says "Book a free consultation," the page they land on better have a booking form above the fold.
+
+If your website isn't set up to convert ad traffic, you're paying for clicks that go nowhere. [Website and landing page design](https://crownmediagroup.co/#services) built for conversion is one of the highest-impact investments a Columbia SC business can make before running any paid ads.
+
+### Mistake #4: No Retargeting
+
+Only 2–3% of people who see your ad for the first time will take action. The other 97% aren't lost — they're just not ready yet. Retargeting them with a second and third touchpoint is where the real conversions happen. If you're not retargeting, you're paying full price to acquire every single lead.
+
+### Mistake #5: Set It and Forget It
+
+Facebook ads are not a crockpot. They need weekly monitoring, creative refreshes every 2–4 weeks, and ongoing optimization based on data. The businesses that win are the ones reviewing performance weekly and adjusting.
+
+## How Do You Track ROI on Facebook Ads for a Local Business?
+
+You can't improve what you don't measure. And "I think we're getting more calls" isn't measurement. Here's how to track Facebook ad ROI for a Columbia SC local business with real precision.
+
+### Essential Tracking Setup
+
+- **Meta Pixel installed on your website.** This tracks every action someone takes after clicking your ad — page views, form submissions, purchases. Non-negotiable.
+- **Conversion events configured.** Tell Meta what counts as a win: a form submission, a phone call click, a reservation booking, an add-to-cart.
+- **UTM parameters on every ad link.** This lets Google Analytics show you exactly which campaign, ad set, and ad drove each website visit and conversion.
+- **Call tracking (optional but powerful).** Tools like CallRail assign unique phone numbers to your ads so you can track how many calls came directly from Facebook.
+
+### Key Metrics to Watch Weekly
+
+| Metric | What It Tells You | Healthy Range (Local) |
+|--------|-------------------|----------------------|
+| Cost per click (CPC) | How much each website visit costs | $0.40–$1.50 |
+| Click-through rate (CTR) | How compelling your ad is | 1.5%–4.0% |
+| Cost per lead (CPL) | How much each inquiry costs | $5–$30 |
+| Return on ad spend (ROAS) | Revenue generated per dollar spent | 3x–10x+ |
+| Frequency | How many times each person sees your ad | Keep below 4.0 |
+
+If you're spending money on ads but don't have tracking in place, you're flying blind. [Crown Media Group](https://crownmediagroup.co) sets up full conversion tracking as part of every [paid advertising management](https://crownmediagroup.co/#services) engagement — because data isn't optional, it's the foundation.
 
 ## Frequently Asked Questions
 
 **Q: How much do Facebook ads cost for a restaurant in Columbia SC?**
-A: Most Columbia SC restaurants see strong results starting at $300–$500 per month in ad spend, plus management fees if using an agency. The key metric isn't total spend — it's cost per new customer acquired, which typically ranges from $5–$15 for a properly optimized restaurant campaign.
+A: Most Columbia SC restaurants see strong results with $500–$1,500 per month in ad spend. The local cost per click typically ranges from $0.40 to $1.20, which means your budget goes significantly further than in larger metro areas. Combined with smart targeting and retargeting, this budget can drive measurable foot traffic and online orders within the first week.
 
-**Q: Are Facebook ads worth it for small businesses in Columbia SC?**
-A: Yes — when run correctly. Facebook ads offer the most precise local targeting available for small businesses, letting you reach people within miles of your location based on interests, behaviors, and demographics. The businesses that fail with Facebook ads almost always have a strategy problem, not a platform problem.
-
-**Q: Should I boost posts or run ads through Meta Ads Manager?**
-A: Always use Meta Ads Manager. Boosted posts offer limited targeting, no funnel structure, and no conversion tracking. Ads Manager lets you build proper campaigns with custom audiences, retargeting, and pixel-based optimization — which is the difference between wasting money and making money.
-
-**Q: How long does it take to see results from Facebook ads?**
-A: Most properly structured campaigns begin generating meaningful data within 7–14 days and start producing consistent results within 30–60 days. The first two weeks are a learning phase where Meta's algorithm optimizes delivery. Patience during this phase is critical — don't kill a campaign before it has enough data to work.
+**Q: Are Facebook ads better than Google Ads for local businesses?**
+A: Both have a role, but Facebook ads are often better for local restaurants, retail, and service businesses because they create demand rather than just capturing it. Google Ads catch people who are already searching. Facebook ads put your business in front of people who weren't looking but are highly likely to be interested — which expands your total market.
 
 **Q: What type of Facebook ad works best for restaurants?**
-A: Short-form vertical video ads (15–30 seconds) featuring real food, real staff, and a specific offer consistently outperform static image ads for restaurants. Pair this with a retargeting campaign that reminds website visitors of your offer, and you have the highest-converting setup available.
+A: Video ads showing food preparation or finished dishes consistently outperform static images for restaurants. A 15–30 second vertical video optimized for Reels and Stories, paired with a clear offer or CTA like "Reserve your table" or "Order online," generates the highest engagement and conversion rates for Columbia SC restaurants.
+
+**Q: How long does it take for Facebook ads to start working?**
+A: Most properly structured campaigns begin generating clicks and engagement within 24–48 hours. However, Meta's algorithm needs 3–7 days and approximately 50 conversion events to fully optimize delivery. Expect meaningful, consistent results by weeks two through four of a well-managed campaign.
+
+**Q: Should I run Facebook ads myself or hire an agency?**
+A: If you have the time to learn Ads Manager, build creative assets, write copy, set up tracking, monitor performance weekly, and refresh campaigns every 2–4 weeks — you can absolutely run them yourself. Most Columbia SC business owners find that their time is better spent running their business while a specialized team like Crown Media Group handles the strategy, execution, and optimization.
 
 ---
 
-Your restaurant, your retail shop, your service business — it deserves marketing that actually brings people through the door. Not vanity metrics. Not wasted ad spend. Real customers, real revenue, real growth.
+Running a business in Columbia SC is hard enough without trying to become a Facebook ads expert on the side. Whether you own a restaurant downtown, a retail shop near Harbison, or a service company covering Lexington to Northeast Columbia — the playbook is the same: smart targeting, compelling creative, relentless follow-up, and data-driven optimization.
 
-If you're ready to stop guessing and start running Facebook ads that work for your Columbia SC business, book a [free 30-minute strategy session](https://calendly.com/crownmediagroupco) with Crown Media Group today. We'll audit your current setup, show you exactly where money is being left on the table, and build a plan to fix it.
+You don't need a massive budget. You need the right strategy.
 
-*"Commit to the Lord whatever you do, and He will establish your plans." — Proverbs 16:3*
+**[Book your free 30-minute strategy session with Crown Media Group](https://calendly.com/crownmediagroupco)** and let's build a Facebook ads plan that actually fills your calendar, your tables, or your pipeline — starting this month.
+
+*"Commit to the Lord whatever you do, and he will establish your plans." — Proverbs 16:3*
