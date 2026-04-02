@@ -154,7 +154,7 @@ async function main() {
     console.log('Step 6/6: Generating thumbnail + uploading to YouTube...');
     try {
       const videoTitle  = script.suggestedTitle || title;
-      const description = buildDescription(videoTitle, fm._excerpt || '', slug, script.segments);
+      const description = buildDescription(videoTitle, fm._excerpt || '', slug, script.segments, script.suggestedTags || tags);
       const ytTags      = [...(script.suggestedTags || tags), 'small business', 'marketing agency', 'Crown Media Group', 'AI marketing', 'entrepreneur'];
       console.log(`  Title: "${videoTitle}"`);
       console.log(`  Search angle: ${script.searchAngle || 'n/a'}`);

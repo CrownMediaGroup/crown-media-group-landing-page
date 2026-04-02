@@ -1,5 +1,32 @@
 {
+  "permissions": {
+    "allow": [
+      "Bash(*)",
+      "Read(*)",
+      "Write(*)",
+      "Edit(*)",
+      "Glob(*)",
+      "Grep(*)",
+      "WebFetch(*)",
+      "WebSearch(*)",
+      "mcp__claude_ai_Gmail__*",
+      "mcp__claude_ai_Google_Calendar__*",
+      "mcp__claude_ai_Canva__*",
+      "mcp__claude_ai_Vibe_Prospecting__*",
+      "mcp__exa__*"
+    ]
+  },
   "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 C:/Users/ldavi/Documents/AllGloryAgency/tools/hooks/session-start.py"
+          }
+        ]
+      }
+    ],
     "PostToolUse": [
       {
         "matcher": "Write|Edit",
@@ -7,6 +34,16 @@
           {
             "type": "command",
             "command": "python3 C:/Users/ldavi/Documents/AllGloryAgency/tools/hooks/post-file-change.py"
+          }
+        ]
+      }
+    ],
+    "PreCompact": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 C:/Users/ldavi/Documents/AllGloryAgency/tools/hooks/pre-compact.py"
           }
         ]
       }

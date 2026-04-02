@@ -4,21 +4,21 @@
       "command": "npx",
       "args": ["-y", "exa-mcp-server"],
       "env": {
-        "EXA_API_KEY": ""
+        "EXA_API_KEY": "40c0f696-1941-4d1b-a572-74b966352e3a"
       }
     },
     "github": {
-      "command": "npx",
-      "args": ["-y", "@modelcontextprotocol/server-github"],
+      "command": "mcp-server-github",
+      "args": [],
       "env": {
-        "GITHUB_PERSONAL_ACCESS_TOKEN": ""
+        "GITHUB_PERSONAL_ACCESS_TOKEN": "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"
       }
     },
     "firecrawl": {
-      "command": "npx",
-      "args": ["-y", "firecrawl-mcp"],
+      "command": "firecrawl-mcp",
+      "args": [],
       "env": {
-        "FIRECRAWL_API_KEY": ""
+        "FIRECRAWL_API_KEY": "fc-1966c91194e547c88dbfa7f6c95315de"
       }
     }
   }

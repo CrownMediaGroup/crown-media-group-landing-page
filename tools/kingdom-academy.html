@@ -1,0 +1,1363 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kingdom Academy — David's AI Playbook</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --gold: #F5C842;
+    --dark: #0A0A0F;
+    --card: #13131A;
+    --border: #2A2A3A;
+    --text: #E8E8F0;
+    --muted: #8888AA;
+    --green: #4ADE80;
+    --blue: #60A5FA;
+    --purple: #A78BFA;
+  }
+
+  body {
+    background: var(--dark);
+    color: var(--text);
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    font-size: 18px;
+    line-height: 1.7;
+  }
+
+  /* HERO */
+  .hero {
+    background: linear-gradient(135deg, #0A0A0F 0%, #1A0A2E 50%, #0A0A0F 100%);
+    padding: 60px 24px 40px;
+    text-align: center;
+    border-bottom: 1px solid var(--border);
+    position: relative;
+    overflow: hidden;
+  }
+  .hero::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 600px;
+    height: 600px;
+    background: radial-gradient(circle, rgba(245,200,66,0.08) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .crown { font-size: 56px; margin-bottom: 16px; }
+  .hero h1 { font-size: 2.4em; color: var(--gold); font-weight: 800; margin-bottom: 8px; }
+  .hero p { color: var(--muted); font-size: 1.1em; max-width: 600px; margin: 0 auto 20px; }
+  .verse-banner {
+    background: rgba(245,200,66,0.1);
+    border: 1px solid rgba(245,200,66,0.3);
+    border-radius: 12px;
+    padding: 16px 24px;
+    max-width: 700px;
+    margin: 0 auto;
+    color: var(--gold);
+    font-style: italic;
+    font-size: 0.95em;
+  }
+
+  /* NAV */
+  .nav {
+    display: flex;
+    overflow-x: auto;
+    gap: 8px;
+    padding: 16px 24px;
+    background: var(--card);
+    border-bottom: 1px solid var(--border);
+    scrollbar-width: none;
+  }
+  .nav::-webkit-scrollbar { display: none; }
+  .nav button {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--muted);
+    padding: 8px 20px;
+    border-radius: 999px;
+    cursor: pointer;
+    white-space: nowrap;
+    font-size: 0.9em;
+    transition: all 0.2s;
+  }
+  .nav button:hover, .nav button.active {
+    background: var(--gold);
+    color: #000;
+    border-color: var(--gold);
+    font-weight: 700;
+  }
+
+  /* SECTIONS */
+  .section { display: none; padding: 32px 24px; max-width: 900px; margin: 0 auto; }
+  .section.active { display: block; }
+
+  .section-title {
+    font-size: 1.8em;
+    font-weight: 800;
+    color: var(--gold);
+    margin-bottom: 8px;
+  }
+  .section-sub {
+    color: var(--muted);
+    margin-bottom: 32px;
+    font-size: 0.95em;
+  }
+
+  /* TOOL CARDS */
+  .tool-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; }
+  .tool-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 24px;
+    cursor: pointer;
+    transition: all 0.3s;
+    position: relative;
+    overflow: hidden;
+  }
+  .tool-card:hover { border-color: var(--gold); transform: translateY(-3px); }
+  .tool-card .emoji { font-size: 2.5em; margin-bottom: 12px; }
+  .tool-card h3 { font-size: 1.1em; color: var(--gold); margin-bottom: 8px; }
+  .tool-card p { color: var(--muted); font-size: 0.9em; line-height: 1.6; }
+  .tool-card .badge {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    background: rgba(74,222,128,0.15);
+    color: var(--green);
+    border: 1px solid var(--green);
+    border-radius: 999px;
+    font-size: 0.7em;
+    padding: 2px 10px;
+    font-weight: 700;
+  }
+
+  /* MODAL */
+  .modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.85);
+    z-index: 100;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+  }
+  .modal-overlay.open { display: flex; }
+  .modal {
+    background: var(--card);
+    border: 1px solid var(--gold);
+    border-radius: 20px;
+    max-width: 640px;
+    width: 100%;
+    padding: 36px;
+    position: relative;
+    max-height: 85vh;
+    overflow-y: auto;
+  }
+  .modal-close {
+    position: absolute;
+    top: 16px;
+    right: 20px;
+    background: none;
+    border: none;
+    color: var(--muted);
+    font-size: 1.6em;
+    cursor: pointer;
+  }
+  .modal-emoji { font-size: 3em; margin-bottom: 12px; }
+  .modal h2 { color: var(--gold); margin-bottom: 8px; font-size: 1.5em; }
+  .modal .tagline { color: var(--green); font-size: 0.9em; margin-bottom: 16px; font-weight: 700; }
+  .modal p { color: var(--text); margin-bottom: 12px; font-size: 0.95em; line-height: 1.8; }
+  .modal .example-box {
+    background: rgba(245,200,66,0.08);
+    border-left: 3px solid var(--gold);
+    padding: 14px 18px;
+    border-radius: 0 8px 8px 0;
+    margin: 16px 0;
+    font-size: 0.9em;
+    color: var(--text);
+  }
+  .modal .example-box strong { color: var(--gold); }
+  .modal .scripture {
+    background: rgba(167,139,250,0.1);
+    border: 1px solid rgba(167,139,250,0.3);
+    border-radius: 10px;
+    padding: 14px 18px;
+    color: var(--purple);
+    font-style: italic;
+    font-size: 0.9em;
+    margin-top: 16px;
+  }
+
+  /* Q&A CHAT */
+  .chat-container {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    overflow: hidden;
+  }
+  .chat-messages {
+    height: 400px;
+    overflow-y: auto;
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+  .msg {
+    max-width: 80%;
+    border-radius: 16px;
+    padding: 14px 18px;
+    font-size: 0.95em;
+    line-height: 1.7;
+  }
+  .msg.user {
+    background: var(--gold);
+    color: #000;
+    align-self: flex-end;
+    border-radius: 16px 16px 4px 16px;
+    font-weight: 600;
+  }
+  .msg.bot {
+    background: #1E1E2E;
+    color: var(--text);
+    align-self: flex-start;
+    border-radius: 16px 16px 16px 4px;
+    border: 1px solid var(--border);
+  }
+  .msg.bot .bot-name { color: var(--gold); font-weight: 700; font-size: 0.8em; margin-bottom: 4px; }
+  .chat-input-row {
+    display: flex;
+    gap: 12px;
+    padding: 16px;
+    border-top: 1px solid var(--border);
+    background: var(--dark);
+  }
+  .chat-input-row input {
+    flex: 1;
+    background: var(--card);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 12px 18px;
+    border-radius: 999px;
+    font-size: 0.95em;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  .chat-input-row input:focus { border-color: var(--gold); }
+  .chat-input-row button {
+    background: var(--gold);
+    border: none;
+    color: #000;
+    padding: 12px 24px;
+    border-radius: 999px;
+    font-weight: 700;
+    cursor: pointer;
+    font-size: 0.95em;
+  }
+  .suggested-questions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    padding: 16px;
+    border-top: 1px solid var(--border);
+  }
+  .sq-btn {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--muted);
+    padding: 6px 14px;
+    border-radius: 999px;
+    cursor: pointer;
+    font-size: 0.8em;
+    transition: all 0.2s;
+  }
+  .sq-btn:hover { border-color: var(--gold); color: var(--gold); }
+
+  /* QUIZ */
+  .quiz-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 32px;
+    margin-bottom: 24px;
+  }
+  .quiz-question { font-size: 1.2em; color: var(--text); margin-bottom: 24px; font-weight: 600; }
+  .quiz-options { display: flex; flex-direction: column; gap: 12px; }
+  .quiz-option {
+    background: var(--dark);
+    border: 2px solid var(--border);
+    color: var(--text);
+    padding: 14px 20px;
+    border-radius: 10px;
+    cursor: pointer;
+    text-align: left;
+    font-size: 0.95em;
+    transition: all 0.2s;
+  }
+  .quiz-option:hover:not(:disabled) { border-color: var(--gold); color: var(--gold); }
+  .quiz-option.correct { border-color: var(--green); color: var(--green); background: rgba(74,222,128,0.1); }
+  .quiz-option.wrong { border-color: #F87171; color: #F87171; background: rgba(248,113,113,0.1); }
+  .quiz-feedback {
+    margin-top: 16px;
+    padding: 14px 18px;
+    border-radius: 10px;
+    font-size: 0.9em;
+    display: none;
+  }
+  .quiz-feedback.correct-fb { background: rgba(74,222,128,0.1); border: 1px solid var(--green); color: var(--green); }
+  .quiz-feedback.wrong-fb { background: rgba(248,113,113,0.1); border: 1px solid #F87171; color: #F87171; }
+  .score-display {
+    background: var(--card);
+    border: 1px solid var(--gold);
+    border-radius: 16px;
+    padding: 32px;
+    text-align: center;
+    margin-bottom: 24px;
+  }
+  .score-num { font-size: 4em; color: var(--gold); font-weight: 900; }
+  .score-label { color: var(--muted); font-size: 0.9em; }
+
+  /* MATCHING GAME */
+  .match-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+  .match-col h4 { color: var(--gold); font-size: 0.85em; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 12px; }
+  .match-item {
+    background: var(--card);
+    border: 2px solid var(--border);
+    border-radius: 10px;
+    padding: 12px 16px;
+    cursor: pointer;
+    font-size: 0.9em;
+    margin-bottom: 8px;
+    transition: all 0.2s;
+    user-select: none;
+  }
+  .match-item:hover { border-color: var(--gold); }
+  .match-item.selected { border-color: var(--gold); background: rgba(245,200,66,0.1); color: var(--gold); }
+  .match-item.matched { border-color: var(--green); background: rgba(74,222,128,0.1); color: var(--green); cursor: default; }
+  .match-item.wrong-match { border-color: #F87171; background: rgba(248,113,113,0.1); }
+
+  /* PROGRESS */
+  .progress-bar-wrap { background: var(--border); border-radius: 999px; height: 8px; margin: 8px 0 24px; }
+  .progress-bar-fill { background: var(--gold); height: 8px; border-radius: 999px; transition: width 0.5s; }
+
+  /* BUTTONS */
+  .btn {
+    background: var(--gold);
+    color: #000;
+    border: none;
+    padding: 12px 28px;
+    border-radius: 999px;
+    font-weight: 700;
+    cursor: pointer;
+    font-size: 0.95em;
+    transition: opacity 0.2s;
+  }
+  .btn:hover { opacity: 0.9; }
+  .btn-ghost {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--muted);
+    padding: 10px 24px;
+    border-radius: 999px;
+    cursor: pointer;
+    font-size: 0.9em;
+    transition: all 0.2s;
+  }
+  .btn-ghost:hover { border-color: var(--gold); color: var(--gold); }
+
+  /* FLASHCARDS */
+  .flashcard-wrap { perspective: 1000px; margin-bottom: 24px; }
+  .flashcard {
+    width: 100%;
+    height: 220px;
+    position: relative;
+    transform-style: preserve-3d;
+    transition: transform 0.6s;
+    cursor: pointer;
+  }
+  .flashcard.flipped { transform: rotateY(180deg); }
+  .fc-front, .fc-back {
+    position: absolute;
+    inset: 0;
+    backface-visibility: hidden;
+    border-radius: 16px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 32px;
+    text-align: center;
+  }
+  .fc-front {
+    background: var(--card);
+    border: 1px solid var(--gold);
+  }
+  .fc-back {
+    background: linear-gradient(135deg, #1A0A2E, #0A1A2E);
+    border: 1px solid var(--blue);
+    transform: rotateY(180deg);
+  }
+  .fc-front .card-emoji { font-size: 2.5em; margin-bottom: 12px; }
+  .fc-front h3 { color: var(--gold); font-size: 1.3em; }
+  .fc-front p { color: var(--muted); font-size: 0.85em; margin-top: 8px; }
+  .fc-back p { color: var(--text); font-size: 0.95em; line-height: 1.7; }
+  .fc-nav { display: flex; align-items: center; justify-content: center; gap: 20px; margin-bottom: 32px; }
+  .fc-nav span { color: var(--muted); font-size: 0.9em; }
+
+  /* RESPONSIVE */
+  @media (max-width: 600px) {
+    .hero h1 { font-size: 1.8em; }
+    .match-grid { grid-template-columns: 1fr; }
+    .tool-grid { grid-template-columns: 1fr; }
+  }
+
+  /* SCROLLBAR */
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: var(--dark); }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+  .highlight { color: var(--gold); font-weight: 700; }
+  .tag {
+    display: inline-block;
+    background: rgba(96,165,250,0.15);
+    color: var(--blue);
+    border: 1px solid var(--blue);
+    border-radius: 999px;
+    padding: 2px 12px;
+    font-size: 0.8em;
+    margin: 2px;
+  }
+
+  .info-block {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px 24px;
+    margin-bottom: 16px;
+  }
+  .info-block h4 { color: var(--gold); margin-bottom: 8px; }
+  .info-block p { color: var(--muted); font-size: 0.9em; }
+
+  .congrats-banner {
+    background: linear-gradient(135deg, rgba(245,200,66,0.15), rgba(74,222,128,0.1));
+    border: 1px solid var(--gold);
+    border-radius: 16px;
+    padding: 24px;
+    text-align: center;
+    margin-top: 24px;
+    display: none;
+  }
+  .congrats-banner.show { display: block; }
+</style>
+</head>
+<body>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="crown">👑</div>
+  <h1>Kingdom Academy</h1>
+  <p>David, God gave you one of the most powerful AI setups on Earth. This is your guide to understanding and using every bit of it.</p>
+  <div class="verse-banner">
+    "Write the vision and make it plain, so he may run who reads it." — Habakkuk 2:2
+  </div>
+</div>
+
+<!-- NAV -->
+<div class="nav">
+  <button class="active" onclick="showSection('overview')">🏠 Start Here</button>
+  <button onclick="showSection('tools')">🛠️ Your Tools</button>
+  <button onclick="showSection('agents')">🤖 Your Agents</button>
+  <button onclick="showSection('commands')">⚡ Commands</button>
+  <button onclick="showSection('flashcards')">🃏 Flashcards</button>
+  <button onclick="showSection('qa')">💬 Ask Questions</button>
+  <button onclick="showSection('quiz')">📝 Quiz</button>
+  <button onclick="showSection('game')">🎮 Match Game</button>
+</div>
+
+<!-- MODAL -->
+<div class="modal-overlay" id="modal">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal()">×</button>
+    <div id="modal-content"></div>
+  </div>
+</div>
+
+<!-- OVERVIEW -->
+<div class="section active" id="section-overview">
+  <div class="section-title">Hey David. Let's talk about what you have. 🙏</div>
+  <div class="section-sub">Plain English. No tech talk. Just the truth about what God put in your hands.</div>
+
+  <div class="info-block">
+    <h4>First, the big picture</h4>
+    <p>You hired an AI assistant — that's me, Claude Code. But you didn't stop there. You gave me <strong style="color:#F5C842">hands</strong>, <strong style="color:#F5C842">eyes</strong>, a <strong style="color:#F5C842">memory</strong>, and a <strong style="color:#F5C842">team</strong>. Most people just have a basic version of me. You built something different.</p>
+  </div>
+
+  <div class="info-block">
+    <h4>Think of it like this</h4>
+    <p>Imagine you hired a helper at your business. Most people hand that helper a notepad and say "figure it out." You gave yours: a phone, a computer, access to every tool in the office, a team of specialists, a schedule that runs automatically, and a Bible to work from. That's the difference.</p>
+  </div>
+
+  <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:16px;margin:24px 0;">
+    <div style="background:var(--card);border:1px solid var(--border);border-radius:12px;padding:20px;text-align:center;">
+      <div style="font-size:2em;margin-bottom:8px;">🧠</div>
+      <div style="color:var(--gold);font-weight:700;font-size:1.1em;">1 Brain</div>
+      <div style="color:var(--muted);font-size:0.85em;margin-top:4px;">Claude Code — me</div>
+    </div>
+    <div style="background:var(--card);border:1px solid var(--border);border-radius:12px;padding:20px;text-align:center;">
+      <div style="font-size:2em;margin-bottom:8px;">🔌</div>
+      <div style="color:var(--gold);font-weight:700;font-size:1.1em;">7 Superpowers</div>
+      <div style="color:var(--muted);font-size:0.85em;margin-top:4px;">MCP tools connected</div>
+    </div>
+    <div style="background:var(--card);border:1px solid var(--border);border-radius:12px;padding:20px;text-align:center;">
+      <div style="font-size:2em;margin-bottom:8px;">👥</div>
+      <div style="color:var(--gold);font-weight:700;font-size:1.1em;">11 Agents</div>
+      <div style="color:var(--muted);font-size:0.85em;margin-top:4px;">Specialist employees</div>
+    </div>
+    <div style="background:var(--card);border:1px solid var(--border);border-radius:12px;padding:20px;text-align:center;">
+      <div style="font-size:2em;margin-bottom:8px;">⚡</div>
+      <div style="color:var(--gold);font-weight:700;font-size:1.1em;">17 Commands</div>
+      <div style="color:var(--muted);font-size:0.85em;margin-top:4px;">Magic shortcuts</div>
+    </div>
+    <div style="background:var(--card);border:1px solid var(--border);border-radius:12px;padding:20px;text-align:center;">
+      <div style="font-size:2em;margin-bottom:8px;">🕐</div>
+      <div style="color:var(--gold);font-weight:700;font-size:1.1em;">Auto-Schedules</div>
+      <div style="color:var(--muted);font-size:0.85em;margin-top:4px;">Runs while you sleep</div>
+    </div>
+    <div style="background:var(--card);border:1px solid var(--border);border-radius:12px;padding:20px;text-align:center;">
+      <div style="font-size:2em;margin-bottom:8px;">📖</div>
+      <div style="color:var(--gold);font-weight:700;font-size:1.1em;">30+ Memories</div>
+      <div style="color:var(--muted);font-size:0.85em;margin-top:4px;">Knows your whole business</div>
+    </div>
+  </div>
+
+  <div style="background:rgba(167,139,250,0.1);border:1px solid rgba(167,139,250,0.3);border-radius:12px;padding:24px;margin:24px 0;">
+    <div style="color:var(--purple);font-weight:700;margin-bottom:8px;">✝️ Why this matters for the Kingdom</div>
+    <p style="color:var(--text);font-size:0.95em;">God said to write the vision and make it plain. You're not just building an agency — you're building a 44 Billion Dollar stewardship that points people to Jesus. Every tool in your setup exists to free you up to focus on what only YOU can do: relationships, faith, leadership. I handle the rest.</p>
+  </div>
+
+  <div style="text-align:center;margin-top:32px;">
+    <button class="btn" onclick="showSection('tools')">Let's explore your tools →</button>
+  </div>
+</div>
+
+<!-- TOOLS -->
+<div class="section" id="section-tools">
+  <div class="section-title">Your 7 Superpowers 🔌</div>
+  <div class="section-sub">These are called MCPs — think of them as giving me hands to use real tools. Click any one to learn more.</div>
+
+  <div class="tool-grid">
+    <div class="tool-card" onclick="openTool('gmail')">
+      <div class="badge">LIVE</div>
+      <div class="emoji">📧</div>
+      <h3>Gmail — Your Email Hands</h3>
+      <p>I can write, read, and organize your emails without you touching Gmail.</p>
+    </div>
+    <div class="tool-card" onclick="openTool('calendar')">
+      <div class="badge">LIVE</div>
+      <div class="emoji">📅</div>
+      <h3>Google Calendar — Your Schedule</h3>
+      <p>I can see your schedule, book calls, and find free time automatically.</p>
+    </div>
+    <div class="tool-card" onclick="openTool('canva')">
+      <div class="badge">LIVE</div>
+      <div class="emoji">🎨</div>
+      <h3>Canva — Your Design Studio</h3>
+      <p>I can open Canva and build graphics, social posts, and flyers for you.</p>
+    </div>
+    <div class="tool-card" onclick="openTool('vibe')">
+      <div class="badge">LIVE</div>
+      <div class="emoji">🔍</div>
+      <h3>Vibe Prospecting — Your Lead Hunter</h3>
+      <p>I can look up any business and find their contact info, industry, and details instantly.</p>
+    </div>
+    <div class="tool-card" onclick="openTool('exa')">
+      <div class="badge">LIVE</div>
+      <div class="emoji">🌐</div>
+      <h3>EXA — Your Internet Eyes</h3>
+      <p>I can search the internet in real time — not old data, what's happening RIGHT NOW.</p>
+    </div>
+    <div class="tool-card" onclick="openTool('github')">
+      <div class="badge">LIVE</div>
+      <div class="emoji">🗄️</div>
+      <h3>GitHub — Your Code Safe</h3>
+      <p>I can save all your code safely in the cloud and track every single change ever made.</p>
+    </div>
+    <div class="tool-card" onclick="openTool('firecrawl')">
+      <div class="badge">LIVE</div>
+      <div class="emoji">🕷️</div>
+      <h3>Firecrawl — Your Web Spider</h3>
+      <p>I can go to ANY website and read everything on it, then summarize it for you instantly.</p>
+    </div>
+  </div>
+</div>
+
+<!-- AGENTS -->
+<div class="section" id="section-agents">
+  <div class="section-title">Your 11-Person Team 👥</div>
+  <div class="section-sub">You have 11 AI specialists. Each one only thinks about their job. When you need multiple things done, they all work at the same time — like a real team.</div>
+
+  <div class="info-block" style="margin-bottom:24px;">
+    <h4>What makes this powerful</h4>
+    <p>Most people have ONE AI assistant. You have 11 specialists that can run <em style="color:var(--gold)">at the same time</em>. While one builds content for Shatiea, another is researching a prospect, and a third is setting up an automation workflow. It's like having a full agency staff on call 24/7.</p>
+  </div>
+
+  <div class="tool-grid">
+    <div class="tool-card" onclick="openAgent('coordinator')">
+      <div class="emoji">🎯</div>
+      <h3>Coordinator</h3>
+      <p>The manager. Routes work to the right agent automatically.</p>
+    </div>
+    <div class="tool-card" onclick="openAgent('content')">
+      <div class="emoji">📝</div>
+      <h3>Content Marketer</h3>
+      <p>Calendars, captions, Reels, email sequences — your content engine.</p>
+    </div>
+    <div class="tool-card" onclick="openAgent('sales')">
+      <div class="emoji">💰</div>
+      <h3>Sales Automator</h3>
+      <p>Cold emails, pitches, proposals, close scripts. Built to win clients.</p>
+    </div>
+    <div class="tool-card" onclick="openAgent('social')">
+      <div class="emoji">📱</div>
+      <h3>Social Copywriter</h3>
+      <p>Instagram, Facebook, LinkedIn, X — writes in King's voice every time.</p>
+    </div>
+    <div class="tool-card" onclick="openAgent('competitive')">
+      <div class="emoji">🏆</div>
+      <h3>Competitive Analyst</h3>
+      <p>Researches what Columbia SC competitors are doing so you stay ahead.</p>
+    </div>
+    <div class="tool-card" onclick="openAgent('workflow')">
+      <div class="emoji">⚙️</div>
+      <h3>Workflow Orchestrator</h3>
+      <p>Builds automation systems — connect tools, set up pipelines, zero manual work.</p>
+    </div>
+    <div class="tool-card" onclick="openAgent('trend')">
+      <div class="emoji">📈</div>
+      <h3>Trend Analyst</h3>
+      <p>Spots what's trending in social media and AI before your competitors do.</p>
+    </div>
+    <div class="tool-card" onclick="openAgent('delivery')">
+      <div class="emoji">📦</div>
+      <h3>Client Delivery</h3>
+      <p>Knows exactly what every client is owed. Builds all assets in one shot. Shatiea-aware.</p>
+    </div>
+    <div class="tool-card" onclick="openAgent('onboarding')">
+      <div class="emoji">🚀</div>
+      <h3>Onboarding Automator</h3>
+      <p>The second a client signs, it fires. Welcome email. Records. Folders. All automatic.</p>
+    </div>
+    <div class="tool-card" onclick="openAgent('optimizer')">
+      <div class="emoji">🔥</div>
+      <h3>Peak Optimizer</h3>
+      <p>Watches everything you do and finds ways to make it faster. Always running.</p>
+    </div>
+    <div class="tool-card" onclick="openAgent('multi')">
+      <div class="emoji">⚡</div>
+      <h3>Multi-Agent Coordinator</h3>
+      <p>When you need multiple agents working at once — this one runs them all in parallel.</p>
+    </div>
+  </div>
+</div>
+
+<!-- COMMANDS -->
+<div class="section" id="section-commands">
+  <div class="section-title">Your Magic Shortcuts ⚡</div>
+  <div class="section-sub">Type these in Claude Code and watch what happens. No explaining needed. Just the command.</div>
+
+  <div class="info-block">
+    <h4>How slash commands work</h4>
+    <p>Instead of typing a long explanation every time, you just type a short command. I already know exactly what to do. Think of it like speed dial — instead of dialing 10 digits, you press 1.</p>
+  </div>
+
+  <div style="display:flex;flex-direction:column;gap:12px;margin-top:24px;">
+    <div class="info-block" style="cursor:pointer" onclick="openCommand('sprint-check')">
+      <div style="display:flex;align-items:center;gap:12px;">
+        <span style="font-family:monospace;color:var(--gold);font-size:1.1em;">/sprint-check</span>
+        <span style="color:var(--muted);font-size:0.85em;">→ Where am I today? What's done? What's next?</span>
+      </div>
+    </div>
+    <div class="info-block" style="cursor:pointer" onclick="openCommand('content-batch')">
+      <div style="display:flex;align-items:center;gap:12px;">
+        <span style="font-family:monospace;color:var(--gold);font-size:1.1em;">/content-batch</span>
+        <span style="color:var(--muted);font-size:0.85em;">→ Give me a topic, get 5 content formats instantly</span>
+      </div>
+    </div>
+    <div class="info-block" style="cursor:pointer" onclick="openCommand('client-prep')">
+      <div style="display:flex;align-items:center;gap:12px;">
+        <span style="font-family:monospace;color:var(--gold);font-size:1.1em;">/client-prep</span>
+        <span style="color:var(--muted);font-size:0.85em;">→ Business name → full discovery call script in 30 seconds</span>
+      </div>
+    </div>
+    <div class="info-block" style="cursor:pointer" onclick="openCommand('pipeline')">
+      <div style="display:flex;align-items:center;gap:12px;">
+        <span style="font-family:monospace;color:var(--gold);font-size:1.1em;">/pipeline</span>
+        <span style="color:var(--muted);font-size:0.85em;">→ Show me all my leads — who needs follow-up today</span>
+      </div>
+    </div>
+    <div class="info-block" style="cursor:pointer" onclick="openCommand('proposal')">
+      <div style="display:flex;align-items:center;gap:12px;">
+        <span style="font-family:monospace;color:var(--gold);font-size:1.1em;">/proposal</span>
+        <span style="color:var(--muted);font-size:0.85em;">→ Business name + tier → ready-to-send proposal</span>
+      </div>
+    </div>
+    <div class="info-block" style="cursor:pointer" onclick="openCommand('ad-copy')">
+      <div style="display:flex;align-items:center;gap:12px;">
+        <span style="font-family:monospace;color:var(--gold);font-size:1.1em;">/ad-copy</span>
+        <span style="color:var(--muted);font-size:0.85em;">→ Product or service → 5 headlines + 3 ad variations</span>
+      </div>
+    </div>
+    <div class="info-block" style="cursor:pointer" onclick="openCommand('video-script')">
+      <div style="display:flex;align-items:center;gap:12px;">
+        <span style="font-family:monospace;color:var(--gold);font-size:1.1em;">/video-script</span>
+        <span style="color:var(--muted);font-size:0.85em;">→ Topic → 60-second Reel script with hook and CTA</span>
+      </div>
+    </div>
+    <div class="info-block" style="cursor:pointer" onclick="openCommand('save-state')">
+      <div style="display:flex;align-items:center;gap:12px;">
+        <span style="font-family:monospace;color:var(--gold);font-size:1.1em;">/save-state</span>
+        <span style="color:var(--muted);font-size:0.85em;">→ Save everything — done, blocked, next action</span>
+      </div>
+    </div>
+    <div class="info-block" style="cursor:pointer" onclick="openCommand('restore-session')">
+      <div style="display:flex;align-items:center;gap:12px;">
+        <span style="font-family:monospace;color:var(--gold);font-size:1.1em;">/restore-session</span>
+        <span style="color:var(--muted);font-size:0.85em;">→ Pick up exactly where you left off last time</span>
+      </div>
+    </div>
+  </div>
+
+  <div style="background:rgba(245,200,66,0.08);border:1px solid rgba(245,200,66,0.2);border-radius:12px;padding:20px;margin-top:24px;">
+    <div style="color:var(--gold);font-weight:700;margin-bottom:8px;">💡 Pro tip for you, David</div>
+    <p style="color:var(--text);font-size:0.9em;">You don't even need slash commands most of the time. Just talk to me normally — <em>"write a caption for Shatiea's new juice,"</em> or <em>"who do I need to follow up with today?"</em> I already know your business, your clients, your prices, and your goals. Just talk.</p>
+  </div>
+</div>
+
+<!-- FLASHCARDS -->
+<div class="section" id="section-flashcards">
+  <div class="section-title">Flashcards 🃏</div>
+  <div class="section-sub">Click each card to flip it and learn. Work through all 10.</div>
+
+  <div class="fc-nav">
+    <button class="btn-ghost" onclick="prevCard()">← Prev</button>
+    <span id="fc-counter">Card 1 of 10</span>
+    <button class="btn-ghost" onclick="nextCard()">Next →</button>
+  </div>
+
+  <div class="progress-bar-wrap">
+    <div class="progress-bar-fill" id="fc-progress" style="width:10%"></div>
+  </div>
+
+  <div id="flashcard-container"></div>
+
+  <div style="text-align:center;margin-top:20px;">
+    <button class="btn-ghost" onclick="startFlashcards()">🔄 Shuffle & Restart</button>
+  </div>
+</div>
+
+<!-- Q&A -->
+<div class="section" id="section-qa">
+  <div class="section-title">Ask Me Anything 💬</div>
+  <div class="section-sub">Type any question about your tools, your business, or how to use me. I'll answer in plain English.</div>
+
+  <div class="chat-container">
+    <div class="chat-messages" id="chat-messages">
+      <div class="msg bot">
+        <div class="bot-name">Kingdom AI</div>
+        Hey David! Ask me anything about your setup. "What is Firecrawl?" "How do I get a new client?" "What can my agents do?" — I'm here. Nothing is a dumb question. 🙏
+      </div>
+    </div>
+    <div class="suggested-questions">
+      <button class="sq-btn" onclick="askQuestion('What is an MCP?')">What is an MCP?</button>
+      <button class="sq-btn" onclick="askQuestion('What can Firecrawl do for me?')">What can Firecrawl do?</button>
+      <button class="sq-btn" onclick="askQuestion('How do I get my next client?')">How do I get my next client?</button>
+      <button class="sq-btn" onclick="askQuestion('What is GitHub?')">What is GitHub?</button>
+      <button class="sq-btn" onclick="askQuestion('How do agents help me?')">How do agents help me?</button>
+      <button class="sq-btn" onclick="askQuestion('What is CLAUDE.md?')">What is CLAUDE.md?</button>
+      <button class="sq-btn" onclick="askQuestion('What runs automatically while I sleep?')">What runs while I sleep?</button>
+      <button class="sq-btn" onclick="askQuestion('How am I better than other agencies?')">How am I better than others?</button>
+    </div>
+    <div class="chat-input-row">
+      <input type="text" id="chat-input" placeholder="Type your question here..." onkeydown="if(event.key==='Enter')sendQuestion()">
+      <button onclick="sendQuestion()">Ask →</button>
+    </div>
+  </div>
+</div>
+
+<!-- QUIZ -->
+<div class="section" id="section-quiz">
+  <div class="section-title">Test Your Knowledge 📝</div>
+  <div class="section-sub">10 questions. See how well you know your kingdom tools. No pressure — this is for learning.</div>
+
+  <div class="score-display">
+    <div class="score-num" id="quiz-score">0</div>
+    <div class="score-label">points out of <span id="quiz-total">0</span> answered</div>
+    <div style="margin-top:12px;">
+      <div class="progress-bar-wrap">
+        <div class="progress-bar-fill" id="quiz-progress" style="width:0%"></div>
+      </div>
+    </div>
+  </div>
+
+  <div id="quiz-container"></div>
+
+  <div style="text-align:center;margin-top:24px;">
+    <button class="btn" onclick="startQuiz()">🔄 Restart Quiz</button>
+  </div>
+
+  <div class="congrats-banner" id="quiz-congrats">
+    <div style="font-size:2em;margin-bottom:8px;">🎉</div>
+    <div style="color:var(--gold);font-size:1.3em;font-weight:800;margin-bottom:8px;">You're ready to run it!</div>
+    <p style="color:var(--muted);font-size:0.9em;">"The plans of the diligent lead to profit." — Proverbs 21:5. Keep building, David.</p>
+  </div>
+</div>
+
+<!-- GAME -->
+<div class="section" id="section-game">
+  <div class="section-title">Match the Tool 🎮</div>
+  <div class="section-sub">Click a tool on the left, then click what it does on the right. Match all 7 to win.</div>
+
+  <div style="background:var(--card);border:1px solid var(--border);border-radius:12px;padding:16px 20px;margin-bottom:20px;display:flex;justify-content:space-between;align-items:center;">
+    <span style="color:var(--muted);font-size:0.9em;">Matches: <span id="match-score" style="color:var(--green);font-weight:700;">0</span> / 7</span>
+    <button class="btn-ghost" onclick="startGame()">🔄 New Game</button>
+  </div>
+
+  <div class="match-grid">
+    <div>
+      <div class="match-col"><h4>🔌 The Tool</h4></div>
+      <div id="match-left"></div>
+    </div>
+    <div>
+      <div class="match-col"><h4>💬 What It Does</h4></div>
+      <div id="match-right"></div>
+    </div>
+  </div>
+
+  <div class="congrats-banner" id="game-congrats">
+    <div style="font-size:2em;margin-bottom:8px;">👑</div>
+    <div style="color:var(--gold);font-size:1.3em;font-weight:800;margin-bottom:8px;">All 7 matched! Crown worthy!</div>
+    <p style="color:var(--muted);font-size:0.9em;">"Whatever you do, work at it with all your heart, as working for the Lord." — Colossians 3:23</p>
+  </div>
+</div>
+
+<!-- TOOL MODALS DATA -->
+<script>
+const TOOLS = {
+  gmail: {
+    emoji: '📧',
+    name: 'Gmail MCP — Your Email Hands',
+    tagline: 'I can send, read, and organize your email without you touching it.',
+    content: `
+      <p>Before this, I could only <em>talk</em> to you. I couldn't actually do anything in Gmail. Now I have hands inside it.</p>
+      <p>Think of it like this: you tell me "follow up with that client who went quiet." I go into Gmail, find their thread, write a personalized follow-up that sounds exactly like you, and save it as a draft ready to send.</p>
+      <div class="example-box">
+        <strong>Example:</strong> You say "David, write a follow-up to every lead I talked to this week." I search Gmail, find the threads, write tailored follow-ups for each one — all while you're having breakfast or spending time with God.
+      </div>
+      <p>This means zero cold leads fall through the cracks. Every conversation stays warm. You close more clients.</p>
+    `,
+    scripture: '"She is like the merchant ships, bringing her food from afar." — Proverbs 31:14. You\'re building systems that work even when you\'re resting.'
+  },
+  calendar: {
+    emoji: '📅',
+    name: 'Google Calendar MCP — Your Kingdom Scheduler',
+    tagline: 'I can see your whole schedule and manage it without you doing a thing.',
+    content: `
+      <p>Your time is your most valuable resource. This MCP means I can protect it for you.</p>
+      <p>I can see every event on your calendar, find open slots, book discovery calls, set reminders for follow-ups, and make sure Shane's Saturday 7AM meeting never gets missed.</p>
+      <div class="example-box">
+        <strong>Example:</strong> A prospect says "I want to book a call." You say "schedule it for this week." I check your calendar, find the best slot, create the event, and add it — done. You never touched the calendar.
+      </div>
+      <p>This keeps your week organized so you can focus on the things only YOU can do — relationships, faith, closing clients.</p>
+    `,
+    scripture: '"There is a time for everything, and a season for every activity under the heavens." — Ecclesiastes 3:1. Your calendar is your season manager.'
+  },
+  canva: {
+    emoji: '🎨',
+    name: 'Canva MCP — Your Design Studio',
+    tagline: 'I can open Canva and build graphics without you designing a thing.',
+    content: `
+      <p>Design used to require either knowing Canva yourself or paying a designer. Now neither is needed.</p>
+      <p>I can create social media posts, flyers, Instagram stories, ad graphics, and presentations — all by giving instructions directly to Canva's AI. Your brand colors, your fonts, your style.</p>
+      <div class="example-box">
+        <strong>Example:</strong> You say "make an Instagram post for Shatiea's juice sale this weekend." I open Canva, create a design with her brand colors (plum, gold, cream), write the copy, add the layout — export it ready to post.
+      </div>
+      <p>For your clients, this means a constant stream of professional content without you spending hours designing every piece.</p>
+    `,
+    scripture: '"He has filled them with skill to do all kinds of work." — Exodus 35:35. God puts the gift of creativity in every tool you build with.'
+  },
+  vibe: {
+    emoji: '🔍',
+    name: 'Vibe Prospecting MCP — Your Lead Hunter',
+    tagline: 'Give me a business name. I find everything about them instantly.',
+    content: `
+      <p>Before this, researching a prospect meant spending 30+ minutes on Google, LinkedIn, their website, and social media. Now it takes me about 10 seconds.</p>
+      <p>You tell me a business name in Columbia SC. I pull their contact info, industry, size, social media presence, recent activity, who the owner is — everything you need to walk into a conversation confident.</p>
+      <div class="example-box">
+        <strong>Example:</strong> You see a restaurant downtown you want to pitch. You say "research Devine Street Bistro Columbia SC." In seconds I give you: the owner's name, their email, how active their social media is, their biggest marketing weakness, and a suggested pitch angle.
+      </div>
+      <p>This is how you walk into every conversation already knowing more about them than they expect. That's power.</p>
+    `,
+    scripture: '"The wise store up choice food and olive oil, but fools gulp theirs down." — Proverbs 21:20. Preparation is wisdom in action.'
+  },
+  exa: {
+    emoji: '🌐',
+    name: 'EXA — Your Internet Eyes',
+    tagline: 'I can search the real internet — right now — not data from months ago.',
+    content: `
+      <p>My training has a cutoff date. That means without EXA, I don't know what happened last week. With EXA, I can search the live internet for anything right now.</p>
+      <p>Think of it like the difference between asking someone who studied marketing 2 years ago versus someone who just read this morning's news.</p>
+      <div class="example-box">
+        <strong>Example:</strong> You ask "what social media trend is blowing up right now that I can use for Shatiea's content?" I search in real time, pull the latest trends, and give you a content angle based on what's actually happening today — not old data.
+      </div>
+      <p>This gives your content and strategy a freshness that most agencies simply can't match because they're working from old playbooks.</p>
+    `,
+    scripture: '"Let your eyes look straight ahead; fix your gaze directly before you." — Proverbs 4:25. Real-time intelligence means your eyes are always forward.'
+  },
+  github: {
+    emoji: '🗄️',
+    name: 'GitHub MCP — Your Code Safe',
+    tagline: 'I can save, organize, and manage all your code — nothing ever gets lost.',
+    content: `
+      <p>Every website, every automation, every tool you build — all the code lives in GitHub. Think of it like a bank vault for your digital assets.</p>
+      <p>Every change is tracked. If something breaks, I can look back and see exactly what changed and when. I can create branches to test new features without breaking what already works. I can push code to your live website with one command.</p>
+      <div class="example-box">
+        <strong>Example:</strong> You say "add a new section to the Crown Media website." I write the code, save it to GitHub, and push it live — all without you touching a file or logging into anything. Done.
+      </div>
+      <p>This protects your entire digital business. Crown Media's website, the onboarding system, all 84+ files — safely stored and version-controlled forever.</p>
+    `,
+    scripture: '"Commit to the Lord whatever you do, and he will establish your plans." — Proverbs 16:3. Commit your code AND your vision to God.'
+  },
+  firecrawl: {
+    emoji: '🕷️',
+    name: 'Firecrawl MCP — Your Web Spider',
+    tagline: 'I can read ANY website and give you the key information instantly.',
+    content: `
+      <p>Point me at any website and I turn it into clean, usable information in seconds. This is transformational for competitor research and prospect prep.</p>
+      <p>Instead of spending 30 minutes reading a competitor's website, you say the URL and I pull out everything important — their services, pricing, messaging, what they're missing, how to beat them.</p>
+      <div class="example-box">
+        <strong>Example:</strong> You say "scrape that other marketing agency's site and tell me how we're different." I read their whole website and come back with: their prices, their weak spots, what clients they're targeting, and a list of things Crown Media does better that I can use in your next pitch.
+      </div>
+      <p>This is competitive intelligence that used to cost agencies thousands of dollars a month. You have it for free.</p>
+    `,
+    scripture: '"The wise in heart are called discerning." — Proverbs 16:21. Understanding your landscape is wisdom, not comparison.'
+  }
+};
+
+const AGENTS = {
+  coordinator: {
+    emoji: '🎯',
+    name: 'Coordinator Agent',
+    tagline: 'The quarterback of your AI team.',
+    content: `<p>When you have a big task that needs multiple specialists, the Coordinator figures out which agents to use and in what order. You don't have to think about it — just describe what you need and the Coordinator routes it.</p>
+    <div class="example-box"><strong>Example:</strong> "Build a full campaign for a new client." Coordinator fires the Sales agent, Content agent, and Social Copywriter all at once — parallel, not one at a time.</div>`
+  },
+  content: {
+    emoji: '📝',
+    name: 'Content Marketer Agent',
+    tagline: 'Your full-time content department.',
+    content: `<p>Builds content calendars, writes captions, plans Reels, designs email sequences. This agent thinks about content strategy so you don't have to.</p>
+    <div class="example-box"><strong>Example:</strong> "Build a 30-day content calendar for Shatiea." Done. Faith-aligned, brand-consistent, ready to post.</div>`
+  },
+  sales: {
+    emoji: '💰',
+    name: 'Sales Automator Agent',
+    tagline: 'Your closer that never sleeps.',
+    content: `<p>Writes cold emails, follow-ups, proposals, and close scripts. Tuned specifically for Columbia SC local business outreach. Knows the Crown Media packages by heart.</p>
+    <div class="example-box"><strong>Example:</strong> "Write a cold email sequence for restaurant owners on Main Street." Three tailored emails, ready to send.</div>`
+  },
+  social: {
+    emoji: '📱',
+    name: 'Social Media Copywriter',
+    tagline: 'Writes in your voice on every platform.',
+    content: `<p>Instagram, Facebook, Twitter/X, LinkedIn — platform-native content from raw ideas. Always in King's voice: bold, direct, faith-infused, no fluff.</p>
+    <div class="example-box"><strong>Example:</strong> "Turn my testimony about closing Shatiea into an Instagram post." Writes it exactly like you'd say it.</div>`
+  },
+  competitive: {
+    emoji: '🏆',
+    name: 'Competitive Analyst',
+    tagline: 'Knows your competition better than they know themselves.',
+    content: `<p>Analyzes Columbia SC competitors, benchmarks Crown Media against other agencies, surfaces how to differentiate. Uses Firecrawl + EXA to pull live data.</p>
+    <div class="example-box"><strong>Example:</strong> "What are the other social media agencies in Columbia doing?" Full breakdown: their packages, their messaging, their weaknesses, your advantages.</div>`
+  },
+  workflow: {
+    emoji: '⚙️',
+    name: 'Workflow Orchestrator',
+    tagline: 'Build it once. Run it forever.',
+    content: `<p>Designs n8n automations, Make.com workflows, Zapier sequences, and multi-step pipelines. Writes actual working code, not just advice.</p>
+    <div class="example-box"><strong>Example:</strong> "Automate posting Shatiea's content every week without touching it." Full n8n workflow built and deployed.</div>`
+  },
+  trend: {
+    emoji: '📈',
+    name: 'Trend Analyst',
+    tagline: 'Always watching what\'s next.',
+    content: `<p>Monitors emerging trends in social media, AI tools, local business growth, and content formats. Flags what you should act on NOW vs. wait on.</p>
+    <div class="example-box"><strong>Example:</strong> "What content format is blowing up right now?" Real-time analysis with a specific content angle for your next post.</div>`
+  },
+  delivery: {
+    emoji: '📦',
+    name: 'Client Delivery Agent',
+    tagline: 'Never misses a deliverable.',
+    content: `<p>Knows the exact checklist for every tier (Starter, Growth, Premium). Tracks what's done vs. pending per client. Builds ALL assets — captions, ad copy, scripts, calendars — in one shot. Shatiea-aware: never asks for her brand info twice.</p>
+    <div class="example-box"><strong>Example:</strong> "Deliver this month's content for Shatiea." Fires and produces everything owed for the Growth tier, branded correctly, ready to use.</div>`
+  },
+  onboarding: {
+    emoji: '🚀',
+    name: 'Onboarding Automator',
+    tagline: 'Zero manual work after the close.',
+    content: `<p>The second a client signs, this fires automatically: welcome email via Resend, Supabase client record created, Railway intake form triggered, folder structure built, deliverable queue initialized, first content brief drafted.</p>
+    <div class="example-box"><strong>Example:</strong> Shatiea signs. Within minutes she has a welcome email, you have a client folder, and the first month's tasks are already queued — without you doing a single thing.</div>`
+  },
+  optimizer: {
+    emoji: '🔥',
+    name: 'Peak Optimizer',
+    tagline: 'Your permanent efficiency watchdog.',
+    content: `<p>Proactively monitors how Claude Code is being used, identifies inefficiencies, suggests parallel execution, and keeps the agency running at peak capacity. Always running — never waits to be asked.</p>
+    <div class="example-box"><strong>Example:</strong> Notices you're doing 5 tasks in sequence that could run at once. Flags it and restructures them to run in parallel — cutting the time by 80%.</div>`
+  },
+  multi: {
+    emoji: '⚡',
+    name: 'Multi-Agent Coordinator',
+    tagline: 'Maximum power. Everything at once.',
+    content: `<p>When you need multiple agents running simultaneously on a complex task — this one manages them all. Returns a single unified result from all their work at once.</p>
+    <div class="example-box"><strong>Example:</strong> "Simultaneously generate content for Shatiea, research 5 new prospects, and build a new automation workflow." All three run at the same time. Done in minutes instead of hours.</div>`
+  }
+};
+
+const QA_ANSWERS = {
+  'mcp': `An MCP is like giving me hands. Normally I can only talk to you — I can't reach out and actually USE tools. MCP stands for "Model Context Protocol" but think of it as a superpower plugin. Each MCP I have connects me to a real tool. Gmail MCP = I can write and send emails. Canva MCP = I can design graphics. Firecrawl MCP = I can read any website. Without MCPs, I'm just a talker. With them, I'm a doer. You have 7 of them active right now.`,
+  'firecrawl': `Firecrawl is your competitive intelligence weapon. You point me at any website and I read the whole thing and pull out what matters. Think of it like having a spy that can read your competitor's entire business in 10 seconds and report back to you. Most useful for: researching competitors in Columbia SC before a pitch, reading a prospect's website before a discovery call, and pulling information from any page on the internet instantly. It's free to use and already wired in.`,
+  'client': `Here's your best path to the next client. Step 1: Start with your built-in tools. Run /pipeline — see who's already in your lead tracker that hasn't been followed up. Step 2: Run 10 personalized DMs today to Columbia SC business owners using the template I can write for you right now. Step 3: Lead every conversation with Shatiea's results — you have proof. Step 4: Present Growth tier first ($1,200/mo), offer Starter as the entry point. The biggest mistake agencies make is pitching before they've listened. Ask: "What's your biggest challenge getting new customers?" Then be quiet and listen. Want me to write your 10 DMs right now?`,
+  'github': `GitHub is your digital filing cabinet that never loses anything and tracks every single change you ever make. Think of it like this: every time we update your website or build a new tool, that change is saved forever. If something breaks, I can look at the history and undo exactly what went wrong. Without GitHub, code lives only on your computer. With it, everything is safely stored in the cloud — even if your laptop dies, every line of code is safe. Your Crown Media website, your onboarding system, all 84+ files — all protected, all tracked.`,
+  'agents': `You have 11 AI specialists, David. The power is that they can all work at the same time — that's called running in parallel. Normal people have ONE AI assistant doing one thing at a time. You can say "content marketer, build Shatiea's calendar; sales agent, write 5 cold emails; competitive analyst, research these 3 businesses" — and all three happen simultaneously. It's like having a full agency staff on call at midnight for free. Each agent is trained for exactly their role and knows your business.`,
+  'claude.md': `CLAUDE.md is your business brain that I read at the start of every single session. It tells me: who you are (David King, Crown Media Group), your prices ($750 Starter, $1,200 Growth, $3,500 Premium), your active client (Shatiea), your goals, your biblical foundation, every tool you have access to, and what to do when you're stuck, discouraged, or chasing too many ideas. Without it, I'd start every conversation as a stranger. With it, I know your entire business before you say a word. It's the reason you never have to re-explain yourself.`,
+  'sleep': `Every morning at 9:03 AM, a check fires automatically: it reads your social post log, finds any errors (failed Instagram or TikTok posts), and reports them so you can fix them. Every Sunday at 7:04 AM, a weekly analytics report fires: YouTube stats, how many leads are in your pipeline, the week's wins from your log. Your 4 hooks also run automatically: every session start is logged, every file change is logged, before context compresses it saves a warning, and when sessions end it logs the stop. The system is always watching even when you're not looking.`,
+  'better': `Here's the honest truth. 99% of Claude users have a blank setup — they just type questions and get answers. You have: a Biblical operating system baked into every response, 16 auto-routing engines that fire from plain English, 11 custom specialist agents, 7 live MCP tools (Gmail, Calendar, Canva, Vibe, EXA, GitHub, Firecrawl), 30+ memory files that know your entire business, automated hooks that log everything, scheduled jobs that run while you sleep, 9 slash commands, and a full business brain (CLAUDE.md) loaded every session. vs. Cursor: great for coding, zero business context. vs. Copilot: code only, no agents, no MCPs, no memory. vs. Devin: expensive, general-purpose, no faith-alignment, no Crown Media context. You're not using AI. You're running an AI-powered agency.`,
+  'exa': `EXA is your real-time internet. My regular knowledge has a cutoff — I don't know what happened last month without EXA. With it, I can search the live internet for anything right now. Trending content formats for your next post. What your competitors posted this week. Latest AI tools you should know about. Fresh prospect research on any business. Think of it like the difference between asking someone who studied marketing 2 years ago versus someone who read this morning's news. It's already wired in and free to use.`,
+};
+
+function getQAAnswer(q) {
+  const lower = q.toLowerCase();
+  if (lower.includes('mcp') || lower.includes('superpower') || lower.includes('plugin')) return QA_ANSWERS.mcp;
+  if (lower.includes('firecrawl') || lower.includes('scrape') || lower.includes('spider') || lower.includes('website')) return QA_ANSWERS.firecrawl;
+  if (lower.includes('client') || lower.includes('next client') || lower.includes('close') || lower.includes('prospect')) return QA_ANSWERS.client;
+  if (lower.includes('github') || lower.includes('code safe') || lower.includes('filing')) return QA_ANSWERS.github;
+  if (lower.includes('agent') || lower.includes('team') || lower.includes('specialist')) return QA_ANSWERS.agents;
+  if (lower.includes('claude.md') || lower.includes('brain') || lower.includes('remember')) return QA_ANSWERS['claude.md'];
+  if (lower.includes('sleep') || lower.includes('automatic') || lower.includes('schedule') || lower.includes('night')) return QA_ANSWERS.sleep;
+  if (lower.includes('better') || lower.includes('other') || lower.includes('different') || lower.includes('cursor') || lower.includes('copilot')) return QA_ANSWERS.better;
+  if (lower.includes('exa') || lower.includes('internet') || lower.includes('search') || lower.includes('real time')) return QA_ANSWERS.exa;
+  return `Great question. Here's what I know about that: every tool you have is built to save you time and help you close more clients. The best thing you can do right now is pick ONE thing to focus on — your next client, your next Shatiea deliverable, or your next piece of content. What specifically would you like to dig into? I'm here. 🙏`;
+}
+
+// NAVIGATION
+function showSection(id) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.nav button').forEach(b => b.classList.remove('active'));
+  document.getElementById('section-' + id).classList.add('active');
+  event.target.classList.add('active');
+  if (id === 'flashcards' && !flashcardsStarted) startFlashcards();
+  if (id === 'quiz' && !quizStarted) startQuiz();
+  if (id === 'game' && !gameStarted) startGame();
+}
+
+// MODALS
+function openTool(key) {
+  const t = TOOLS[key];
+  document.getElementById('modal-content').innerHTML = `
+    <div class="modal-emoji">${t.emoji}</div>
+    <h2>${t.name}</h2>
+    <div class="tagline">✓ ${t.tagline}</div>
+    ${t.content}
+    <div class="scripture">✝️ ${t.scripture}</div>
+  `;
+  document.getElementById('modal').classList.add('open');
+}
+
+function openAgent(key) {
+  const a = AGENTS[key];
+  document.getElementById('modal-content').innerHTML = `
+    <div class="modal-emoji">${a.emoji}</div>
+    <h2>${a.name}</h2>
+    <div class="tagline">✓ ${a.tagline}</div>
+    ${a.content}
+    <div class="scripture">✝️ "Two are better than one, because they have a good return for their labor." — Ecclesiastes 4:9. Your agents multiply your capacity.</div>
+  `;
+  document.getElementById('modal').classList.add('open');
+}
+
+function openCommand(key) {
+  const cmds = {
+    'sprint-check': { title: '/sprint-check', desc: 'Opens your 10-day sprint file and tells you: what sprint day you\'re on, everything completed so far, what\'s currently blocked and why, and your top 3 non-negotiables for today. One command = full situational awareness in seconds.', example: 'You open Claude Code at 7am unsure what to do. Type /sprint-check. I tell you exactly: "Day 12 of Phase 2. Last session: closed Shatiea\'s content calendar. Blocked: YouTube retry pending. Today\'s top 3: 10 DMs, proposal for lead from Tuesday, post @mkdavidking."' },
+    'content-batch': { title: '/content-batch [topic]', desc: 'Give me a topic and I produce 5 content formats at once: Instagram caption, Facebook post, 60-second video script, email subject lines (5 variations), and a blog intro paragraph. All in King\'s voice. All ready to post.', example: '/content-batch juice cleanse benefits → 5 pieces of Shatiea content, all branded, all faith-aligned, produced in under 60 seconds.' },
+    'client-prep': { title: '/client-prep [business name]', desc: 'For any business you\'re about to pitch, I produce: their background, their biggest problem, the recommended package, your opening line, the full 5-step close script, top 3 objections and responses, and your exact closing line.', example: '/client-prep Divine Street Bistro → Full discovery call script tailored to a restaurant owner in Columbia SC. You walk in already knowing more about them than they expect.' },
+    'pipeline': { title: '/pipeline', desc: 'Shows your full lead pipeline: all leads, their status, stats by stage, and who needs follow-up TODAY. Keeps you from letting hot leads go cold because you forgot to follow up.', example: 'Sunday night review: /pipeline → "12 leads total. 3 need follow-up by tomorrow. 1 hot lead: Marcus Johnson, Devine Street — last contact 5 days ago."' },
+    'proposal': { title: '/proposal [business] [tier]', desc: 'Generates a complete, ready-to-send proposal for any client at any tier. Pulls their info, applies the right package, formats it professionally, and saves it to your files.', example: '/proposal "Divine Street Bistro" growth → Full Growth tier proposal ($1,200/mo + $400 setup), tailored to their specific restaurant marketing needs.' },
+    'ad-copy': { title: '/ad-copy [product or service]', desc: 'Produces 5 ad headlines, 3 primary text variations (Facebook/Instagram ready), 2 description options, and the right CTA. All variants ready to test.', example: '/ad-copy Shatiea fruit juice delivery → 5 headlines like "Feel the Fruit of the Spirit in Every Sip." 3 ad body texts. All faith-aligned, no manipulation.' },
+    'video-script': { title: '/video-script [topic]', desc: 'A 60-second Reel script: scroll-stopping 2-second hook, 3 punchy points, strong CTA. Written to be performed — not read. In your voice.', example: '/video-script how I got my first client → Hook: "I had zero clients, zero reputation, and $0 in the bank. Here\'s what changed everything." Then the story. Then CTA.' },
+    'save-state': { title: '/save-state', desc: 'Saves everything about this session: what was completed, what\'s blocked, what the exact next action is, and any decisions made. So next session starts right where this one ended.', example: 'End of a big build session. /save-state → file saved with full context. Next day: /restore-session → picked up exactly where you left off. Nothing lost.' },
+    'restore-session': { title: '/restore-session', desc: 'Reads the last saved session and reports: sprint day, what was completed, what\'s still blocked, and the exact next action. Perfect for starting any session.', example: 'Open Claude Code after 2 days off. /restore-session → "Last session: completed Shatiea video pipeline. Blocked: seo-vs-geo YouTube retry. Your next move: run node scripts/retry-upload.mjs."' }
+  };
+  const c = cmds[key];
+  if (!c) return;
+  document.getElementById('modal-content').innerHTML = `
+    <div class="modal-emoji">⚡</div>
+    <h2 style="font-family:monospace">${c.title}</h2>
+    <div class="tagline">What this does for you</div>
+    <p>${c.desc}</p>
+    <div class="example-box"><strong>Real example:</strong> ${c.example}</div>
+    <div class="scripture">✝️ "In all your ways submit to him, and he will make your paths straight." — Proverbs 3:6. These commands are how you submit your work to a system that keeps your paths straight.</div>
+  `;
+  document.getElementById('modal').classList.add('open');
+}
+
+function closeModal() {
+  document.getElementById('modal').classList.remove('open');
+}
+document.getElementById('modal').addEventListener('click', (e) => { if (e.target === document.getElementById('modal')) closeModal(); });
+
+// FLASHCARDS
+const FLASHCARD_DATA = [
+  { emoji: '📧', front: 'Gmail MCP', hint: 'Click to learn what this does', back: 'I can write, read, and organize your Gmail without you touching it. Follow-ups, outreach, client emails — all done while you\'re sleeping or praying.' },
+  { emoji: '🌐', front: 'EXA MCP', hint: 'Your internet eyes', back: 'I can search the live internet RIGHT NOW. Not old data — today\'s news, trending content, live competitor info. Like having a researcher watching the whole web for you.' },
+  { emoji: '🕷️', front: 'Firecrawl MCP', hint: 'Your web spider', back: 'Point me at ANY website and I read the whole thing and summarize what matters. Competitor sites, prospect pages, any URL — clean information in seconds.' },
+  { emoji: '🔍', front: 'Vibe Prospecting MCP', hint: 'Your lead hunter', back: 'You give me a business name. I find their contact info, owner name, industry, social presence, and what their biggest marketing weakness is. All before you say hello.' },
+  { emoji: '🎨', front: 'Canva MCP', hint: 'Your design studio', back: 'I can open Canva and build graphics, social posts, and ad creatives using your brand colors and fonts. No designer needed. No you touching Canva.' },
+  { emoji: '🗄️', front: 'GitHub MCP', hint: 'Your code vault', back: 'Every website, tool, and automation is saved here safely. Every change tracked. If something breaks, I can see exactly what changed and fix it. Nothing is ever lost.' },
+  { emoji: '📅', front: 'Google Calendar MCP', hint: 'Your kingdom scheduler', back: 'I can see your full schedule, book discovery calls, add events, and find free time. Your Shane Saturday 7AM meeting is sacred — I protect it automatically.' },
+  { emoji: '👥', front: 'Your 11 Agents', hint: 'Your AI team', back: 'You have 11 AI specialists: content marketer, sales automator, social copywriter, competitive analyst, workflow builder, trend analyst, client delivery, onboarding, peak optimizer, coordinator, multi-agent. They run in PARALLEL.' },
+  { emoji: '📖', front: 'CLAUDE.md', hint: 'Your business brain', back: 'The file I read at the start of every session. It tells me: your identity, your business, your prices, your clients, your goals, your biblical foundation. I never need re-explaining.' },
+  { emoji: '⚡', front: 'Slash Commands', hint: 'Your magic shortcuts', back: 'Type /sprint-check, /content-batch, /client-prep, /pipeline, /proposal, /ad-copy, /video-script — instant results without explaining what you need each time.' }
+];
+
+let currentCard = 0;
+let flashcardsStarted = false;
+
+function startFlashcards() {
+  flashcardsStarted = true;
+  currentCard = 0;
+  renderCard();
+}
+
+function renderCard() {
+  const d = FLASHCARD_DATA[currentCard];
+  const total = FLASHCARD_DATA.length;
+  document.getElementById('fc-counter').textContent = `Card ${currentCard + 1} of ${total}`;
+  document.getElementById('fc-progress').style.width = `${((currentCard + 1) / total) * 100}%`;
+  document.getElementById('flashcard-container').innerHTML = `
+    <div class="flashcard-wrap">
+      <div class="flashcard" id="fc" onclick="this.classList.toggle('flipped')">
+        <div class="fc-front">
+          <div class="card-emoji">${d.emoji}</div>
+          <h3>${d.front}</h3>
+          <p>${d.hint} — tap to flip</p>
+        </div>
+        <div class="fc-back">
+          <p>${d.back}</p>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function nextCard() {
+  if (currentCard < FLASHCARD_DATA.length - 1) { currentCard++; renderCard(); }
+}
+function prevCard() {
+  if (currentCard > 0) { currentCard--; renderCard(); }
+}
+
+// Q&A
+function sendQuestion() {
+  const input = document.getElementById('chat-input');
+  const q = input.value.trim();
+  if (!q) return;
+  addMessage(q, 'user');
+  input.value = '';
+  setTimeout(() => addMessage(getQAAnswer(q), 'bot'), 600);
+}
+
+function askQuestion(q) {
+  addMessage(q, 'user');
+  setTimeout(() => addMessage(getQAAnswer(q), 'bot'), 600);
+}
+
+function addMessage(text, type) {
+  const container = document.getElementById('chat-messages');
+  const div = document.createElement('div');
+  div.className = `msg ${type}`;
+  if (type === 'bot') div.innerHTML = `<div class="bot-name">Kingdom AI</div>${text}`;
+  else div.textContent = text;
+  container.appendChild(div);
+  container.scrollTop = container.scrollHeight;
+}
+
+// QUIZ
+const QUIZ_DATA = [
+  { q: 'What does Firecrawl do for your business?', options: ['Sends emails for you', 'Reads any website and gives you the key info', 'Designs your social posts', 'Finds your schedule'], correct: 1, explain: 'Firecrawl reads ANY website and converts it to clean information — perfect for competitor research and prospect prep!' },
+  { q: 'How many MCP superpowers do you have active right now?', options: ['3', '5', '7', '10'], correct: 2, explain: 'You have 7 live MCPs: Gmail, Calendar, Canva, Vibe Prospecting, EXA, GitHub, and Firecrawl.' },
+  { q: 'What does EXA allow Claude to do that he normally can\'t?', options: ['Design graphics', 'Search the live internet right now', 'Send text messages', 'Book flights'], correct: 1, explain: 'EXA gives Claude real-time internet search — so he knows what\'s happening TODAY, not just in his training data.' },
+  { q: 'What command do you type to see your sprint day and top 3 priorities?', options: ['/pipeline', '/content-batch', '/sprint-check', '/ad-copy'], correct: 2, explain: '/sprint-check opens your sprint file and tells you exactly where you are and what to do today.' },
+  { q: 'What is CLAUDE.md?', options: ['A list of passwords', 'A document that teaches Claude your entire business every session', 'A social media calendar', 'A client contract'], correct: 1, explain: 'CLAUDE.md is your business brain — it\'s read at the start of every session so Claude knows who you are, your prices, your clients, and your goals without you re-explaining.' },
+  { q: 'How many AI specialist agents do you have?', options: ['3', '7', '11', '15'], correct: 2, explain: 'You have 11 agents: content marketer, sales automator, social copywriter, competitive analyst, workflow orchestrator, trend analyst, client delivery, onboarding automator, peak optimizer, coordinator, and multi-agent coordinator.' },
+  { q: 'What happens automatically at 9:03 AM every day?', options: ['Claude writes a blog post', 'Your social post errors are checked and reported', 'A new client email is sent', 'Your calendar is cleared'], correct: 1, explain: 'A scheduled check fires every morning at 9:03 AM to review your social post log and flag any errors that need fixing.' },
+  { q: 'Which MCP would you use to research a competitor\'s prices?', options: ['Gmail MCP', 'Vibe Prospecting', 'Firecrawl', 'GitHub'], correct: 2, explain: 'Firecrawl reads any website — point it at a competitor and get their full pricing, services, and messaging in seconds.' },
+  { q: 'What does /content-batch do?', options: ['Posts to all social platforms', 'Produces 5 content formats from one topic instantly', 'Sends a batch of emails', 'Backs up your files'], correct: 1, explain: '/content-batch takes one topic and produces 5 formats: Instagram caption, Facebook post, video script, email subject lines, and a blog intro.' },
+  { q: 'What is GitHub used for in your business?', options: ['Sending emails', 'Storing and tracking all your code safely in the cloud', 'Building social media posts', 'Researching leads'], correct: 1, explain: 'GitHub stores every file, every website, every automation — with full version history. Nothing ever gets lost.' }
+];
+
+let quizScoreVal = 0;
+let quizAnswered = 0;
+let quizStarted = false;
+
+function startQuiz() {
+  quizScoreVal = 0;
+  quizAnswered = 0;
+  quizStarted = true;
+  document.getElementById('quiz-score').textContent = '0';
+  document.getElementById('quiz-total').textContent = '0';
+  document.getElementById('quiz-progress').style.width = '0%';
+  document.getElementById('quiz-congrats').classList.remove('show');
+
+  const container = document.getElementById('quiz-container');
+  container.innerHTML = '';
+  const shuffled = [...QUIZ_DATA].sort(() => Math.random() - 0.5);
+
+  shuffled.forEach((q, i) => {
+    const div = document.createElement('div');
+    div.className = 'quiz-card';
+    div.id = `qcard-${i}`;
+    div.innerHTML = `
+      <div class="quiz-question">Q${i+1}. ${q.q}</div>
+      <div class="quiz-options">
+        ${q.options.map((opt, j) => `<button class="quiz-option" onclick="answerQuiz(${i}, ${j}, ${q.correct}, '${q.explain.replace(/'/g, "\\'")}', this, event)">${opt}</button>`).join('')}
+      </div>
+      <div class="quiz-feedback" id="qfb-${i}"></div>
+    `;
+    container.appendChild(div);
+  });
+}
+
+function answerQuiz(cardIdx, chosen, correct, explain, btn, e) {
+  const card = document.getElementById(`qcard-${cardIdx}`);
+  const btns = card.querySelectorAll('.quiz-option');
+  btns.forEach(b => b.disabled = true);
+  const fb = document.getElementById(`qfb-${cardIdx}`);
+
+  if (chosen === correct) {
+    btn.classList.add('correct');
+    fb.className = 'quiz-feedback correct-fb';
+    fb.textContent = '✓ Correct! ' + explain;
+    quizScoreVal++;
+  } else {
+    btn.classList.add('wrong');
+    btns[correct].classList.add('correct');
+    fb.className = 'quiz-feedback wrong-fb';
+    fb.textContent = '✗ Not quite. ' + explain;
+  }
+  fb.style.display = 'block';
+  quizAnswered++;
+  document.getElementById('quiz-score').textContent = quizScoreVal;
+  document.getElementById('quiz-total').textContent = quizAnswered;
+  document.getElementById('quiz-progress').style.width = `${(quizAnswered / QUIZ_DATA.length) * 100}%`;
+  if (quizAnswered === QUIZ_DATA.length && quizScoreVal >= 7) {
+    document.getElementById('quiz-congrats').classList.add('show');
+  }
+}
+
+// MATCH GAME
+const MATCH_PAIRS = [
+  { tool: '📧 Gmail MCP', desc: 'Writes and sends your emails automatically' },
+  { tool: '🌐 EXA MCP', desc: 'Searches the live internet in real time' },
+  { tool: '🕷️ Firecrawl', desc: 'Reads any website and summarizes it' },
+  { tool: '🔍 Vibe Prospecting', desc: 'Finds contact info for any business' },
+  { tool: '🎨 Canva MCP', desc: 'Designs your social posts and graphics' },
+  { tool: '🗄️ GitHub MCP', desc: 'Saves all your code safely in the cloud' },
+  { tool: '📅 Calendar MCP', desc: 'Books calls and manages your schedule' },
+];
+
+let selectedLeft = null;
+let selectedRight = null;
+let matchScore = 0;
+let gameStarted = false;
+let shuffledRight = [];
+
+function startGame() {
+  gameStarted = true;
+  matchScore = 0;
+  selectedLeft = null;
+  selectedRight = null;
+  document.getElementById('match-score').textContent = '0';
+  document.getElementById('game-congrats').classList.remove('show');
+
+  shuffledRight = [...MATCH_PAIRS].sort(() => Math.random() - 0.5);
+  const leftEl = document.getElementById('match-left');
+  const rightEl = document.getElementById('match-right');
+  leftEl.innerHTML = '';
+  rightEl.innerHTML = '';
+
+  MATCH_PAIRS.forEach((p, i) => {
+    const d = document.createElement('div');
+    d.className = 'match-item';
+    d.textContent = p.tool;
+    d.dataset.idx = i;
+    d.dataset.side = 'left';
+    d.onclick = () => selectMatch(d, 'left', i);
+    leftEl.appendChild(d);
+  });
+
+  shuffledRight.forEach((p, i) => {
+    const d = document.createElement('div');
+    d.className = 'match-item';
+    d.textContent = p.desc;
+    d.dataset.origIdx = MATCH_PAIRS.indexOf(p);
+    d.dataset.side = 'right';
+    d.onclick = () => selectMatch(d, 'right', MATCH_PAIRS.indexOf(p));
+    rightEl.appendChild(d);
+  });
+}
+
+function selectMatch(el, side, idx) {
+  if (el.classList.contains('matched')) return;
+
+  if (side === 'left') {
+    document.querySelectorAll('#match-left .match-item.selected').forEach(e => e.classList.remove('selected'));
+    el.classList.add('selected');
+    selectedLeft = { el, idx };
+  } else {
+    document.querySelectorAll('#match-right .match-item.selected').forEach(e => e.classList.remove('selected'));
+    el.classList.add('selected');
+    selectedRight = { el, idx };
+  }
+
+  if (selectedLeft && selectedRight) {
+    if (selectedLeft.idx === selectedRight.idx) {
+      selectedLeft.el.classList.remove('selected');
+      selectedRight.el.classList.remove('selected');
+      selectedLeft.el.classList.add('matched');
+      selectedRight.el.classList.add('matched');
+      matchScore++;
+      document.getElementById('match-score').textContent = matchScore;
+      if (matchScore === 7) {
+        setTimeout(() => document.getElementById('game-congrats').classList.add('show'), 400);
+      }
+    } else {
+      selectedLeft.el.classList.add('wrong-match');
+      selectedRight.el.classList.add('wrong-match');
+      setTimeout(() => {
+        selectedLeft.el.classList.remove('selected', 'wrong-match');
+        selectedRight.el.classList.remove('selected', 'wrong-match');
+      }, 800);
+    }
+    selectedLeft = null;
+    selectedRight = null;
+  }
+}
+</script>
+</body>
+</html>

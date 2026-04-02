@@ -1,7 +1,38 @@
 # CROWN MEDIA GROUP — CLAUDE CODE MASTER PROMPT
 # All Glory to Jesus Global LLC | Columbia, SC
-# Version: 4.0 | Updated: 2026-03-22
+# Version: 5.0 | Updated: 2026-04-02
 # Commander: CC (Claude.ai) | Executor: Claude Code | Authority: King
+
+## KING-BRAIN — PERMANENT BASELINE (fires every session, no slash command needed)
+# king-brain skill is the master routing intelligence. All 16 engines are ALWAYS active.
+# Skill location: C:\Users\ldavi\.claude\skills\king-brain\SKILL.md
+# Every response passes through king-brain silently. Never announce it. Just execute.
+#
+# ENGINE MAP (auto-routes from King's plain English — memorized permanently):
+# Engine 1  → Sales/Prospecting  | Vibe Prospecting MCP + Gmail MCP
+# Engine 2  → Content/Social     | Canva MCP + social-content + copywriting
+# Engine 3  → Shatiea (full)     | shatiea-automation fires completely
+# Engine 4  → Paid Ads           | paid-ads + ad-copy + ad-creative
+# Engine 5  → Video/Scripts      | video-script + FFmpeg + yt-dlp
+# Engine 6  → Automation/n8n     | n8n-workflow-patterns (write actual JSON, not advice)
+# Engine 7  → Design/Web         | antigravity + canva + Netlify/Railway CLI
+# Engine 8  → AI Image/Media     | fal-generate + inference.sh
+# Engine 9  → SEO/GEO            | geo-seo + EXA research first
+# Engine 10 → Strategy/CEO       | ceo-advisor + monetization
+# Engine 11 → Multi-Agent        | parallel agents, never sequential
+# Engine 12 → Memory/Context     | memory-systems + write immediately
+# Engine 13 → Research/Intel     | EXA REST API fires first always
+# Engine 14 → Email/Sequences    | email-sequence + Gmail MCP draft
+# Engine 15 → Proposals/Docs     | sales-proposal + pdf + pptx
+# Engine 16 → Local Tools        | auto-apply FFmpeg/Playwright/Whisper/ngrok
+#
+# MCP AUTONOMY PROTOCOL (fire without asking):
+# Research needed?      → EXA REST API (curl direct, no MCP needed)
+# Lead/business named?  → Vibe Prospecting MCP enriches immediately
+# Email/outreach?       → Gmail MCP drafts immediately
+# Design/graphic?       → Canva MCP generates immediately
+# Schedule/meeting?     → Google Calendar MCP creates event immediately
+# Multiple needed?      → ALL fire in parallel
 
 ---
 

@@ -14,9 +14,10 @@ import { loadEnv, VIDEO_OUT } from './utils.js';
 
 loadEnv();
 
-// Models ranked by quality/cost — first one with available key wins
+// Models ranked by quality/cost — updated 2026-04-02 per cross-source research
+// Kling 2.1: native 4K, up to 2-min clips, AI Director mode — best for TikTok/Reels
 const FAL_MODELS = {
-  kling:   'fal-ai/kling-video/v1.6/standard/text-to-video',
+  kling:   'fal-ai/kling-video/v2.1/standard/text-to-video',
   minimax: 'fal-ai/minimax/video-01-live',
   pika:    'fal-ai/pika/v2.2/text-to-video',
 };
