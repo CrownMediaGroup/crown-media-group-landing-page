@@ -4,7 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Crown Media Group CRM</title>
-<link rel="stylesheet" href="styles.css">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<link rel="stylesheet" href="styles.css?v=3">
 </head>
 <body>
 <div id="app">
@@ -415,7 +416,7 @@
         <div class="modal-title" id="modalName">—</div>
         <div class="modal-sub" id="modalBusiness">—</div>
       </div>
-      <button class="modal-close" id="modalClose" onclick="closeContactModal()">✕</button>
+      <button type="button" class="modal-close" id="modalClose" data-close="contact" onclick="closeContactModal()">✕</button>
     </div>
     <div class="modal-body">
 
@@ -569,7 +570,7 @@
   <div class="modal" style="max-width:640px">
     <div class="modal-header">
       <div><div class="modal-title">Mass Email</div><div class="modal-sub" id="massEmailCount">0 contacts selected</div></div>
-      <button class="modal-close" onclick="closeModal('massEmailModal')">✕</button>
+      <button type="button" class="modal-close" data-close="massEmailModal" onclick="closeModal('massEmailModal')">✕</button>
     </div>
     <div class="modal-body">
       <div class="var-hints">Variables: <code>{{name}}</code> <code>{{business}}</code> <code>{{myname}}</code> — auto-personalized per contact</div>
@@ -599,7 +600,7 @@
   <div class="modal" style="max-width:540px">
     <div class="modal-header">
       <div><div class="modal-title">Mass Text</div><div class="modal-sub" id="massSMSCount">0 contacts selected</div></div>
-      <button class="modal-close" onclick="closeModal('massSMSModal')">✕</button>
+      <button type="button" class="modal-close" data-close="massSMSModal" onclick="closeModal('massSMSModal')">✕</button>
     </div>
     <div class="modal-body">
       <div class="var-hints">Variables: <code>{{name}}</code> <code>{{myname}}</code> — auto-personalized</div>
@@ -607,7 +608,7 @@
       <div class="char-count" id="smsCharCount">0 / 160</div>
     </div>
     <div class="modal-footer">
-      <button class="btn btn-outline" onclick="closeModal('massSMSModal')">Cancel</button>
+      <button type="button" class="btn btn-outline" onclick="closeModal('massSMSModal')">Cancel</button>
       <button class="btn btn-gold" id="sendMassSMS">Send to <span id="massSMSSendCount">0</span> Contacts</button>
     </div>
   </div>
@@ -618,7 +619,7 @@
   <div class="modal add-modal">
     <div class="modal-header">
       <div class="modal-title">Add Contact</div>
-      <button class="modal-close" onclick="closeModal('addContactModal')">✕</button>
+      <button type="button" class="modal-close" data-close="addContactModal" onclick="closeModal('addContactModal')">✕</button>
     </div>
     <div class="modal-body">
       <div class="form-group">
@@ -660,7 +661,7 @@
       </div>
     </div>
     <div class="modal-footer">
-      <button class="btn btn-outline" onclick="closeModal('addContactModal')">Cancel</button>
+      <button type="button" class="btn btn-outline" onclick="closeModal('addContactModal')">Cancel</button>
       <button class="btn btn-gold" id="saveNewContact">Save Contact</button>
     </div>
   </div>
@@ -674,7 +675,7 @@
         <div class="modal-title">Import Contacts</div>
         <div class="modal-sub">CSV spreadsheet or phone screenshot scan</div>
       </div>
-      <button class="modal-close" onclick="closeModal('importModal')">✕</button>
+      <button type="button" class="modal-close" data-close="importModal" onclick="closeModal('importModal')">✕</button>
     </div>
     <div class="modal-body">
       <!-- Mode toggle -->
@@ -720,7 +721,7 @@
       </div>
     </div>
     <div class="modal-footer">
-      <button class="btn btn-outline" onclick="closeModal('importModal')">Cancel</button>
+      <button type="button" class="btn btn-outline" onclick="closeModal('importModal')">Cancel</button>
       <button class="btn btn-gold" id="importConfirm" disabled>Import Contacts</button>
     </div>
   </div>
@@ -729,6 +730,6 @@
 <!-- ── Toast container ── -->
 <div id="toast-container"></div>
 
-<script src="app.js"></script>
+<script src="app.js?v=3"></script>
 </body>
 </html>

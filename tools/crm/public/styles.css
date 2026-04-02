@@ -279,13 +279,14 @@ input[type="checkbox"] { width: 15px; height: 15px; cursor: pointer; accent-colo
 .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,.75); z-index: 9999; display: flex; align-items: flex-start; justify-content: center; padding: 32px 16px; -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px); }
 .modal-overlay.hidden { display: none; }
 .modal { background: var(--card); border: 1px solid var(--border-h); border-radius: 14px; width: 100%; max-width: 780px; max-height: 90vh; overflow-y: auto; box-shadow: var(--shadow); }
-.modal-header { padding: 20px 24px 16px; border-bottom: 1px solid var(--border); display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
+.modal-header { padding: 20px 24px 16px; border-bottom: 1px solid var(--border); display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; position: sticky; top: 0; z-index: 10; background: var(--card); border-radius: 14px 14px 0 0; }
 .modal-title { font-family: 'Cormorant Garamond', serif; font-size: 1.4rem; font-weight: 700; color: var(--text); }
 .modal-sub { font-size: 13px; color: var(--gold); margin-top: 2px; }
-.modal-close { background: none; border: none; color: var(--muted); font-size: 20px; cursor: pointer; padding: 2px 6px; border-radius: 4px; }
+.modal-close { background: none; border: none; color: var(--muted); font-size: 20px; cursor: pointer; padding: 2px 6px; border-radius: 4px; pointer-events: auto; flex-shrink: 0; }
 .modal-close:hover { color: var(--red); }
 .modal-body { padding: 20px 24px; }
-.modal-footer { padding: 14px 24px; border-top: 1px solid var(--border); display: flex; gap: 10px; justify-content: flex-end; flex-wrap: wrap; }
+.modal-footer { padding: 14px 24px; border-top: 1px solid var(--border); display: flex; gap: 10px; justify-content: flex-end; flex-wrap: wrap; position: sticky; bottom: 0; z-index: 10; background: var(--card); border-radius: 0 0 14px 14px; }
+.modal-footer .btn { pointer-events: auto; }
 
 /* ── Contact modal sections ── */
 .contact-info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px; }

@@ -31,6 +31,15 @@ document.addEventListener('DOMContentLoaded', () => {
   autoPrioritize();
 });
 
+// ── Delegated close handler — catches ALL [data-close] buttons regardless of JS binding ──
+document.addEventListener('click', e => {
+  const btn = e.target.closest('[data-close]');
+  if (!btn) return;
+  const target = btn.dataset.close;
+  if (target === 'contact') { closeContactModal(); }
+  else { closeModal(target); }
+}, true); // capture phase — fires before any other handler
+
 // ── API helpers ───────────────────────────────────────────────────────────────
 
 async function api(path, opts = {}) {
@@ -449,10 +458,12 @@ function closeContactModal() {
   document.getElementById('contactModal').classList.add('hidden');
   currentContactId = null;
 }
+window.closeContactModal = closeContactModal;
 
 function closeModal(id) {
   document.getElementById(id).classList.add('hidden');
 }
+window.closeModal = closeModal;
 
 function renderTimeline(interactions) {
   const el = document.getElementById('timeline');
