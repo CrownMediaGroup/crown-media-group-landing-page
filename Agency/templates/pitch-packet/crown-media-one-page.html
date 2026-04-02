@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Crown Media Group — One Page Pitch</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+@page { size: letter; margin: 0; }
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  background: #fff;
+  color: #0A0A0A;
+  width: 8.5in;
+  height: 11in;
+  overflow: hidden;
+}
+
+.page {
+  width: 8.5in;
+  height: 11in;
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  background: #fff;
+}
+
+/* ── HEADER ── */
+.header {
+  background: #0A0A0A;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  padding: 18px 36px;
+}
+.brand { color: #CA8A04; font-size: 13px; font-weight: 800; letter-spacing: 2.5px; text-transform: uppercase; }
+.tagline { color: rgba(255,255,255,0.35); font-size: 10px; letter-spacing: 1.5px; text-transform: uppercase; margin-top: 3px; }
+.header-right { text-align: right; }
+.header-url { color: #CA8A04; font-size: 11px; font-weight: 600; }
+.header-contact { color: rgba(255,255,255,0.4); font-size: 10px; margin-top: 2px; }
+
+/* ── BODY GRID ── */
+.body {
+  display: grid;
+  grid-template-columns: 1.15fr 1fr;
+  gap: 0;
+  overflow: hidden;
+}
+
+/* ── LEFT COLUMN ── */
+.left {
+  padding: 28px 30px 24px 36px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  border-right: 1px solid #eee;
+}
+
+.hero-block {}
+.eyebrow {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: #CA8A04;
+  margin-bottom: 8px;
+}
+.hero-block h1 {
+  font-size: 28px;
+  font-weight: 900;
+  line-height: 1.1;
+  letter-spacing: -0.5px;
+  color: #0A0A0A;
+  margin-bottom: 8px;
+}
+.hero-block p {
+  font-size: 11.5px;
+  color: #555;
+  line-height: 1.65;
+  max-width: 340px;
+}
+
+/* Services */
+.services-block {}
+.block-label {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: #0A0A0A;
+  margin-bottom: 10px;
+  padding-bottom: 6px;
+  border-bottom: 1.5px solid #0A0A0A;
+}
+.services-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 8px;
+}
+.service-item {
+  background: #F7F7F7;
+  border-radius: 5px;
+  padding: 10px 10px;
+}
+.service-name {
+  font-size: 10px;
+  font-weight: 800;
+  color: #0A0A0A;
+  margin-bottom: 2px;
+}
+.service-price {
+  font-size: 11px;
+  font-weight: 700;
+  color: #CA8A04;
+  margin-bottom: 3px;
+}
+.service-desc {
+  font-size: 9px;
+  color: #777;
+  line-height: 1.5;
+}
+
+/* Pricing tiers */
+.pricing-block {}
+.tiers {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 7px;
+}
+.tier {
+  border: 1px solid #e5e5e5;
+  border-radius: 5px;
+  padding: 11px 10px;
+  position: relative;
+}
+.tier.popular {
+  border-color: #CA8A04;
+  background: #FFFBF0;
+}
+.popular-badge {
+  position: absolute;
+  top: -8px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #CA8A04;
+  color: #fff;
+  font-size: 7px;
+  font-weight: 800;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  padding: 2px 7px;
+  border-radius: 20px;
+  white-space: nowrap;
+}
+.tier-name {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: #888;
+  margin-bottom: 3px;
+}
+.tier-price {
+  font-size: 18px;
+  font-weight: 900;
+  color: #0A0A0A;
+  line-height: 1;
+}
+.tier-price span { font-size: 10px; font-weight: 400; color: #aaa; }
+.tier-setup { font-size: 8.5px; color: #aaa; margin-bottom: 8px; }
+.tier-features {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+.tier-features li {
+  font-size: 8.5px;
+  color: #444;
+  padding-left: 10px;
+  position: relative;
+  line-height: 1.4;
+}
+.tier-features li::before {
+  content: '✓';
+  position: absolute;
+  left: 0;
+  color: #CA8A04;
+  font-weight: 700;
+  font-size: 8px;
+}
+
+/* ── RIGHT COLUMN ── */
+.right {
+  padding: 28px 36px 24px 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* Edge / Why Us */
+.edges {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.edge {
+  display: grid;
+  grid-template-columns: 28px 1fr;
+  gap: 10px;
+  align-items: start;
+}
+.edge-num {
+  width: 28px;
+  height: 28px;
+  background: #0A0A0A;
+  color: #CA8A04;
+  font-size: 11px;
+  font-weight: 900;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  flex-shrink: 0;
+}
+.edge-text h4 { font-size: 11px; font-weight: 800; color: #0A0A0A; margin-bottom: 2px; }
+.edge-text p { font-size: 9.5px; color: #666; line-height: 1.5; }
+
+/* Portfolio */
+.portfolio-card {
+  background: #0A0A0A;
+  border-radius: 7px;
+  padding: 16px 18px;
+}
+.portfolio-label { font-size: 8px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: #CA8A04; margin-bottom: 5px; }
+.portfolio-name { font-size: 15px; font-weight: 900; color: #fff; margin-bottom: 5px; }
+.portfolio-desc { font-size: 9.5px; color: rgba(255,255,255,0.55); line-height: 1.6; margin-bottom: 10px; }
+.portfolio-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+.portfolio-tag {
+  background: rgba(202,138,4,0.15);
+  border: 1px solid rgba(202,138,4,0.35);
+  color: #CA8A04;
+  font-size: 8px;
+  font-weight: 600;
+  padding: 3px 8px;
+  border-radius: 20px;
+}
+
+/* CTA */
+.cta-block {
+  background: #CA8A04;
+  border-radius: 7px;
+  padding: 16px 18px;
+  text-align: center;
+}
+.cta-block h3 { font-size: 13px; font-weight: 900; color: #fff; margin-bottom: 4px; }
+.cta-block p { font-size: 9.5px; color: rgba(255,255,255,0.75); margin-bottom: 12px; line-height: 1.5; }
+.cta-contacts {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+.cta-item-label { font-size: 8px; text-transform: uppercase; letter-spacing: 1px; color: rgba(255,255,255,0.55); margin-bottom: 2px; }
+.cta-item-value { font-size: 10.5px; font-weight: 700; color: #fff; }
+
+/* Scripture */
+.scripture {
+  font-size: 9px;
+  color: #bbb;
+  text-align: center;
+  font-style: italic;
+  line-height: 1.5;
+}
+
+/* ── FOOTER ── */
+.footer {
+  background: #0A0A0A;
+  padding: 8px 36px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.footer-left { font-size: 8.5px; color: rgba(255,255,255,0.35); }
+.footer-center { font-size: 8.5px; color: rgba(255,255,255,0.25); }
+.footer-right { font-size: 8.5px; color: rgba(255,255,255,0.35); }
+</style>
+</head>
+<body>
+
+<div class="page">
+
+  <!-- HEADER -->
+  <div class="header">
+    <div>
+      <div class="brand">Crown Media Group</div>
+      <div class="tagline">All Glory to Jesus Global LLC · Columbia, SC</div>
+    </div>
+    <div class="header-right">
+      <div class="header-url">crownmediagroup.co</div>
+      <div class="header-contact">king@crownmediagroup.co · (908) 848-1436</div>
+    </div>
+  </div>
+
+  <!-- BODY -->
+  <div class="body">
+
+    <!-- LEFT COLUMN -->
+    <div class="left">
+
+      <!-- Hero -->
+      <div class="hero-block">
+        <div class="eyebrow">AI-Powered Marketing Agency</div>
+        <h1>Marketing that moves<br>your business forward.</h1>
+        <p>We handle your content, ads, social media, website, and lead management — all powered by AI, all done for you. Local to Columbia SC. Faith-driven. Results in 30 days.</p>
+      </div>
+
+      <!-- Full Stack -->
+      <div class="services-block">
+        <div class="block-label">Complete Business Stack</div>
+        <div class="services-grid">
+          <div class="service-item">
+            <div class="service-name">AI Logo &amp; Brand</div>
+            <div class="service-price">$97 one-time</div>
+            <div class="service-desc">Logo, banner set, brand colors. In your inbox in 24hrs.</div>
+          </div>
+          <div class="service-item">
+            <div class="service-name">AI Website</div>
+            <div class="service-price">$197 one-time</div>
+            <div class="service-desc">4-page professional site. Mobile-ready. Live in 24hrs.</div>
+          </div>
+          <div class="service-item">
+            <div class="service-name">Crown Media CRM</div>
+            <div class="service-price">$97/mo</div>
+            <div class="service-desc">Pipeline, AI outreach, lead generator &amp; photo scan.</div>
+          </div>
+          <div class="service-item">
+            <div class="service-name">Auto-Blogger</div>
+            <div class="service-price">From $200/mo</div>
+            <div class="service-desc">1–4 SEO posts/day, auto-published + distributed.</div>
+          </div>
+          <div class="service-item">
+            <div class="service-name">Social Media Mgmt</div>
+            <div class="service-price">From $497/mo</div>
+            <div class="service-desc">Content, Reels, captions, scheduling across all platforms.</div>
+          </div>
+          <div class="service-item">
+            <div class="service-name">Paid Ads</div>
+            <div class="service-price">10–15% of spend</div>
+            <div class="service-desc">Meta + Google. Creative, targeting &amp; management.</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Pricing Tiers -->
+      <div class="pricing-block">
+        <div class="block-label">Agency Management Packages</div>
+        <div class="tiers">
+          <div class="tier">
+            <div class="tier-name">Starter</div>
+            <div class="tier-price">$750<span>/mo</span></div>
+            <div class="tier-setup">+ $250 setup</div>
+            <ul class="tier-features">
+              <li>12 posts/month — designed + written</li>
+              <li>Instagram &amp; Facebook management</li>
+              <li>AI content + branded graphics</li>
+              <li>CRM access included</li>
+              <li>Monthly strategy report</li>
+            </ul>
+          </div>
+          <div class="tier popular">
+            <div class="popular-badge">Most Popular</div>
+            <div class="tier-name">Growth</div>
+            <div class="tier-price">$1,200<span>/mo</span></div>
+            <div class="tier-setup">+ $400 setup</div>
+            <ul class="tier-features">
+              <li>Everything in Starter</li>
+              <li>20 posts/mo + AI-generated Reels</li>
+              <li>Meta + Google Ads managed</li>
+              <li>Auto-Blogger add-on available</li>
+              <li>Bi-weekly strategy calls</li>
+            </ul>
+          </div>
+          <div class="tier">
+            <div class="tier-name">Premium</div>
+            <div class="tier-price">$3,500<span>/mo</span></div>
+            <div class="tier-setup">+ $1,000 setup</div>
+            <ul class="tier-features">
+              <li>Everything in Growth</li>
+              <li>Daily content, all platforms</li>
+              <li>Crown Media CRM included</li>
+              <li>AI website + landing page</li>
+              <li>Auto-Blogger 60–120 posts/mo</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /left -->
+
+    <!-- RIGHT COLUMN -->
+    <div class="right">
+
+      <!-- Why Us -->
+      <div>
+        <div class="block-label">Why Crown Media Group</div>
+        <div class="edges">
+          <div class="edge">
+            <div class="edge-num">01</div>
+            <div class="edge-text">
+              <h4>Full AI Stack — Not Just Content</h4>
+              <p>We run a complete AI-powered system: content, ads, automated blogging, prospect research, and a live CRM — simultaneously. Competitors are still doing this manually.</p>
+            </div>
+          </div>
+          <div class="edge">
+            <div class="edge-num">02</div>
+            <div class="edge-text">
+              <h4>Faith-Aligned. Kingdom Standard.</h4>
+              <p>We're a Kingdom business. Every client is served with integrity, honesty, and a standard the industry doesn't expect. You can trust our work.</p>
+            </div>
+          </div>
+          <div class="edge">
+            <div class="edge-num">03</div>
+            <div class="edge-text">
+              <h4>Local &amp; Personal — Columbia SC</h4>
+              <p>You work directly with DavidKing, the founder. Not a junior employee. Not a ticket queue. We know this city and we're invested in your growth.</p>
+            </div>
+          </div>
+          <div class="edge">
+            <div class="edge-num">04</div>
+            <div class="edge-text">
+              <h4>Results in 30 Days — Guaranteed</h4>
+              <p>No 90-day onboarding. No 6-month contracts before you see anything. We deliver within 30 days or we don't deserve your money.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Portfolio -->
+      <div>
+        <div class="block-label">Active Client — Portfolio</div>
+        <div class="portfolio-card">
+          <div class="portfolio-label">Columbia, SC — Faith Business</div>
+          <div class="portfolio-name">Shatiea's Juices</div>
+          <div class="portfolio-desc">Went from zero digital presence to a fully operational brand system — logo, identity, social launch, daily AI content, AI Reels, and e-commerce — all delivered within 30 days.</div>
+          <div class="portfolio-tags">
+            <span class="portfolio-tag">Logo &amp; Brand Identity</span>
+            <span class="portfolio-tag">Instagram + Facebook</span>
+            <span class="portfolio-tag">Daily AI Content</span>
+            <span class="portfolio-tag">AI Video Reels</span>
+            <span class="portfolio-tag">E-Commerce Setup</span>
+            <span class="portfolio-tag">30-Day Delivery</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- CTA -->
+      <div class="cta-block">
+        <h3>Ready to grow? Let's talk.</h3>
+        <p>Book a free 20-minute discovery call. No pitch, no pressure.<br>We learn your business and show you exactly what we'd do.</p>
+        <div class="cta-contacts">
+          <div>
+            <div class="cta-item-label">Book a Call</div>
+            <div class="cta-item-value">calendly.com/crownmediagroupco</div>
+          </div>
+          <div>
+            <div class="cta-item-label">Email</div>
+            <div class="cta-item-value">king@crownmediagroup.co</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Scripture -->
+      <div class="scripture">"Whatever you do, work at it with all your heart, as working for the Lord." — Colossians 3:23</div>
+
+    </div><!-- /right -->
+
+  </div><!-- /body -->
+
+  <!-- FOOTER -->
+  <div class="footer">
+    <div class="footer-left">Crown Media Group © 2026</div>
+    <div class="footer-center">All Glory to Jesus Global LLC · Columbia, SC 29229</div>
+    <div class="footer-right">crownmediagroup.co</div>
+  </div>
+
+</div>
+
+</body>
+</html>
