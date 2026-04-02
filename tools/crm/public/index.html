@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="dark">
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -9,271 +9,351 @@
 <body>
 <div id="app">
 
-<!-- ── HEADER ─────────────────────────────────────────────────────────── -->
-<header class="header">
-  <div class="header-left">
-    <div class="logo">Crown Media Group <span id="workspaceName">CRM</span></div>
-    <nav class="nav-tabs">
-      <button class="nav-tab active" data-tab="contacts">Contacts</button>
-      <button class="nav-tab" data-tab="pipeline">Pipeline</button>
-      <button class="nav-tab" data-tab="reports">Reports</button>
-      <button class="nav-tab" data-tab="settings">Settings</button>
-    </nav>
-  </div>
-  <div class="header-right">
-    <button class="theme-toggle" id="themeToggle">☀️ Light</button>
-    <button class="btn btn-outline btn-sm" id="btnImportCSV">Import CSV</button>
-    <a class="btn btn-outline btn-sm" href="/api/export/csv" download>Export CSV</a>
-    <button class="btn btn-gold btn-sm" id="btnMassEmail">Mass Email</button>
-    <button class="btn btn-outline btn-sm" id="btnMassSMS">Mass Text</button>
-    <button class="btn btn-gold btn-sm" id="btnAddContact">+ Add Contact</button>
-    <a class="btn btn-outline btn-sm hidden" id="btnAdmin" href="/admin">Admin</a>
-    <button class="btn btn-outline btn-sm" id="btnLogout">Sign Out</button>
-  </div>
-</header>
+<!-- ══════════════════════════════════════════════
+     SIDEBAR
+══════════════════════════════════════════════ -->
+<aside class="sidebar">
 
-<!-- ── Trial / Subscription Banner ─────────────────────────────────────── -->
-<div id="trialBanner" class="trial-banner" style="display:none"></div>
-
-<!-- ══════════════════════ CONTACTS TAB ══════════════════════ -->
-<main class="main" id="tab-contacts">
-
-  <!-- Stats Bar -->
-  <div class="stats-bar" id="statsBar">
-    <div class="stat-card active" data-filter="">
-      <div class="stat-num" id="stat-total">—</div>
-      <div class="stat-label">Total Contacts</div>
-    </div>
-    <div class="stat-card" data-filter="Not Contacted">
-      <div class="stat-num" id="stat-notcontacted">—</div>
-      <div class="stat-label">Not Contacted</div>
-    </div>
-    <div class="stat-card" data-filter="pipeline">
-      <div class="stat-num" id="stat-pipeline">—</div>
-      <div class="stat-label">In Pipeline</div>
-    </div>
-    <div class="stat-card" data-filter="Client">
-      <div class="stat-num" id="stat-clients">—</div>
-      <div class="stat-label">Clients</div>
-    </div>
-    <div class="stat-card" data-filter-priority="Hot">
-      <div class="stat-num" id="stat-hot">—</div>
-      <div class="stat-label">Hot Leads</div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-num" id="stat-today">—</div>
-      <div class="stat-label">Reached Today</div>
+  <!-- Brand -->
+  <div class="sidebar-brand">
+    <div class="brand-logo">
+      <div class="brand-icon">
+        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path d="M12 2L3 7v10l9 5 9-5V7L12 2zm0 2.18L19 8v8l-7 3.88L5 16V8l7-3.82z"/>
+        </svg>
+      </div>
+      <div>
+        <div class="brand-name">Crown Media <span id="workspaceName"></span></div>
+        <div class="brand-sub">CRM Platform</div>
+      </div>
     </div>
   </div>
 
-  <!-- Goal Bar -->
-  <div class="goal-bar">
-    <span class="goal-text">Today's goal: <strong id="goalText">0 / 10</strong> contacts reached</span>
-    <div class="goal-progress"><div class="goal-fill" id="goalFill" style="width:0%"></div></div>
-    <span class="goal-pct" id="goalPct">0%</span>
-  </div>
+  <!-- Nav -->
+  <div class="nav-section-label">Menu</div>
+  <nav class="nav">
+    <button class="nav-item nav-tab active" data-tab="contacts">
+      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg>
+      Contacts
+    </button>
+    <button class="nav-item nav-tab" data-tab="pipeline">
+      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M4 6h16v2H4zm0 5h16v2H4zm0 5h16v2H4z"/></svg>
+      Pipeline
+    </button>
+    <button class="nav-item nav-tab" data-tab="reports">
+      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4zm2.5 2.1h-15V5h15v14.1zm0-16.1h-15c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h15c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2z"/></svg>
+      Reports
+    </button>
+    <button class="nav-item nav-tab" data-tab="settings">
+      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg>
+      Settings
+    </button>
+  </nav>
 
-  <!-- Today's Tasks Panel -->
-  <div class="tasks-today-panel" id="tasksTodayPanel"></div>
+  <!-- Actions -->
+  <div class="nav-section-label">Actions</div>
+  <nav class="nav">
+    <button class="sidebar-action gold" id="btnAddContact">
+      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
+      Add Contact
+    </button>
+    <button class="sidebar-action" id="btnImportCSV">
+      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>
+      Import CSV
+    </button>
+    <a class="sidebar-action" href="/api/export/csv" download>
+      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 14l-5-5h3V9h4v3h3l-5 5z"/></svg>
+      Export CSV
+    </a>
+    <button class="sidebar-action" id="btnMassEmail">
+      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg>
+      Mass Email
+    </button>
+    <button class="sidebar-action" id="btnMassSMS">
+      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/></svg>
+      Mass Text
+    </button>
+  </nav>
 
-  <!-- Quick Filters -->
-  <div class="quick-filters">
-    <button type="button" class="qf-btn active" data-qf="">All</button>
-    <button type="button" class="qf-btn" data-qf="hot">Hot Leads</button>
-    <button type="button" class="qf-btn" data-qf="followup">Follow Up Today</button>
-    <button type="button" class="qf-btn" data-qf="notouch">No Contact 7+ Days</button>
-    <button type="button" class="qf-btn" data-qf="clients">Clients</button>
-  </div>
-
-  <!-- Toolbar -->
-  <div class="toolbar">
-    <div class="search-box">
-      <span class="search-icon">🔍</span>
-      <input type="text" id="searchInput" placeholder="Search name, business, phone, email...">
+  <!-- Footer -->
+  <div class="sidebar-footer">
+    <!-- themeToggle kept for JS compatibility, visually hidden -->
+    <button class="theme-toggle" id="themeToggle">Dark</button>
+    <a class="sidebar-footer-btn hidden" id="btnAdmin" href="/admin">
+      <svg viewBox="0 0 24 24" fill="currentColor" width="14" height="14"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
+      Admin
+    </a>
+    <button class="sidebar-footer-btn danger" id="btnLogout">
+      <svg viewBox="0 0 24 24" fill="currentColor" width="14" height="14"><path d="M17 7l-1.41 1.41L18.17 11H8v2h10.17l-2.58 2.58L17 17l5-5zM4 5h8V3H4c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h8v-2H4V5z"/></svg>
+      Sign Out
+    </button>
+    <div class="runner-pill">
+      <div class="runner-dot"></div>
+      CRM Active
     </div>
-    <select class="filter" id="filterStatus">
-      <option value="">All Statuses</option>
-      <option>Not Contacted</option>
-      <option>Called</option>
-      <option>Emailed</option>
-      <option>Texted</option>
-      <option>Pitched</option>
-      <option>Proposal Sent</option>
-      <option>Client</option>
-      <option>Not Interested</option>
-    </select>
-    <select class="filter" id="filterPriority">
-      <option value="">All Priorities</option>
-      <option>Hot</option>
-      <option>Warm</option>
-      <option>Normal</option>
-      <option>Cold</option>
-    </select>
-    <button class="btn btn-outline btn-sm" id="selectAllUncontacted">Select Uncontacted</button>
-    <button class="btn btn-outline btn-sm" id="clearSelection">Clear</button>
-    <button class="btn btn-outline btn-sm" id="toggleArchived">Show Archived</button>
   </div>
 
-  <!-- Mass Action Bar -->
-  <div class="mass-bar" id="massBar">
-    <span class="mass-bar-text" id="massBarText">0 selected</span>
-    <button class="btn btn-sm" id="massEmailSelected">📧 Email Selected</button>
-    <button class="btn btn-sm" id="massSMSSelected">💬 Text Selected</button>
-    <a class="btn btn-sm" id="exportSelected" href="#">📥 Export Selected</a>
-  </div>
+</aside>
 
-  <!-- Contacts Table -->
-  <div class="table-wrap">
-    <table id="contactsTable">
-      <thead>
-        <tr>
-          <th class="cb-col"><input type="checkbox" id="selectAll"></th>
-          <th data-sort="name">Name ↕</th>
-          <th data-sort="business">Business ↕</th>
-          <th>Phone</th>
-          <th>Email</th>
-          <th data-sort="status">Status ↕</th>
-          <th data-sort="priority">Priority ↕</th>
-          <th data-sort="last_contacted">Last Contact ↕</th>
-          <th title="Mark Hot">★</th>
-        </tr>
-      </thead>
-      <tbody id="contactsBody">
-        <tr><td colspan="9" class="empty"><div class="spinner"></div></td></tr>
-      </tbody>
-    </table>
-  </div>
-</main>
+<!-- ══════════════════════════════════════════════
+     CONTENT
+══════════════════════════════════════════════ -->
+<div class="crm-content">
 
-<!-- ══════════════════════ PIPELINE TAB ══════════════════════ -->
-<main class="main hidden" id="tab-pipeline">
-  <div class="pipeline-header">
-    <div>
-      <h2 style="font-size:1.1rem;font-weight:700;color:var(--gold)">Pipeline Board</h2>
-      <p style="font-size:12px;color:var(--muted);margin-top:2px">Drag cards between columns to update status</p>
+  <!-- Trial / Subscription Banner -->
+  <div id="trialBanner" class="trial-banner" style="display:none"></div>
+
+  <!-- ══════════════════════ CONTACTS TAB ══════════════════════ -->
+  <main class="main" id="tab-contacts">
+
+    <div class="page-header">
+      <div>
+        <h2>Contacts</h2>
+        <p>Track and manage every lead, prospect, and client</p>
+      </div>
     </div>
-    <button type="button" class="btn btn-outline btn-sm" id="refreshPipeline">Refresh</button>
-  </div>
-  <div class="pipeline-board" id="pipelineBoard">
-    <div style="color:var(--muted);padding:40px;text-align:center">Loading pipeline...</div>
-  </div>
-</main>
 
-<!-- ══════════════════════ REPORTS TAB ══════════════════════ -->
-<main class="main hidden" id="tab-reports">
-  <div class="reports-summary-grid" id="reportsSummaryGrid">
-    <div class="rpt-card"><div class="rpt-num" id="rpt-convrate">—</div><div class="rpt-label">Conversion Rate</div></div>
-    <div class="rpt-card"><div class="rpt-num" id="rpt-clients">—</div><div class="rpt-label">Total Clients</div></div>
-    <div class="rpt-card"><div class="rpt-num" id="rpt-hot">—</div><div class="rpt-label">Hot Leads</div></div>
-    <div class="rpt-card"><div class="rpt-num" id="rpt-value">—</div><div class="rpt-label">Closed Pipeline Value</div></div>
-  </div>
+    <!-- Stats Bar -->
+    <div class="stats-bar" id="statsBar">
+      <div class="stat-card active" data-filter="">
+        <div class="stat-num" id="stat-total">—</div>
+        <div class="stat-label">Total</div>
+      </div>
+      <div class="stat-card" data-filter="Not Contacted">
+        <div class="stat-num" id="stat-notcontacted">—</div>
+        <div class="stat-label">Not Contacted</div>
+      </div>
+      <div class="stat-card" data-filter="pipeline">
+        <div class="stat-num" id="stat-pipeline">—</div>
+        <div class="stat-label">In Pipeline</div>
+      </div>
+      <div class="stat-card" data-filter="Client">
+        <div class="stat-num" id="stat-clients">—</div>
+        <div class="stat-label">Clients</div>
+      </div>
+      <div class="stat-card" data-filter-priority="Hot">
+        <div class="stat-num" id="stat-hot">—</div>
+        <div class="stat-label">Hot Leads</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-num" id="stat-today">—</div>
+        <div class="stat-label">Reached Today</div>
+      </div>
+    </div>
 
-  <div class="reports-charts-row">
+    <!-- Goal Bar -->
+    <div class="goal-bar">
+      <span class="goal-text">Today's goal: <strong id="goalText">0 / 10</strong> contacts reached</span>
+      <div class="goal-progress"><div class="goal-fill" id="goalFill" style="width:0%"></div></div>
+      <span class="goal-pct" id="goalPct">0%</span>
+    </div>
+
+    <!-- Today's Tasks Panel -->
+    <div class="tasks-today-panel" id="tasksTodayPanel"></div>
+
+    <!-- Quick Filters -->
+    <div class="quick-filters">
+      <button type="button" class="qf-btn active" data-qf="">All</button>
+      <button type="button" class="qf-btn" data-qf="hot">Hot Leads</button>
+      <button type="button" class="qf-btn" data-qf="followup">Follow Up Today</button>
+      <button type="button" class="qf-btn" data-qf="notouch">No Contact 7+ Days</button>
+      <button type="button" class="qf-btn" data-qf="clients">Clients</button>
+    </div>
+
+    <!-- Toolbar -->
+    <div class="toolbar">
+      <div class="search-box">
+        <span class="search-icon">🔍</span>
+        <input type="text" id="searchInput" placeholder="Search name, business, phone, email...">
+      </div>
+      <select class="filter" id="filterStatus">
+        <option value="">All Statuses</option>
+        <option>Not Contacted</option>
+        <option>Called</option>
+        <option>Emailed</option>
+        <option>Texted</option>
+        <option>Pitched</option>
+        <option>Proposal Sent</option>
+        <option>Client</option>
+        <option>Not Interested</option>
+      </select>
+      <select class="filter" id="filterPriority">
+        <option value="">All Priorities</option>
+        <option>Hot</option>
+        <option>Warm</option>
+        <option>Normal</option>
+        <option>Cold</option>
+      </select>
+      <button class="btn btn-outline btn-sm" id="selectAllUncontacted">Select Uncontacted</button>
+      <button class="btn btn-outline btn-sm" id="clearSelection">Clear</button>
+      <button class="btn btn-outline btn-sm" id="toggleArchived">Show Archived</button>
+    </div>
+
+    <!-- Mass Action Bar -->
+    <div class="mass-bar" id="massBar">
+      <span class="mass-bar-text" id="massBarText">0 selected</span>
+      <button class="btn btn-sm" id="massEmailSelected">📧 Email Selected</button>
+      <button class="btn btn-sm" id="massSMSSelected">💬 Text Selected</button>
+      <a class="btn btn-sm" id="exportSelected" href="#">📥 Export Selected</a>
+    </div>
+
+    <!-- Contacts Table -->
+    <div class="table-wrap">
+      <table id="contactsTable">
+        <thead>
+          <tr>
+            <th class="cb-col"><input type="checkbox" id="selectAll"></th>
+            <th data-sort="name">Name ↕</th>
+            <th data-sort="business">Business ↕</th>
+            <th>Phone</th>
+            <th>Email</th>
+            <th data-sort="status">Status ↕</th>
+            <th data-sort="priority">Priority ↕</th>
+            <th data-sort="last_contacted">Last Contact ↕</th>
+            <th title="Mark Hot">★</th>
+          </tr>
+        </thead>
+        <tbody id="contactsBody">
+          <tr><td colspan="9" class="empty"><div class="spinner"></div></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </main>
+
+  <!-- ══════════════════════ PIPELINE TAB ══════════════════════ -->
+  <main class="main hidden" id="tab-pipeline">
+    <div class="page-header">
+      <div>
+        <h2>Pipeline</h2>
+        <p>Drag cards between columns to update status</p>
+      </div>
+      <button type="button" class="btn btn-outline btn-sm" id="refreshPipeline">Refresh</button>
+    </div>
+    <div class="pipeline-board" id="pipelineBoard">
+      <div style="color:var(--muted);padding:40px;text-align:center">Loading pipeline...</div>
+    </div>
+  </main>
+
+  <!-- ══════════════════════ REPORTS TAB ══════════════════════ -->
+  <main class="main hidden" id="tab-reports">
+    <div class="page-header">
+      <div><h2>Reports</h2><p>Performance metrics and activity overview</p></div>
+    </div>
+    <div class="reports-summary-grid" id="reportsSummaryGrid">
+      <div class="rpt-card"><div class="rpt-num" id="rpt-convrate">—</div><div class="rpt-label">Conversion Rate</div></div>
+      <div class="rpt-card"><div class="rpt-num" id="rpt-clients">—</div><div class="rpt-label">Total Clients</div></div>
+      <div class="rpt-card"><div class="rpt-num" id="rpt-hot">—</div><div class="rpt-label">Hot Leads</div></div>
+      <div class="rpt-card"><div class="rpt-num" id="rpt-value">—</div><div class="rpt-label">Closed Pipeline Value</div></div>
+    </div>
+    <div class="reports-charts-row">
+      <div class="report-chart-card">
+        <h3 class="report-chart-title">Contacts by Status</h3>
+        <div class="bar-chart" id="statusBarChart"></div>
+      </div>
+      <div class="report-chart-card">
+        <h3 class="report-chart-title">Contacts by Priority</h3>
+        <div class="bar-chart" id="priorityBarChart"></div>
+      </div>
+    </div>
+    <div class="report-chart-card" style="margin-bottom:20px">
+      <h3 class="report-chart-title">Activity — Last 30 Days</h3>
+      <div class="heatmap-wrap" id="activityHeatmap"></div>
+    </div>
     <div class="report-chart-card">
-      <h3 class="report-chart-title">Contacts by Status</h3>
-      <div class="bar-chart" id="statusBarChart"></div>
+      <h3 class="report-chart-title">All Tasks &amp; Reminders</h3>
+      <div id="allTasksList"></div>
     </div>
-    <div class="report-chart-card">
-      <h3 class="report-chart-title">Contacts by Priority</h3>
-      <div class="bar-chart" id="priorityBarChart"></div>
+  </main>
+
+  <!-- ══════════════════════ SETTINGS TAB ══════════════════════ -->
+  <main class="main hidden" id="tab-settings">
+    <div class="page-header">
+      <div><h2>Settings</h2><p>Configure your CRM workspace</p></div>
     </div>
-  </div>
-
-  <div class="report-chart-card" style="margin:0 24px 24px">
-    <h3 class="report-chart-title">Activity — Last 30 Days</h3>
-    <div class="heatmap-wrap" id="activityHeatmap"></div>
-  </div>
-
-  <div class="report-chart-card" style="margin:0 24px 24px">
-    <h3 class="report-chart-title">All Tasks &amp; Reminders</h3>
-    <div id="allTasksList"></div>
-  </div>
-</main>
-
-<!-- ══════════════════════ SETTINGS TAB ══════════════════════ -->
-<main class="main hidden" id="tab-settings">
-  <div class="settings-grid">
-    <!-- Profile -->
-    <div class="settings-card">
-      <h3>Your Profile</h3>
-      <label class="form-group"><span style="font-size:11px;color:var(--muted);display:block;margin-bottom:4px">YOUR NAME</span>
-        <input class="settings-input" id="set-owner_name" placeholder="King">
-      </label>
-      <label class="form-group"><span style="font-size:11px;color:var(--muted);display:block;margin-bottom:4px">AGENCY NAME</span>
-        <input class="settings-input" id="set-agency_name" placeholder="Crown Media Group">
-      </label>
-      <label class="form-group"><span style="font-size:11px;color:var(--muted);display:block;margin-bottom:4px">WEBSITE</span>
-        <input class="settings-input" id="set-website" placeholder="crownmediagroup.co">
-      </label>
-      <label class="form-group"><span style="font-size:11px;color:var(--muted);display:block;margin-bottom:4px">DAILY OUTREACH GOAL</span>
-        <input class="settings-input" id="set-daily_goal" placeholder="10" type="number">
-      </label>
-      <button class="btn btn-gold" id="saveSettings">Save Profile</button>
-    </div>
-
-    <!-- Change Password -->
-    <div class="settings-card">
-      <h3>Change Password</h3>
-      <label class="form-group">
-        <span class="settings-label">CURRENT PASSWORD</span>
-        <input class="settings-input" id="pwCurrent" type="password" placeholder="Current password" autocomplete="current-password">
-      </label>
-      <label class="form-group">
-        <span class="settings-label">NEW PASSWORD</span>
-        <input class="settings-input" id="pwNew" type="password" placeholder="New password (min 8 chars)" autocomplete="new-password">
-      </label>
-      <label class="form-group">
-        <span class="settings-label">CONFIRM NEW PASSWORD</span>
-        <input class="settings-input" id="pwConfirm" type="password" placeholder="Repeat new password" autocomplete="new-password">
-      </label>
-      <button class="btn btn-gold" id="changePasswordBtn">Update Password</button>
-      <div class="msg" id="pwMsg"></div>
-    </div>
-
-    <!-- Email -->
-    <div class="settings-card">
-      <h3>Email (Gmail)</h3>
-      <div class="settings-status">
-        <div class="status-dot" id="emailDot"></div>
-        <span id="emailStatus">Checking...</span>
+    <div class="settings-grid">
+      <!-- Profile -->
+      <div class="settings-card">
+        <h3>Your Profile</h3>
+        <label class="form-group"><span class="settings-label">Your Name</span>
+          <input class="settings-input" id="set-owner_name" placeholder="King">
+        </label>
+        <label class="form-group"><span class="settings-label">Agency Name</span>
+          <input class="settings-input" id="set-agency_name" placeholder="Crown Media Group">
+        </label>
+        <label class="form-group"><span class="settings-label">Website</span>
+          <input class="settings-input" id="set-website" placeholder="crownmediagroup.co">
+        </label>
+        <label class="form-group"><span class="settings-label">Daily Outreach Goal</span>
+          <input class="settings-input" id="set-daily_goal" placeholder="10" type="number">
+        </label>
+        <button class="btn btn-gold" id="saveSettings">Save Profile</button>
       </div>
-      <p style="font-size:12px;color:var(--muted);margin-bottom:12px;line-height:1.6">
-        Add to your <code style="background:var(--bg2);padding:1px 5px;border-radius:3px;color:var(--gold)">.env</code> file:<br>
-        <code style="color:var(--gold)">GMAIL_USER=you@gmail.com</code><br>
-        <code style="color:var(--gold)">GMAIL_APP_PASSWORD=xxxx xxxx xxxx xxxx</code>
-      </p>
-      <button class="btn btn-outline btn-sm" id="testEmail">Send Test Email</button>
-    </div>
 
-    <!-- Twilio -->
-    <div class="settings-card">
-      <h3>SMS (Twilio)</h3>
-      <div class="settings-status">
-        <div class="status-dot" id="smsDot"></div>
-        <span id="smsStatus">Checking...</span>
+      <!-- Change Password -->
+      <div class="settings-card">
+        <h3>Change Password</h3>
+        <label class="form-group">
+          <span class="settings-label">Current Password</span>
+          <input class="settings-input" id="pwCurrent" type="password" placeholder="Current password" autocomplete="current-password">
+        </label>
+        <label class="form-group">
+          <span class="settings-label">New Password</span>
+          <input class="settings-input" id="pwNew" type="password" placeholder="New password (min 8 chars)" autocomplete="new-password">
+        </label>
+        <label class="form-group">
+          <span class="settings-label">Confirm New Password</span>
+          <input class="settings-input" id="pwConfirm" type="password" placeholder="Repeat new password" autocomplete="new-password">
+        </label>
+        <button class="btn btn-gold" id="changePasswordBtn">Update Password</button>
+        <div class="msg" id="pwMsg"></div>
       </div>
-      <p style="font-size:12px;color:var(--muted);margin-bottom:12px;line-height:1.6">
-        Twilio credentials loaded from root <code style="background:var(--bg2);padding:1px 5px;border-radius:3px;color:var(--gold)">.env</code> automatically.
-      </p>
-      <div style="display:flex;gap:8px;align-items:center;margin-bottom:10px">
-        <input class="settings-input" id="testSmsTo" placeholder="Test phone: +18035551234" style="flex:1;margin-bottom:0">
-        <button class="btn btn-outline btn-sm" id="testSMS">Send</button>
-      </div>
-    </div>
 
-    <!-- AI -->
-    <div class="settings-card">
-      <h3>AI Drafts (Claude)</h3>
-      <div class="settings-status">
-        <div class="status-dot" id="aiDot"></div>
-        <span id="aiStatus">Checking...</span>
+      <!-- Email -->
+      <div class="settings-card">
+        <h3>Email (Gmail)</h3>
+        <div class="settings-status">
+          <div class="status-dot" id="emailDot"></div>
+          <span id="emailStatus">Checking...</span>
+        </div>
+        <p style="font-size:12px;color:var(--muted);margin-bottom:12px;line-height:1.6">
+          Add to your <code>.env</code> file:<br>
+          <code>GMAIL_USER=you@gmail.com</code><br>
+          <code>GMAIL_APP_PASSWORD=xxxx xxxx xxxx xxxx</code>
+        </p>
+        <button class="btn btn-outline btn-sm" id="testEmail">Send Test Email</button>
       </div>
-      <p style="font-size:12px;color:var(--muted);line-height:1.6">
-        Anthropic API key loaded from root <code style="background:var(--bg2);padding:1px 5px;border-radius:3px;color:var(--gold)">.env</code> automatically. Uses Claude Haiku for fast, cheap drafts.
-      </p>
+
+      <!-- Twilio -->
+      <div class="settings-card">
+        <h3>SMS (Twilio)</h3>
+        <div class="settings-status">
+          <div class="status-dot" id="smsDot"></div>
+          <span id="smsStatus">Checking...</span>
+        </div>
+        <p style="font-size:12px;color:var(--muted);margin-bottom:12px;line-height:1.6">
+          Twilio credentials loaded from root <code>.env</code> automatically.
+        </p>
+        <div style="display:flex;gap:8px;align-items:center;margin-bottom:10px">
+          <input class="settings-input" id="testSmsTo" placeholder="Test phone: +18035551234" style="flex:1;margin-bottom:0">
+          <button class="btn btn-outline btn-sm" id="testSMS">Send</button>
+        </div>
+      </div>
+
+      <!-- AI -->
+      <div class="settings-card">
+        <h3>AI Drafts (Claude)</h3>
+        <div class="settings-status">
+          <div class="status-dot" id="aiDot"></div>
+          <span id="aiStatus">Checking...</span>
+        </div>
+        <p style="font-size:12px;color:var(--muted);line-height:1.6">
+          Anthropic API key loaded from root <code>.env</code> automatically. Uses Claude Haiku for fast, cheap drafts.
+        </p>
+      </div>
     </div>
-  </div>
-</main>
+  </main>
+
+</div><!-- /.crm-content -->
 
 <!-- ══════════════════════ CONTACT MODAL ══════════════════════ -->
 <div class="modal-overlay hidden" id="contactModal">
@@ -287,7 +367,6 @@
     </div>
     <div class="modal-body">
 
-      <!-- Info grid -->
       <div class="contact-info-grid">
         <div class="info-item full">
           <label>Name</label>
@@ -339,9 +418,7 @@
 
       <!-- Tags -->
       <div class="tags-section">
-        <div class="tags-section-header">
-          <strong>Tags</strong>
-        </div>
+        <div class="tags-section-header"><strong>Tags</strong></div>
         <div class="tags-list" id="modalTagsList"></div>
         <div class="tag-add-row">
           <input type="text" id="tagInput" class="tag-input" placeholder="Add tag (e.g. hot lead, referral)..." maxlength="30">
