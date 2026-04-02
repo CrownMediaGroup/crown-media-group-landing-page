@@ -12,7 +12,7 @@ import { loadEnv, VIDEO_OUT } from './utils.js';
 loadEnv();
 
 const RECRAFT_URL   = 'https://external.api.recraft.ai/v1/images/generations';
-const STYLE_SUFFIX  = 'cinematic stock photo, professional business setting, clean composition, no text, no watermark, photorealistic, soft natural lighting';
+const STYLE_SUFFIX  = 'cinematic heavenly aesthetic, ethereal divine light rays, volumetric god rays breaking through clouds, golden warm glow, deep royal navy and gold color palette, photorealistic 8K, shallow depth of field, cinematic color grade, no text, no watermark, faith-inspired visual, angelic atmosphere, luminous particles, spiritual elevation, aspirational and transcendent mood';
 
 /**
  * Generate background images for each segment.
@@ -40,7 +40,7 @@ export async function generateFrames(segments, slug, aspectRatio = '16:9') {
       continue;
     }
 
-    const prompt = `${seg.visualCue}, Columbia SC small business, marketing agency, ${STYLE_SUFFIX}`;
+    const prompt = `${seg.visualCue}, entrepreneur, business owner, marketing agency, ${STYLE_SUFFIX}`;
 
     if (apiKey) {
       try {

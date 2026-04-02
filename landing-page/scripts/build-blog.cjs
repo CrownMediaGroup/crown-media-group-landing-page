@@ -8,6 +8,19 @@ const { marked } = require('marked');
 const { format, parseISO, isValid } = require('date-fns');
 
 const ROOT = path.resolve(__dirname, '..');
+
+// Load .env from repo root
+try {
+  const envLines = fs.readFileSync(path.join(ROOT, '../.env'), 'utf8').split('\n');
+  for (const line of envLines) {
+    const idx = line.indexOf('=');
+    if (idx === -1) continue;
+    const k = line.slice(0, idx).trim();
+    const v = line.slice(idx + 1).trim().replace(/^['"]|['"]$/g, '');
+    if (k && !process.env[k]) process.env[k] = v;
+  }
+} catch {}
+
 const CONTENT_DIR = path.join(ROOT, 'content', 'blog');
 const OUTPUT_DIR = path.join(ROOT, 'blog');
 const SITE_URL = 'https://crownmediagroup.co';
@@ -449,14 +462,21 @@ ${AMBIENT_HTML}
 <script>(function(){try{var s=window.location.pathname.replace(/^\/blog\//,'').replace(/\/$/,'');if(!s||s==='blog')return;var ref='direct';try{if(document.referrer){var u=new URL(document.referrer);ref=u.hostname;}}catch(e){}fetch('/.netlify/functions/track',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({slug:s,referrer:ref,title:document.title}),keepalive:true}).catch(function(){});}catch(e){}})();
 function extractiveSummary(text){var sentences=text.replace(/\n+/g,' ').split(/(?<=[.!?])\s+/).filter(function(s){return s.trim().length>40&&s.trim().length<300;});if(sentences.length<=5)return sentences;var words=text.toLowerCase().split(/\W+/).filter(Boolean);var freq={};words.forEach(function(w){if(w.length>4)freq[w]=(freq[w]||0)+1;});var scored=sentences.map(function(s,i){var score=s.toLowerCase().split(/\W+/).reduce(function(a,w){return a+(freq[w]||0);},0);if(i<3||i>=sentences.length-3)score*=1.4;return{s:s,score:score};});scored.sort(function(a,b){return b.score-a.score;});return scored.slice(0,5).map(function(x){return x.s;});}
 function renderBullets(bullets,label,color){var body=document.getElementById('ai-summary-body');var btn=document.getElementById('ai-summary-btn');if(bullets.length===0){body.innerHTML='<p style="color:#c33;font-size:.85rem;">Could not parse summary. Try again.</p>';btn.textContent='Retry';btn.disabled=false;return;}body.innerHTML=(label?'<p style="font-size:.75rem;color:#8A8AAA;margin:0 0 8px;letter-spacing:.06em;text-transform:uppercase;">'+label+'</p>':'')+' <ul>'+bullets.map(function(b){return'<li>'+b+'</li>';}).join('')+'</ul>';btn.textContent='Done';btn.style.background=color||'#4caf7d';}
-function generateSummary(){var btn=document.getElementById('ai-summary-btn');var body=document.getElementById('ai-summary-body');if(!btn||!body)return;btn.disabled=true;btn.textContent='Thinking...';body.style.display='block';body.innerHTML='<div class="ai-summary-loading">Reading the article...</div>';var text=document.querySelector('.post-body')?.innerText||'';var title=document.querySelector('.post-title')?.innerText||document.title;if(!text||text.length<100){renderBullets(extractiveSummary(document.body.innerText),'Quick Summary','#C9981A');return;}fetch('/.netlify/functions/summarize',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({text:text,title:title})}).then(function(r){if(!r.ok)return r.json().then(function(e){throw new Error(e.error||('HTTP '+r.status));});return r.json();}).then(function(d){if(d.error){console.error('[Summarize] API error:',d.error);body.innerHTML='<p style="color:#c33;font-size:.85rem;">'+d.error+'</p>';btn.textContent='Try Again';btn.disabled=false;return;}var bullets=d.summary.split('\n').filter(function(l){return l.trim().startsWith('•')||l.trim().startsWith('-');}).map(function(l){return l.replace(/^[•\-]\s*/,'').trim();}).filter(Boolean);renderBullets(bullets,'',d.provider==='gemini'?'#4a90d9':'#4caf7d');}).catch(function(e){console.error('[Summarize] Fetch failed:',e.message,'— using extractive fallback');renderBullets(extractiveSummary(text),'Quick Summary (Offline)','#C9981A');});}
+function generateSummary(){var btn=document.getElementById('ai-summary-btn');var body=document.getElementById('ai-summary-body');if(!btn||!body)return;btn.disabled=true;body.style.display='block';
+/* ── Step 1: Check pre-baked summary injected at build time ── */
+var preBaked=document.getElementById('post-summary-data');if(preBaked){try{var bullets=JSON.parse(preBaked.textContent||'[]');if(bullets&&bullets.length>=3){renderBullets(bullets,'','#4caf7d');return;}}catch(e){}}
+btn.textContent='Thinking...';body.innerHTML='<div class="ai-summary-loading">Reading the article...</div>';var text=document.querySelector('.post-body')?.innerText||'';var title=document.querySelector('.post-title')?.innerText||document.title;
+/* ── Step 2: If no pre-baked, try Netlify function (Anthropic → Gemini fallback) ── */
+if(!text||text.length<100){renderBullets(extractiveSummary(document.body.innerText),'Quick Summary','#C9981A');return;}fetch('/.netlify/functions/summarize',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({text:text,title:title})}).then(function(r){if(!r.ok)return r.json().then(function(e){throw new Error(e.error||('HTTP '+r.status));});return r.json();}).then(function(d){if(d.error){console.error('[Summarize] API error:',d.error);throw new Error(d.error);}var bullets=d.summary.split('\n').filter(function(l){return l.trim().startsWith('•')||l.trim().startsWith('-');}).map(function(l){return l.replace(/^[•\-]\s*/,'').trim();}).filter(Boolean);renderBullets(bullets,'',d.provider==='gemini'?'#4a90d9':'#4caf7d');}).catch(function(e){
+/* ── Step 3: Extractive fallback — always works, zero API ── */
+console.error('[Summarize] Using extractive fallback:',e.message);renderBullets(extractiveSummary(text),'Quick Summary','#C9981A');});}
 </script>
 </body>
 </html>`;
 }
 
 // ─── Blog post page ───────────────────────────────────────────────────────────
-function buildPostPage(post, allPosts) {
+function buildPostPage(post, allPosts, preBakedBullets = null) {
   const related = getRelatedPosts(post, allPosts);
   const idx = allPosts.findIndex(p => p.slug === post.slug);
   const prev = allPosts[idx + 1] || null;
@@ -541,6 +561,7 @@ function buildPostPage(post, allPosts) {
       </div>
       <div class="ai-summary-body" id="ai-summary-body" style="display:none;"></div>
     </div>
+    ${preBakedBullets ? `<script type="application/json" id="post-summary-data">${JSON.stringify(preBakedBullets)}</script>` : ''}
     <div class="post-body">
       ${post.html}
     </div>
@@ -845,11 +866,98 @@ function ensureDir(dir) {
   if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
 }
 
+// ─── Pre-bake AI summaries at build time ─────────────────────────────────────
+const SUMMARY_CACHE_FILE = path.join(CONTENT_DIR, '.summary-cache.json');
+
+function loadSummaryCache() {
+  try { return JSON.parse(fs.readFileSync(SUMMARY_CACHE_FILE, 'utf8')); } catch { return {}; }
+}
+
+function saveSummaryCache(cache) {
+  fs.writeFileSync(SUMMARY_CACHE_FILE, JSON.stringify(cache, null, 2));
+}
+
+async function generatePreBakedSummary(post, cache) {
+  if (cache[post.slug]) return cache[post.slug]; // already cached
+
+  const apiKey = process.env.ANTHROPIC_API_KEY;
+  if (!apiKey) return null; // skip silently — button will use extractive fallback
+
+  const text = post.html.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim().slice(0, 6000);
+  if (text.length < 100) return null;
+
+  try {
+    const https = require('https');
+    const body = JSON.stringify({
+      model: 'claude-haiku-4-5-20251001',
+      max_tokens: 400,
+      messages: [{
+        role: 'user',
+        content: `Summarize this blog post in exactly 5 clear, actionable bullet points. Be specific and direct. Write for a busy entrepreneur who wants key takeaways in 30 seconds.\n\nTitle: ${post.title}\n\nContent:\n${text}\n\nFormat: exactly 5 bullet points starting with "•". Nothing else.`
+      }]
+    });
+
+    const summary = await new Promise((resolve, reject) => {
+      const req = https.request({
+        hostname: 'api.anthropic.com',
+        path: '/v1/messages',
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-api-key': apiKey,
+          'anthropic-version': '2023-06-01',
+          'Content-Length': Buffer.byteLength(body)
+        }
+      }, (res) => {
+        let data = '';
+        res.on('data', d => data += d);
+        res.on('end', () => {
+          try {
+            const json = JSON.parse(data);
+            resolve(json.content?.[0]?.text || '');
+          } catch { reject(new Error('Parse error')); }
+        });
+      });
+      req.on('error', reject);
+      req.write(body);
+      req.end();
+    });
+
+    if (!summary) return null;
+    const bullets = summary.split('\n')
+      .filter(l => l.trim().startsWith('•') || l.trim().startsWith('-'))
+      .map(l => l.replace(/^[•\-]\s*/, '').trim())
+      .filter(Boolean);
+
+    if (bullets.length >= 3) {
+      cache[post.slug] = bullets;
+      saveSummaryCache(cache);
+      return bullets;
+    }
+  } catch (e) {
+    console.warn(`  [Summary] Skipped ${post.slug}: ${e.message}`);
+  }
+  return null;
+}
+
 // ─── Main build ───────────────────────────────────────────────────────────────
 async function build() {
   console.log('Crown Media Group — Building blog...');
   const posts = loadPosts();
   console.log(`Found ${posts.length} published post(s).`);
+
+  // Pre-bake summaries
+  const summaryCache = loadSummaryCache();
+  console.log('Pre-baking AI summaries...');
+  for (const post of posts) {
+    if (!summaryCache[post.slug]) {
+      process.stdout.write(`  Summarizing: ${post.slug}... `);
+      const bullets = await generatePreBakedSummary(post, summaryCache);
+      console.log(bullets ? `✓ (${bullets.length} bullets)` : 'skipped (no key)');
+    } else {
+      console.log(`  Cached: ${post.slug}`);
+    }
+  }
 
   ensureDir(OUTPUT_DIR);
 
@@ -860,7 +968,8 @@ async function build() {
   for (const post of posts) {
     const postDir = path.join(OUTPUT_DIR, post.slug);
     ensureDir(postDir);
-    fs.writeFileSync(path.join(postDir, 'index.html'), buildPostPage(post, posts));
+    const preBakedBullets = summaryCache[post.slug] || null;
+    fs.writeFileSync(path.join(postDir, 'index.html'), buildPostPage(post, posts, preBakedBullets));
     console.log(`  Built: /blog/${post.slug}/`);
   }
 
