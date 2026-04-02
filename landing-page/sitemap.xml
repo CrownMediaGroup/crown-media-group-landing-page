@@ -28,6 +28,12 @@
     <priority>0.8</priority>
   </url>
   <url>
+    <loc>https://crownmediagroup.co/blog/how-to-create-30-days-of-content-in-one-afternoon-for-your-c/</loc>
+    <lastmod>2026-04-02</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
     <loc>https://crownmediagroup.co/blog/5-reasons-your-columbia-sc-business-needs-a-professional-ins/</loc>
     <lastmod>2026-04-02</lastmod>
     <changefreq>monthly</changefreq>
@@ -100,6 +106,11 @@
   </url>
   <url>
     <loc>https://crownmediagroup.co/blog/category/paid-ads/</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://crownmediagroup.co/blog/category/content-marketing/</loc>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
