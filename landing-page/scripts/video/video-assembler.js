@@ -5,7 +5,7 @@
  * Crown Media Group
  */
 
-import { execSync, spawnSync } from 'child_process';
+import { spawnSync } from 'child_process';
 import { writeFileSync, existsSync } from 'fs';
 import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
@@ -16,8 +16,10 @@ const FONT_PATH = join(__dirname, '..', '..', '..', 'assets', 'fonts', 'Inter-Bo
 const LOGO_PATH = join(__dirname, '..', '..', 'logo.png');
 
 function ffmpeg() {
+  if (process.env.FFMPEG_PATH) return process.env.FFMPEG_PATH;
   if (process.platform === 'linux') return 'ffmpeg';
-  return 'C:\\Users\\ldavi\\AppData\\Local\\Microsoft\\WinGet\\Packages\\Gyan.FFmpeg_Microsoft.Winget.Source_8wekyb3d8bbwe\\ffmpeg-8.0.1-full_build\\bin\\ffmpeg.exe';
+  const winPath = 'C:\\Users\\ldavi\\AppData\\Local\\Microsoft\\WinGet\\Packages\\Gyan.FFmpeg_Microsoft.Winget.Source_8wekyb3d8bbwe\\ffmpeg-8.0.1-full_build\\bin\\ffmpeg.exe';
+  return existsSync(winPath) ? winPath : 'ffmpeg';
 }
 
 /**
@@ -44,7 +46,6 @@ export async function assembleVideo(segments, framePaths, mp3Path, title, slug) 
     return `file '${framePaths[i].replace(/\\/g, '/')}'\nduration ${dur}`;
   }).join('\n');
   // Add last frame once more (FFmpeg concat demuxer quirk)
-  concatLines.toString(); // unused warning avoidance
   const concatContent = concatLines + `\nfile '${framePaths[framePaths.length - 1].replace(/\\/g, '/')}'`;
   const concatFile = join(VIDEO_OUT, `${slug}-concat.txt`);
   writeFileSync(concatFile, concatContent);
@@ -146,7 +147,7 @@ export async function assembleShort(fullVideoPath, slug) {
     ffmpeg(), '-y',
     '-i', fullVideoPath,
     '-t', '60',
-    '-vf', 'crop=607.5:1080:656.25:0,scale=1080:1920,setsar=1',
+    '-vf', 'crop=608:1080:656:0,scale=1080:1920,setsar=1',
     '-c:v', 'libx264', '-crf', '23', '-preset', 'fast',
     '-c:a', 'aac', '-ar', '44100', '-b:a', '128k',
     '-movflags', '+faststart',

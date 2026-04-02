@@ -42,7 +42,7 @@ export async function generateFrames(segments, slug, aspectRatio = '16:9') {
 
     const prompt = `${seg.visualCue}, Columbia SC small business, marketing agency, ${STYLE_SUFFIX}`;
 
-    if (apiKey && apiKey !== 'SET') {
+    if (apiKey) {
       try {
         console.log(`  [Frames] Generating ${aspectRatio} frame ${i + 1}/${segments.length}...`);
         const response = await axios.post(
@@ -93,7 +93,8 @@ async function createGradientFrame(outPath, aspectRatio) {
 }
 
 function getFfmpegPath() {
+  if (process.env.FFMPEG_PATH) return process.env.FFMPEG_PATH;
   if (process.platform === 'linux') return 'ffmpeg';
   const winPath = 'C:\\Users\\ldavi\\AppData\\Local\\Microsoft\\WinGet\\Packages\\Gyan.FFmpeg_Microsoft.Winget.Source_8wekyb3d8bbwe\\ffmpeg-8.0.1-full_build\\bin\\ffmpeg.exe';
-  return winPath;
+  return existsSync(winPath) ? winPath : 'ffmpeg';
 }
