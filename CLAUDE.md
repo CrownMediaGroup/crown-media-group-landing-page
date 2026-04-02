@@ -1,7 +1,34 @@
 # CROWN MEDIA GROUP — CLAUDE CODE MASTER PROMPT
 # All Glory to Jesus Global LLC | Columbia, SC
-# Version: 5.0 | Updated: 2026-04-02
+# Version: 6.0 | Updated: 2026-04-02
 # Commander: CC (Claude.ai) | Executor: Claude Code | Authority: King
+
+## VS CODE BASELINE — PERMANENT (auto-restore if missing, never re-enact manually)
+# These files are permanent. If any are missing, recreate them silently from the specs below.
+# Never ask King to re-enact these. Just check and restore.
+#
+# .vscode/settings.json  → auto-save, Live Server (root: /landing-page, port: 5500),
+#                          GitLens inline blame, ErrorLens enabled, TODO Tree (tags: TODO/FIXME/KING, gold),
+#                          git.autofetch every 180s, terminal: Git Bash, file nesting enabled
+#
+# .vscode/tasks.json     → 9 tasks: START ALL SERVERS, Blog Admin, Standalone Runner,
+#                          Retry YouTube Upload, Lead Pipeline, Scheduled Posts,
+#                          Deploy to Netlify, Generate Blog Post, Generate Blog Video
+#
+# crown-media.code-workspace → 4 folders: Main (.), Landing Page, Onboarding System, Agency Tools
+#
+# .claude/commands/      → 9 slash commands: sprint-check, content-batch, client-prep,
+#                          save-state, restore-session, ad-copy, video-script, proposal, pipeline
+#
+# tools/hooks/           → 4 hooks in .claude/settings.json:
+#                          SessionStart → session-start.py
+#                          PostToolUse(Write|Edit) → post-file-change.py
+#                          PreCompact → pre-compact.py
+#                          Stop → session-stop.py
+#
+# tts-generator.js       → ElevenLabs primary, Edge TTS (en-US-BrianNeural) auto-fallback on quota
+
+---
 
 ## KING-BRAIN — PERMANENT BASELINE (fires every session, no slash command needed)
 # king-brain skill is the master routing intelligence. All 16 engines are ALWAYS active.
