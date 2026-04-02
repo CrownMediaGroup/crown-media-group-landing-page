@@ -259,12 +259,27 @@ let adminMode    = false;
 let pendingFiles = [];
 let currentFilter = 'all';
 let currentSort   = 'newest';
-let crmSession    = localStorage.getItem(ADMIN_KEY);
+let crmSession    = null;
 
 // ── Deleted helpers ────────────────────────────────────────────────────────────
 function getDeletedIds() { try { return JSON.parse(localStorage.getItem(DELETED_KEY) || '[]'); } catch(_) { return []; } }
 function saveDeletedId(id) { const ids = getDeletedIds(), k = String(id); if (!ids.includes(k)) { ids.push(k); localStorage.setItem(DELETED_KEY, JSON.stringify(ids)); } }
 function removeDeletedId(id) { localStorage.setItem(DELETED_KEY, JSON.stringify(getDeletedIds().filter(x => x !== String(id)))); }
+
+async function fetchServerHiddenIds() {
+  try {
+    const r = await fetch(CRM_URL + '/api/portfolio/hidden', { signal: AbortSignal.timeout(4000) });
+    if (!r.ok) return [];
+    const d = await r.json();
+    return d.ids || [];
+  } catch { return []; }
+}
+async function serverHideId(id) {
+  try { await fetch(CRM_URL + '/api/portfolio/hide', { method:'POST', headers:{'Content-Type':'application/json','X-Portfolio-Key':'AllGlory2026!'}, body: JSON.stringify({id}) }); } catch {}
+}
+async function serverRestoreId(id) {
+  try { await fetch(CRM_URL + '/api/portfolio/hide/' + encodeURIComponent(id), { method:'DELETE', headers:{'X-Portfolio-Key':'AllGlory2026!'} }); } catch {}
+}
 
 // ── Init ───────────────────────────────────────────────────────────────────────
 loadPortfolio();
@@ -286,6 +301,15 @@ async function loadPortfolio() {
   } catch (_) {}
 
   allItems = [...crmItems, ...localItems];
+
+  // Merge server-side hidden IDs into localStorage so deletes persist across browsers
+  const serverIds = await fetchServerHiddenIds();
+  if (serverIds.length) {
+    const local = getDeletedIds();
+    const merged = [...new Set([...local, ...serverIds])];
+    localStorage.setItem(DELETED_KEY, JSON.stringify(merged));
+  }
+
   updateStats();
   applyFilter('all');
 }
@@ -462,7 +486,6 @@ document.getElementById('admin-login-btn').addEventListener('click', async () =>
   const err   = document.getElementById('login-error');
   if (email.toLowerCase() === 'king@crownmediagroup.co' && pass === 'AllGlory2026!') {
     crmSession = 'ok';
-    localStorage.setItem(ADMIN_KEY, crmSession);
     fetch(CRM_URL + '/api/login', { method:'POST', headers:{'Content-Type':'application/json'}, credentials:'include', body:JSON.stringify({email, password:pass}) }).catch(()=>{});
     err.style.display = 'none';
     closeAdminLogin();
@@ -561,6 +584,7 @@ async function deleteItem(item, el) {
 
   const itemKey = String(item.id || item.file);
   saveDeletedId(itemKey);
+  serverHideId(itemKey);
 
   // Transform tile in place — no removal
   el.classList.add('deleted-item');
@@ -578,7 +602,9 @@ async function deleteItem(item, el) {
 
 // ── Restore ────────────────────────────────────────────────────────────────────
 function restoreItem(item) {
-  removeDeletedId(String(item.id || item.file));
+  const key = String(item.id || item.file);
+  removeDeletedId(key);
+  serverRestoreId(key);
   applyFilter(currentFilter);
   updateStats();
 }

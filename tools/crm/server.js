@@ -96,9 +96,10 @@ app.use(helmet({
       imgSrc:     ["'self'", 'data:', 'https://lh3.googleusercontent.com'],
       connectSrc: ["'self'", 'https://accounts.google.com', 'https://oauth2.googleapis.com'],
       frameSrc:   ["'self'", 'https://accounts.google.com'],
+      frameAncestors: ["'none'"],
     },
   },
-  frameguard: false,
+  frameguard: { action: 'deny' },
 }));
 
 // ── Trust proxy (Railway / Netlify sit behind a load balancer) ────────────────
@@ -159,8 +160,8 @@ app.use('/portfolio-media', (req, res, next) => {
   next();
 });
 
-app.use(express.json({ limit: '52mb' }));
-app.use(express.urlencoded({ extended: true, limit: '52mb' }));
+app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 app.use('/api', apiLimiter);
 
 // ── Serve portfolio upload files as static ────────────────────────────────────
@@ -200,7 +201,9 @@ app.get('/track/open/:token.png', (req, res) => {
 app.get('/track/click/:token', (req, res) => {
   const msg = db.prepare('SELECT id FROM messages_sent WHERE track_token = ?').get(req.params.token);
   if (msg) db.prepare("UPDATE messages_sent SET clicked_at = COALESCE(clicked_at, datetime('now')) WHERE id = ?").run(msg.id);
-  res.redirect(req.query.url || 'https://crownmediagroup.co');
+  const dest = req.query.url;
+  if (!dest || !dest.startsWith('https://')) return res.redirect('https://crownmediagroup.co');
+  res.redirect(dest);
 });
 
 // ── Config (white-label ready) ────────────────────────────────────────────────
@@ -303,7 +306,7 @@ app.post('/api/login', loginLimiter, (req, res) => {
 
   const token = createSession(user.id, user.workspace_id);
   const isProd = process.env.NODE_ENV === 'production';
-  const cookieOpts = `Path=/; HttpOnly; SameSite=Lax; Max-Age=${30 * 24 * 60 * 60}${isProd ? '; Secure' : ''}`;
+  const cookieOpts = `Path=/; HttpOnly; SameSite=Strict; Max-Age=${30 * 24 * 60 * 60}${isProd ? '; Secure' : ''}`;
   res.setHeader('Set-Cookie', `crm_session=${token}; ${cookieOpts}`);
   res.json({ ok: true, role: user.role, workspaceId: user.workspace_id });
 });
@@ -312,7 +315,7 @@ app.post('/api/login', loginLimiter, (req, res) => {
 app.post('/api/logout', (req, res) => {
   const token = getCookie(req, 'crm_session');
   if (token) db.prepare('DELETE FROM sessions WHERE token = ?').run(token);
-  res.setHeader('Set-Cookie', 'crm_session=; Path=/; HttpOnly; SameSite=Lax; Max-Age=0');
+  res.setHeader('Set-Cookie', 'crm_session=; Path=/; HttpOnly; SameSite=Strict; Max-Age=0');
   res.json({ ok: true });
 });
 
@@ -347,7 +350,7 @@ app.post('/api/register', loginLimiter, (req, res) => {
   // Auto-login
   const token = createSession(user.lastInsertRowid, workspaceId);
   const isProd = process.env.NODE_ENV === 'production';
-  const cookieOpts = `Path=/; HttpOnly; SameSite=Lax; Max-Age=${30 * 24 * 60 * 60}${isProd ? '; Secure' : ''}`;
+  const cookieOpts = `Path=/; HttpOnly; SameSite=Strict; Max-Age=${30 * 24 * 60 * 60}${isProd ? '; Secure' : ''}`;
   res.setHeader('Set-Cookie', `crm_session=${token}; ${cookieOpts}`);
   res.json({ ok: true, trialEnds });
 
@@ -455,7 +458,7 @@ app.post('/api/auth/google', loginLimiter, async (req, res) => {
     db.prepare("DELETE FROM sessions WHERE expires_at < datetime('now')").run();
     const token = createSession(user.id, user.workspace_id);
     const isProd = process.env.NODE_ENV === 'production';
-    const cookieOpts = `Path=/; HttpOnly; SameSite=Lax; Max-Age=${30 * 24 * 60 * 60}${isProd ? '; Secure' : ''}`;
+    const cookieOpts = `Path=/; HttpOnly; SameSite=Strict; Max-Age=${30 * 24 * 60 * 60}${isProd ? '; Secure' : ''}`;
     res.setHeader('Set-Cookie', `crm_session=${token}; ${cookieOpts}`);
     res.json({ ok: true, workspaceId: user.workspace_id });
   } catch (err) {
@@ -655,9 +658,9 @@ app.get('/api/config', (req, res) => {
     ...settings,
     agencyName:    workspace?.name         || CONFIG.agencyName,
     primaryColor:  workspace?.primary_color || CONFIG.primaryColor,
-    twilioEnabled: !!twilioClient,
-    emailEnabled:  !!mailer,
-    aiEnabled:     !!anthropic,
+    twilioConfigured: !!twilioClient,
+    emailConfigured:  !!mailer,
+    aiConfigured:     !!anthropic,
   });
 });
 
@@ -691,8 +694,9 @@ app.get('/api/contacts', (req, res) => {
   if (status)   { where.push('status = ?');   params.push(status); }
   if (priority) { where.push('priority = ?'); params.push(priority); }
   if (search)   {
+    const escaped = search.replace(/[%_\\]/g, '\\$&');
     where.push('(name LIKE ? OR business LIKE ? OR email LIKE ? OR phone LIKE ?)');
-    const s = `%${search}%`;
+    const s = `%${escaped}%`;
     params.push(s, s, s, s);
   }
 
@@ -764,6 +768,8 @@ app.put('/api/contacts/:id', (req, res) => {
 
 // ── Log interaction ───────────────────────────────────────────────────────────
 app.post('/api/contacts/:id/interaction', (req, res) => {
+  const contact = db.prepare('SELECT id FROM contacts WHERE id = ? AND workspace_id = ?').get(req.params.id, req.workspaceId);
+  if (!contact) return res.status(404).json({ error: 'Not found' });
   const { type = 'Call', notes = '', outcome = 'Neutral' } = req.body;
   db.prepare('INSERT INTO interactions (contact_id, type, notes, outcome) VALUES (?, ?, ?, ?)').run(req.params.id, type, notes, outcome);
   db.prepare("UPDATE contacts SET last_contacted = datetime('now'), status = CASE WHEN status = 'Not Contacted' THEN ? ELSE status END WHERE id = ? AND workspace_id = ?").run(type, req.params.id, req.workspaceId);
@@ -772,6 +778,8 @@ app.post('/api/contacts/:id/interaction', (req, res) => {
 
 // ── Interaction history ───────────────────────────────────────────────────────
 app.get('/api/contacts/:id/interactions', (req, res) => {
+  const contact = db.prepare('SELECT id FROM contacts WHERE id = ? AND workspace_id = ?').get(req.params.id, req.workspaceId);
+  if (!contact) return res.status(404).json({ error: 'Not found' });
   res.json(db.prepare('SELECT * FROM interactions WHERE contact_id = ? ORDER BY date DESC').all(req.params.id));
 });
 
@@ -931,7 +939,8 @@ app.get('/api/export/csv', (req, res) => {
   }
 
   const headers = ['id','name','business','phone','email','status','priority','last_contacted','next_followup','notes','source'];
-  const rows    = contacts.map(c => headers.map(h => `"${(c[h] || '').toString().replace(/"/g, '""')}"`).join(','));
+  const csvSafe = v => { const s = (v || '').toString().replace(/"/g, '""'); return /^[=+@\-]/.test(s) ? `"'${s}"` : `"${s}"`; };
+  const rows    = contacts.map(c => headers.map(h => csvSafe(c[h])).join(','));
   const csv     = [headers.join(','), ...rows].join('\n');
 
   res.setHeader('Content-Type', 'text/csv');
@@ -1282,10 +1291,12 @@ app.post('/api/portfolio/upload', (req, res) => {
   if (!PORTFOLIO_EXTS.has(ext)) return res.status(400).json({ error: 'File type not allowed' });
 
   // Sanitize filename — keep extension, slugify the name
-  const safe = filename.replace(/[^a-zA-Z0-9._\-() ]/g, '_').trim();
+  const safe = basename(filename.replace(/[^a-zA-Z0-9._\-() ]/g, '_').trim());
+  if (!safe || safe.includes('..')) return res.status(400).json({ error: 'Invalid filename' });
   const destPath = join(PORTFOLIO_DIR, safe);
 
   try {
+    if (data.length > 13_981_013) return res.status(413).json({ error: 'File too large (max 10MB)' });
     const buffer = Buffer.from(data, 'base64');
     writeFileSync(destPath, buffer);
     res.json({

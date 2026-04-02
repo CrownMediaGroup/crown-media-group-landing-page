@@ -500,6 +500,7 @@ async function saveContact() {
       allContacts[idx].priority     = document.getElementById('modalPriority').value;
       allContacts[idx].next_followup = document.getElementById('modalFollowup').value;
       allContacts[idx].notes        = document.getElementById('modalNotes').value;
+      allContacts[idx].deal_value   = dealVal;
     }
     applyFilters();
     loadStats();

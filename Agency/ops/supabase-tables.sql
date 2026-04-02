@@ -139,3 +139,14 @@ ALTER TABLE ai_orders ENABLE ROW LEVEL SECURITY;
 ALTER TABLE ai_assets ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "allow_all_ai_orders" ON ai_orders FOR ALL USING (true);
 CREATE POLICY "allow_all_ai_assets" ON ai_assets FOR ALL USING (true);
+
+-- ============================================
+-- TABLE: portfolio_hidden
+-- Persists deleted portfolio items across browsers/devices
+-- ============================================
+CREATE TABLE IF NOT EXISTS portfolio_hidden (
+  item_id TEXT PRIMARY KEY,
+  hidden_at TIMESTAMPTZ DEFAULT NOW()
+);
+ALTER TABLE portfolio_hidden ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "allow_all_portfolio_hidden" ON portfolio_hidden FOR ALL USING (true);
