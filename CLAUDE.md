@@ -56,9 +56,11 @@
 # MCP AUTONOMY PROTOCOL (fire without asking):
 # Research needed?      → EXA REST API (curl direct, no MCP needed)
 # Lead/business named?  → Vibe Prospecting MCP enriches immediately
-# Email/outreach?       → Gmail MCP drafts immediately
+# Email/outreach?       → Gmail MCP drafts immediately | fallback: gws gmail drafts create
 # Design/graphic?       → Canva MCP generates immediately
-# Schedule/meeting?     → Google Calendar MCP creates event immediately
+# Schedule/meeting?     → Google Calendar MCP creates event immediately | fallback: gws calendar events insert
+# Read/write Drive?     → gws drive files list / create
+# Read/write Sheets?    → gws sheets spreadsheets values get / update
 # Multiple needed?      → ALL fire in parallel
 
 ---
@@ -263,10 +265,11 @@ Backup when pipeline slows: Ads Audit calls at $97–$197.
 | github | PR management, commits, issues from terminal (add token to .mcp.json) |
 | firecrawl | Scrape any website to markdown for prospect research (add key to .mcp.json) |
 
-### npm Global Packages (13 installed)
+### npm Global Packages (14 installed)
 | Package | Version | Use |
 |---|---|---|
 | @anthropic-ai/claude-code | 2.1.74 | Core CLI |
+| @googleworkspace/cli | 0.22.5 | `gws` — Drive, Gmail, Calendar, Sheets, Docs, Chat from terminal |
 | @railway/cli | 4.31.0 | Deploy Railway apps |
 | n8n | 2.11.4 | Local automation (start: `n8n`) |
 | netlify-cli | 24.2.0 | Deploy Netlify |
@@ -275,6 +278,22 @@ Backup when pipeline slows: Ads Audit calls at $97–$197.
 | pnpm | 10.32.1 | Fast package manager |
 | resend | 6.9.3 | Email CLI |
 | stripe | 20.4.1 | Payments CLI |
+
+### Google Workspace CLI (`gws`) — Command Reference
+Authenticate once: `gws auth login -s drive,gmail,sheets,calendar`
+| Command | What It Does |
+|---|---|
+| `gws gmail messages list` | List inbox messages |
+| `gws gmail messages send` | Send email from terminal |
+| `gws gmail drafts create` | Create draft (use instead of Gmail MCP when MCP unavailable) |
+| `gws calendar events list` | List upcoming events |
+| `gws calendar events insert` | Create calendar event |
+| `gws drive files list` | List Drive files |
+| `gws drive files create` | Upload file to Drive |
+| `gws sheets spreadsheets values get` | Read Google Sheet data |
+| `gws sheets spreadsheets values update` | Write to Google Sheet |
+| `gws docs documents get` | Read Google Doc |
+Use `gws [service] --help` for full flag reference. Prefer Gmail MCP / Calendar MCP when in-session; use `gws` CLI for scripts, crons, and automation workflows.
 
 Full inventory: Agency/ops/notes/FULL-INVENTORY-2026-03-17.md
 
@@ -530,6 +549,7 @@ LIVE NOW:
   - Railway + Netlify (one-command deploys)
   - GitHub (private repo, 84+ files committed)
   - Gmail MCP + Google Calendar MCP
+  - gws CLI (Google Workspace — Drive, Gmail, Calendar, Sheets, Docs from terminal)
   - Canva MCP (design generation)
   - Vibe Prospecting MCP (lead enrichment)
   - n8n (local automation workflows)
