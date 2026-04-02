@@ -320,6 +320,24 @@ Full inventory: Agency/ops/notes/FULL-INVENTORY-2026-03-17.md
 | client-delivery | sonnet | Deliverable checklists per tier, produces all assets in one shot — Shatiea-aware |
 | onboarding-automator | sonnet | Post-sale automation: welcome email, Supabase record, folder, deliverable queue |
 | peak-optimizer | sonnet | PERMANENT: Audits parallel execution opportunities, assigns right agent for each task, monitors context, eliminates bottlenecks. Always running at peak. |
+| crm-qa | haiku | AUTO-FIRES on CRM file changes: JS-HTML binding audit, window function scope, event wiring, logic gaps, cache version check |
+| code-reviewer | haiku | AUTO-FIRES on any .js/.html/.css/.py change: undefined refs, null checks, logic gaps, async errors |
+| security-auditor | haiku | AUTO-FIRES on any code change: XSS, SQL injection, exposed secrets, auth bypass, CORS misconfig |
+| deploy-verifier | haiku | Invoked after git push: verifies live site HTTP 200, JS version, key DOM elements, API health |
+| session-optimizer | haiku | AUTO-FIRES at session Stop: reviews AUTO-LOG, flags uncommitted changes, suggests next-session priorities |
+
+### PARALLEL AGENT PROTOCOL (NON-NEGOTIABLE)
+
+These auto-fire via hooks in `.claude/settings.json`. Do NOT wait for King to ask.
+
+- **Any CRM file edited** → crm-qa + code-reviewer fire in parallel automatically
+- **Any .js/.html/.py/.css edited** → security-auditor + code-reviewer fire in parallel automatically
+- **Session ends (Stop hook)** → session-optimizer fires automatically
+- **After git push to Railway** → invoke deploy-verifier manually to confirm live
+- **Never commit CRM changes** without crm-qa returning `VERDICT: SAFE TO DEPLOY`
+- **If any agent returns CRITICAL** → fix before pushing. No exceptions.
+
+When explicitly building features, ALWAYS invoke crm-qa + security-auditor as parallel Agent tool calls before the final commit step.
 
 ---
 
