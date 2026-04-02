@@ -334,6 +334,24 @@ async function main() {
     }
   }
 
+  // ── Auto-trigger video pipeline ───────────────────────────────────────────────
+  // Fires on every new post (draft or published) — video pipeline handles its own dedup via .video-log.json
+  console.log('\n[Video Pipeline] Auto-triggering blog-to-video for new post...');
+  try {
+    const { spawn } = await import('child_process');
+    const videoScript = join(ROOT, 'scripts', 'blog-to-video.js');
+    const child = spawn(process.execPath, [videoScript, '--file', filename], {
+      cwd: ROOT,
+      detached: true,
+      stdio: 'ignore',
+    });
+    child.unref(); // run in background — don't block blog-writer
+    console.log(`[Video Pipeline] Started in background for: ${filename}`);
+    console.log('[Video Pipeline] Video + Google Drive Short will be ready in ~10 min.');
+  } catch (err) {
+    console.warn(`[Video Pipeline] Failed to auto-trigger: ${err.message} — run manually: npm run blog:to-video`);
+  }
+
   console.log(`\nDone. View at: landing-page/content/blog/${filename}`);
 }
 

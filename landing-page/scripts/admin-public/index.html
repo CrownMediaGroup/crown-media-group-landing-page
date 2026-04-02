@@ -137,6 +137,7 @@ textarea { resize: vertical; min-height: 80px; }
       <div class="nav-item" onclick="showPanel('research')">Topic Research</div>
       <div class="nav-item" onclick="showPanel('schedule')">Schedule Settings</div>
       <div class="nav-item" onclick="showPanel('analytics')">Analytics</div>
+      <div class="nav-item" onclick="showPanel('automation')">Automation Log</div>
     </div>
   </div>
 
@@ -445,6 +446,71 @@ textarea { resize: vertical; min-height: 80px; }
       </div>
     </div>
 
+    <!-- AUTOMATION LOG -->
+    <div id="panel-automation" class="panel">
+      <div class="section-head" style="margin-bottom:24px;">
+        <div>
+          <h3 style="font-size:1.4rem;">Automation Log</h3>
+          <p style="margin-top:4px;color:var(--muted);font-size:.8rem;">Live feed of everything happening behind the scenes. Auto-refreshes every 30s.</p>
+        </div>
+        <button class="btn btn-gold" onclick="loadAutomation()">Refresh Now</button>
+      </div>
+
+      <!-- Status Bar -->
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:28px;">
+        <div class="stat-card">
+          <div class="stat-num" id="auto-blog-count" style="font-size:1.4rem;">—</div>
+          <div class="stat-label">Blog Posts in Social Queue</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-num" id="auto-video-count" style="font-size:1.4rem;">—</div>
+          <div class="stat-label">Videos Generated</div>
+        </div>
+        <div class="stat-card">
+          <div id="auto-runner-status" style="font-size:.85rem;font-weight:700;color:var(--green);padding-top:4px;">—</div>
+          <div class="stat-label">Runner Status</div>
+        </div>
+      </div>
+
+      <!-- Two-column layout -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;">
+
+        <!-- Activity Log -->
+        <div>
+          <div class="section-head" style="margin-bottom:12px;">
+            <h3>Activity Log</h3>
+            <span style="font-size:.75rem;color:var(--muted);">Last 50 events</span>
+          </div>
+          <div class="table-wrap" style="max-height:480px;overflow-y:auto;" id="auto-log-feed">
+            <div style="padding:24px;text-align:center;color:var(--muted);font-size:.85rem;">Loading...</div>
+          </div>
+        </div>
+
+        <!-- Social Queue -->
+        <div>
+          <div class="section-head" style="margin-bottom:12px;">
+            <h3>Blog → Social Queue</h3>
+            <span style="font-size:.75rem;color:var(--muted);">Posts queued for distribution</span>
+          </div>
+          <div class="table-wrap" style="max-height:480px;overflow-y:auto;" id="auto-social-feed">
+            <div style="padding:24px;text-align:center;color:var(--muted);font-size:.85rem;">Loading...</div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Video Log -->
+      <div style="margin-top:24px;">
+        <div class="section-head" style="margin-bottom:12px;">
+          <h3>Video Pipeline</h3>
+          <span style="font-size:.75rem;color:var(--muted);">Blog → YouTube conversions</span>
+        </div>
+        <div class="table-wrap" id="auto-video-feed">
+          <div style="padding:24px;text-align:center;color:var(--muted);font-size:.85rem;">No videos generated yet. Pipeline runs after ElevenLabs upgrade.</div>
+        </div>
+      </div>
+    </div>
+
   </div>
 </div>
 
@@ -466,7 +532,8 @@ function showPanel(name) {
   if (name === 'posts')     loadPosts();
   if (name === 'queue')     loadQueue();
   if (name === 'schedule')  loadSchedule();
-  if (name === 'analytics') loadAnalytics();
+  if (name === 'analytics')  loadAnalytics();
+  if (name === 'automation') loadAutomation();
 }
 
 function toast(msg, type = 'success') {
@@ -805,6 +872,79 @@ async function applyAdjustments() {
   loadAnalytics();
 }
 
+// ── Automation Log ────────────────────────────────────────────────────────────
+async function loadAutomation() {
+  const [logData, socialData, videoData] = await Promise.all([
+    fetch('/api/automation-log').then(r => r.json()).catch(() => []),
+    fetch('/api/social-queue').then(r => r.json()).catch(() => []),
+    fetch('/api/video-log').then(r => r.json()).catch(() => ({ videos: [] })),
+  ]);
+
+  // Status bar
+  document.getElementById('auto-blog-count').textContent = Array.isArray(socialData) ? socialData.length : 0;
+  const videos = Array.isArray(videoData?.videos) ? videoData.videos : (Array.isArray(videoData) ? videoData : []);
+  document.getElementById('auto-video-count').textContent = videos.length;
+  const hasRecent = Array.isArray(logData) && logData.slice(0, 5).some(e => e.message && !/error/i.test(e.type));
+  document.getElementById('auto-runner-status').textContent = hasRecent ? 'Running' : 'Idle / Check Required';
+  document.getElementById('auto-runner-status').style.color = hasRecent ? 'var(--green)' : 'var(--gold)';
+
+  // Activity log feed
+  const logEl = document.getElementById('auto-log-feed');
+  if (!logData.length) {
+    logEl.innerHTML = '<div style="padding:24px;text-align:center;color:var(--muted);font-size:.85rem;">No log entries found.</div>';
+  } else {
+    const rows = logData.slice(0, 50).map(e => {
+      const color = e.type === 'error' ? 'var(--red)' : e.type === 'success' ? 'var(--green)' : 'var(--muted)';
+      const dot   = e.type === 'error' ? '●' : e.type === 'success' ? '●' : '○';
+      const time  = e.time ? new Date(e.time).toLocaleString() : '';
+      return `<div style="padding:10px 16px;border-bottom:1px solid rgba(255,255,255,.04);display:flex;gap:12px;align-items:flex-start;">
+        <span style="color:${color};font-size:.7rem;flex-shrink:0;padding-top:2px;">${dot}</span>
+        <div style="flex:1;min-width:0;">
+          <div style="font-size:.82rem;color:var(--text);line-height:1.4;word-break:break-word;">${e.message || e.raw || ''}</div>
+          ${time ? `<div style="font-size:.7rem;color:var(--muted);margin-top:2px;">${time}</div>` : ''}
+        </div>
+      </div>`;
+    }).join('');
+    logEl.innerHTML = rows;
+  }
+
+  // Social queue feed
+  const socialEl = document.getElementById('auto-social-feed');
+  if (!socialData.length) {
+    socialEl.innerHTML = '<div style="padding:24px;text-align:center;color:var(--muted);font-size:.85rem;">Queue is empty. Posts appear here after blog generation.</div>';
+  } else {
+    const rows = socialData.map(item => {
+      const title   = item.title || item.topic || 'Untitled';
+      const added   = item.addedAt ? new Date(item.addedAt).toLocaleString() : '';
+      const posted  = item.postedAt ? new Date(item.postedAt).toLocaleString() : null;
+      const status  = posted ? `<span class="badge badge-green">Posted ${posted}</span>` : `<span class="badge badge-gold">Queued</span>`;
+      return `<div style="padding:12px 16px;border-bottom:1px solid rgba(255,255,255,.04);">
+        <div style="font-size:.85rem;font-weight:600;margin-bottom:4px;">${title}</div>
+        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+          ${status}
+          ${added ? `<span style="font-size:.7rem;color:var(--muted);">Added ${added}</span>` : ''}
+        </div>
+      </div>`;
+    }).join('');
+    socialEl.innerHTML = rows;
+  }
+
+  // Video log
+  const videoEl = document.getElementById('auto-video-feed');
+  if (!videos.length) {
+    videoEl.innerHTML = '<div style="padding:24px;text-align:center;color:var(--muted);font-size:.85rem;">No videos generated yet. Pipeline fires after ElevenLabs upgrade.</div>';
+  } else {
+    const hdr = `<table><thead><tr><th>Post</th><th>Generated</th><th>YouTube</th><th>Short</th></tr></thead><tbody>`;
+    const rows = videos.map(v => `<tr>
+      <td>${v.slug || v.title || '—'}</td>
+      <td>${v.generatedAt ? new Date(v.generatedAt).toLocaleDateString() : '—'}</td>
+      <td>${v.youtubeUrl ? `<a href="${v.youtubeUrl}" target="_blank" style="color:var(--gold);">Watch</a>` : '<span style="color:var(--muted);">Pending</span>'}</td>
+      <td>${v.shortUrl ? `<a href="${v.shortUrl}" target="_blank" style="color:var(--gold);">Watch</a>` : '<span style="color:var(--muted);">Pending</span>'}</td>
+    </tr>`).join('');
+    videoEl.innerHTML = hdr + rows + '</tbody></table>';
+  }
+}
+
 // Init + auto-refresh every 30s
 loadDashboard();
 setInterval(() => {
@@ -812,7 +952,8 @@ setInterval(() => {
   if (currentPanel === 'posts')     loadPosts();
   if (currentPanel === 'queue')     loadQueue();
   if (currentPanel === 'crm')       loadCRM();
-  if (currentPanel === 'analytics') loadAnalytics();
+  if (currentPanel === 'analytics')  loadAnalytics();
+  if (currentPanel === 'automation') loadAutomation();
 }, 30000);
 </script>
 </body>

@@ -11,9 +11,9 @@
   "dependencies": {
     "@anthropic-ai/sdk": "^0.39.0",
     "axios": "^1.14.0",
-    "better-sqlite3": "^9.4.3",
     "cheerio": "^1.2.0",
     "express": "^5.2.1",
-    "resend": "^4.0.0"
+    "resend": "^4.0.0",
+    "sql.js": "^1.14.1"
   }
 }

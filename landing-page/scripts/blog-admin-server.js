@@ -382,6 +382,42 @@ app.get('/api/crm/followups', (_, res) => {
   } catch (e) { res.json([]); }
 });
 
+// ── Automation Log API ───────────────────────────────────────────────────────
+
+const DAILY_LOG  = join(__dirname, '..', '..', 'Agency', 'ops', 'notes', 'DAILY-LOG.md');
+const SOCIAL_Q   = join(__dirname, '..', '..', 'Agency', 'Content', 'social-post-queue.json');
+const VIDEO_LOG_FILE = join(BLOG_DIR, '.video-log.json');
+
+app.get('/api/automation-log', (_, res) => {
+  let lines = [];
+  if (existsSync(DAILY_LOG)) {
+    const raw = readFileSync(DAILY_LOG, 'utf8').split('\n').filter(Boolean);
+    lines = raw.slice(-150).reverse().map(line => {
+      const m = line.match(/^\[(.+?)\]\s*(.+)$/);
+      if (!m) return { time: '', raw: line, type: 'info' };
+      const msg = m[2];
+      const type = /ERROR|FATAL|failed|error/i.test(msg) ? 'error'
+                 : /success|done|published|complete|started/i.test(msg) ? 'success'
+                 : 'info';
+      return { time: m[1], message: msg, type };
+    });
+  }
+  res.json(lines);
+});
+
+app.get('/api/social-queue', (_, res) => {
+  if (!existsSync(SOCIAL_Q)) return res.json([]);
+  try { res.json(JSON.parse(readFileSync(SOCIAL_Q, 'utf8'))); } catch { res.json([]); }
+});
+
+app.get('/api/video-log', (_, res) => {
+  if (!existsSync(VIDEO_LOG_FILE)) return res.json({ videos: [] });
+  try {
+    const data = JSON.parse(readFileSync(VIDEO_LOG_FILE, 'utf8'));
+    res.json(data);
+  } catch { res.json({ videos: [] }); }
+});
+
 // ── Start ───────────────────────────────────────────────────────────────────
 
 const PORT = 4001;

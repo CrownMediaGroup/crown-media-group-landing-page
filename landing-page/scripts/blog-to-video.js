@@ -35,11 +35,13 @@ import {
   slugFromFilename, notifyFailure, VIDEO_OUT, CONTENT_DIR
 } from './video/utils.js';
 
-import { generateScript }         from './video/script-generator.js';
-import { generateTTS }            from './video/tts-generator.js';
-import { generateFrames }         from './video/frame-generator.js';
+import { generateScript }              from './video/script-generator.js';
+import { generateTTS }                 from './video/tts-generator.js';
+import { generateClips }               from './video/clip-generator.js';
 import { assembleVideo, assembleShort } from './video/video-assembler.js';
 import { uploadToYouTube, buildDescription } from './video/youtube-uploader.js';
+import { uploadShortToDrive }               from './video/drive-uploader.js';
+import { generateThumbnail }               from './video/thumbnail-generator.js';
 
 loadEnv();
 
@@ -112,13 +114,17 @@ async function main() {
     throw err;
   }
 
-  // ── Step 3: Generate background frames (16:9) ────────────────────────────────
-  console.log('Step 3/6: Generating background images (Recraft)...');
-  let frames16x9;
+  // ── Step 3: Generate video clips or background frames ───────────────────────
+  const falKey = process.env.FAL_KEY;
+  const stepLabel = falKey ? 'motion video clips (Fal.ai)' : 'background images (Recraft)';
+  console.log(`Step 3/6: Generating ${stepLabel}...`);
+  let clips16x9, clipMode;
   try {
-    frames16x9 = await generateFrames(script.segments, slug, '16:9');
+    const result = await generateClips(script.segments, slug, '16:9');
+    clips16x9 = result.paths;
+    clipMode  = result.mode;
   } catch (err) {
-    await notifyFailure('frame-generator', err);
+    await notifyFailure('clip-generator', err);
     throw err;
   }
 
@@ -126,7 +132,7 @@ async function main() {
   console.log('Step 4/6: Assembling 16:9 YouTube video (FFmpeg)...');
   let fullVideoPath;
   try {
-    fullVideoPath = await assembleVideo(script.segments, frames16x9, tts.mp3Path, title, slug);
+    fullVideoPath = await assembleVideo(script.segments, clips16x9, tts.mp3Path, title, slug, tts.duration, clipMode);
   } catch (err) {
     await notifyFailure('video-assembler-16x9', err);
     throw err;
@@ -142,19 +148,33 @@ async function main() {
     throw err;
   }
 
-  // ── Step 6: Upload to YouTube ────────────────────────────────────────────────
+  // ── Step 6: Generate thumbnail + Upload to YouTube ───────────────────────────
   let youtubeUrl = null;
   if (!SKIP_UPLOAD) {
-    console.log('Step 6/6: Uploading to YouTube...');
+    console.log('Step 6/6: Generating thumbnail + uploading to YouTube...');
     try {
-      const description = buildDescription(title, fm._excerpt || '', slug, script.segments);
-      const ytTags      = [...tags, 'Columbia SC', 'Marketing Agency', 'Crown Media Group', 'AI Marketing'];
+      const videoTitle  = script.suggestedTitle || title;
+      const description = buildDescription(videoTitle, fm._excerpt || '', slug, script.segments);
+      const ytTags      = [...(script.suggestedTags || tags), 'small business', 'marketing agency', 'Crown Media Group', 'AI marketing', 'entrepreneur'];
+      console.log(`  Title: "${videoTitle}"`);
+      console.log(`  Search angle: ${script.searchAngle || 'n/a'}`);
+
+      // Generate branded thumbnail
+      let thumbnailPath = null;
+      try {
+        const subtitle = script.searchAngle || script.suggestedTags?.[0] || '';
+        thumbnailPath = await generateThumbnail(videoTitle, slug, category, subtitle);
+      } catch (thumbErr) {
+        console.warn(`  [Thumbnail] Generation failed: ${thumbErr.message} — uploading without custom thumbnail`);
+      }
+
       youtubeUrl = await uploadToYouTube({
         videoPath:   fullVideoPath,
-        title,
+        title:       videoTitle,
         description,
         tags:        ytTags,
         unlisted:    UNLISTED,
+        thumbnailPath,
       });
     } catch (err) {
       await notifyFailure('youtube-uploader', err);
@@ -164,31 +184,19 @@ async function main() {
     console.log('Step 6/6: Skipping upload (--skip-upload)');
   }
 
-  // ── Step 7: Post Short to social platforms ───────────────────────────────────
+  // ── Step 7: Upload Short to Google Drive (ready-to-post folder) ─────────────
+  // Social auto-posting disabled — King uploads manually from Google Drive
   const socialResults = {};
-  if (!SKIP_SOCIAL && shortPath) {
-    console.log('\nBonus: Distributing Short to social platforms...');
-    const { exec } = await import('child_process');
-    const { promisify } = await import('util');
-    const execAsync = promisify(exec);
-
-    const caption = buildSocialCaption(title, youtubeUrl, tags);
-    const platforms = ['instagram', 'tiktok'];
-
-    for (const platform of platforms) {
-      try {
-        const socialScript = join(import.meta.dirname, '..', 'Agency', 'tools', 'social-post.js');
-        if (!existsSync(socialScript)) { console.warn(`  social-post.js not found at ${socialScript}`); continue; }
-        await execAsync(
-          `node "${socialScript}" --platform ${platform} --video "${shortPath}" --caption "${caption.replace(/"/g, '\\"')}"`,
-          { timeout: 60000 }
-        );
-        socialResults[platform] = 'done';
-        console.log(`  [Social] ${platform} — done`);
-      } catch (err) {
-        socialResults[platform] = `error: ${err.message}`;
-        console.warn(`  [Social] ${platform} failed: ${err.message}`);
-      }
+  let driveUrl = null;
+  if (shortPath) {
+    console.log('\nStep 7: Uploading Short to Google Drive (ready-to-post)...');
+    try {
+      driveUrl = await uploadShortToDrive(shortPath, title, slug);
+      socialResults.googleDrive = driveUrl;
+      console.log(`  [Drive] Uploaded → ${driveUrl}`);
+    } catch (err) {
+      console.warn(`  [Drive] Upload failed: ${err.message} — Short saved locally at ${shortPath}`);
+      socialResults.googleDrive = 'error: ' + err.message;
     }
   }
 
@@ -205,9 +213,10 @@ async function main() {
   saveVideoLog(updatedLog);
 
   console.log('\n=== Pipeline Complete ===');
-  if (youtubeUrl) console.log(`YouTube: ${youtubeUrl}`);
-  console.log(`Full video: ${fullVideoPath}`);
-  console.log(`Short:      ${shortPath}`);
+  if (youtubeUrl)  console.log(`YouTube:     ${youtubeUrl}`);
+  if (driveUrl)    console.log(`Drive Short: ${driveUrl}  ← upload to IG/TikTok/Reels`);
+  console.log(`Full video:  ${fullVideoPath}`);
+  console.log(`Short:       ${shortPath}`);
 }
 
 // ── Inline parseFrontmatter (avoids circular import) ─────────────────────────

@@ -566,16 +566,44 @@ async function postTikTok(caption, videoPath, dryRun) {
     }
 
     // ── Navigate to upload ─────────────────────────────────────────────────
-    await page.goto('https://www.tiktok.com/upload', { waitUntil: 'domcontentloaded', timeout: 20000 });
+    // creators.tiktok.com has a more stable upload UI than tiktok.com/upload
+    await page.goto('https://creators.tiktok.com/creator-center/upload', { waitUntil: 'domcontentloaded', timeout: 30000 });
     await delay(DELAYS.page_load);
+
+    // ── Dismiss passkey / modal dialogs ────────────────────────────────────
+    const modalDismissSelectors = [
+      'button:has-text("Maybe later")',
+      'button:has-text("Not now")',
+      'button:has-text("Skip")',
+      'button:has-text("Cancel")',
+      '[aria-label="Close"]',
+      'button:has-text("Close")',
+    ];
+    for (const sel of modalDismissSelectors) {
+      try {
+        const btn = page.locator(sel).first();
+        if (await btn.isVisible({ timeout: 2000 })) {
+          await btn.click();
+          console.log(`[TIKTOK] Dismissed modal: ${sel}`);
+          await delay([1000, 2000]);
+          break;
+        }
+      } catch {}
+    }
     await screenshot(page, 'tt-upload-page');
 
     // ── Upload video ───────────────────────────────────────────────────────
     console.log('[TIKTOK] Uploading video...');
+    // TikTok file input is hidden — attach state, then trigger via click + setInputFiles
     const fileInput = page.locator('input[type="file"]').first();
-    await fileInput.waitFor({ timeout: 15000 });
+    await fileInput.waitFor({ state: 'attached', timeout: 20000 });
+    // Try clicking the upload area first to activate the input
+    const uploadArea = page.locator('[class*="upload-area"], [class*="drag-drop"], [class*="upload-btn"], div:has(input[type="file"])').first();
+    const areaVisible = await uploadArea.isVisible({ timeout: 3000 }).catch(() => false);
+    if (areaVisible) await uploadArea.click().catch(() => {});
+    await delay([500, 1000]);
     await fileInput.setInputFiles(absVideo);
-    await delay([6000, 10000]); // video processing time
+    await delay([20000, 25000]); // TikTok needs significant time to process/transcode
     await screenshot(page, 'tt-upload');
 
     // ── Caption ────────────────────────────────────────────────────────────

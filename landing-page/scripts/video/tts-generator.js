@@ -13,8 +13,8 @@ import { Readable } from 'stream';
 
 loadEnv();
 
-// Rachel — professional, measured, trust-building voice
-const VOICE_ID  = '21m00Tcm4TlvDq8ikWAM';
+// Brian — Deep, Resonant, Comforting — faith-aligned male voice
+const VOICE_ID  = 'nPczCjzI2devNBz1zQrb';
 const MODEL_ID  = 'eleven_turbo_v2_5';
 
 /**

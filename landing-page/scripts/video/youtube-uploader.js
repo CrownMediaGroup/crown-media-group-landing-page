@@ -1,6 +1,6 @@
 /**
  * youtube-uploader.js — Upload video to YouTube using Data API v3
- * Uses service account credentials stored as YOUTUBE_SERVICE_ACCOUNT_JSON (base64)
+ * Uses OAuth2 credentials (YOUTUBE_CLIENT_ID, YOUTUBE_CLIENT_SECRET, YOUTUBE_REFRESH_TOKEN)
  * Crown Media Group
  */
 
@@ -20,7 +20,7 @@ loadEnv();
  * @param {boolean} opts.unlisted - true = unlisted (for testing), false = public
  * @returns {Promise<string>} - YouTube video URL
  */
-export async function uploadToYouTube({ videoPath, title, description, tags, unlisted = false }) {
+export async function uploadToYouTube({ videoPath, title, description, tags, unlisted = false, thumbnailPath = null }) {
   const auth = getAuth();
   const youtube = google.youtube({ version: 'v3', auth });
 
@@ -52,6 +52,24 @@ export async function uploadToYouTube({ videoPath, title, description, tags, unl
   const videoId  = response.data.id;
   const videoUrl = `https://www.youtube.com/watch?v=${videoId}`;
   console.log(`  [YouTube] Uploaded → ${videoUrl}`);
+
+  // Upload custom thumbnail if provided
+  if (thumbnailPath) {
+    try {
+      await youtube.thumbnails.set({
+        videoId,
+        media: {
+          mimeType: 'image/png',
+          body:     createReadStream(thumbnailPath),
+        },
+      });
+      console.log(`  [YouTube] Thumbnail set → ${thumbnailPath}`);
+    } catch (err) {
+      // Thumbnail upload requires verified channel — log but don't fail pipeline
+      console.warn(`  [YouTube] Thumbnail upload skipped: ${err.message}`);
+    }
+  }
+
   return videoUrl;
 }
 
@@ -70,39 +88,28 @@ ${segmentSummary}
 
 —
 
-Crown Media Group — AI-Powered Marketing Agency
-Based in Columbia, SC | Serving local businesses ready to grow.
+Crown Media Group — AI-Powered Marketing for Business Owners
+We help entrepreneurs grow with AI content, paid ads, and brand strategy.
 🌐 crownmediagroup.co
 📧 king@crownmediagroup.co
-📅 Book a free strategy session: https://calendly.com/crownmediagroupco
+📅 Free strategy session: https://calendly.com/crownmediagroupco
 
-#Marketing #ColumbiaScBusiness #AIMarketing #SmallBusiness #DigitalMarketing`;
+#Marketing #AIMarketing #SmallBusiness #DigitalMarketing #Entrepreneur`;
 }
 
 /**
- * Get authenticated Google auth client.
- * Supports:
- * 1. YOUTUBE_SERVICE_ACCOUNT_JSON env var (base64 encoded JSON)
- * 2. YOUTUBE_CREDENTIALS_PATH env var (path to credentials.json)
+ * Get authenticated Google auth client using OAuth2 refresh token.
  */
 function getAuth() {
-  const b64 = process.env.YOUTUBE_SERVICE_ACCOUNT_JSON;
-  if (b64) {
-    const creds = JSON.parse(Buffer.from(b64, 'base64').toString('utf8'));
-    const auth  = new google.auth.GoogleAuth({
-      credentials: creds,
-      scopes: ['https://www.googleapis.com/auth/youtube.upload', 'https://www.googleapis.com/auth/youtube'],
-    });
-    return auth;
+  const clientId     = process.env.YOUTUBE_CLIENT_ID;
+  const clientSecret = process.env.YOUTUBE_CLIENT_SECRET;
+  const refreshToken = process.env.YOUTUBE_REFRESH_TOKEN;
+
+  if (clientId && clientSecret && refreshToken) {
+    const oauth2 = new google.auth.OAuth2(clientId, clientSecret, 'http://localhost:3001/callback');
+    oauth2.setCredentials({ refresh_token: refreshToken });
+    return oauth2;
   }
 
-  const credPath = process.env.YOUTUBE_CREDENTIALS_PATH;
-  if (credPath) {
-    return new google.auth.GoogleAuth({
-      keyFile: credPath,
-      scopes: ['https://www.googleapis.com/auth/youtube.upload', 'https://www.googleapis.com/auth/youtube'],
-    });
-  }
-
-  throw new Error('YouTube credentials missing. Set YOUTUBE_SERVICE_ACCOUNT_JSON or YOUTUBE_CREDENTIALS_PATH in .env');
+  throw new Error('YouTube OAuth credentials missing. Set YOUTUBE_CLIENT_ID, YOUTUBE_CLIENT_SECRET, YOUTUBE_REFRESH_TOKEN in .env');
 }

@@ -53,7 +53,6 @@ function execute(directive) {
     try {
       const out = execSync(cmd, {
         cwd: ROOT,
-        shell: 'bash',
         timeout: 60000,
         encoding: 'utf8'
       });
@@ -125,15 +124,52 @@ if (arg === '--uninstall') {
 }
 
 // ── Content scheduler check ───────────────────────────────────────────────────
+const VIDEO_PIPELINE = path.join(ROOT, 'landing-page/scripts/blog-to-video.js');
+const VIDEO_LOG      = path.join(ROOT, 'landing-page/content/blog/.video-log.json');
+
+function getProcessedSlugs() {
+  try {
+    if (!fs.existsSync(VIDEO_LOG)) return new Set();
+    return new Set(Object.keys(JSON.parse(fs.readFileSync(VIDEO_LOG, 'utf8'))));
+  } catch { return new Set(); }
+}
+
+function triggerVideoForNewPosts() {
+  try {
+    const BLOG_DIR = path.join(ROOT, 'landing-page/content/blog');
+    if (!fs.existsSync(BLOG_DIR)) return;
+    const processed = getProcessedSlugs();
+    const posts = fs.readdirSync(BLOG_DIR)
+      .filter(f => f.endsWith('.md') && f !== 'fallback-post.md')
+      .map(f => ({ file: f, slug: f.replace(/^\d{4}-\d{2}-\d{2}-/, '').replace(/\.md$/, '') }))
+      .filter(({ slug }) => !processed.has(slug));
+
+    for (const { file } of posts) {
+      log(`[Video Pipeline] New post detected: ${file} — spawning video pipeline...`);
+      const { spawn } = require('child_process');
+      const child = spawn(process.execPath, [VIDEO_PIPELINE, '--file', file], {
+        cwd: path.join(ROOT, 'landing-page'),
+        detached: true,
+        stdio: 'ignore',
+      });
+      child.unref();
+    }
+  } catch (e) {
+    log(`[Video Pipeline] Trigger error: ${e.message}`);
+  }
+}
+
 function checkScheduler() {
   try {
     if (!fs.existsSync(SCHEDULER)) return;
     execSync(`node "${SCHEDULER}" run`, {
-      cwd: ROOT, shell: 'bash', timeout: 120000, encoding: 'utf8'
+      cwd: ROOT, timeout: 120000, encoding: 'utf8'
     });
   } catch (e) {
     // Suppress — scheduler logs its own output
   }
+  // After scheduler runs, check for any new unprocessed blog posts
+  triggerVideoForNewPosts();
 }
 
 // ── Video service auto-poster check (every 15 min = every 15th tick) ──────────

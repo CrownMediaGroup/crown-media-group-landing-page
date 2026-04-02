@@ -31,88 +31,59 @@ function ffmpeg() {
  * @param {string} slug
  * @returns {Promise<string>} - path to output MP4
  */
-export async function assembleVideo(segments, framePaths, mp3Path, title, slug) {
+export async function assembleVideo(segments, framePaths, mp3Path, title, slug, audioDuration = null, mode = 'image') {
   const outPath = join(VIDEO_OUT, `${slug}-youtube.mp4`);
   if (existsSync(outPath)) {
     console.log(`  [Video] Cached: ${slug}-youtube.mp4`);
     return outPath;
   }
 
-  console.log(`  [Video] Assembling ${segments.length} segments → 16:9 MP4...`);
+  console.log(`  [Video] Assembling ${segments.length} segments → 16:9 MP4 (${mode} mode)...`);
 
-  // Build concat file — each image held for its segment duration
-  const concatLines = segments.map((seg, i) => {
-    const dur = seg.duration || 20;
-    return `file '${framePaths[i].replace(/\\/g, '/')}'\nduration ${dur}`;
-  }).join('\n');
-  // Add last frame once more (FFmpeg concat demuxer quirk)
-  const concatContent = concatLines + `\nfile '${framePaths[framePaths.length - 1].replace(/\\/g, '/')}'`;
+  const totalDur   = audioDuration || segments.reduce((acc, s) => acc + (s.duration || 20), 0);
+  const perSegment = Math.ceil(totalDur / segments.length) + 2;
+
   const concatFile = join(VIDEO_OUT, `${slug}-concat.txt`);
-  writeFileSync(concatFile, concatContent);
 
-  // Build subtitle/drawtext filter — one drawtext per segment with time offsets
-  let timeOffset = 0;
-  const drawtextFilters = segments.map((seg, i) => {
-    const start = timeOffset;
-    const end   = timeOffset + (seg.duration || 20);
-    timeOffset   = end;
-
-    // Escape special characters for FFmpeg drawtext
-    const text = seg.text
-      .replace(/'/g, "\u2019")    // smart apostrophe
-      .replace(/:/g, '\\:')
-      .replace(/\[/g, '\\[')
-      .replace(/\]/g, '\\]')
-      .slice(0, 120);             // cap length
-
-    // Word-wrap manually at ~40 chars
-    const words   = text.split(' ');
-    const lines   = [];
-    let current   = '';
-    for (const word of words) {
-      if ((current + ' ' + word).trim().length > 42) { lines.push(current.trim()); current = word; }
-      else current = (current + ' ' + word).trim();
-    }
-    if (current) lines.push(current);
-    const wrapped = lines.slice(0, 3).join('\n'); // max 3 lines
-
-    const fontArg = existsSync(FONT_PATH) ? `:fontfile='${FONT_PATH.replace(/\\/g, '/').replace(/:/g, '\\:')}'` : '';
-
-    return `drawtext=text='${wrapped}'${fontArg}:fontsize=44:fontcolor=white:` +
-      `box=1:boxcolor=black@0.55:boxborderw=12:` +
-      `x=(w-text_w)/2:y=h-text_h-80:` +
-      `enable='between(t,${start},${end})':` +
-      `alpha='if(lt(t,${start + 0.3}),(t-${start})/0.3,if(gt(t,${end - 0.3}),(${end}-t)/0.3,1))'`;
-  }).join(',');
-
-  // Crown Media Group watermark (bottom-right, low opacity)
-  const watermarkFilter = existsSync(LOGO_PATH)
-    ? `[base][wm]overlay=W-w-20:H-h-20:format=auto,`
-    : '';
-
-  // Full filter chain
-  let filterChain;
-  if (existsSync(LOGO_PATH)) {
-    filterChain = `[0:v]scale=1920:1080:force_original_aspect_ratio=increase,crop=1920:1080,setsar=1[base];` +
-      `[1:v]scale=120:-1,format=rgba,colorchannelmixer=aa=0.25[wm];` +
-      `${watermarkFilter}${drawtextFilters}[v]`;
+  if (mode === 'video') {
+    // Concat video clips directly — loop each clip to fill its segment duration
+    const concatLines = framePaths.map(p =>
+      `file '${p.replace(/\\/g, '/')}'`
+    ).join('\n');
+    writeFileSync(concatFile, concatLines);
   } else {
-    filterChain = `[0:v]scale=1920:1080:force_original_aspect_ratio=increase,crop=1920:1080,setsar=1,${drawtextFilters}[v]`;
+    // Image mode — hold each frame for its segment duration
+    const concatLines = segments.map((seg, i) =>
+      `file '${framePaths[i].replace(/\\/g, '/')}'\nduration ${perSegment}`
+    ).join('\n');
+    writeFileSync(concatFile, concatLines + `\nfile '${framePaths[framePaths.length - 1].replace(/\\/g, '/')}'`);
   }
 
-  const inputs  = existsSync(LOGO_PATH) ? ['-i', LOGO_PATH] : [];
-  const mapVideo = existsSync(LOGO_PATH) ? ['-map', '[v]'] : ['-map', '[v]'];
+  // Build SRT captions
+  let timeOffset = 0;
+  const srtLines = segments.map((seg, i) => {
+    const start = timeOffset;
+    const end   = timeOffset + (seg.duration || 20);
+    timeOffset  = end;
+    const fmt = s => {
+      const h = Math.floor(s / 3600), m = Math.floor((s % 3600) / 60);
+      const sec = Math.floor(s % 60), ms = Math.round((s % 1) * 1000);
+      return `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(sec).padStart(2,'0')},${String(ms).padStart(3,'0')}`;
+    };
+    const text = seg.text.replace(/</g, '').replace(/>/g, '').replace(/&/g, 'and').trim();
+    return `${i + 1}\n${fmt(start)} --> ${fmt(end)}\n${text}`;
+  });
+  writeFileSync(join(VIDEO_OUT, `${slug}.srt`), srtLines.join('\n\n'));
 
   const cmd = [
     ffmpeg(), '-y',
-    '-f', 'concat', '-safe', '0', '-i', concatFile,
-    ...inputs,
+    '-f', 'concat', '-safe', '0',
+    ...(mode === 'video' ? [] : []),
+    '-i', concatFile,
     '-i', mp3Path,
-    '-filter_complex', filterChain,
-    ...mapVideo,
-    '-map', `${existsSync(LOGO_PATH) ? 2 : 1}:a`,
+    '-vf', 'scale=1920:1080:force_original_aspect_ratio=increase,crop=1920:1080,setsar=1',
+    '-map', '0:v', '-map', '1:a',
     '-c:v', 'libx264', '-crf', '22', '-preset', 'fast',
-    '-profile:v', 'high', '-level', '4.1',
     '-c:a', 'aac', '-ar', '44100', '-b:a', '128k',
     '-movflags', '+faststart',
     '-shortest',
