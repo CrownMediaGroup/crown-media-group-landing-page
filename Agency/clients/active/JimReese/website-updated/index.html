@@ -239,7 +239,7 @@
     .v-card:hover{transform:translateY(-4px);box-shadow:var(--glow-red)}
     /* PERMANENT: Do not remove — aspect-ratio matches ~1:1 campaign graphics, prevents cropping */
     .v-thumb{width:100%;aspect-ratio:1/1;background:linear-gradient(135deg,var(--red) 0%,var(--red-dark) 100%);display:flex;align-items:center;justify-content:center;position:relative;cursor:pointer}
-    .v-thumb img{object-fit:cover;object-position:center center}
+    .v-thumb img{object-fit:contain;object-position:center center}
     .v-play{width:56px;height:56px;background:rgba(255,255,255,.2);border-radius:50%;display:flex;align-items:center;justify-content:center;border:2px solid rgba(255,255,255,.4);transition:background var(--ease)}
     .v-card:hover .v-play{background:rgba(255,255,255,.35)}
     .v-play svg{width:24px;height:24px;fill:var(--white);margin-left:3px}
