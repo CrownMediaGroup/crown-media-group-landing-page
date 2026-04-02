@@ -169,6 +169,7 @@ function switchTab(tab) {
   if (tab === 'settings')  loadSettings();
   if (tab === 'pipeline')  loadPipeline();
   if (tab === 'reports')   loadReports();
+  if (tab === 'leads')     loadLeadGen();
 }
 
 // ── Load contacts ─────────────────────────────────────────────────────────────
@@ -934,6 +935,17 @@ function bindEvents() {
     dropZone.classList.remove('drag-over');
     handleCSVFile(e.dataTransfer.files[0]);
   });
+  document.getElementById('ocrFileInput')?.addEventListener('change', e => handleOCRFile(e.target.files[0]));
+  const ocrDrop = document.getElementById('ocrDropZone');
+  if (ocrDrop) {
+    ocrDrop.addEventListener('dragover', e => { e.preventDefault(); ocrDrop.classList.add('drag-over'); });
+    ocrDrop.addEventListener('dragleave', () => ocrDrop.classList.remove('drag-over'));
+    ocrDrop.addEventListener('drop', e => {
+      e.preventDefault();
+      ocrDrop.classList.remove('drag-over');
+      handleOCRFile(e.dataTransfer.files[0]);
+    });
+  }
   document.getElementById('importModal').addEventListener('click', e => {
     if (e.target === document.getElementById('importModal')) closeModal('importModal');
   });
@@ -1542,3 +1554,140 @@ async function loadAllTasks() {
     el.innerHTML = `<div class="contact-tasks-list">${html}</div>`;
   } catch (_) {}
 }
+
+// ── Lead Generator ────────────────────────────────────────────────────────────
+
+let generatedLeads = [];
+
+function loadLeadGen() {
+  const btn = document.getElementById('btnGenerateLeads');
+  if (btn && !btn._lgBound) {
+    btn._lgBound = true;
+    btn.addEventListener('click', generateLeads);
+    document.getElementById('btnImportLeads')?.addEventListener('click', importGeneratedLeads);
+  }
+}
+
+async function generateLeads() {
+  const industry = document.getElementById('lgIndustry').value.trim();
+  const location = document.getElementById('lgLocation').value.trim() || 'Columbia, SC';
+  const count    = parseInt(document.getElementById('lgCount').value, 10) || 20;
+  const context  = document.getElementById('lgContext').value.trim();
+  const status   = document.getElementById('lgStatus');
+  const results  = document.getElementById('lgResults');
+  const bar      = document.getElementById('lgImportBar');
+
+  if (!industry) { toast('Enter an industry first', 'error'); return; }
+
+  const btn = document.getElementById('btnGenerateLeads');
+  btn.disabled = true;
+  btn.textContent = 'Generating...';
+  status.textContent = 'AI is building your prospect list...';
+  results.innerHTML  = '<div style="text-align:center;padding:20px"><div class="spinner" style="margin:0 auto 8px"></div>Working...</div>';
+  bar.style.display  = 'none';
+
+  try {
+    const data = await post('/api/leads/generate', { industry, location, count, context });
+    generatedLeads = data.leads || [];
+    if (!generatedLeads.length) {
+      results.innerHTML = '<div style="color:var(--muted);font-size:13px">No leads returned. Try a different industry.</div>';
+      status.textContent = '';
+      return;
+    }
+    results.innerHTML = generatedLeads.map((l, i) => `
+      <div style="padding:10px 0;border-bottom:1px solid var(--border);display:flex;flex-direction:column;gap:2px">
+        <div style="font-weight:600;font-size:13px">${esc(l.name || '—')}</div>
+        <div style="font-size:12px;color:var(--muted)">${esc(l.business || '')}${l.business && l.phone ? ' · ' : ''}${esc(l.phone || '')}${l.email ? ' · ' + esc(l.email) : ''}</div>
+        ${l.notes ? `<div style="font-size:11px;color:var(--muted);font-style:italic">${esc(l.notes)}</div>` : ''}
+      </div>`).join('');
+    status.textContent = `${generatedLeads.length} prospects generated`;
+    bar.style.display  = 'block';
+    document.getElementById('lgImportStatus').textContent = '';
+  } catch (e) {
+    results.innerHTML = `<div style="color:var(--red);font-size:13px">Error: ${esc(e.message)}</div>`;
+    status.textContent = '';
+  } finally {
+    btn.disabled = false;
+    btn.textContent = '✨ Generate Leads';
+  }
+}
+
+async function importGeneratedLeads() {
+  if (!generatedLeads.length) return;
+  const btn    = document.getElementById('btnImportLeads');
+  const status = document.getElementById('lgImportStatus');
+  btn.disabled = true;
+  btn.textContent = 'Importing...';
+  try {
+    const result = await post('/api/contacts/import', { contacts: generatedLeads });
+    status.textContent = `${result.added} added${result.skipped ? `, ${result.skipped} skipped` : ''}`;
+    toast(`${result.added} leads imported`);
+    await loadContacts();
+    loadStats();
+    generatedLeads = [];
+    document.getElementById('lgImportBar').style.display = 'none';
+  } catch (e) {
+    toast(`Import failed: ${e.message}`, 'error');
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Import All to Contacts';
+  }
+}
+
+// ── Photo OCR Import ──────────────────────────────────────────────────────────
+
+function setImportMode(mode) {
+  const csvPane = document.getElementById('importCSVPane');
+  const ocrPane = document.getElementById('importOCRPane');
+  const csvBtn  = document.getElementById('importModeCSV');
+  const ocrBtn  = document.getElementById('importModeOCR');
+  if (mode === 'csv') {
+    csvPane.style.display = 'block';
+    ocrPane.style.display = 'none';
+    csvBtn.className = 'btn btn-gold btn-sm';
+    ocrBtn.className = 'btn btn-outline btn-sm';
+  } else {
+    csvPane.style.display = 'none';
+    ocrPane.style.display = 'block';
+    csvBtn.className = 'btn btn-outline btn-sm';
+    ocrBtn.className = 'btn btn-gold btn-sm';
+  }
+  importedContacts = [];
+  document.getElementById('importPreview').style.display = 'none';
+  document.getElementById('importConfirm').disabled = true;
+}
+
+function handleOCRFile(file) {
+  if (!file || !file.type.startsWith('image/')) { toast('Please select an image file', 'error'); return; }
+  const reader = new FileReader();
+  reader.onload = async e => {
+    const ocrStatus = document.getElementById('ocrStatus');
+    ocrStatus.style.display = 'block';
+    try {
+      const base64 = e.target.result.split(',')[1];
+      const mimeType = file.type;
+      const data = await post('/api/contacts/ocr', { image: base64, mimeType });
+      importedContacts = data.contacts || [];
+      const count = importedContacts.length;
+      document.getElementById('importPreviewCount').textContent =
+        `${count} contact${count !== 1 ? 's' : ''} extracted from photo`;
+      const tbody = document.getElementById('importPreviewBody');
+      tbody.innerHTML = importedContacts.slice(0, 20).map(c => `
+        <tr>
+          <td>${esc(c.name)}</td>
+          <td>${esc(c.business)}</td>
+          <td>${esc(c.phone)}</td>
+          <td>${esc(c.email)}</td>
+        </tr>`).join('');
+      document.getElementById('importPreview').style.display = count ? 'block' : 'none';
+      document.getElementById('importConfirm').disabled = count === 0;
+      if (!count) toast('No contacts found in image. Try a clearer screenshot.', 'error');
+    } catch (err) {
+      toast(`OCR failed: ${err.message}`, 'error');
+    } finally {
+      ocrStatus.style.display = 'none';
+    }
+  };
+  reader.readAsDataURL(file);
+}
+

@@ -1365,6 +1365,100 @@ app.patch('/api/campaigns/:id/contacts/:contactId', (req, res) => {
   res.json({ ok: true });
 });
 
+// ── Lead Generator ────────────────────────────────────────────────────────────
+app.post('/api/leads/generate', async (req, res) => {
+  if (!anthropic) return res.status(503).json({ error: 'AI not configured. Add ANTHROPIC_API_KEY to .env' });
+  const { industry, location = 'Columbia, SC', count = 20, context = '' } = req.body;
+  if (!industry) return res.status(400).json({ error: 'industry required' });
+
+  try {
+    const msg = await anthropic.messages.create({
+      model:      'claude-haiku-4-5-20251001',
+      max_tokens: 2048,
+      messages:   [{
+        role:    'user',
+        content: `Generate ${count} realistic small business prospect leads for a social media marketing agency.
+
+Industry/Type: ${industry}
+Location: ${location}
+Extra context: ${context || 'None'}
+
+Return ONLY valid JSON array (no markdown, no explanation):
+[
+  { "name": "Owner First Last", "business": "Business Name", "phone": "(803) 555-XXXX", "email": "owner@business.com", "notes": "Why they need marketing help", "source": "AI Generated" },
+  ...
+]
+
+Rules:
+- Use realistic Columbia SC area codes (803, 843) for phone numbers
+- Make business names authentic to the industry
+- Keep notes short (1 sentence) about their marketing pain point
+- Only include email if it would logically exist
+- Generate exactly ${count} contacts`
+      }]
+    });
+
+    const text      = msg.content[0].text.trim();
+    const jsonMatch = text.match(/\[[\s\S]*\]/);
+    if (!jsonMatch) throw new Error('No JSON array in response');
+    const leads = JSON.parse(jsonMatch[0]);
+    res.json({ ok: true, leads });
+  } catch (err) {
+    console.error('[LEADS]', err.message);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// ── Photo OCR — extract contacts from screenshot ──────────────────────────────
+app.post('/api/contacts/ocr', async (req, res) => {
+  if (!anthropic) return res.status(503).json({ error: 'AI not configured. Add ANTHROPIC_API_KEY to .env' });
+  const { image, mimeType = 'image/jpeg' } = req.body;
+  if (!image) return res.status(400).json({ error: 'image required (base64)' });
+
+  const allowed = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+  if (!allowed.includes(mimeType)) return res.status(400).json({ error: 'Unsupported image type' });
+
+  try {
+    const msg = await anthropic.messages.create({
+      model:      'claude-haiku-4-5-20251001',
+      max_tokens: 2048,
+      messages:   [{
+        role:    'user',
+        content: [
+          {
+            type:   'image',
+            source: { type: 'base64', media_type: mimeType, data: image }
+          },
+          {
+            type: 'text',
+            text: `Extract all business contacts visible in this screenshot (from Instagram, Facebook, Google Maps, business card, etc).
+
+Return ONLY a valid JSON array (no markdown, no explanation):
+[
+  { "name": "...", "business": "...", "phone": "...", "email": "...", "notes": "Found via photo scan", "source": "Photo Import" }
+]
+
+Rules:
+- Extract every visible contact (name, phone, email, business name)
+- If a field is not visible, use empty string ""
+- If no contacts are found, return []
+- name is required — skip entries with no name`
+          }
+        ]
+      }]
+    });
+
+    const text      = msg.content[0].text.trim();
+    const jsonMatch = text.match(/\[[\s\S]*\]/);
+    if (!jsonMatch) return res.json({ ok: true, contacts: [] });
+    const contacts = JSON.parse(jsonMatch[0]).filter(c => c.name?.trim());
+    res.json({ ok: true, contacts });
+  } catch (err) {
+    console.error('[OCR]', err.message);
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // ── Fallback → serve index.html (requires auth) ───────────────────────────────
 app.get('*', (req, res) => {
   const session = validateSession(getCookie(req, 'crm_session'));
