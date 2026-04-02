@@ -184,3 +184,17 @@
 [2026-04-02T07:27:12.087Z] [VIDEO-POSTER] ERROR: R u n n i n g   W S L   a s   l o c a l   s y s t e m   i s   n o t   s u p p o r t e d .    E r r o r   c o d e :   B a s h / W S L _ E _ L O C A L _ S Y S T E M _ N O T _ S U P P O R T E D    
 [2026-04-02T07:42:12.214Z] [VIDEO-POSTER] ERROR: R u n n i n g   W S L   a s   l o c a l   s y s t e m   i s   n o t   s u p p o r t e d .    E r r o r   c o d e :   B a s h / W S L _ E _ L O C A L _ S Y S T E M _ N O T _ S U P P O R T E D    
 [2026-04-02T07:57:12.320Z] [VIDEO-POSTER] ERROR: R u n n i n g   W S L   a s   l o c a l   s y s t e m   i s   n o t   s u p p o r t e d .    E r r o r   c o d e :   B a s h / W S L _ E _ L O C A L _ S Y S T E M _ N O T _ S U P P O R T E D    
+[2026-04-02T08:12:12.416Z] [VIDEO-POSTER] ERROR: R u n n i n g   W S L   a s   l o c a l   s y s t e m   i s   n o t   s u p p o r t e d .    E r r o r   c o d e :   B a s h / W S L _ E _ L O C A L _ S Y S T E M _ N O T _ S U P P O R T E D    
+[2026-04-02T08:27:12.528Z] [VIDEO-POSTER] ERROR: R u n n i n g   W S L   a s   l o c a l   s y s t e m   i s   n o t   s u p p o r t e d .    E r r o r   c o d e :   B a s h / W S L _ E _ L O C A L _ S Y S T E M _ N O T _ S U P P O R T E D    
+[2026-04-02T08:42:12.675Z] [VIDEO-POSTER] ERROR: R u n n i n g   W S L   a s   l o c a l   s y s t e m   i s   n o t   s u p p o r t e d .    E r r o r   c o d e :   B a s h / W S L _ E _ L O C A L _ S Y S T E M _ N O T _ S U P P O R T E D    
+[2026-04-02T08:57:12.793Z] [VIDEO-POSTER] ERROR: R u n n i n g   W S L   a s   l o c a l   s y s t e m   i s   n o t   s u p p o r t e d .    E r r o r   c o d e :   B a s h / W S L _ E _ L O C A L _ S Y S T E M _ N O T _ S U P P O R T E D    
+[2026-04-02T09:12:12.948Z] [VIDEO-POSTER] ERROR: R u n n i n g   W S L   a s   l o c a l   s y s t e m   i s   n o t   s u p p o r t e d .    E r r o r   c o d e :   B a s h / W S L _ E _ L O C A L _ S Y S T E M _ N O T _ S U P P O R T E D    
+[2026-04-02T09:27:27.465Z] Standalone runner started — polling every 60s (directives + content scheduler)
+[2026-04-02T09:29:05.948Z] Standalone runner started — polling every 60s (directives + content scheduler)
+[2026-04-02T09:30:03.188Z] Standalone runner started — polling every 60s (directives + content scheduler)
+[2026-04-02T15:18:06.223Z] [Video Pipeline] New post detected: 2026-04-02-what-columbia-sc-business-owners-need-to-know-about-ai-power.md — spawning video pipeline...
+[2026-04-02T15:19:06.240Z] [Video Pipeline] New post detected: 2026-04-02-what-columbia-sc-business-owners-need-to-know-about-ai-power.md — spawning video pipeline...
+[2026-04-02T15:20:06.258Z] [Video Pipeline] New post detected: 2026-04-02-what-columbia-sc-business-owners-need-to-know-about-ai-power.md — spawning video pipeline...
+[2026-04-02T15:21:06.413Z] [Video Pipeline] New post detected: 2026-04-02-what-columbia-sc-business-owners-need-to-know-about-ai-power.md — spawning video pipeline...
+[2026-04-02T17:57:07.211Z] [Video Pipeline] New post detected: 2026-04-02-5-reasons-your-columbia-sc-business-needs-a-professional-ins.md — spawning video pipeline...
+[2026-04-02T17:58:07.216Z] [Video Pipeline] New post detected: 2026-04-02-5-reasons-your-columbia-sc-business-needs-a-professional-ins.md — spawning video pipeline...
