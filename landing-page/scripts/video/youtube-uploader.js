@@ -99,12 +99,11 @@ export function buildDescription(title, excerpt, slug, segments, tags = []) {
   const hashtagExtra = '#Marketing #AIMarketing #SmallBusiness #Entrepreneur #DigitalMarketing #BusinessGrowth #ContentMarketing #LocalBusiness';
 
   return `${hook}
+📖 Read the full article → https://crownmediagroup.co/blog/${slug}/
 
 ⏱ CHAPTERS
 ${timestamps}
 
-━━━━━━━━━━━━━━━━━━━━━━━━
-📖 Read the full article → https://crownmediagroup.co/blog/${slug}/
 ━━━━━━━━━━━━━━━━━━━━━━━━
 
 WHAT YOU'LL LEARN:

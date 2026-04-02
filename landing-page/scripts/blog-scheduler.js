@@ -94,7 +94,7 @@ async function autoFillQueue() {
       const posts = r.data?.data?.children || [];
       for (const p of posts) {
         const t = p.data?.title;
-        if (t && t.length > 20) topics.push({ topic: `How Columbia SC businesses can address: ${t}`, keyword: 'Columbia SC marketing', category: 'Local Business', source: `Reddit r/${sub}`, addedAt: new Date().toISOString() });
+        if (t && t.length > 20) topics.push({ topic: `How small business owners can use AI to address: ${t}`, keyword: 'AI marketing for small business', category: 'AI Marketing', source: `Reddit r/${sub}`, addedAt: new Date().toISOString() });
       }
     }
   } catch (e) { log('Reddit fetch failed: ' + e.message); }
@@ -104,7 +104,7 @@ async function autoFillQueue() {
     const $ = cheerio.load(r.data, { xmlMode: true });
     $('item title').each((_, el) => {
       const t = $(el).text();
-      if (t) topics.push({ topic: `${t} — what Columbia SC business owners need to know`, keyword: t, category: 'Marketing', source: 'Google Trends', addedAt: new Date().toISOString() });
+      if (t) topics.push({ topic: `${t} — what small business owners need to know in 2026`, keyword: t, category: 'AI Marketing', source: 'Google Trends', addedAt: new Date().toISOString() });
     });
   } catch (_) {}
 
@@ -118,17 +118,22 @@ async function autoFillQueue() {
   }
 }
 
-// ── CRON SCHEDULE: 6am, 10am, 2pm, 6pm daily ─────────────────────────────────
-// Format: minute hour * * *
+// ── CRON SCHEDULE: Optimized for global AI/marketing niche audience ────────────
+// All times EST. Research: B2B/marketing content peaks Tue–Thu.
+// 9 AM EST  = US morning commute + UK afternoon + EU afternoon (peak global window)
+// 12 PM EST = US lunch scroll peak
+// 4 PM EST  = US end-of-day + UK evening
+// 8 PM EST  = US evening + AU morning (catches APAC)
+// Saturday = Sabbath (skipped). Sunday included — "Monday prep" mindset readers.
 
 const TIMES = [
-  '0 6  * * *',   // 6:00 AM
-  '0 10 * * *',   // 10:00 AM
-  '0 14 * * *',   // 2:00 PM
-  '0 18 * * *',   // 6:00 PM
+  '0 9  * * 0,1,2,3,4,7',  // 9:00 AM  — Sun–Fri (peak global window)
+  '0 12 * * 0,1,2,3,4,7',  // 12:00 PM — Sun–Fri (US lunch peak)
+  '0 16 * * 2,3,4',        // 4:00 PM  — Tue–Thu only (end-of-day, highest engagement days)
+  '0 20 * * 0,1,2,3,4',    // 8:00 PM  — Sun–Fri (US evening + APAC morning)
 ];
 
-log('Blog Scheduler started. Posts scheduled at 6am, 10am, 2pm, 6pm. Saturday skipped.');
+log('Blog Scheduler started. Optimized schedule: 9AM/12PM/4PM/8PM EST. Saturday (Sabbath) skipped.');
 log('Open Blog Admin at http://localhost:4001 to manage topics.');
 log('Press Ctrl+C to stop.\n');
 

@@ -90,12 +90,11 @@ function buildDescription(title, excerpt, slug, tags = []) {
     : '';
 
   return `${hook}
+📖 Read the full article → https://crownmediagroup.co/blog/${slug}/
 
 ⏱ CHAPTERS
 ${chapters}
 
-━━━━━━━━━━━━━━━━━━━━━━━━
-📖 Read the full article → https://crownmediagroup.co/blog/${slug}/
 ━━━━━━━━━━━━━━━━━━━━━━━━
 
 WHAT YOU'LL LEARN:
