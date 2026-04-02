@@ -1464,6 +1464,7 @@ app.get('*', (req, res) => {
   const session = validateSession(getCookie(req, 'crm_session'));
   if (!session) return res.redirect('/login');
   res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+  res.setHeader('Surrogate-Control', 'no-store');
   res.setHeader('Pragma', 'no-cache');
   res.setHeader('Expires', '0');
   res.sendFile(join(__dirname, 'public', 'index.html'));

@@ -934,8 +934,10 @@ function bindEvents() {
     if (e.target === document.getElementById('addContactModal')) closeModal('addContactModal');
   });
 
-  // Import CSV
+  // Import CSV + OCR mode toggle (wired here — never rely on inline onclick)
   document.getElementById('btnImportCSV').addEventListener('click', openImportModal);
+  document.getElementById('importModeCSV')?.addEventListener('click', () => setImportMode('csv'));
+  document.getElementById('importModeOCR')?.addEventListener('click', () => setImportMode('ocr'));
   document.getElementById('importConfirm').addEventListener('click', confirmImport);
   document.getElementById('csvFileInput').addEventListener('change', e => handleCSVFile(e.target.files[0]));
   const dropZone = document.getElementById('importDropZone');
@@ -1127,6 +1129,7 @@ function openImportModal() {
   if (fi) fi.value = '';
   document.getElementById('importPreview').style.display = 'none';
   document.getElementById('importConfirm').disabled = true;
+  setImportMode('csv'); // always reset to CSV mode on open
   document.getElementById('importModal').classList.remove('hidden');
 }
 
@@ -1702,4 +1705,5 @@ function handleOCRFile(file) {
   };
   reader.readAsDataURL(file);
 }
+window.handleOCRFile = handleOCRFile;
 
