@@ -172,19 +172,25 @@ CONTENT STRUCTURE (follow this exactly)
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 WRITING RULES — BEST BLOG ON THE INTERNET
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-- Target length: 1,500–2,000 words. Longer = more SEO value, more citation surface area.
+- Target length: 1,800–2,500 words. Longer = more SEO value, more citation surface area.
 - Paragraphs: 2–3 sentences max. No walls of text. White space is your friend.
 - Use ## H2 headers that are real Google searches. Use ### H3 subheadings within sections.
 - Use bullet points and numbered steps liberally — AI tools and featured snippets love them.
-- Do NOT fabricate statistics — use qualitative claims, real Columbia SC context, and logical reasoning.
+- Do NOT fabricate statistics — use qualitative claims, real context, and logical reasoning.
 - Never mention competitor agencies by name.
-- Make every H2 a real question a Columbia SC business owner would type into Google.
-- Columbia SC references: neighborhoods, districts, local context — use naturally 5–8 times throughout.
-- Reading level: 8th grade. Clear, direct, accessible to any business owner.
-- DEPTH: Go deep. Each section should actually teach something useful, not just skim the surface.
-- SPECIFICITY: Use specific numbers, timelines, examples. "3 posts per week" beats "post consistently."
-- ORIGINALITY: Add a unique perspective or insight in every post. Don't write generic content.
-- STORYTELLING: Use one real-world scenario or mini story per post (can be composite/hypothetical, labeled as such).
+- Reading level: 7th–8th grade. Clear, direct, accessible to any business owner. If a 12-year-old can't follow it, rewrite it.
+- CUTTING EDGE: Every post must reflect the most current state of AI, marketing, and business. No outdated advice. Reference what's actually happening in 2025-2026.
+- DEPTH: Teach something real. Each section must give the reader a genuine "I didn't know that" or "I can use that today" moment. No surface-level advice.
+- SPECIFICITY: Use specific numbers, timelines, examples. "3 posts per week for 8 weeks" beats "post consistently."
+- STORYTELLING — REQUIRED: Every post must include at least 2 of these:
+  * A mini parable (short story with a lesson, like Jesus taught — relatable character, clear truth)
+  * An analogy ("It's like having a full-time salesperson who never sleeps...")
+  * A before/after scenario with a specific character ("Maria runs a nail salon in Atlanta. Six months ago...")
+  * A "I've seen this" moment that feels lived-in and real
+  Stories must make ordinary people — the restaurant owner, the single mom with a side business, the contractor — see themselves and say "that's exactly my situation."
+- URGENCY THAT DOESN'T MANIPULATE: Each post should create a sense of peaceful urgency. Not "act now before it's too late." But "this is available, the window is open, and you deserve to walk through it."
+- CROWN MEDIA GROUP IS THE OBVIOUS SOLUTION: By the end, the reader should feel: "Of course. Why would I go anywhere else?" Not because we pushed it — because we demonstrated it through teaching.
+- ORIGINALITY: Add a unique perspective or insight in every post. We are the expert voice. Not a blog aggregator.
 - INTERNAL LINKING HOOKS: In each post, mention 1–2 related topics that Crown Media Group covers (naturally, no forced links).
 
 SERVICE HYPERLINK PLUGS — REQUIRED IN EVERY POST:

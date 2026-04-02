@@ -74,27 +74,63 @@ export async function uploadToYouTube({ videoPath, title, description, tags, unl
 }
 
 /**
- * Build the YouTube video description from post metadata.
+ * Build a fully YouTube-optimized description from post metadata.
+ * Structured for search, watch time, and channel growth.
  */
-export function buildDescription(title, excerpt, slug, segments) {
-  const segmentSummary = segments.map((s, i) => `${i + 1}. ${s.text.slice(0, 80)}...`).join('\n').slice(0, 800);
+export function buildDescription(title, excerpt, slug, segments, tags = []) {
+  // Hook — first 2 lines appear before "Show more" in mobile
+  const hook = excerpt.length > 200 ? excerpt.slice(0, 197) + '...' : excerpt;
 
-  return `${excerpt}
+  // Timestamps — approximate based on segment count (~20s each)
+  const timestamps = segments.map((s, i) => {
+    const totalSec = i * 20;
+    const min = Math.floor(totalSec / 60);
+    const sec = String(totalSec % 60).padStart(2, '0');
+    return `${min}:${sec} — ${s.text.slice(0, 60).replace(/\n/g, ' ')}...`;
+  }).join('\n');
 
-In this video:
-${segmentSummary}
+  // Keywords for search — pull from tags, add evergreen business terms
+  const evergreen = ['small business marketing', 'marketing strategy', 'grow your business online', 'digital marketing tips', 'AI marketing tools'];
+  const allKeywords = [...new Set([...tags.map(t => t.toLowerCase()), ...evergreen])].slice(0, 8);
+  const keywordLine = allKeywords.join(' | ');
 
-📖 Read the full article: ${`https://crownmediagroup.co/blog/${slug}/`}
+  // Hashtags — max 3 visible in feed, rest still indexed
+  const hashtagBase = tags.slice(0, 5).map(t => '#' + t.replace(/\s+/g, '')).join(' ');
+  const hashtagExtra = '#Marketing #AIMarketing #SmallBusiness #Entrepreneur #DigitalMarketing #BusinessGrowth #ContentMarketing #LocalBusiness';
 
-—
+  return `${hook}
 
-Crown Media Group — AI-Powered Marketing for Business Owners
-We help entrepreneurs grow with AI content, paid ads, and brand strategy.
-🌐 crownmediagroup.co
-📧 king@crownmediagroup.co
-📅 Free strategy session: https://calendly.com/crownmediagroupco
+⏱ CHAPTERS
+${timestamps}
 
-#Marketing #AIMarketing #SmallBusiness #DigitalMarketing #Entrepreneur`;
+━━━━━━━━━━━━━━━━━━━━━━━━
+📖 Read the full article → https://crownmediagroup.co/blog/${slug}/
+━━━━━━━━━━━━━━━━━━━━━━━━
+
+WHAT YOU'LL LEARN:
+• Why most small businesses are losing customers to competitors who use AI
+• The exact systems Crown Media Group uses to get results in 30 days
+• How to apply this to your business — starting today
+
+━━━━━━━━━━━━━━━━━━━━━━━━
+🚀 WORK WITH CROWN MEDIA GROUP
+We build AI-powered marketing systems for business owners who are done wasting time on marketing that doesn't convert.
+
+✅ Social media content — done for you
+✅ Paid ads that actually generate ROI
+✅ AI video content — like this video
+✅ Full brand strategy + execution
+
+📅 Book your FREE strategy session → https://calendly.com/crownmediagroupco
+🌐 Website → https://crownmediagroup.co
+📧 Email → king@crownmediagroup.co
+
+━━━━━━━━━━━━━━━━━━━━━━━━
+🔔 SUBSCRIBE for weekly videos on AI marketing, business growth, and building an agency from scratch — faith-driven, results-focused.
+
+KEYWORDS: ${keywordLine}
+
+${hashtagBase} ${hashtagExtra}`;
 }
 
 /**
