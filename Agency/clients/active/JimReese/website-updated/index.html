@@ -237,8 +237,8 @@
     .vid-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:28px}
     .v-card{border-radius:var(--r);overflow:hidden;box-shadow:0 2px 14px rgba(0,0,0,.06);transition:transform var(--ease),box-shadow var(--ease);background:var(--white)}
     .v-card:hover{transform:translateY(-4px);box-shadow:var(--glow-red)}
-    /* PERMANENT: Do not remove — aspect-ratio matches 800x600 thumbnails, prevents cropping */
-    .v-thumb{width:100%;aspect-ratio:4/3;background:linear-gradient(135deg,var(--red) 0%,var(--red-dark) 100%);display:flex;align-items:center;justify-content:center;position:relative;cursor:pointer}
+    /* PERMANENT: Do not remove — aspect-ratio matches ~1:1 campaign graphics, prevents cropping */
+    .v-thumb{width:100%;aspect-ratio:1/1;background:linear-gradient(135deg,var(--red) 0%,var(--red-dark) 100%);display:flex;align-items:center;justify-content:center;position:relative;cursor:pointer}
     .v-thumb img{object-fit:cover;object-position:center center}
     .v-play{width:56px;height:56px;background:rgba(255,255,255,.2);border-radius:50%;display:flex;align-items:center;justify-content:center;border:2px solid rgba(255,255,255,.4);transition:background var(--ease)}
     .v-card:hover .v-play{background:rgba(255,255,255,.35)}
@@ -667,7 +667,7 @@
           <div class="v-card anim d1">
             <a href="https://www.instagram.com/reel/DWCjRrzCACL/" target="_blank" rel="noopener" aria-label="Watch Jim's campaign announcement on Instagram">
               <div class="v-thumb" aria-hidden="true" style="background:none">
-                <img src="images/video-thumb-red-sign.png" alt="Jim Reese campaign sign" style="width:100%;height:100%;object-fit:cover;position:absolute;top:0;left:0">
+                <img src="images/campaign-graphic-blazer-circle.png" alt="Jim Reese campaign graphic" style="width:100%;height:100%;object-fit:cover;position:absolute;top:0;left:0">
                 <div class="v-play"><svg viewBox="0 0 24 24" aria-hidden="true"><polygon points="5 3 19 12 5 21 5 3"/></svg></div>
               </div>
             </a>
@@ -680,7 +680,7 @@
           <div class="v-card anim d2">
             <a href="https://www.instagram.com/p/DWHMqJzjqAk/" target="_blank" rel="noopener" aria-label="Watch Jim's vision for District 1 on Instagram">
               <div class="v-thumb" aria-hidden="true" style="background:none">
-                <img src="images/video-thumb-blue-sign.png" alt="Jim Reese campaign sign blue" style="width:100%;height:100%;object-fit:cover;position:absolute;top:0;left:0">
+                <img src="images/campaign-graphic-blazer-vote.png" alt="Jim Reese campaign graphic" style="width:100%;height:100%;object-fit:cover;position:absolute;top:0;left:0">
                 <div class="v-play"><svg viewBox="0 0 24 24" aria-hidden="true"><polygon points="5 3 19 12 5 21 5 3"/></svg></div>
               </div>
             </a>
@@ -693,7 +693,7 @@
           <div class="v-card anim d3">
             <a href="https://www.instagram.com/reel/DWU98SZiC0B/" target="_blank" rel="noopener" aria-label="Watch Jim talk about community on Instagram">
               <div class="v-thumb" aria-hidden="true" style="background:none">
-                <img src="images/video-thumb-red-card.png" alt="Jim Reese campaign card" style="width:100%;height:100%;object-fit:cover;position:absolute;top:0;left:0">
+                <img src="images/campaign-graphic-blue-shirt-vote.png" alt="Jim Reese campaign graphic" style="width:100%;height:100%;object-fit:cover;position:absolute;top:0;left:0">
                 <div class="v-play"><svg viewBox="0 0 24 24" aria-hidden="true"><polygon points="5 3 19 12 5 21 5 3"/></svg></div>
               </div>
             </a>
