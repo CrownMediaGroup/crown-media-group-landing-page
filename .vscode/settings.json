@@ -1,0 +1,59 @@
+{
+  // Core VS Code behavior
+  "window.restoreWindows": "all",
+  "extensions.autoUpdate": false,
+  "claude.autoStart": true,
+  "files.autoSave": "onFocusChange",
+  "editor.formatOnSave": true,
+  "editor.tabSize": 2,
+  "editor.wordWrap": "on",
+  "terminal.integrated.defaultProfile.windows": "Git Bash",
+
+  // Git — auto-fetch every 3 minutes, always see what's changed
+  "git.autofetch": true,
+  "git.autofetchPeriod": 180,
+  "git.confirmSync": false,
+  "git.enableSmartCommit": true,
+
+  // Live Server — serves landing-page/ folder at localhost:5500
+  "liveServer.settings.root": "/landing-page",
+  "liveServer.settings.port": 5500,
+  "liveServer.settings.donotShowInfoMsg": true,
+  "liveServer.settings.donotVerifyTags": true,
+
+  // GitLens — inline blame + commit graph
+  "gitlens.currentLine.enabled": true,
+  "gitlens.hovers.currentLine.over": "line",
+  "gitlens.blame.highlight.enabled": true,
+  "gitlens.statusBar.enabled": true,
+
+  // ErrorLens — show errors inline in code
+  "errorLens.enabled": true,
+  "errorLens.messageBackgroundMode": "message",
+
+  // TODO Tree — scan all files for TODOs
+  "todo-tree.general.tags": ["TODO", "FIXME", "HACK", "NOTE", "KING"],
+  "todo-tree.highlights.defaultHighlight": {
+    "foreground": "#F5C842",
+    "background": "#1A1A00",
+    "icon": "crown",
+    "iconColour": "#F5C842"
+  },
+
+  // File nesting — group related files cleanly
+  "explorer.fileNesting.enabled": true,
+  "explorer.fileNesting.patterns": {
+    "*.js": "${capture}.test.js, ${capture}.spec.js",
+    "package.json": "package-lock.json, .npmrc, .nvmrc",
+    ".env": ".env.*, .env.local",
+    "CLAUDE.md": ".mcp.json, .claude"
+  },
+
+  // Search — exclude noise
+  "search.exclude": {
+    "**/node_modules": true,
+    "**/dist": true,
+    "**/.git": true,
+    "**/video-output": true
+  }
+}

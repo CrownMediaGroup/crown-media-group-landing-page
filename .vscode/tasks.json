@@ -1,0 +1,77 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "👑 START ALL SERVERS",
+      "dependsOn": ["Blog Admin Server", "Standalone Runner"],
+      "group": { "kind": "build", "isDefault": true },
+      "problemMatcher": []
+    },
+    {
+      "label": "Blog Admin Server",
+      "type": "shell",
+      "command": "node Agency/ops/blog-admin-server.js 2>/dev/null || node landing-page/scripts/blog-admin-server.js",
+      "options": { "cwd": "${workspaceFolder}" },
+      "isBackground": true,
+      "presentation": { "reveal": "always", "panel": "dedicated", "group": "servers" },
+      "problemMatcher": []
+    },
+    {
+      "label": "Standalone Runner (24/7 Queue)",
+      "type": "shell",
+      "command": "node Agency/tools/standalone-runner.js",
+      "options": { "cwd": "${workspaceFolder}" },
+      "isBackground": true,
+      "presentation": { "reveal": "always", "panel": "dedicated", "group": "servers" },
+      "problemMatcher": []
+    },
+    {
+      "label": "🔁 Retry YouTube Upload",
+      "type": "shell",
+      "command": "node landing-page/scripts/retry-upload.mjs",
+      "options": { "cwd": "${workspaceFolder}" },
+      "presentation": { "reveal": "always", "panel": "shared" },
+      "problemMatcher": []
+    },
+    {
+      "label": "📊 Lead Pipeline",
+      "type": "shell",
+      "command": "node Agency/tools/lead-tracker.js list && node Agency/tools/lead-tracker.js stats",
+      "options": { "cwd": "${workspaceFolder}" },
+      "presentation": { "reveal": "always", "panel": "shared" },
+      "problemMatcher": []
+    },
+    {
+      "label": "📅 Scheduled Posts",
+      "type": "shell",
+      "command": "node Agency/tools/content-scheduler.js list",
+      "options": { "cwd": "${workspaceFolder}" },
+      "presentation": { "reveal": "always", "panel": "shared" },
+      "problemMatcher": []
+    },
+    {
+      "label": "🚀 Deploy to Netlify",
+      "type": "shell",
+      "command": "cd landing-page && netlify deploy --prod",
+      "options": { "cwd": "${workspaceFolder}" },
+      "presentation": { "reveal": "always", "panel": "shared" },
+      "problemMatcher": []
+    },
+    {
+      "label": "📝 Generate New Blog Post",
+      "type": "shell",
+      "command": "node landing-page/scripts/build-blog.cjs",
+      "options": { "cwd": "${workspaceFolder}" },
+      "presentation": { "reveal": "always", "panel": "shared" },
+      "problemMatcher": []
+    },
+    {
+      "label": "🎬 Generate Blog Video",
+      "type": "shell",
+      "command": "node landing-page/scripts/blog-to-video.js",
+      "options": { "cwd": "${workspaceFolder}" },
+      "presentation": { "reveal": "always", "panel": "shared" },
+      "problemMatcher": []
+    }
+  ]
+}
