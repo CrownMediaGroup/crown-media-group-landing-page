@@ -4,155 +4,562 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Blog Admin — Crown Media Group</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Cormorant+Garamond:wght@600;700&display=swap" rel="stylesheet">
 <style>
 :root {
-  --bg: #0A1628; --card: #1E2D45; --card2: #162238;
-  --gold: #C9A84C; --gold-h: #E0BD6B; --gold-pale: rgba(201,168,76,.1);
-  --text: #FFFFFF; --muted: rgba(255,255,255,.55); --border: rgba(201,168,76,.2);
-  --green: #4caf7d; --red: #e05c5c; --blue: #5c9fe0;
-  --radius: 8px;
+  --bg:       #060D18;
+  --bg2:      #081221;
+  --sidebar:  #050B16;
+  --card:     #0C1829;
+  --card2:    #0A1524;
+  --card-h:   #0F1E34;
+  --gold:     #D4A84B;
+  --gold-h:   #E8C46A;
+  --gold-dim: rgba(212,168,75,.12);
+  --gold-glow:rgba(212,168,75,.22);
+  --gold-line:rgba(212,168,75,.3);
+  --text:     #EEF2FF;
+  --text-mid: rgba(238,242,255,.72);
+  --muted:    rgba(238,242,255,.38);
+  --border:   rgba(255,255,255,.07);
+  --border-h: rgba(255,255,255,.12);
+  --green:    #22D984;
+  --green-d:  rgba(34,217,132,.12);
+  --red:      #FF5C5C;
+  --red-d:    rgba(255,92,92,.12);
+  --blue:     #60A5FA;
+  --blue-d:   rgba(96,165,250,.12);
+  --purple:   #A78BFA;
+  --radius:   10px;
+  --radius-lg:14px;
+  --shadow:   0 4px 24px rgba(0,0,0,.4);
+  --shadow-sm:0 2px 12px rgba(0,0,0,.25);
 }
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { font-size: 15px; }
 body { background: var(--bg); color: var(--text); font-family: 'Inter', -apple-system, sans-serif; min-height: 100vh; }
 a { color: var(--gold); text-decoration: none; }
+code { font-family: 'Fira Mono', monospace; background: rgba(255,255,255,.06); padding: 2px 7px; border-radius: 4px; font-size: .82em; }
 
-/* ── Layout ── */
-.shell { display: grid; grid-template-columns: 220px 1fr; min-height: 100vh; }
-.sidebar { background: var(--card2); border-right: 1px solid var(--border); padding: 28px 0; display: flex; flex-direction: column; }
-.sidebar-brand { padding: 0 24px 28px; border-bottom: 1px solid var(--border); }
-.sidebar-brand h2 { font-size: .95rem; font-weight: 700; color: var(--gold); letter-spacing: .04em; }
-.sidebar-brand p { font-size: .72rem; color: var(--muted); margin-top: 4px; }
-.nav { display: flex; flex-direction: column; padding: 16px 0; }
-.nav-item { padding: 12px 24px; font-size: .85rem; color: var(--muted); cursor: pointer; transition: color .2s, background .2s; border-left: 3px solid transparent; }
-.nav-item:hover, .nav-item.active { color: var(--gold); background: var(--gold-pale); border-left-color: var(--gold); }
-.main { padding: 32px 40px; overflow-y: auto; }
+/* ─────────────────────────────────────────────
+   Layout
+───────────────────────────────────────────── */
+.shell { display: grid; grid-template-columns: 240px 1fr; min-height: 100vh; }
 
-/* ── Cards ── */
-.stats-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 32px; }
-.stat-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px 24px; }
-.stat-num { font-size: 2rem; font-weight: 700; color: var(--gold); line-height: 1; }
-.stat-label { font-size: .75rem; color: var(--muted); margin-top: 6px; text-transform: uppercase; letter-spacing: .06em; }
+/* ─────────────────────────────────────────────
+   Sidebar
+───────────────────────────────────────────── */
+.sidebar {
+  background: var(--sidebar);
+  border-right: 1px solid var(--border);
+  display: flex; flex-direction: column;
+  position: sticky; top: 0; height: 100vh; overflow-y: auto;
+}
+.sidebar-brand {
+  padding: 28px 22px 22px;
+  border-bottom: 1px solid var(--border);
+}
+.brand-logo {
+  display: flex; align-items: center; gap: 10px;
+  margin-bottom: 4px;
+}
+.brand-icon {
+  width: 34px; height: 34px;
+  background: linear-gradient(135deg, var(--gold) 0%, #8B6414 100%);
+  border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+  box-shadow: 0 2px 12px rgba(212,168,75,.3);
+}
+.brand-icon svg { width: 18px; height: 18px; fill: #fff; }
+.brand-name {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.05rem; font-weight: 700;
+  color: var(--text); line-height: 1;
+  letter-spacing: .01em;
+}
+.brand-sub { font-size: .68rem; color: var(--muted); margin-top: 2px; letter-spacing: .04em; text-transform: uppercase; }
 
-/* ── Section headers ── */
-.section-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
-.section-head h3 { font-size: 1rem; font-weight: 700; color: var(--text); }
-.section-head p { font-size: .8rem; color: var(--muted); }
+.nav-section-label {
+  padding: 18px 22px 6px;
+  font-size: .62rem; font-weight: 700;
+  letter-spacing: .1em; text-transform: uppercase;
+  color: var(--muted);
+}
+.nav { display: flex; flex-direction: column; padding: 4px 10px; }
+.nav-item {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 12px;
+  font-size: .83rem; font-weight: 500;
+  color: var(--muted);
+  cursor: pointer;
+  border-radius: 8px;
+  border: 1px solid transparent;
+  transition: color .18s, background .18s, border-color .18s;
+  position: relative;
+  user-select: none;
+}
+.nav-item svg { width: 16px; height: 16px; opacity: .7; flex-shrink: 0; transition: opacity .18s; }
+.nav-item:hover { color: var(--text); background: rgba(255,255,255,.04); }
+.nav-item:hover svg { opacity: 1; }
+.nav-item.active {
+  color: var(--gold);
+  background: var(--gold-dim);
+  border-color: var(--gold-line);
+  font-weight: 600;
+}
+.nav-item.active svg { opacity: 1; fill: var(--gold); }
 
-/* ── Panels ── */
+.sidebar-footer {
+  margin-top: auto; padding: 16px 22px;
+  border-top: 1px solid var(--border);
+}
+.runner-pill {
+  display: flex; align-items: center; gap: 8px;
+  background: var(--green-d); border: 1px solid rgba(34,217,132,.2);
+  border-radius: 20px; padding: 6px 12px;
+  font-size: .72rem; font-weight: 600; color: var(--green);
+}
+.runner-dot {
+  width: 7px; height: 7px; border-radius: 50%; background: var(--green);
+  box-shadow: 0 0 6px var(--green);
+  animation: pulse-dot 2s ease-in-out infinite;
+}
+@keyframes pulse-dot { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.6;transform:scale(.8)} }
+
+/* ─────────────────────────────────────────────
+   Main area
+───────────────────────────────────────────── */
+.main {
+  background: var(--bg);
+  padding: 32px 40px 60px;
+  overflow-y: auto;
+  min-width: 0;
+}
+
+/* ─────────────────────────────────────────────
+   Page header
+───────────────────────────────────────────── */
+.page-header {
+  display: flex; align-items: flex-start; justify-content: space-between;
+  margin-bottom: 28px; gap: 16px;
+}
+.page-header-text h2 {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.9rem; font-weight: 700;
+  color: var(--text); line-height: 1.1;
+  letter-spacing: -.01em;
+}
+.page-header-text p { font-size: .82rem; color: var(--muted); margin-top: 5px; }
+
+/* ─────────────────────────────────────────────
+   Panels
+───────────────────────────────────────────── */
 .panel { display: none; }
 .panel.active { display: block; }
 
-/* ── Table ── */
-.table-wrap { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
-table { width: 100%; border-collapse: collapse; }
-th { background: var(--card2); font-size: .72rem; font-weight: 600; color: var(--muted); letter-spacing: .08em; text-transform: uppercase; padding: 12px 16px; text-align: left; border-bottom: 1px solid var(--border); }
-td { padding: 12px 16px; font-size: .85rem; border-bottom: 1px solid rgba(255,255,255,.04); vertical-align: middle; }
-tr:last-child td { border-bottom: none; }
-tr:hover td { background: rgba(255,255,255,.02); }
-.badge { display: inline-block; padding: 2px 10px; border-radius: 20px; font-size: .7rem; font-weight: 600; }
-.badge-green { background: rgba(76,175,125,.15); color: var(--green); }
-.badge-gold { background: rgba(201,168,76,.15); color: var(--gold); }
-.badge-blue { background: rgba(92,159,224,.15); color: var(--blue); }
+/* ─────────────────────────────────────────────
+   Stat cards
+───────────────────────────────────────────── */
+.stats-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 28px; }
+.stat-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 20px 22px;
+  position: relative; overflow: hidden;
+  transition: border-color .2s, background .2s;
+}
+.stat-card:hover { border-color: var(--border-h); background: var(--card-h); }
+.stat-card::before {
+  content: ''; position: absolute; inset: 0; top: auto;
+  height: 2px; background: linear-gradient(90deg, var(--gold) 0%, transparent 100%);
+  opacity: 0; transition: opacity .2s;
+}
+.stat-card:hover::before { opacity: 1; }
+.stat-num { font-size: 2rem; font-weight: 700; color: var(--gold); line-height: 1; letter-spacing: -.02em; }
+.stat-label { font-size: .68rem; color: var(--muted); margin-top: 7px; text-transform: uppercase; letter-spacing: .08em; font-weight: 600; }
+.stat-card-wide { grid-column: 1 / -1; }
 
-/* ── Forms ── */
-.form-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; margin-bottom: 24px; }
+/* ─────────────────────────────────────────────
+   Section header
+───────────────────────────────────────────── */
+.section-head {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 16px; gap: 12px;
+}
+.section-head h3 {
+  font-size: .9rem; font-weight: 700; color: var(--text);
+  display: flex; align-items: center; gap: 8px;
+}
+.section-head h3 svg { width: 15px; height: 15px; opacity: .6; }
+.section-head span, .section-head p { font-size: .75rem; color: var(--muted); }
+
+/* ─────────────────────────────────────────────
+   Card / glass panel
+───────────────────────────────────────────── */
+.card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+
+/* ─────────────────────────────────────────────
+   Table
+───────────────────────────────────────────── */
+.table-wrap { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-lg); overflow: hidden; }
+table { width: 100%; border-collapse: collapse; }
+thead tr { background: var(--card2); }
+th {
+  font-size: .67rem; font-weight: 700;
+  color: var(--muted); letter-spacing: .1em; text-transform: uppercase;
+  padding: 11px 16px; text-align: left;
+  border-bottom: 1px solid var(--border);
+}
+td { padding: 12px 16px; font-size: .83rem; border-bottom: 1px solid rgba(255,255,255,.04); vertical-align: middle; color: var(--text-mid); }
+tr:last-child td { border-bottom: none; }
+tr:hover td { background: rgba(255,255,255,.025); color: var(--text); }
+
+/* ─────────────────────────────────────────────
+   Badges
+───────────────────────────────────────────── */
+.badge {
+  display: inline-flex; align-items: center; gap: 4px;
+  padding: 3px 9px; border-radius: 20px;
+  font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase;
+}
+.badge-green  { background: var(--green-d); color: var(--green); border: 1px solid rgba(34,217,132,.2); }
+.badge-gold   { background: var(--gold-dim); color: var(--gold); border: 1px solid rgba(212,168,75,.25); }
+.badge-blue   { background: var(--blue-d); color: var(--blue); border: 1px solid rgba(96,165,250,.2); }
+.badge-red    { background: var(--red-d); color: var(--red); border: 1px solid rgba(255,92,92,.2); }
+
+/* ─────────────────────────────────────────────
+   Buttons
+───────────────────────────────────────────── */
+.btn {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 9px 20px; border: none; border-radius: 8px;
+  font-family: 'Inter', sans-serif;
+  font-size: .8rem; font-weight: 600; cursor: pointer;
+  transition: opacity .18s, transform .12s, box-shadow .18s;
+  letter-spacing: .04em; text-transform: uppercase;
+  white-space: nowrap;
+}
+.btn:hover { opacity: .88; }
+.btn:active { transform: scale(.97); }
+.btn-gold {
+  background: linear-gradient(135deg, var(--gold) 0%, #B8890F 100%);
+  color: #0A0E17;
+  box-shadow: 0 2px 14px rgba(212,168,75,.25);
+}
+.btn-gold:hover { box-shadow: 0 4px 20px rgba(212,168,75,.4); opacity: 1; }
+.btn-outline { background: transparent; border: 1px solid var(--border-h); color: var(--text-mid); }
+.btn-outline:hover { border-color: var(--gold-line); color: var(--gold); background: var(--gold-dim); }
+.btn-red { background: var(--red-d); border: 1px solid rgba(255,92,92,.25); color: var(--red); }
+.btn-green { background: var(--green-d); border: 1px solid rgba(34,217,132,.25); color: var(--green); }
+.btn-sm { padding: 5px 12px; font-size: .72rem; border-radius: 6px; }
+
+/* ─────────────────────────────────────────────
+   Forms
+───────────────────────────────────────────── */
+.form-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 22px;
+  margin-bottom: 20px;
+}
 .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
 .form-row.single { grid-template-columns: 1fr; }
-.form-group { display: flex; flex-direction: column; gap: 6px; }
-label { font-size: .75rem; color: var(--muted); font-weight: 600; text-transform: uppercase; letter-spacing: .06em; }
-input[type=text], textarea, select {
-  background: #0e1e35; border: 1px solid var(--border); border-radius: 6px;
-  padding: 10px 14px; color: var(--text); font-size: .88rem; outline: none;
-  transition: border-color .2s; font-family: inherit;
+.form-group { display: flex; flex-direction: column; gap: 7px; }
+label {
+  font-size: .68rem; color: var(--muted);
+  font-weight: 700; text-transform: uppercase; letter-spacing: .08em;
 }
-input[type=text]:focus, textarea:focus, select:focus { border-color: var(--gold); }
+input[type=text], input[type=number], textarea, select {
+  background: rgba(255,255,255,.04); border: 1px solid var(--border);
+  border-radius: 8px; padding: 10px 14px;
+  color: var(--text); font-size: .85rem; outline: none;
+  transition: border-color .18s, background .18s; font-family: inherit;
+}
+input[type=text]:focus, input[type=number]:focus, textarea:focus, select:focus {
+  border-color: var(--gold); background: rgba(212,168,75,.04);
+}
 textarea { resize: vertical; min-height: 80px; }
-.btn { padding: 10px 22px; border: none; border-radius: 6px; font-size: .85rem; font-weight: 600; cursor: pointer; transition: opacity .2s, transform .1s; letter-spacing: .04em; text-transform: uppercase; }
-.btn:hover { opacity: .88; }
-.btn:active { transform: scale(.98); }
-.btn-gold { background: var(--gold); color: #0A1628; }
-.btn-outline { background: transparent; border: 1.5px solid var(--border); color: var(--text); }
-.btn-red { background: var(--red); color: #fff; }
-.btn-sm { padding: 6px 14px; font-size: .75rem; }
-.btn-green { background: var(--green); color: #0A1628; }
+select option { background: var(--card2); }
 
-/* ── Research ── */
-.research-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 16px; }
-.research-item { background: var(--card); border: 1px solid var(--border); border-radius: 6px; padding: 14px 16px; display: flex; flex-direction: column; gap: 8px; }
-.research-source { font-size: .68rem; color: var(--muted); text-transform: uppercase; letter-spacing: .08em; }
-.research-title { font-size: .85rem; color: var(--text); line-height: 1.4; }
-.research-actions { display: flex; gap: 8px; margin-top: 4px; }
-
-/* ── Schedule ── */
-.schedule-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; }
-.toggle-row { display: flex; align-items: center; justify-content: space-between; padding: 14px 0; border-bottom: 1px solid rgba(255,255,255,.06); }
+/* ─────────────────────────────────────────────
+   Toggles
+───────────────────────────────────────────── */
+.toggle-row {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 15px 0; border-bottom: 1px solid var(--border);
+}
 .toggle-row:last-child { border-bottom: none; }
-.toggle-info h4 { font-size: .88rem; font-weight: 600; }
-.toggle-info p { font-size: .78rem; color: var(--muted); margin-top: 3px; }
-.toggle { position: relative; width: 46px; height: 24px; flex-shrink: 0; }
+.toggle-info h4 { font-size: .86rem; font-weight: 600; color: var(--text); }
+.toggle-info p  { font-size: .75rem; color: var(--muted); margin-top: 3px; }
+.toggle { position: relative; width: 44px; height: 24px; flex-shrink: 0; }
 .toggle input { opacity: 0; width: 0; height: 0; }
-.toggle-slider { position: absolute; inset: 0; background: rgba(255,255,255,.15); border-radius: 24px; cursor: pointer; transition: background .2s; }
-.toggle-slider:before { content: ''; position: absolute; width: 18px; height: 18px; left: 3px; top: 3px; background: white; border-radius: 50%; transition: transform .2s; }
-.toggle input:checked + .toggle-slider { background: var(--gold); }
-.toggle input:checked + .toggle-slider:before { transform: translateX(22px); }
+.toggle-slider {
+  position: absolute; inset: 0;
+  background: rgba(255,255,255,.1); border-radius: 24px;
+  cursor: pointer; transition: background .2s;
+  border: 1px solid var(--border-h);
+}
+.toggle-slider:before {
+  content: ''; position: absolute;
+  width: 17px; height: 17px;
+  left: 3px; top: 3px;
+  background: rgba(255,255,255,.6); border-radius: 50%;
+  transition: transform .2s, background .2s;
+}
+.toggle input:checked + .toggle-slider { background: var(--gold-dim); border-color: var(--gold-line); }
+.toggle input:checked + .toggle-slider:before { transform: translateX(20px); background: var(--gold); }
 
-/* ── Toast ── */
-.toast { position: fixed; bottom: 24px; right: 24px; background: var(--green); color: #0A1628; padding: 12px 20px; border-radius: var(--radius); font-size: .85rem; font-weight: 600; z-index: 9999; opacity: 0; transform: translateY(10px); transition: all .3s; pointer-events: none; }
-.toast.show { opacity: 1; transform: translateY(0); }
-.toast.error { background: var(--red); color: white; }
-
-/* ── Queue list ── */
-.queue-item { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; padding: 14px 16px; border-bottom: 1px solid rgba(255,255,255,.04); }
+/* ─────────────────────────────────────────────
+   Queue & upcoming rows
+───────────────────────────────────────────── */
+.queue-item {
+  display: flex; align-items: flex-start; justify-content: space-between; gap: 16px;
+  padding: 14px 18px; border-bottom: 1px solid var(--border);
+  transition: background .15s;
+}
 .queue-item:last-child { border-bottom: none; }
-.queue-topic { font-size: .88rem; line-height: 1.4; }
-.queue-meta { font-size: .72rem; color: var(--muted); margin-top: 4px; }
+.queue-item:hover { background: rgba(255,255,255,.025); }
+.queue-topic { font-size: .85rem; line-height: 1.45; color: var(--text); }
+.queue-meta  { font-size: .72rem; color: var(--muted); margin-top: 4px; }
 .queue-actions { display: flex; gap: 6px; flex-shrink: 0; }
 
-/* ── Spinner ── */
-.spinner { display: inline-block; width: 16px; height: 16px; border: 2px solid rgba(255,255,255,.3); border-top-color: var(--gold); border-radius: 50%; animation: spin .6s linear infinite; margin-right: 8px; vertical-align: middle; }
+.upcoming-row {
+  display: flex; gap: 14px; align-items: flex-start;
+  padding: 12px 0; border-bottom: 1px solid var(--border);
+}
+.upcoming-row:last-child { border-bottom: none; }
+.upcoming-time { font-size: .75rem; color: var(--gold); font-weight: 700; min-width: 78px; flex-shrink: 0; padding-top: 1px; }
+.upcoming-topic { font-size: .85rem; line-height: 1.4; color: var(--text); }
+.upcoming-cat   { font-size: .72rem; color: var(--muted); margin-top: 2px; }
+
+/* ─────────────────────────────────────────────
+   Research
+───────────────────────────────────────────── */
+.research-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 16px; }
+.research-item {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 14px 16px;
+  display: flex; flex-direction: column; gap: 8px;
+  transition: border-color .18s;
+}
+.research-item:hover { border-color: var(--gold-line); }
+.research-source { font-size: .65rem; color: var(--muted); text-transform: uppercase; letter-spacing: .1em; font-weight: 600; }
+.research-title  { font-size: .85rem; color: var(--text); line-height: 1.45; }
+.research-actions { display: flex; gap: 8px; margin-top: 2px; }
+
+/* ─────────────────────────────────────────────
+   Spinner
+───────────────────────────────────────────── */
+.spinner {
+  display: inline-block; width: 14px; height: 14px;
+  border: 2px solid rgba(255,255,255,.15);
+  border-top-color: var(--gold); border-radius: 50%;
+  animation: spin .6s linear infinite;
+  margin-right: 7px; vertical-align: middle;
+}
 @keyframes spin { to { transform: rotate(360deg); } }
 
-/* ── Upcoming ── */
-.upcoming-row { display: flex; gap: 12px; align-items: flex-start; padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,.04); }
-.upcoming-time { font-size: .78rem; color: var(--gold); font-weight: 600; min-width: 90px; flex-shrink: 0; }
-.upcoming-topic { font-size: .85rem; line-height: 1.4; }
-.upcoming-cat { font-size: .72rem; color: var(--muted); }
+/* ─────────────────────────────────────────────
+   Toast
+───────────────────────────────────────────── */
+.toast {
+  position: fixed; bottom: 24px; right: 24px;
+  background: var(--green); color: #060D18;
+  padding: 11px 20px; border-radius: 8px;
+  font-size: .83rem; font-weight: 700;
+  z-index: 9999; opacity: 0;
+  transform: translateY(8px);
+  transition: all .25s; pointer-events: none;
+  box-shadow: 0 4px 20px rgba(34,217,132,.25);
+}
+.toast.show { opacity: 1; transform: translateY(0); }
+.toast.error { background: var(--red); box-shadow: 0 4px 20px rgba(255,92,92,.25); color: #fff; }
+
+/* ─────────────────────────────────────────────
+   Divider
+───────────────────────────────────────────── */
+.section-divider {
+  height: 1px; background: var(--border);
+  margin: 28px 0;
+}
+
+/* ─────────────────────────────────────────────
+   Two-col grid helper
+───────────────────────────────────────────── */
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+.grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+
+/* ─────────────────────────────────────────────
+   Scrollbar
+───────────────────────────────────────────── */
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(255,255,255,.1); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(212,168,75,.35); }
+
+/* ─────────────────────────────────────────────
+   Dashboard greeting
+───────────────────────────────────────────── */
+.greeting-bar {
+  background: linear-gradient(135deg, rgba(212,168,75,.08) 0%, rgba(96,165,250,.05) 100%);
+  border: 1px solid var(--gold-line);
+  border-radius: var(--radius-lg);
+  padding: 20px 24px;
+  margin-bottom: 24px;
+  display: flex; align-items: center; justify-content: space-between; gap: 16px;
+}
+.greeting-text h2 {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.6rem; font-weight: 700; color: var(--text);
+}
+.greeting-text p { font-size: .8rem; color: var(--muted); margin-top: 4px; }
+
+/* ─────────────────────────────────────────────
+   Log feed
+───────────────────────────────────────────── */
+.log-entry {
+  display: flex; gap: 12px; align-items: flex-start;
+  padding: 10px 16px; border-bottom: 1px solid rgba(255,255,255,.04);
+  transition: background .12s;
+}
+.log-entry:hover { background: rgba(255,255,255,.02); }
+.log-entry:last-child { border-bottom: none; }
+.log-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; margin-top: 5px; }
+.log-msg { font-size: .8rem; color: var(--text-mid); line-height: 1.4; flex: 1; min-width: 0; word-break: break-word; }
+.log-time { font-size: .68rem; color: var(--muted); margin-top: 2px; }
+
+/* ─────────────────────────────────────────────
+   Scrollable feed box
+───────────────────────────────────────────── */
+.feed-box {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: var(--radius-lg); overflow: hidden;
+}
+.feed-box-scroll { max-height: 440px; overflow-y: auto; }
+
+/* ─────────────────────────────────────────────
+   Insight box
+───────────────────────────────────────────── */
+.insight-box {
+  background: var(--gold-dim); border: 1px solid var(--gold-line);
+  border-radius: 8px; padding: 12px 14px;
+  font-size: .78rem; color: var(--text-mid); line-height: 1.65;
+}
+
+/* ─────────────────────────────────────────────
+   Range slider
+───────────────────────────────────────────── */
+input[type=range] {
+  -webkit-appearance: none; appearance: none;
+  flex: 1; height: 4px; border-radius: 2px;
+  background: rgba(255,255,255,.1); outline: none; cursor: pointer;
+  accent-color: var(--gold);
+}
+input[type=range]::-webkit-slider-thumb {
+  -webkit-appearance: none; appearance: none;
+  width: 16px; height: 16px; border-radius: 50%;
+  background: var(--gold); box-shadow: 0 0 8px rgba(212,168,75,.5);
+  cursor: pointer;
+}
 </style>
 </head>
 <body>
 
 <div class="shell">
-  <!-- SIDEBAR -->
+  <!-- ═══════════════════════ SIDEBAR ═══════════════════════ -->
   <div class="sidebar">
     <div class="sidebar-brand">
-      <h2>Blog Admin</h2>
-      <p>Crown Media Group</p>
+      <div class="brand-logo">
+        <div class="brand-icon">
+          <svg viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path d="M10 2L2 7v1h1v8h14V8h1V7L10 2zm0 2.28L16 8v7H4V8l6-3.72zM9 10h2v4H9v-4z"/></svg>
+        </div>
+        <div>
+          <div class="brand-name">Crown Media</div>
+          <div class="brand-sub">Blog Admin</div>
+        </div>
+      </div>
     </div>
+
+    <div class="nav-section-label">Main</div>
     <div class="nav">
-      <div class="nav-item active" onclick="showPanel('dashboard')">Dashboard</div>
-      <div class="nav-item" onclick="showPanel('crm')">CRM Overview</div>
-      <div class="nav-item" onclick="showPanel('posts')">Published Posts</div>
-      <div class="nav-item" onclick="showPanel('queue')">Topic Queue</div>
-      <div class="nav-item" onclick="showPanel('generate')">Generate Now</div>
-      <div class="nav-item" onclick="showPanel('research')">Topic Research</div>
-      <div class="nav-item" onclick="showPanel('schedule')">Schedule Settings</div>
-      <div class="nav-item" onclick="showPanel('analytics')">Analytics</div>
-      <div class="nav-item" onclick="showPanel('automation')">Automation Log</div>
+      <div class="nav-item active" onclick="showPanel('dashboard')">
+        <svg viewBox="0 0 20 20" fill="currentColor"><path d="M2 11l8-8 8 8v7a1 1 0 01-1 1H3a1 1 0 01-1-1v-7z"/><path d="M7 18v-6h6v6"/></svg>
+        Dashboard
+      </div>
+      <div class="nav-item" onclick="showPanel('crm')">
+        <svg viewBox="0 0 20 20" fill="currentColor"><path d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v1h8v-1zM6 8a2 2 0 11-4 0 2 2 0 014 0zM16 18v-1a4.978 4.978 0 00-.82-2.75A3 3 0 0118 17v1h-2zM4.82 14.25A4.978 4.978 0 004 17v1H2v-1a3 3 0 012.82-2.75z"/></svg>
+        CRM Overview
+      </div>
+      <div class="nav-item" onclick="showPanel('posts')">
+        <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm2 6a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1zm1 3a1 1 0 100 2h6a1 1 0 100-2H7z" clip-rule="evenodd"/></svg>
+        Published Posts
+      </div>
+      <div class="nav-item" onclick="showPanel('queue')">
+        <svg viewBox="0 0 20 20" fill="currentColor"><path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z"/><path fill-rule="evenodd" d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm3 4a1 1 0 000 2h.01a1 1 0 100-2H7zm3 0a1 1 0 000 2h3a1 1 0 100-2h-3zm-3 4a1 1 0 100 2h.01a1 1 0 100-2H7zm3 0a1 1 0 100 2h3a1 1 0 100-2h-3z" clip-rule="evenodd"/></svg>
+        Topic Queue
+      </div>
+      <div class="nav-item" onclick="showPanel('generate')">
+        <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-11a1 1 0 10-2 0v2H7a1 1 0 100 2h2v2a1 1 0 102 0v-2h2a1 1 0 100-2h-2V7z" clip-rule="evenodd"/></svg>
+        Generate Now
+      </div>
+    </div>
+
+    <div class="nav-section-label">Tools</div>
+    <div class="nav">
+      <div class="nav-item" onclick="showPanel('research')">
+        <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd"/></svg>
+        Topic Research
+      </div>
+      <div class="nav-item" onclick="showPanel('schedule')">
+        <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clip-rule="evenodd"/></svg>
+        Schedule
+      </div>
+      <div class="nav-item" onclick="showPanel('analytics')">
+        <svg viewBox="0 0 20 20" fill="currentColor"><path d="M2 11a1 1 0 011-1h2a1 1 0 011 1v5a1 1 0 01-1 1H3a1 1 0 01-1-1v-5zM8 7a1 1 0 011-1h2a1 1 0 011 1v9a1 1 0 01-1 1H9a1 1 0 01-1-1V7zM14 4a1 1 0 011-1h2a1 1 0 011 1v12a1 1 0 01-1 1h-2a1 1 0 01-1-1V4z"/></svg>
+        Analytics
+      </div>
+      <div class="nav-item" onclick="showPanel('automation')">
+        <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 01.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z" clip-rule="evenodd"/></svg>
+        Automation Log
+      </div>
+    </div>
+
+    <div class="sidebar-footer">
+      <div class="runner-pill">
+        <div class="runner-dot"></div>
+        Runner Active
+      </div>
     </div>
   </div>
 
-  <!-- MAIN -->
+  <!-- ═══════════════════════ MAIN ═══════════════════════ -->
   <div class="main">
 
-    <!-- DASHBOARD -->
+    <!-- ── DASHBOARD ──────────────────────────────── -->
     <div id="panel-dashboard" class="panel active">
-      <div class="section-head" style="margin-bottom:24px;">
-        <div>
-          <h3 style="font-size:1.4rem;">Good morning, King.</h3>
-          <p id="dash-date" style="margin-top:4px;"></p>
+      <div class="greeting-bar">
+        <div class="greeting-text">
+          <h2>Good morning, King.</h2>
+          <p id="dash-date"></p>
         </div>
-        <button class="btn btn-gold" onclick="generateFromQueue()">Generate Post Now</button>
+        <button class="btn btn-gold" onclick="generateFromQueue()">
+          <svg viewBox="0 0 20 20" fill="currentColor" style="width:14px;height:14px"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-11a1 1 0 10-2 0v2H7a1 1 0 100 2h2v2a1 1 0 102 0v-2h2a1 1 0 100-2h-2V7z" clip-rule="evenodd"/></svg>
+          Generate Post Now
+        </button>
       </div>
+
       <div class="stats-row">
         <div class="stat-card">
           <div class="stat-num" id="stat-total">—</div>
@@ -170,25 +577,34 @@ textarea { resize: vertical; min-height: 80px; }
           <div class="stat-num" id="stat-ppd">4</div>
           <div class="stat-label">Posts Per Day</div>
         </div>
-        <div class="stat-card" style="grid-column:1/-1;">
-          <div style="font-size:.75rem;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px;">Last Generated</div>
-          <div id="stat-lastrun" style="font-size:.9rem;color:var(--gold);">—</div>
+        <div class="stat-card stat-card-wide" style="padding:16px 22px;display:flex;align-items:center;gap:16px;">
+          <div>
+            <div class="stat-label" style="margin-bottom:4px;">Last Generated</div>
+            <div id="stat-lastrun" style="font-size:.9rem;color:var(--gold);font-weight:600;">—</div>
+          </div>
         </div>
       </div>
-      <div class="section-head" style="margin-bottom:16px;">
-        <h3>Upcoming Posts (From Queue)</h3>
+
+      <div class="section-head">
+        <h3>
+          <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clip-rule="evenodd"/></svg>
+          Upcoming from Queue
+        </h3>
       </div>
-      <div class="form-card" style="padding:0;overflow:hidden;">
+      <div class="card">
         <div id="upcoming-list" style="padding:16px 20px;">
           <p style="color:var(--muted);font-size:.85rem;">Loading queue...</p>
         </div>
       </div>
     </div>
 
-    <!-- CRM OVERVIEW -->
+    <!-- ── CRM OVERVIEW ────────────────────────────── -->
     <div id="panel-crm" class="panel">
-      <div class="section-head" style="margin-bottom:24px;">
-        <div><h3 style="font-size:1.4rem;">CRM Overview</h3><p id="crm-status" style="margin-top:4px;font-size:.8rem;color:var(--muted);">Loading...</p></div>
+      <div class="page-header">
+        <div class="page-header-text">
+          <h2>CRM Overview</h2>
+          <p id="crm-status">Loading...</p>
+        </div>
         <a href="https://crm.crownmediagroup.co" target="_blank" class="btn btn-gold btn-sm">Open CRM &rarr;</a>
       </div>
       <div class="stats-row">
@@ -197,29 +613,29 @@ textarea { resize: vertical; min-height: 80px; }
         <div class="stat-card"><div class="stat-num" id="crm-leads">—</div><div class="stat-label">Open Leads</div></div>
         <div class="stat-card"><div class="stat-num" id="crm-overdue" style="color:var(--red);">—</div><div class="stat-label">Follow-Ups Due</div></div>
       </div>
-      <div class="stats-row" style="margin-top:-8px;">
-        <div class="stat-card"><div class="stat-num" id="crm-pipeline" style="font-size:1.3rem;">—</div><div class="stat-label">Pipeline Value</div></div>
+      <div class="stats-row" style="margin-top:-8px;grid-template-columns:1fr 1fr;">
+        <div class="stat-card"><div class="stat-num" id="crm-pipeline" style="font-size:1.4rem;">—</div><div class="stat-label">Pipeline Value</div></div>
         <div class="stat-card"><div class="stat-num" id="crm-new">—</div><div class="stat-label">New This Week</div></div>
       </div>
-      <div class="section-head" style="margin:24px 0 12px;"><h3>Follow-Ups Due Soon</h3></div>
-      <div class="table-wrap">
+      <div class="section-head" style="margin:8px 0 14px;"><h3>Follow-Ups Due</h3></div>
+      <div class="table-wrap" style="margin-bottom:24px;">
         <table><thead><tr><th>Name</th><th>Business</th><th>Status</th><th>Follow-Up</th></tr></thead>
-        <tbody id="crm-followups-tbody"><tr><td colspan="4" style="text-align:center;color:var(--muted);padding:24px;">Loading...</td></tr></tbody>
-        </table>
+        <tbody id="crm-followups-tbody"><tr><td colspan="4" style="text-align:center;color:var(--muted);padding:24px;">Loading...</td></tr></tbody></table>
       </div>
-      <div class="section-head" style="margin:24px 0 12px;"><h3>Recent Contacts</h3></div>
+      <div class="section-head" style="margin-bottom:14px;"><h3>Recent Contacts</h3></div>
       <div class="table-wrap">
         <table><thead><tr><th>Name</th><th>Business</th><th>Status</th><th>Priority</th><th>Deal</th></tr></thead>
-        <tbody id="crm-contacts-tbody"><tr><td colspan="5" style="text-align:center;color:var(--muted);padding:24px;">Loading...</td></tr></tbody>
-        </table>
+        <tbody id="crm-contacts-tbody"><tr><td colspan="5" style="text-align:center;color:var(--muted);padding:24px;">Loading...</td></tr></tbody></table>
       </div>
     </div>
 
-    <!-- POSTS -->
+    <!-- ── PUBLISHED POSTS ─────────────────────────── -->
     <div id="panel-posts" class="panel">
-      <div class="section-head" style="margin-bottom:16px;">
-        <h3>Published Posts</h3>
-        <p id="posts-count" style="font-size:.8rem;color:var(--muted);"></p>
+      <div class="page-header">
+        <div class="page-header-text">
+          <h2>Published Posts</h2>
+          <p id="posts-count"></p>
+        </div>
       </div>
       <div class="table-wrap">
         <table>
@@ -229,20 +645,28 @@ textarea { resize: vertical; min-height: 80px; }
       </div>
     </div>
 
-    <!-- QUEUE -->
+    <!-- ── TOPIC QUEUE ─────────────────────────────── -->
     <div id="panel-queue" class="panel">
-      <div class="section-head" style="margin-bottom:16px;">
-        <h3>Topic Queue</h3>
+      <div class="page-header">
+        <div class="page-header-text">
+          <h2>Topic Queue</h2>
+          <p>Posts waiting to be written</p>
+        </div>
         <button class="btn btn-gold btn-sm" onclick="showPanel('generate')">+ Add Topic</button>
       </div>
-      <div class="form-card" style="padding:0;overflow:hidden;">
+      <div class="card">
         <div id="queue-list"><p style="padding:24px;color:var(--muted);">Loading...</p></div>
       </div>
     </div>
 
-    <!-- GENERATE -->
+    <!-- ── GENERATE ────────────────────────────────── -->
     <div id="panel-generate" class="panel">
-      <div class="section-head" style="margin-bottom:16px;"><h3>Add Topic &amp; Generate</h3></div>
+      <div class="page-header">
+        <div class="page-header-text">
+          <h2>Add Topic &amp; Generate</h2>
+          <p>Queue a topic or write a post immediately</p>
+        </div>
+      </div>
       <div class="form-card">
         <div class="form-row">
           <div class="form-group">
@@ -270,249 +694,230 @@ textarea { resize: vertical; min-height: 80px; }
           <div class="form-group">
             <label>Action</label>
             <div style="display:flex;gap:8px;margin-top:2px;">
-              <button class="btn btn-gold" onclick="addToQueue()">Add to Queue</button>
-              <button class="btn btn-green" onclick="generateNow()">Generate Now</button>
+              <button class="btn btn-outline" onclick="addToQueue()">Add to Queue</button>
+              <button class="btn btn-gold" onclick="generateNow()">
+                <svg viewBox="0 0 20 20" fill="currentColor" style="width:13px;height:13px"><path fill-rule="evenodd" d="M11.3 1.046A1 1 0 0112 2v5h4a1 1 0 01.82 1.573l-7 10A1 1 0 018 18v-5H4a1 1 0 01-.82-1.573l7-10a1 1 0 011.12-.38z" clip-rule="evenodd"/></svg>
+                Generate Now
+              </button>
             </div>
           </div>
         </div>
-        <p style="font-size:.78rem;color:var(--muted);margin-top:8px;">
-          "Add to Queue" saves for the daily scheduler. "Generate Now" writes and publishes immediately (takes ~30 seconds).
+        <p style="font-size:.75rem;color:var(--muted);margin-top:4px;">
+          "Add to Queue" saves for the daily scheduler. "Generate Now" writes and publishes immediately (~30 seconds).
         </p>
       </div>
-      <div id="gen-status" style="display:none;" class="form-card" style="background:rgba(76,175,125,.08);border-color:rgba(76,175,125,.3);">
-        <p><span class="spinner"></span> Generating post... this takes about 30 seconds.</p>
+      <div id="gen-status" style="display:none;" class="form-card">
+        <p style="color:var(--text-mid);"><span class="spinner"></span> Generating post... this takes about 30 seconds.</p>
       </div>
     </div>
 
-    <!-- RESEARCH -->
+    <!-- ── RESEARCH ────────────────────────────────── -->
     <div id="panel-research" class="panel">
-      <div class="section-head" style="margin-bottom:16px;">
-        <h3>Topic Research</h3>
+      <div class="page-header">
+        <div class="page-header-text">
+          <h2>Topic Research</h2>
+          <p>Trending topics from Reddit, Google Trends, and more</p>
+        </div>
         <div style="display:flex;gap:8px;align-items:center;">
-          <input type="text" id="research-niche" placeholder="small business marketing Columbia SC" style="width:260px;">
+          <input type="text" id="research-niche" placeholder="small business marketing Columbia SC" style="width:280px;">
           <button class="btn btn-gold" onclick="fetchResearch()">Search Trends</button>
         </div>
       </div>
-      <p style="font-size:.82rem;color:var(--muted);margin-bottom:16px;">Pulls hot topics from Reddit, Google Trends, and DuckDuckGo. Click any topic to add it to your queue.</p>
+      <p style="font-size:.8rem;color:var(--muted);margin-bottom:20px;">Click any topic to add it directly to your post queue.</p>
       <div id="research-results">
-        <p style="color:var(--muted);">Hit "Search Trends" to load topics people are complaining about and asking questions on.</p>
+        <div class="card" style="padding:40px;text-align:center;color:var(--muted);font-size:.85rem;">Hit "Search Trends" to load hot topics people are asking about right now.</div>
       </div>
     </div>
 
-    <!-- SCHEDULE -->
+    <!-- ── SCHEDULE ────────────────────────────────── -->
     <div id="panel-schedule" class="panel">
-      <div class="section-head" style="margin-bottom:16px;"><h3>Schedule Settings</h3></div>
-      <div class="schedule-card">
-        <div class="toggle-row">
-          <div class="toggle-info">
-            <h4>Posts Per Day</h4>
-            <p>How many posts to auto-generate each day from the queue</p>
-          </div>
-          <input type="number" id="sched-ppd" value="4" min="1" max="10" style="width:70px;text-align:center;">
+      <div class="page-header">
+        <div class="page-header-text">
+          <h2>Schedule Settings</h2>
+          <p>Control daily posting frequency and behavior</p>
         </div>
-        <div class="toggle-row">
-          <div class="toggle-info">
-            <h4>Skip Sabbath (Saturday)</h4>
-            <p>No posts generated on Saturday — rest day</p>
+      </div>
+      <div class="form-card" style="padding:0;overflow:hidden;">
+        <div style="padding:20px 24px;">
+          <div class="toggle-row">
+            <div class="toggle-info">
+              <h4>Posts Per Day</h4>
+              <p>How many posts to auto-generate each day from the queue</p>
+            </div>
+            <input type="number" id="sched-ppd" value="4" min="1" max="10" style="width:72px;text-align:center;border-radius:8px;">
           </div>
-          <label class="toggle">
-            <input type="checkbox" id="sched-sabbath" checked>
-            <span class="toggle-slider"></span>
-          </label>
-        </div>
-        <div class="toggle-row">
-          <div class="toggle-info">
-            <h4>Auto-Research Topics</h4>
-            <p>When queue runs low (&lt;4), auto-fetch trending topics and add to queue</p>
+          <div class="toggle-row">
+            <div class="toggle-info">
+              <h4>Skip Sabbath (Saturday)</h4>
+              <p>No posts generated on Saturday — rest day</p>
+            </div>
+            <label class="toggle">
+              <input type="checkbox" id="sched-sabbath" checked>
+              <span class="toggle-slider"></span>
+            </label>
           </div>
-          <label class="toggle">
-            <input type="checkbox" id="sched-autoresearch" checked>
-            <span class="toggle-slider"></span>
-          </label>
+          <div class="toggle-row">
+            <div class="toggle-info">
+              <h4>Auto-Research Topics</h4>
+              <p>When queue runs low (&lt;4), auto-fetch trending topics and add</p>
+            </div>
+            <label class="toggle">
+              <input type="checkbox" id="sched-autoresearch" checked>
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
         </div>
-        <div style="margin-top:20px;">
+        <div style="padding:16px 24px;border-top:1px solid var(--border);background:var(--card2);">
           <button class="btn btn-gold" onclick="saveSchedule()">Save Settings</button>
         </div>
       </div>
-      <div style="margin-top:24px;" class="form-card">
-        <h4 style="margin-bottom:12px;font-size:.9rem;">How the Daily Scheduler Works</h4>
-        <p style="font-size:.82rem;color:var(--muted);line-height:1.7;">
-          Run <code style="background:rgba(255,255,255,.08);padding:2px 6px;border-radius:4px;">node scripts/blog-scheduler.js</code> in the background (or via the start-all.bat) to enable daily posting.
-          It runs every day at 6am, 10am, 2pm, and 6pm — skipping Saturday.
-          It pulls the next topic from the queue, calls blog-writer.js, and publishes automatically.
+      <div class="form-card" style="margin-top:16px;">
+        <h4 style="margin-bottom:10px;font-size:.85rem;color:var(--text);">How the Daily Scheduler Works</h4>
+        <p style="font-size:.8rem;color:var(--muted);line-height:1.75;">
+          Run <code>node scripts/blog-scheduler.js</code> in the background (or via start-all.bat).
+          Fires at 6am, 10am, 2pm, and 6pm daily — skipping Saturday.
+          Pulls next topic from queue → calls blog-writer.js → publishes automatically.
         </p>
       </div>
     </div>
 
-    <!-- ANALYTICS -->
+    <!-- ── ANALYTICS ───────────────────────────────── -->
     <div id="panel-analytics" class="panel">
-      <div class="section-head" style="margin-bottom:24px;">
-        <div>
-          <h3 style="font-size:1.4rem;">Analytics</h3>
-          <p id="analytics-updated" style="margin-top:4px;color:var(--muted);font-size:.8rem;">Loading...</p>
+      <div class="page-header">
+        <div class="page-header-text">
+          <h2>Analytics</h2>
+          <p id="analytics-updated">Loading...</p>
         </div>
-        <button class="btn btn-gold" onclick="loadAnalytics()">Refresh</button>
+        <button class="btn btn-outline" onclick="loadAnalytics()">
+          <svg viewBox="0 0 20 20" fill="currentColor" style="width:13px;height:13px"><path fill-rule="evenodd" d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z" clip-rule="evenodd"/></svg>
+          Refresh
+        </button>
       </div>
 
-      <!-- KPI Row -->
-      <div class="stats-row" style="margin-bottom:32px;">
-        <div class="stat-card">
-          <div class="stat-num" id="an-total">—</div>
-          <div class="stat-label">Total Views</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-num" id="an-today">—</div>
-          <div class="stat-label">Today</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-num" id="an-week">—</div>
-          <div class="stat-label">This Week</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-num" id="an-month">—</div>
-          <div class="stat-label">This Month</div>
-        </div>
+      <div class="stats-row" style="margin-bottom:24px;">
+        <div class="stat-card"><div class="stat-num" id="an-total">—</div><div class="stat-label">Total Views</div></div>
+        <div class="stat-card"><div class="stat-num" id="an-today">—</div><div class="stat-label">Today</div></div>
+        <div class="stat-card"><div class="stat-num" id="an-week">—</div><div class="stat-label">This Week</div></div>
+        <div class="stat-card"><div class="stat-num" id="an-month">—</div><div class="stat-label">This Month</div></div>
       </div>
 
-      <!-- Top 2 columns -->
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-bottom:24px;">
-
-        <!-- Top Posts -->
-        <div class="form-card" style="padding:24px;">
-          <h4 style="margin-bottom:16px;font-size:.9rem;text-transform:uppercase;letter-spacing:.06em;color:var(--gold);">Top Posts</h4>
-          <div id="an-top-posts" style="display:flex;flex-direction:column;gap:10px;">
-            <div style="color:var(--muted);font-size:.82rem;">Loading...</div>
-          </div>
+      <div class="grid-2" style="margin-bottom:20px;">
+        <div class="form-card" style="margin-bottom:0;">
+          <div style="font-size:.72rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--gold);margin-bottom:14px;">Top Posts</div>
+          <div id="an-top-posts" style="display:flex;flex-direction:column;gap:12px;"><div style="color:var(--muted);font-size:.82rem;">Loading...</div></div>
         </div>
-
-        <!-- Traffic Sources -->
-        <div class="form-card" style="padding:24px;">
-          <h4 style="margin-bottom:16px;font-size:.9rem;text-transform:uppercase;letter-spacing:.06em;color:var(--gold);">Traffic Sources</h4>
-          <div id="an-referrers" style="display:flex;flex-direction:column;gap:10px;">
-            <div style="color:var(--muted);font-size:.82rem;">Loading...</div>
-          </div>
+        <div class="form-card" style="margin-bottom:0;">
+          <div style="font-size:.72rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--gold);margin-bottom:14px;">Traffic Sources</div>
+          <div id="an-referrers" style="display:flex;flex-direction:column;gap:12px;"><div style="color:var(--muted);font-size:.82rem;">Loading...</div></div>
         </div>
       </div>
 
-      <!-- 30-day Timeline -->
-      <div class="form-card" style="padding:24px;margin-bottom:24px;">
-        <h4 style="margin-bottom:20px;font-size:.9rem;text-transform:uppercase;letter-spacing:.06em;color:var(--gold);">Views — Last 30 Days</h4>
-        <div id="an-timeline" style="display:flex;align-items:flex-end;gap:3px;height:80px;"></div>
-        <div style="display:flex;justify-content:space-between;margin-top:6px;">
-          <span id="an-tl-start" style="font-size:.7rem;color:var(--muted);"></span>
-          <span id="an-tl-end" style="font-size:.7rem;color:var(--muted);"></span>
+      <div class="form-card" style="margin-bottom:20px;">
+        <div style="font-size:.72rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--gold);margin-bottom:18px;">Views — Last 30 Days</div>
+        <div id="an-timeline" style="display:flex;align-items:flex-end;gap:3px;height:72px;"></div>
+        <div style="display:flex;justify-content:space-between;margin-top:8px;">
+          <span id="an-tl-start" style="font-size:.68rem;color:var(--muted);"></span>
+          <span id="an-tl-end"   style="font-size:.68rem;color:var(--muted);"></span>
         </div>
       </div>
 
-      <!-- Bottom 2 columns -->
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-bottom:24px;">
-        <!-- Category Performance -->
-        <div class="form-card" style="padding:24px;">
-          <h4 style="margin-bottom:16px;font-size:.9rem;text-transform:uppercase;letter-spacing:.06em;color:var(--gold);">Category Performance</h4>
-          <div id="an-categories" style="display:flex;flex-direction:column;gap:10px;">
-            <div style="color:var(--muted);font-size:.82rem;">Loading...</div>
-          </div>
+      <div class="grid-2">
+        <div class="form-card" style="margin-bottom:0;">
+          <div style="font-size:.72rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--gold);margin-bottom:14px;">Category Performance</div>
+          <div id="an-categories" style="display:flex;flex-direction:column;gap:12px;"><div style="color:var(--muted);font-size:.82rem;">Loading...</div></div>
         </div>
-
-        <!-- Live Adjustments -->
-        <div class="form-card" style="padding:24px;">
-          <h4 style="margin-bottom:16px;font-size:.9rem;text-transform:uppercase;letter-spacing:.06em;color:var(--gold);">Live Adjustments</h4>
+        <div class="form-card" style="margin-bottom:0;">
+          <div style="font-size:.72rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--gold);margin-bottom:14px;">Live Adjustments</div>
           <div style="display:flex;flex-direction:column;gap:16px;">
             <div>
-              <label style="font-size:.75rem;color:var(--muted);display:block;margin-bottom:6px;">Posts Per Day</label>
+              <label style="font-size:.68rem;color:var(--muted);display:block;margin-bottom:8px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;">Posts Per Day</label>
               <div style="display:flex;align-items:center;gap:12px;">
-                <input type="range" min="1" max="8" value="4" id="adj-ppd" oninput="document.getElementById('adj-ppd-val').textContent=this.value" style="flex:1;accent-color:var(--gold);">
+                <input type="range" min="1" max="8" value="4" id="adj-ppd" oninput="document.getElementById('adj-ppd-val').textContent=this.value">
                 <span id="adj-ppd-val" style="font-size:1.1rem;font-weight:700;color:var(--gold);min-width:20px;">4</span>
               </div>
             </div>
             <div>
-              <label style="font-size:.75rem;color:var(--muted);display:block;margin-bottom:6px;">Skip Saturday (Sabbath)</label>
+              <label style="font-size:.68rem;color:var(--muted);display:block;margin-bottom:8px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;">Skip Saturday (Sabbath)</label>
               <label style="display:flex;align-items:center;gap:8px;cursor:pointer;">
-                <input type="checkbox" id="adj-sabbath" checked style="accent-color:var(--gold);width:16px;height:16px;">
-                <span style="font-size:.85rem;">Rest on Saturday</span>
+                <input type="checkbox" id="adj-sabbath" checked style="accent-color:var(--gold);width:15px;height:15px;">
+                <span style="font-size:.84rem;color:var(--text-mid);">Rest on Saturday</span>
               </label>
             </div>
             <div>
-              <label style="font-size:.75rem;color:var(--muted);display:block;margin-bottom:6px;">Auto-Research When Queue Low</label>
+              <label style="font-size:.68rem;color:var(--muted);display:block;margin-bottom:8px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;">Auto-Research When Queue Low</label>
               <label style="display:flex;align-items:center;gap:8px;cursor:pointer;">
-                <input type="checkbox" id="adj-research" checked style="accent-color:var(--gold);width:16px;height:16px;">
-                <span style="font-size:.85rem;">Auto-refill topics</span>
+                <input type="checkbox" id="adj-research" checked style="accent-color:var(--gold);width:15px;height:15px;">
+                <span style="font-size:.84rem;color:var(--text-mid);">Auto-refill topics</span>
               </label>
             </div>
-            <div id="adj-insight" style="background:rgba(201,168,76,.08);border:1px solid var(--border);border-radius:6px;padding:12px;font-size:.8rem;color:var(--muted);line-height:1.6;"></div>
-            <button class="btn btn-gold" onclick="applyAdjustments()" style="margin-top:4px;">Apply Changes</button>
+            <div class="insight-box" id="adj-insight"></div>
+            <button class="btn btn-gold" onclick="applyAdjustments()">Apply Changes</button>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- AUTOMATION LOG -->
+    <!-- ── AUTOMATION LOG ──────────────────────────── -->
     <div id="panel-automation" class="panel">
-      <div class="section-head" style="margin-bottom:24px;">
-        <div>
-          <h3 style="font-size:1.4rem;">Automation Log</h3>
-          <p style="margin-top:4px;color:var(--muted);font-size:.8rem;">Live feed of everything happening behind the scenes. Auto-refreshes every 30s.</p>
+      <div class="page-header">
+        <div class="page-header-text">
+          <h2>Automation Log</h2>
+          <p>Live feed of everything running behind the scenes. Auto-refreshes every 30s.</p>
         </div>
-        <button class="btn btn-gold" onclick="loadAutomation()">Refresh Now</button>
+        <button class="btn btn-outline" onclick="loadAutomation()">Refresh Now</button>
       </div>
 
-      <!-- Status Bar -->
-      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:28px;">
+      <div class="grid-3" style="margin-bottom:24px;">
         <div class="stat-card">
-          <div class="stat-num" id="auto-blog-count" style="font-size:1.4rem;">—</div>
-          <div class="stat-label">Blog Posts in Social Queue</div>
+          <div class="stat-num" id="auto-blog-count" style="font-size:1.6rem;">—</div>
+          <div class="stat-label">Posts in Social Queue</div>
         </div>
         <div class="stat-card">
-          <div class="stat-num" id="auto-video-count" style="font-size:1.4rem;">—</div>
+          <div class="stat-num" id="auto-video-count" style="font-size:1.6rem;">—</div>
           <div class="stat-label">Videos Generated</div>
         </div>
-        <div class="stat-card">
-          <div id="auto-runner-status" style="font-size:.85rem;font-weight:700;color:var(--green);padding-top:4px;">—</div>
-          <div class="stat-label">Runner Status</div>
+        <div class="stat-card" style="display:flex;flex-direction:column;justify-content:center;">
+          <div id="auto-runner-status" style="font-size:.9rem;font-weight:700;color:var(--green);">—</div>
+          <div class="stat-label" style="margin-top:6px;">Runner Status</div>
         </div>
       </div>
 
-      <!-- Two-column layout -->
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;">
-
-        <!-- Activity Log -->
+      <div class="grid-2" style="margin-bottom:24px;">
         <div>
           <div class="section-head" style="margin-bottom:12px;">
             <h3>Activity Log</h3>
-            <span style="font-size:.75rem;color:var(--muted);">Last 50 events</span>
+            <span>Last 50 events</span>
           </div>
-          <div class="table-wrap" style="max-height:480px;overflow-y:auto;" id="auto-log-feed">
-            <div style="padding:24px;text-align:center;color:var(--muted);font-size:.85rem;">Loading...</div>
+          <div class="feed-box">
+            <div class="feed-box-scroll" id="auto-log-feed">
+              <div style="padding:28px;text-align:center;color:var(--muted);font-size:.83rem;">Loading...</div>
+            </div>
           </div>
         </div>
-
-        <!-- Social Queue -->
         <div>
           <div class="section-head" style="margin-bottom:12px;">
             <h3>Blog → Social Queue</h3>
-            <span style="font-size:.75rem;color:var(--muted);">Posts queued for distribution</span>
+            <span>Posts queued for distribution</span>
           </div>
-          <div class="table-wrap" style="max-height:480px;overflow-y:auto;" id="auto-social-feed">
-            <div style="padding:24px;text-align:center;color:var(--muted);font-size:.85rem;">Loading...</div>
+          <div class="feed-box">
+            <div class="feed-box-scroll" id="auto-social-feed">
+              <div style="padding:28px;text-align:center;color:var(--muted);font-size:.83rem;">Loading...</div>
+            </div>
           </div>
         </div>
-
       </div>
 
-      <!-- Video Log -->
-      <div style="margin-top:24px;">
-        <div class="section-head" style="margin-bottom:12px;">
-          <h3>Video Pipeline</h3>
-          <span style="font-size:.75rem;color:var(--muted);">Blog → YouTube conversions</span>
-        </div>
-        <div class="table-wrap" id="auto-video-feed">
-          <div style="padding:24px;text-align:center;color:var(--muted);font-size:.85rem;">No videos generated yet. Pipeline runs after ElevenLabs upgrade.</div>
-        </div>
+      <div class="section-head" style="margin-bottom:12px;">
+        <h3>Video Pipeline</h3>
+        <span>Blog → YouTube conversions</span>
+      </div>
+      <div class="table-wrap" id="auto-video-feed">
+        <div style="padding:28px;text-align:center;color:var(--muted);font-size:.83rem;">No videos generated yet. Pipeline fires automatically after each new post.</div>
       </div>
     </div>
 
-  </div>
-</div>
+  </div><!-- /.main -->
+</div><!-- /.shell -->
 
 <div class="toast" id="toast"></div>
 
@@ -524,14 +929,14 @@ function showPanel(name) {
   document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
   document.getElementById(`panel-${name}`)?.classList.add('active');
   document.querySelectorAll('.nav-item').forEach(n => {
-    if (n.textContent.toLowerCase().includes(name.toLowerCase())) n.classList.add('active');
+    if (n.textContent.trim().toLowerCase().includes(name.toLowerCase())) n.classList.add('active');
   });
   currentPanel = name;
-  if (name === 'dashboard') loadDashboard();
-  if (name === 'crm')       loadCRM();
-  if (name === 'posts')     loadPosts();
-  if (name === 'queue')     loadQueue();
-  if (name === 'schedule')  loadSchedule();
+  if (name === 'dashboard')  loadDashboard();
+  if (name === 'crm')        loadCRM();
+  if (name === 'posts')      loadPosts();
+  if (name === 'queue')      loadQueue();
+  if (name === 'schedule')   loadSchedule();
   if (name === 'analytics')  loadAnalytics();
   if (name === 'automation') loadAutomation();
 }
@@ -540,7 +945,7 @@ function toast(msg, type = 'success') {
   const el = document.getElementById('toast');
   el.textContent = msg;
   el.className = `toast show ${type === 'error' ? 'error' : ''}`;
-  setTimeout(() => el.classList.remove('show'), 3000);
+  setTimeout(() => el.classList.remove('show'), 3200);
 }
 
 async function loadDashboard() {
@@ -552,11 +957,10 @@ async function loadDashboard() {
   document.getElementById('stat-ppd').textContent   = stats.postsPerDay ?? 4;
   document.getElementById('stat-lastrun').textContent = stats.lastRun ? new Date(stats.lastRun).toLocaleString() : 'Never';
 
-  // Upcoming from queue
   const queue = await fetch('/api/queue').then(r => r.json()).catch(() => []);
   const ul = document.getElementById('upcoming-list');
   if (!queue.length) {
-    ul.innerHTML = '<p style="color:var(--muted);font-size:.85rem;">Queue is empty — go to Topic Research to add topics.</p>';
+    ul.innerHTML = '<p style="color:var(--muted);font-size:.85rem;padding:8px 0;">Queue is empty — go to Topic Research to add topics.</p>';
     return;
   }
   const times = ['6:00 AM', '10:00 AM', '2:00 PM', '6:00 PM'];
@@ -570,7 +974,7 @@ async function loadDashboard() {
         <div class="upcoming-cat">${q.category || 'General'} &bull; ${q.source || 'Manual'}</div>
       </div>
     </div>
-  `).join('') + (isSabbath ? '<p style="color:var(--gold);font-size:.8rem;padding:12px 0;">Saturday — Sabbath rest. No posts today.</p>' : '');
+  `).join('') + (isSabbath ? '<p style="color:var(--gold);font-size:.78rem;padding:12px 0;border-top:1px solid var(--border);margin-top:8px;">Saturday — Sabbath rest. No posts today.</p>' : '');
 }
 
 async function loadPosts() {
@@ -580,7 +984,7 @@ async function loadPosts() {
   if (!posts.length) { tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:var(--muted);padding:32px;">No posts yet.</td></tr>'; return; }
   tbody.innerHTML = posts.map(p => `
     <tr>
-      <td style="max-width:320px;">${p.title}</td>
+      <td style="max-width:320px;color:var(--text);">${p.title}</td>
       <td style="white-space:nowrap;">${p.date}</td>
       <td><span class="badge badge-gold">${p.category}</span></td>
       <td>${p.wordCount.toLocaleString()}</td>
@@ -659,9 +1063,9 @@ async function deleteQueue(i) {
 
 async function fetchResearch() {
   const niche = document.getElementById('research-niche').value.trim() || 'small business marketing Columbia SC';
-  document.getElementById('research-results').innerHTML = '<p style="color:var(--muted);"><span class="spinner"></span> Searching Reddit, Google Trends, and more...</p>';
+  document.getElementById('research-results').innerHTML = '<p style="color:var(--muted);padding:16px 0;"><span class="spinner"></span> Searching Reddit, Google Trends, and more...</p>';
   const data = await fetch(`/api/research?niche=${encodeURIComponent(niche)}`).then(r => r.json()).catch(() => ({ topics: [] }));
-  if (!data.topics.length) { document.getElementById('research-results').innerHTML = '<p style="color:var(--muted);">No results found. Try a different niche.</p>'; return; }
+  if (!data.topics.length) { document.getElementById('research-results').innerHTML = '<div class="card" style="padding:32px;text-align:center;color:var(--muted);font-size:.85rem;">No results. Try a different niche.</div>'; return; }
   document.getElementById('research-results').innerHTML = `
     <div class="research-grid">
       ${data.topics.map((t, i) => `
@@ -717,7 +1121,7 @@ async function loadCRM() {
   const ftbody = document.getElementById('crm-followups-tbody');
   ftbody.innerHTML = followups.length ? followups.map(c => `
     <tr>
-      <td>${c.name}</td>
+      <td style="color:var(--text);">${c.name}</td>
       <td>${c.business || '—'}</td>
       <td><span class="badge badge-gold">${c.status}</span></td>
       <td style="color:var(--red);font-weight:600;">${c.next_followup || '—'}</td>
@@ -727,7 +1131,7 @@ async function loadCRM() {
   const ctbody = document.getElementById('crm-contacts-tbody');
   ctbody.innerHTML = contacts.length ? contacts.map(c => `
     <tr>
-      <td>${c.name}</td>
+      <td style="color:var(--text);">${c.name}</td>
       <td>${c.business || '—'}</td>
       <td><span class="badge ${c.status === 'Client' ? 'badge-green' : 'badge-gold'}">${c.status}</span></td>
       <td>${c.priority}</td>
@@ -737,15 +1141,13 @@ async function loadCRM() {
 
 // ── Analytics ─────────────────────────────────────────────────────────────────
 const PLATFORM_COLORS = {
-  search: '#4caf7d', linkedin: '#0A66C2', x: '#1DA1F2',
-  facebook: '#1877F2', reddit: '#FF4500', medium: '#00ab6c',
-  hashnode: '#2962FF', instagram: '#E1306C', direct: '#C9A84C', other: '#888',
+  search: '#22D984', linkedin: '#60A5FA', x: '#A78BFA',
+  facebook: '#60A5FA', reddit: '#FF5C5C', medium: '#22D984',
+  hashnode: '#A78BFA', instagram: '#F472B6', direct: '#D4A84B', other: '#6B7280',
 };
 
 async function loadAnalytics() {
-  document.getElementById('analytics-updated').textContent =
-    'Last updated: ' + new Date().toLocaleTimeString();
-
+  document.getElementById('analytics-updated').textContent = 'Last updated: ' + new Date().toLocaleTimeString();
   const [overview, topPosts, referrers, timeline, categories, sched] = await Promise.all([
     fetch('/api/analytics/overview').then(r => r.json()).catch(() => ({})),
     fetch('/api/analytics/top-posts').then(r => r.json()).catch(() => []),
@@ -755,11 +1157,8 @@ async function loadAnalytics() {
     fetch('/api/schedule').then(r => r.json()).catch(() => ({})),
   ]);
 
-  // KPI cards
   if (overview.available === false) {
     document.getElementById('an-total').textContent = '—';
-    document.getElementById('analytics-updated').textContent =
-      'Supabase not connected. Set SUPABASE_URL + SUPABASE_ANON_KEY in .env, then run: CREATE TABLE blog_analytics (id BIGSERIAL PRIMARY KEY, slug TEXT, title TEXT, referrer TEXT, platform TEXT, viewed_at TIMESTAMPTZ DEFAULT NOW());';
   } else {
     document.getElementById('an-total').textContent = (overview.total || 0).toLocaleString();
     document.getElementById('an-today').textContent = (overview.today || 0).toLocaleString();
@@ -767,107 +1166,93 @@ async function loadAnalytics() {
     document.getElementById('an-month').textContent = (overview.month || 0).toLocaleString();
   }
 
-  // Top Posts — horizontal bar chart
   const topEl = document.getElementById('an-top-posts');
   if (!topPosts.length) {
-    topEl.innerHTML = '<div style="color:var(--muted);font-size:.82rem;">No data yet — views will appear after posts are read.</div>';
+    topEl.innerHTML = '<div style="color:var(--muted);font-size:.82rem;">No data yet.</div>';
   } else {
     const max = topPosts[0].views;
     topEl.innerHTML = topPosts.map((p, i) => `
       <div>
-        <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:4px;">
-          <span style="font-size:.78rem;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:200px;" title="${p.title || p.slug}">${i + 1}. ${(p.title || p.slug).slice(0, 36)}${(p.title || p.slug).length > 36 ? '…' : ''}</span>
+        <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:5px;">
+          <span style="font-size:.78rem;color:var(--text-mid);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:200px;" title="${p.title || p.slug}">${i + 1}. ${(p.title || p.slug).slice(0, 36)}${(p.title || p.slug).length > 36 ? '…' : ''}</span>
           <span style="font-size:.78rem;font-weight:700;color:var(--gold);margin-left:8px;">${p.views.toLocaleString()}</span>
         </div>
-        <div style="height:5px;background:rgba(255,255,255,.06);border-radius:3px;">
-          <div style="height:5px;background:var(--gold);border-radius:3px;width:${Math.round(p.views / max * 100)}%;transition:width .4s;"></div>
+        <div style="height:4px;background:rgba(255,255,255,.06);border-radius:2px;">
+          <div style="height:4px;background:linear-gradient(90deg,var(--gold),var(--gold-h));border-radius:2px;width:${Math.round(p.views / max * 100)}%;transition:width .5s;"></div>
         </div>
       </div>`).join('');
   }
 
-  // Referrers — colored source bars
   const refEl = document.getElementById('an-referrers');
   if (!referrers.length) {
     refEl.innerHTML = '<div style="color:var(--muted);font-size:.82rem;">No referrer data yet.</div>';
   } else {
     refEl.innerHTML = referrers.map(r => {
-      const color = PLATFORM_COLORS[r.platform] || '#888';
+      const color = PLATFORM_COLORS[r.platform] || '#6B7280';
       const label = r.platform.charAt(0).toUpperCase() + r.platform.slice(1);
       return `
         <div>
-          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
-            <span style="font-size:.8rem;display:flex;align-items:center;gap:6px;">
-              <span style="width:8px;height:8px;border-radius:50%;background:${color};display:inline-block;"></span>
-              ${label}
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:5px;">
+            <span style="font-size:.8rem;display:flex;align-items:center;gap:7px;color:var(--text-mid);">
+              <span style="width:8px;height:8px;border-radius:50%;background:${color};flex-shrink:0;"></span>${label}
             </span>
-            <span style="font-size:.78rem;color:var(--muted);">${r.views} (${r.pct}%)</span>
+            <span style="font-size:.75rem;color:var(--muted);">${r.views} (${r.pct}%)</span>
           </div>
           <div style="height:4px;background:rgba(255,255,255,.06);border-radius:2px;">
-            <div style="height:4px;border-radius:2px;width:${r.pct}%;background:${color};transition:width .4s;"></div>
+            <div style="height:4px;border-radius:2px;width:${r.pct}%;background:${color};transition:width .5s;"></div>
           </div>
         </div>`;
     }).join('');
   }
 
-  // 30-day Timeline — CSS bar chart
   const tlEl = document.getElementById('an-timeline');
   if (timeline.length) {
     const maxV = Math.max(...timeline.map(d => d.views), 1);
     tlEl.innerHTML = timeline.map(d => {
-      const h = Math.max(2, Math.round(d.views / maxV * 76));
+      const h = Math.max(2, Math.round(d.views / maxV * 68));
       const isToday = d.date === new Date().toISOString().split('T')[0];
-      return `<div title="${d.date}: ${d.views} views" style="flex:1;height:${h}px;background:${isToday ? 'var(--gold)' : 'rgba(201,168,76,.35)'};border-radius:2px 2px 0 0;cursor:default;transition:background .2s;" onmouseover="this.style.background='var(--gold)'" onmouseout="this.style.background='${isToday ? 'var(--gold)' : 'rgba(201,168,76,.35)'}';"></div>`;
+      return `<div title="${d.date}: ${d.views} views" style="flex:1;height:${h}px;background:${isToday ? 'var(--gold)' : 'rgba(212,168,75,.28)'};border-radius:2px 2px 0 0;cursor:default;transition:background .2s;" onmouseover="this.style.background='var(--gold-h)'" onmouseout="this.style.background='${isToday ? 'var(--gold)' : 'rgba(212,168,75,.28)'}';"></div>`;
     }).join('');
     document.getElementById('an-tl-start').textContent = timeline[0]?.date || '';
     document.getElementById('an-tl-end').textContent   = timeline[timeline.length - 1]?.date || '';
   }
 
-  // Categories
   const catEl = document.getElementById('an-categories');
   if (!categories.length) {
     catEl.innerHTML = '<div style="color:var(--muted);font-size:.82rem;">No category data yet.</div>';
   } else {
     catEl.innerHTML = categories.map(c => `
       <div>
-        <div style="display:flex;justify-content:space-between;margin-bottom:4px;">
-          <span style="font-size:.8rem;">${c.cat}</span>
-          <span style="font-size:.78rem;color:var(--muted);">${c.views} views (${c.pct}%)</span>
+        <div style="display:flex;justify-content:space-between;margin-bottom:5px;">
+          <span style="font-size:.8rem;color:var(--text-mid);">${c.cat}</span>
+          <span style="font-size:.75rem;color:var(--muted);">${c.views} views (${c.pct}%)</span>
         </div>
         <div style="height:4px;background:rgba(255,255,255,.06);border-radius:2px;">
-          <div style="height:4px;background:var(--blue);border-radius:2px;width:${c.pct}%;transition:width .4s;"></div>
+          <div style="height:4px;background:var(--blue);border-radius:2px;width:${c.pct}%;transition:width .5s;"></div>
         </div>
       </div>`).join('');
   }
 
-  // Sync adjustment controls with current schedule
   if (sched.postsPerDay) {
     const s = document.getElementById('adj-ppd');
     s.value = sched.postsPerDay;
     document.getElementById('adj-ppd-val').textContent = sched.postsPerDay;
   }
-  if (sched.skipSabbath !== undefined)
-    document.getElementById('adj-sabbath').checked = sched.skipSabbath;
-  if (sched.autoResearch !== undefined)
-    document.getElementById('adj-research').checked = sched.autoResearch;
+  if (sched.skipSabbath !== undefined) document.getElementById('adj-sabbath').checked = sched.skipSabbath;
+  if (sched.autoResearch !== undefined) document.getElementById('adj-research').checked = sched.autoResearch;
 
-  // AI insight based on data
   const topPlatform = referrers[0]?.platform || 'direct';
   const topCat = categories[0]?.cat || 'Marketing';
-  const growthStr = (overview.week || 0) > (overview.month || 1) / 4
-    ? 'Traffic is trending up this week.' : 'Traffic is steady.';
+  const growthStr = (overview.week || 0) > (overview.month || 1) / 4 ? 'Traffic is trending up this week.' : 'Traffic is steady.';
   document.getElementById('adj-insight').textContent =
-    `${growthStr} Top traffic source: ${topPlatform}. Best performing category: ${topCat}. Consider adding more "${topCat}" topics to the queue.`;
+    `${growthStr} Top source: ${topPlatform}. Best category: ${topCat}. Consider adding more "${topCat}" topics to the queue.`;
 }
 
 async function applyAdjustments() {
-  const ppd      = parseInt(document.getElementById('adj-ppd').value);
-  const sabbath  = document.getElementById('adj-sabbath').checked;
+  const ppd = parseInt(document.getElementById('adj-ppd').value);
+  const sabbath = document.getElementById('adj-sabbath').checked;
   const research = document.getElementById('adj-research').checked;
-  await fetch('/api/schedule', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ postsPerDay: ppd, skipSabbath: sabbath, autoResearch: research }),
-  });
+  await fetch('/api/schedule', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ postsPerDay: ppd, skipSabbath: sabbath, autoResearch: research }) });
   toast(`Saved — ${ppd} posts/day, Sabbath ${sabbath ? 'ON' : 'OFF'}`);
   loadAnalytics();
 }
@@ -880,7 +1265,6 @@ async function loadAutomation() {
     fetch('/api/video-log').then(r => r.json()).catch(() => ({ videos: [] })),
   ]);
 
-  // Status bar
   document.getElementById('auto-blog-count').textContent = Array.isArray(socialData) ? socialData.length : 0;
   const videos = Array.isArray(videoData?.videos) ? videoData.videos : (Array.isArray(videoData) ? videoData : []);
   document.getElementById('auto-video-count').textContent = videos.length;
@@ -888,70 +1272,64 @@ async function loadAutomation() {
   document.getElementById('auto-runner-status').textContent = hasRecent ? 'Running' : 'Idle / Check Required';
   document.getElementById('auto-runner-status').style.color = hasRecent ? 'var(--green)' : 'var(--gold)';
 
-  // Activity log feed
   const logEl = document.getElementById('auto-log-feed');
   if (!logData.length) {
-    logEl.innerHTML = '<div style="padding:24px;text-align:center;color:var(--muted);font-size:.85rem;">No log entries found.</div>';
+    logEl.innerHTML = '<div style="padding:28px;text-align:center;color:var(--muted);font-size:.83rem;">No log entries found.</div>';
   } else {
-    const rows = logData.slice(0, 50).map(e => {
-      const color = e.type === 'error' ? 'var(--red)' : e.type === 'success' ? 'var(--green)' : 'var(--muted)';
-      const dot   = e.type === 'error' ? '●' : e.type === 'success' ? '●' : '○';
-      const time  = e.time ? new Date(e.time).toLocaleString() : '';
-      return `<div style="padding:10px 16px;border-bottom:1px solid rgba(255,255,255,.04);display:flex;gap:12px;align-items:flex-start;">
-        <span style="color:${color};font-size:.7rem;flex-shrink:0;padding-top:2px;">${dot}</span>
-        <div style="flex:1;min-width:0;">
-          <div style="font-size:.82rem;color:var(--text);line-height:1.4;word-break:break-word;">${e.message || e.raw || ''}</div>
-          ${time ? `<div style="font-size:.7rem;color:var(--muted);margin-top:2px;">${time}</div>` : ''}
+    logEl.innerHTML = logData.slice(0, 50).map(e => {
+      const color = e.type === 'error' ? 'var(--red)' : e.type === 'success' ? 'var(--green)' : 'rgba(255,255,255,.2)';
+      const time = e.time ? new Date(e.time).toLocaleString() : '';
+      return `<div class="log-entry">
+        <div class="log-dot" style="background:${color};box-shadow:0 0 5px ${color};"></div>
+        <div>
+          <div class="log-msg">${e.message || e.raw || ''}</div>
+          ${time ? `<div class="log-time">${time}</div>` : ''}
         </div>
       </div>`;
     }).join('');
-    logEl.innerHTML = rows;
   }
 
-  // Social queue feed
   const socialEl = document.getElementById('auto-social-feed');
   if (!socialData.length) {
-    socialEl.innerHTML = '<div style="padding:24px;text-align:center;color:var(--muted);font-size:.85rem;">Queue is empty. Posts appear here after blog generation.</div>';
+    socialEl.innerHTML = '<div style="padding:28px;text-align:center;color:var(--muted);font-size:.83rem;">Queue empty. Posts appear here after blog generation.</div>';
   } else {
-    const rows = socialData.map(item => {
-      const title   = item.title || item.topic || 'Untitled';
-      const added   = item.addedAt ? new Date(item.addedAt).toLocaleString() : '';
-      const posted  = item.postedAt ? new Date(item.postedAt).toLocaleString() : null;
-      const status  = posted ? `<span class="badge badge-green">Posted ${posted}</span>` : `<span class="badge badge-gold">Queued</span>`;
-      return `<div style="padding:12px 16px;border-bottom:1px solid rgba(255,255,255,.04);">
-        <div style="font-size:.85rem;font-weight:600;margin-bottom:4px;">${title}</div>
+    socialEl.innerHTML = socialData.map(item => {
+      const title  = item.title || item.topic || 'Untitled';
+      const added  = item.addedAt ? new Date(item.addedAt).toLocaleString() : '';
+      const posted = item.postedAt ? new Date(item.postedAt).toLocaleString() : null;
+      const status = posted ? `<span class="badge badge-green">Posted</span>` : `<span class="badge badge-gold">Queued</span>`;
+      return `<div style="padding:12px 16px;border-bottom:1px solid var(--border);">
+        <div style="font-size:.85rem;font-weight:600;margin-bottom:6px;color:var(--text);">${title}</div>
         <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
           ${status}
           ${added ? `<span style="font-size:.7rem;color:var(--muted);">Added ${added}</span>` : ''}
         </div>
       </div>`;
     }).join('');
-    socialEl.innerHTML = rows;
   }
 
-  // Video log
   const videoEl = document.getElementById('auto-video-feed');
   if (!videos.length) {
-    videoEl.innerHTML = '<div style="padding:24px;text-align:center;color:var(--muted);font-size:.85rem;">No videos generated yet. Pipeline fires after ElevenLabs upgrade.</div>';
+    videoEl.innerHTML = '<div style="padding:28px;text-align:center;color:var(--muted);font-size:.83rem;">No videos generated yet.</div>';
   } else {
-    const hdr = `<table><thead><tr><th>Post</th><th>Generated</th><th>YouTube</th><th>Short</th></tr></thead><tbody>`;
+    const hdr = `<table><thead><tr><th>Post</th><th>Generated</th><th>YouTube</th><th>Short / Drive</th></tr></thead><tbody>`;
     const rows = videos.map(v => `<tr>
-      <td>${v.slug || v.title || '—'}</td>
+      <td style="color:var(--text);">${v.slug || v.title || '—'}</td>
       <td>${v.generatedAt ? new Date(v.generatedAt).toLocaleDateString() : '—'}</td>
-      <td>${v.youtubeUrl ? `<a href="${v.youtubeUrl}" target="_blank" style="color:var(--gold);">Watch</a>` : '<span style="color:var(--muted);">Pending</span>'}</td>
-      <td>${v.shortUrl ? `<a href="${v.shortUrl}" target="_blank" style="color:var(--gold);">Watch</a>` : '<span style="color:var(--muted);">Pending</span>'}</td>
+      <td>${v.youtubeUrl ? `<a href="${v.youtubeUrl}" target="_blank" style="color:var(--gold);">Watch ↗</a>` : '<span style="color:var(--muted);">Pending</span>'}</td>
+      <td>${v.shortUrl ? `<a href="${v.shortUrl}" target="_blank" style="color:var(--blue);">Drive ↗</a>` : '<span style="color:var(--muted);">Pending</span>'}</td>
     </tr>`).join('');
     videoEl.innerHTML = hdr + rows + '</tbody></table>';
   }
 }
 
-// Init + auto-refresh every 30s
+// Init + auto-refresh
 loadDashboard();
 setInterval(() => {
-  if (currentPanel === 'dashboard') loadDashboard();
-  if (currentPanel === 'posts')     loadPosts();
-  if (currentPanel === 'queue')     loadQueue();
-  if (currentPanel === 'crm')       loadCRM();
+  if (currentPanel === 'dashboard')  loadDashboard();
+  if (currentPanel === 'posts')      loadPosts();
+  if (currentPanel === 'queue')      loadQueue();
+  if (currentPanel === 'crm')        loadCRM();
   if (currentPanel === 'analytics')  loadAnalytics();
   if (currentPanel === 'automation') loadAutomation();
 }, 30000);
