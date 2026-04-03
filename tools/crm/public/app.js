@@ -274,14 +274,14 @@ function renderTable() {
 
     return `<tr data-id="${c.id}" class="${selectedIds.has(c.id) ? 'selected' : ''}">
       <td class="cb-col"><input type="checkbox" class="row-cb" data-id="${c.id}" ${checked}></td>
-      <td class="clickable-cell">${esc(c.name)}</td>
-      <td class="clickable-cell">${esc(c.business || '—')}</td>
-      <td><a class="phone-link" href="tel:${esc(c.phone)}" data-id="${c.id}" data-phone="${esc(c.phone)}">${esc(c.phone || '—')}</a></td>
-      <td><a class="email-link" href="mailto:${esc(c.email)}" data-id="${c.id}">${esc(c.email || '—')}</a></td>
-      <td><span class="pill ${statusCls}">${esc(c.status)}</span></td>
-      <td><span class="pill ${priCls}">${esc(c.priority)}</span></td>
-      <td>${lastDate}</td>
-      <td><button class="star-btn ${isHot ? 'star-hot' : ''}" data-id="${c.id}" title="${isHot ? 'Remove Hot' : 'Mark Hot'}">★</button></td>
+      <td class="clickable-cell" data-label="Name">${esc(c.name)}</td>
+      <td class="clickable-cell" data-label="Business">${esc(c.business || '—')}</td>
+      <td data-label="Phone"><a class="phone-link" href="tel:${esc(c.phone)}" data-id="${c.id}" data-phone="${esc(c.phone)}">${esc(c.phone || '—')}</a></td>
+      <td data-label="Email"><a class="email-link" href="mailto:${esc(c.email)}" data-id="${c.id}">${esc(c.email || '—')}</a></td>
+      <td data-label="Status"><span class="pill ${statusCls}">${esc(c.status)}</span></td>
+      <td data-label="Priority"><span class="pill ${priCls}">${esc(c.priority)}</span></td>
+      <td data-label="Last Contact">${lastDate}</td>
+      <td data-label="Hot"><button class="star-btn ${isHot ? 'star-hot' : ''}" data-id="${c.id}" title="${isHot ? 'Remove Hot' : 'Mark Hot'}">★</button></td>
     </tr>`;
   }).join('');
 

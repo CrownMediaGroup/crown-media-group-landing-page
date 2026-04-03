@@ -49,6 +49,12 @@
     "CLAUDE.md": ".mcp.json, .claude"
   },
 
+  // VS Code 1.114 — new capabilities auto-applied
+  "imageCarousel.chat.enabled": true,
+  "imageCarousel.explorerContextMenu.enabled": true,
+  "github.copilot.chat.agentDebugLog.enabled": true,
+  "github.copilot.chat.agentDebugLog.fileLogging.enabled": true,
+
   // Search — exclude noise
   "search.exclude": {
     "**/node_modules": true,
