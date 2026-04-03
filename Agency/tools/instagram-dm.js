@@ -344,6 +344,50 @@ async function main() {
     }
   }
 
+  // ── Setup mode: open browser for manual login, save session ─────────────────
+  if (flags['setup']) {
+    console.log('\n════════════════════════════════════════════════════');
+    console.log('  Instagram Session Setup — Crown Media Group');
+    console.log('════════════════════════════════════════════════════');
+    console.log('\nOpening browser. Log in to @crownmediagroupco.');
+    console.log('Once you see your Instagram home feed — press ENTER.\n');
+
+    let setupLauncher = chromium;
+    try {
+      const { chromium: sc } = await import('playwright-extra');
+      const SP = (await import('playwright-extra-plugin-stealth')).default;
+      sc.use(SP());
+      setupLauncher = sc;
+    } catch {}
+
+    const setupBrowser = await setupLauncher.launch({
+      headless: false,
+      args: ['--no-sandbox', '--disable-blink-features=AutomationControlled'],
+      slowMo: 50,
+    });
+    const setupCtx = await setupBrowser.newContext({
+      userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36',
+      viewport: { width: 1280, height: 900 },
+    });
+    const setupPage = await setupCtx.newPage();
+    await setupPage.goto('https://www.instagram.com/accounts/login/', { waitUntil: 'domcontentloaded' });
+
+    await new Promise(resolve => {
+      process.stdin.resume();
+      process.stdin.once('data', resolve);
+    });
+
+    const cookies = await setupCtx.cookies();
+    const dir = path.dirname(CONFIG.SESSION_FILE);
+    if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
+    fs.writeFileSync(CONFIG.SESSION_FILE, JSON.stringify(cookies, null, 2));
+
+    console.log('\n[SESSION] Saved to', CONFIG.SESSION_FILE);
+    console.log('[SESSION] Run DMs now: node Agency/tools/instagram-dm.js --user <target> --template cold_outreach\n');
+    await setupBrowser.close();
+    process.exit(0);
+  }
+
   const dryRun    = process.argv.includes('--dry-run') || flags['dry-run'] === true;
   const username  = flags['user'];
   const msgText   = flags['msg'];
@@ -426,7 +470,7 @@ async function main() {
         await saveSession(context);
       } else {
         // Verify session is still valid
-        await page.goto(CONFIG.BASE_URL, { waitUntil: 'networkidle' });
+        await page.goto(CONFIG.BASE_URL, { waitUntil: 'domcontentloaded' });
         await randDelay(CONFIG.DELAYS.page_load);
         if (page.url().includes('/login')) {
           console.log('[SESSION] Expired — logging in fresh');

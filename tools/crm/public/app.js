@@ -933,15 +933,32 @@ function bindEvents() {
   });
   document.getElementById('msdScanPhoto')?.addEventListener('click', () => {
     closeSpeeddial();
-    // On mobile: trigger camera directly without opening full modal
-    const fileInput = document.getElementById('ocrFileInput');
-    if (fileInput && /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent)) {
-      fileInput.click();
+    if (/Mobi|Android|iPhone|iPad/i.test(navigator.userAgent)) {
+      // Mobile: open camera directly via hidden capture input
+      let camInput = document.getElementById('ocrCameraInput');
+      if (!camInput) {
+        camInput = document.createElement('input');
+        camInput.type = 'file';
+        camInput.id = 'ocrCameraInput';
+        camInput.accept = 'image/*';
+        camInput.setAttribute('capture', 'environment');
+        camInput.style.display = 'none';
+        camInput.addEventListener('change', e => {
+          if (e.target.files.length) {
+            openImportModal();
+            setTimeout(() => {
+              document.getElementById('importModeOCR')?.click();
+              setTimeout(() => handleOCRFiles(e.target.files), 100);
+            }, 150);
+          }
+          camInput.value = '';
+        });
+        document.body.appendChild(camInput);
+      }
+      camInput.click();
     } else {
       openImportModal();
-      setTimeout(() => {
-        document.getElementById('importModeOCR')?.click();
-      }, 100);
+      setTimeout(() => { document.getElementById('importModeOCR')?.click(); }, 100);
     }
   });
 
@@ -1022,7 +1039,7 @@ function bindEvents() {
     dropZone.classList.remove('drag-over');
     handleCSVFile(e.dataTransfer.files[0]);
   });
-  document.getElementById('ocrFileInput')?.addEventListener('change', e => handleOCRFile(e.target.files[0]));
+  document.getElementById('ocrFileInput')?.addEventListener('change', e => handleOCRFiles(e.target.files));
   const ocrDrop = document.getElementById('ocrDropZone');
   if (ocrDrop) {
     ocrDrop.addEventListener('dragover', e => { e.preventDefault(); ocrDrop.classList.add('drag-over'); });
@@ -1030,7 +1047,7 @@ function bindEvents() {
     ocrDrop.addEventListener('drop', e => {
       e.preventDefault();
       ocrDrop.classList.remove('drag-over');
-      handleOCRFile(e.dataTransfer.files[0]);
+      handleOCRFiles(e.dataTransfer.files);
     });
   }
   document.getElementById('importModal').addEventListener('click', e => {
@@ -1849,38 +1866,52 @@ function setImportMode(mode) {
 }
 window.setImportMode = setImportMode;
 
-function handleOCRFile(file) {
-  if (!file || !file.type.startsWith('image/')) { toast('Please select an image file', 'error'); return; }
-  const reader = new FileReader();
-  reader.onload = async e => {
-    const ocrStatus = document.getElementById('ocrStatus');
-    ocrStatus.style.display = 'block';
+async function handleOCRFiles(fileList) {
+  const files = Array.from(fileList || []).filter(f => f.type.startsWith('image/'));
+  if (!files.length) { toast('Please select at least one image file', 'error'); return; }
+
+  const ocrStatus = document.getElementById('ocrStatus');
+  ocrStatus.style.display = 'block';
+  importedContacts = [];
+
+  for (let i = 0; i < files.length; i++) {
+    const file = files[i];
+    ocrStatus.querySelector ? (ocrStatus.innerHTML = `<div class="spinner" style="margin:0 auto 8px"></div>Scanning photo ${i + 1} of ${files.length} with AI...`) : null;
+    ocrStatus.textContent = `Scanning photo ${i + 1} of ${files.length}...`;
+
     try {
-      const base64 = e.target.result.split(',')[1];
-      const mimeType = file.type;
-      const data = await post('/api/contacts/ocr', { image: base64, mimeType });
-      importedContacts = data.contacts || [];
-      const count = importedContacts.length;
-      document.getElementById('importPreviewCount').textContent =
-        `${count} contact${count !== 1 ? 's' : ''} extracted from photo`;
-      const tbody = document.getElementById('importPreviewBody');
-      tbody.innerHTML = importedContacts.slice(0, 20).map(c => `
-        <tr>
-          <td>${esc(c.name)}</td>
-          <td>${esc(c.business)}</td>
-          <td>${esc(c.phone)}</td>
-          <td>${esc(c.email)}</td>
-        </tr>`).join('');
-      document.getElementById('importPreview').style.display = count ? 'block' : 'none';
-      document.getElementById('importConfirm').disabled = count === 0;
-      if (!count) toast('No contacts found in image. Try a clearer screenshot.', 'error');
+      const base64 = await new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = e => resolve(e.target.result.split(',')[1]);
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+      });
+
+      const data = await post('/api/contacts/ocr', { image: base64, mimeType: file.type });
+      const found = data.contacts || [];
+      importedContacts.push(...found);
     } catch (err) {
-      toast(`OCR failed: ${err.message}`, 'error');
-    } finally {
-      ocrStatus.style.display = 'none';
+      toast(`Photo ${i + 1} failed: ${err.message}`, 'error');
     }
-  };
-  reader.readAsDataURL(file);
+  }
+
+  ocrStatus.style.display = 'none';
+  const count = importedContacts.length;
+  const photoLabel = files.length > 1 ? ` from ${files.length} photos` : ' from photo';
+  document.getElementById('importPreviewCount').textContent =
+    `${count} contact${count !== 1 ? 's' : ''} extracted${photoLabel}`;
+  const tbody = document.getElementById('importPreviewBody');
+  tbody.innerHTML = importedContacts.slice(0, 50).map(c => `
+    <tr>
+      <td>${esc(c.name)}</td>
+      <td>${esc(c.business)}</td>
+      <td>${esc(c.phone)}</td>
+      <td>${esc(c.email)}</td>
+    </tr>`).join('');
+  document.getElementById('importPreview').style.display = count ? 'block' : 'none';
+  document.getElementById('importConfirm').disabled = count === 0;
+  if (!count) toast('No contacts found. Try clearer screenshots.', 'error');
 }
-window.handleOCRFile = handleOCRFile;
+window.handleOCRFiles = handleOCRFiles;
+window.handleOCRFile = f => handleOCRFiles([f]); // backward compat
 
