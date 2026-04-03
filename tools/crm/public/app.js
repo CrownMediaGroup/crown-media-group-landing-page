@@ -1415,6 +1415,23 @@ function bindPipelineDrag() {
 
   // ── Touch drag for mobile ────────────────────────────────────────────────
   let touchDragId = null, touchGhost = null, touchOffsetX = 0, touchOffsetY = 0, lastTouchedCol = null;
+  let scrollRAF = null, scrollDir = 0, currentTouchX = 0;
+  const EDGE_ZONE = 72, SCROLL_SPEED = 14;
+
+  // Continuous RAF scroll loop — smooth edge-scroll while dragging
+  function startScrollLoop(board) {
+    if (scrollRAF) return;
+    function loop() {
+      if (!touchDragId || scrollDir === 0) { scrollRAF = null; return; }
+      board.scrollLeft += scrollDir * SCROLL_SPEED;
+      scrollRAF = requestAnimationFrame(loop);
+    }
+    scrollRAF = requestAnimationFrame(loop);
+  }
+  function stopScrollLoop() {
+    if (scrollRAF) { cancelAnimationFrame(scrollRAF); scrollRAF = null; }
+    scrollDir = 0;
+  }
 
   document.querySelectorAll('.pipeline-card').forEach(card => {
     card.addEventListener('touchstart', e => {
@@ -1427,25 +1444,31 @@ function bindPipelineDrag() {
       touchGhost.style.cssText = `position:fixed;pointer-events:none;z-index:9998;width:${rect.width}px;opacity:.85;left:${rect.left}px;top:${rect.top}px;box-shadow:0 8px 24px rgba(0,0,0,.5);border:1px solid var(--gold-line);border-radius:8px;transform:scale(1.04);`;
       document.body.appendChild(touchGhost);
       card.style.opacity = '0.3';
+      // Disable scroll-snap during drag so scrollLeft works freely
+      const board = document.querySelector('.pipeline-board');
+      if (board) board.style.scrollSnapType = 'none';
     }, { passive: true });
 
     card.addEventListener('touchmove', e => {
       if (!touchDragId || !touchGhost) return;
       e.preventDefault();
       const t = e.touches[0];
+      currentTouchX = t.clientX;
       touchGhost.style.left = `${t.clientX - touchOffsetX}px`;
       touchGhost.style.top  = `${t.clientY - touchOffsetY}px`;
 
-      // Auto-scroll pipeline board when dragging near edges
+      // Edge-scroll detection — set direction, RAF loop does the actual scrolling
       const board = document.querySelector('.pipeline-board');
       if (board) {
         const boardRect = board.getBoundingClientRect();
-        const edgeZone  = 80;
-        const speed     = 8;
-        if (t.clientX < boardRect.left + edgeZone) {
-          board.scrollLeft -= speed;
-        } else if (t.clientX > boardRect.right - edgeZone) {
-          board.scrollLeft += speed;
+        if (t.clientX < boardRect.left + EDGE_ZONE) {
+          scrollDir = -1;
+          startScrollLoop(board);
+        } else if (t.clientX > boardRect.right - EDGE_ZONE) {
+          scrollDir = 1;
+          startScrollLoop(board);
+        } else {
+          stopScrollLoop();
         }
       }
 
@@ -1458,11 +1481,15 @@ function bindPipelineDrag() {
     }, { passive: false });
 
     card.addEventListener('touchend', async e => {
+      stopScrollLoop();
       if (!touchDragId) return;
       if (touchGhost) { touchGhost.remove(); touchGhost = null; }
       const origCard = document.querySelector(`.pipeline-card[data-id="${touchDragId}"]`);
       if (origCard) origCard.style.opacity = '';
       if (lastTouchedCol) lastTouchedCol.classList.remove('drag-over');
+      // Re-enable scroll-snap
+      const board = document.querySelector('.pipeline-board');
+      if (board) board.style.scrollSnapType = '';
       const t = e.changedTouches[0];
       const el = document.elementFromPoint(t.clientX, t.clientY);
       const col = el?.closest('.pipeline-col-body');
