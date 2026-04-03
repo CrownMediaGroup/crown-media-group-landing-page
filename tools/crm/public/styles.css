@@ -700,6 +700,54 @@ input[type="checkbox"] { width: 20px; height: 20px; cursor: pointer; accent-colo
   .modal-overlay { cursor: pointer; }
   .modal-overlay .modal { cursor: default; }
 
+  /* ── Contact modal field polish ── */
+  .modal-body { padding: 16px 14px; }
+  .contact-info-grid { grid-template-columns: 1fr; gap: 0; }
+  .info-item {
+    padding: 10px 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .info-item:last-child { border-bottom: none; }
+  .info-item label {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: .08em;
+    color: var(--muted);
+    margin-bottom: 6px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .quick-link {
+    font-size: 10px;
+    padding: 2px 8px;
+    border-radius: 10px;
+    background: var(--gold-dim);
+    border: 1px solid var(--gold-line);
+    color: var(--gold);
+    text-decoration: none;
+    opacity: 1;
+    font-weight: 700;
+    letter-spacing: .04em;
+  }
+  .settings-input,
+  .info-input,
+  .filter,
+  .notes-field {
+    font-size: 15px;
+    padding: 10px 12px;
+    border-radius: 8px;
+    min-height: 44px;
+  }
+  .contact-info-grid .filter { width: 100%; margin-bottom: 0; }
+  .info-item .val {
+    font-size: 15px;
+    padding: 8px 0;
+    color: var(--text);
+  }
+  .modal-footer { gap: 8px; padding: 12px 14px; }
+  .modal-footer .btn { flex: 1; justify-content: center; font-size: 13px; padding: 11px 8px; }
+
   /* Lead Generator mobile */
   #tab-leads .settings-grid  { grid-template-columns: 1fr; gap: 12px; }
   #tab-leads .settings-input,

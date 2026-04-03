@@ -1408,6 +1408,20 @@ function bindPipelineDrag() {
       const t = e.touches[0];
       touchGhost.style.left = `${t.clientX - touchOffsetX}px`;
       touchGhost.style.top  = `${t.clientY - touchOffsetY}px`;
+
+      // Auto-scroll pipeline board when dragging near edges
+      const board = document.querySelector('.pipeline-board');
+      if (board) {
+        const boardRect = board.getBoundingClientRect();
+        const edgeZone  = 80;
+        const speed     = 8;
+        if (t.clientX < boardRect.left + edgeZone) {
+          board.scrollLeft -= speed;
+        } else if (t.clientX > boardRect.right - edgeZone) {
+          board.scrollLeft += speed;
+        }
+      }
+
       touchGhost.style.display = 'none';
       const el = document.elementFromPoint(t.clientX, t.clientY);
       touchGhost.style.display = '';
