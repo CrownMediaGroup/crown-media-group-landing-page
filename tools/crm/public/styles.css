@@ -580,26 +580,43 @@ input[type="checkbox"] { width: 20px; height: 20px; cursor: pointer; accent-colo
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 5px 0;
-    border-top: none;
-    font-size: 13px;
+    padding: 8px 0;
+    border-top: 1px solid var(--border);
+    font-size: 14px;
+    gap: 8px;
+    min-height: 36px;
   }
-  td:first-child { border-top: none; }
-  /* Hide checkbox col on cards — use row tap for selection */
+  td:first-child { border-top: none; padding-top: 0; }
+  td:last-child  { padding-bottom: 0; }
+  /* Hide checkbox col and star col on cards */
   td.cb-col { display: none; }
-  th:nth-child(n+5) { display: none; }
-  td:nth-child(n+5) { display: revert; }
-  /* Label each td using data-label from JS (added below) */
+  /* th header row already hidden via thead { display:none } */
+  /* CRITICAL: do NOT revert any td to table-cell — keep all as flex rows */
+  /* Label each td using data-label from JS */
   td[data-label]::before {
     content: attr(data-label);
     font-size: 10px;
     font-weight: 700;
     text-transform: uppercase;
-    letter-spacing: .05em;
+    letter-spacing: .06em;
     color: var(--muted);
     flex-shrink: 0;
-    margin-right: 8px;
+    min-width: 80px;
   }
+  /* Value side: right-align, truncate long text */
+  td[data-label] > *,
+  td[data-label] > a,
+  td[data-label] > span {
+    text-align: right;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    max-width: 180px;
+  }
+  /* Star button: right-align, no label needed */
+  td[data-label="Hot"] { justify-content: flex-end; border-top: none; padding-top: 0; }
+  /* Stat pills inside cards */
+  td .pill { font-size: 11px; padding: 3px 8px; }
 
   /* Modal full-screen on phones */
   .modal-overlay { padding: 0; align-items: flex-end; }
