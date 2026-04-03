@@ -1,0 +1,19 @@
+# LOCKED — reeseforrichland.com — site ID: 338de192-2cd2-42c1-9409-dc85d3847768
+# DO NOT deploy this folder to any other Netlify site.
+# Run: netlify deploy --prod --dir . --site 338de192-2cd2-42c1-9409-dc85d3847768
+
+[build]
+  publish = "."
+
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Frame-Options = "SAMEORIGIN"
+    X-Content-Type-Options = "nosniff"
+    Cache-Control = "public, max-age=0, must-revalidate"
+
+[[headers]]
+  for = "/images/*"
+  [headers.values]
+    Cache-Control = "public, max-age=86400"
+    Access-Control-Allow-Origin = "*"
