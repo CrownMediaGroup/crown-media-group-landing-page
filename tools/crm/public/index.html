@@ -702,12 +702,18 @@
       <div id="importOCRPane" style="display:none">
         <div class="import-drop-zone" id="ocrDropZone">
           <div class="import-icon">📷</div>
-          <div>Drag &amp; drop screenshot or <label for="ocrFileInput" class="import-browse">browse / take photo</label></div>
+          <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin:8px 0">
+            <label for="ocrCameraCapture" class="btn btn-outline btn-sm" style="cursor:pointer">Take Photo</label>
+            <label for="ocrFileInput" class="btn btn-outline btn-sm" style="cursor:pointer">Upload Photos</label>
+          </div>
+          <!-- Camera: one photo at a time, direct camera -->
+          <input type="file" id="ocrCameraCapture" accept="image/*" capture="environment" style="display:none">
+          <!-- Gallery: multiple file select, no camera lock -->
           <input type="file" id="ocrFileInput" accept="image/*" multiple style="display:none">
-          <div class="import-hint">Screenshots from Instagram, Facebook, Google Maps, business cards</div>
+          <div class="import-hint">Take a photo or select multiple — one contact per image</div>
         </div>
         <div id="ocrStatus" style="display:none;text-align:center;padding:16px;color:var(--gold)">
-          <div class="spinner" style="margin:0 auto 8px"></div>Scanning with AI...
+          <div class="spinner" style="margin:0 auto 8px"></div><span id="ocrStatusText">Scanning with AI...</span>
         </div>
       </div>
 

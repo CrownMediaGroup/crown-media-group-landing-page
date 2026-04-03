@@ -933,33 +933,8 @@ function bindEvents() {
   });
   document.getElementById('msdScanPhoto')?.addEventListener('click', () => {
     closeSpeeddial();
-    if (/Mobi|Android|iPhone|iPad/i.test(navigator.userAgent)) {
-      // Mobile: open camera directly via hidden capture input
-      let camInput = document.getElementById('ocrCameraInput');
-      if (!camInput) {
-        camInput = document.createElement('input');
-        camInput.type = 'file';
-        camInput.id = 'ocrCameraInput';
-        camInput.accept = 'image/*';
-        camInput.setAttribute('capture', 'environment');
-        camInput.style.display = 'none';
-        camInput.addEventListener('change', e => {
-          if (e.target.files.length) {
-            openImportModal();
-            setTimeout(() => {
-              document.getElementById('importModeOCR')?.click();
-              setTimeout(() => handleOCRFiles(e.target.files), 100);
-            }, 150);
-          }
-          camInput.value = '';
-        });
-        document.body.appendChild(camInput);
-      }
-      camInput.click();
-    } else {
-      openImportModal();
-      setTimeout(() => { document.getElementById('importModeOCR')?.click(); }, 100);
-    }
+    openImportModal();
+    setTimeout(() => { document.getElementById('importModeOCR')?.click(); }, 100);
   });
 
   // Search / filters
@@ -1040,6 +1015,7 @@ function bindEvents() {
     handleCSVFile(e.dataTransfer.files[0]);
   });
   document.getElementById('ocrFileInput')?.addEventListener('change', e => handleOCRFiles(e.target.files));
+  document.getElementById('ocrCameraCapture')?.addEventListener('change', e => handleOCRFiles(e.target.files));
   const ocrDrop = document.getElementById('ocrDropZone');
   if (ocrDrop) {
     ocrDrop.addEventListener('dragover', e => { e.preventDefault(); ocrDrop.classList.add('drag-over'); });
@@ -1876,8 +1852,8 @@ async function handleOCRFiles(fileList) {
 
   for (let i = 0; i < files.length; i++) {
     const file = files[i];
-    ocrStatus.querySelector ? (ocrStatus.innerHTML = `<div class="spinner" style="margin:0 auto 8px"></div>Scanning photo ${i + 1} of ${files.length} with AI...`) : null;
-    ocrStatus.textContent = `Scanning photo ${i + 1} of ${files.length}...`;
+    const statusText = document.getElementById('ocrStatusText');
+    if (statusText) statusText.textContent = `Scanning photo ${i + 1} of ${files.length} with AI...`;
 
     try {
       const base64 = await new Promise((resolve, reject) => {
