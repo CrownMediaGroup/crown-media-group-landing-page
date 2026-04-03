@@ -104,6 +104,11 @@ assets/personal/
 # --- n8n MCP tool (nested git repo — tracked separately) ---
 tools/n8n-mcp/
 
+# --- Local runtime DBs and caches ---
+.claude/memory.db
+.claude/skills/
+tools/crm/test-screenshots/
+
 # --- Misc ---
 .temp/
 tmp/
