@@ -632,6 +632,7 @@ input[type="checkbox"] { width: 20px; height: 20px; cursor: pointer; accent-colo
 ══════════════════════════════════════════════════════ */
 .mobile-bottom-nav { display: none; }
 .mobile-fab-bar    { display: none; }
+.mobile-speed-dial { display: none; }
 
 @media (max-width: 768px) {
   .main {
@@ -686,6 +687,70 @@ input[type="checkbox"] { width: 20px; height: 20px; cursor: pointer; accent-colo
   .reports-summary-grid { grid-template-columns: repeat(2,1fr); gap: 8px; }
   .reports-charts-row   { grid-template-columns: 1fr; gap: 12px; }
   .heatmap              { min-width: max-content; }
+
+  /* ── Speed-dial FAB ── */
+  .mobile-speed-dial {
+    display: block;
+    position: fixed;
+    right: 16px;
+    bottom: calc(56px + env(safe-area-inset-bottom) + 12px);
+    z-index: 860;
+  }
+  .msd-trigger {
+    width: 52px; height: 52px;
+    border-radius: 50%;
+    background: var(--gold);
+    border: none;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 4px 16px rgba(212,168,75,.45);
+    transition: transform .2s, background .2s;
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+    position: relative; z-index: 2;
+  }
+  .msd-trigger svg { color: var(--bg); transition: transform .25s; }
+  .mobile-speed-dial.open .msd-trigger { background: var(--card); transform: rotate(45deg); }
+  .mobile-speed-dial.open .msd-icon-plus  { display: none !important; }
+  .mobile-speed-dial.open .msd-icon-close { display: block !important; }
+
+  .msd-backdrop {
+    display: none;
+    position: fixed; inset: 0;
+    z-index: -1;
+  }
+  .mobile-speed-dial.open .msd-backdrop { display: block; }
+
+  .msd-actions {
+    position: absolute;
+    bottom: 60px; right: 0;
+    display: flex; flex-direction: column; align-items: flex-end;
+    gap: 10px;
+    opacity: 0; pointer-events: none;
+    transform: translateY(10px);
+    transition: opacity .2s, transform .2s;
+  }
+  .mobile-speed-dial.open .msd-actions {
+    opacity: 1; pointer-events: auto; transform: translateY(0);
+  }
+  .msd-action {
+    display: flex; align-items: center; gap: 10px;
+    background: var(--card);
+    border: 1px solid var(--border-h);
+    border-radius: 24px;
+    padding: 10px 16px 10px 12px;
+    color: var(--text);
+    font-size: 13px; font-weight: 600;
+    cursor: pointer;
+    box-shadow: 0 2px 12px rgba(0,0,0,.3);
+    white-space: nowrap;
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+    min-height: 44px;
+  }
+  .msd-action svg { color: var(--muted); flex-shrink: 0; }
+  .msd-action--primary { background: var(--gold); color: var(--bg); border-color: var(--gold); }
+  .msd-action--primary svg { color: var(--bg); }
 }
 
 @media (max-width: 480px) {

@@ -913,6 +913,33 @@ function bindEvents() {
   document.getElementById('mobileFabEmail')?.addEventListener('click', openMassEmailModal);
   document.getElementById('mobileFabSMS')?.addEventListener('click', openMassSMSModal);
 
+  // Mobile speed-dial FAB
+  const speedDial   = document.getElementById('mobileSpeedDial');
+  const msdTrigger  = document.getElementById('msdTrigger');
+  const msdBackdrop = document.getElementById('msdBackdrop');
+  function closeSpeeddial() { speedDial?.classList.remove('open'); }
+  msdTrigger?.addEventListener('click', () => speedDial?.classList.toggle('open'));
+  msdBackdrop?.addEventListener('click', closeSpeeddial);
+  document.getElementById('msdAddContact')?.addEventListener('click', () => {
+    closeSpeeddial(); openAddContactModal();
+  });
+  document.getElementById('msdImportCSV')?.addEventListener('click', () => {
+    closeSpeeddial();
+    openImportModal();
+    // Switch to CSV tab
+    setTimeout(() => {
+      document.getElementById('importModeCSV')?.click();
+    }, 100);
+  });
+  document.getElementById('msdScanPhoto')?.addEventListener('click', () => {
+    closeSpeeddial();
+    openImportModal();
+    // Switch to OCR tab
+    setTimeout(() => {
+      document.getElementById('importModeOCR')?.click();
+    }, 100);
+  });
+
   // Search / filters
   document.getElementById('searchInput').addEventListener('input', () => {
     clearTimeout(searchDebounceTimer);

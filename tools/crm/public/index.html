@@ -9,7 +9,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <title>Crown Media Group CRM</title>
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-<link rel="stylesheet" href="styles.css?v=8">
+<link rel="stylesheet" href="styles.css?v=9">
 </head>
 <body>
 <div id="app">
@@ -765,6 +765,29 @@
   <button class="btn btn-sm" id="mobileFabSMS">Text</button>
 </div>
 
-<script src="app.js?v=7"></script>
+<!-- ══ Mobile Speed-Dial FAB ══ -->
+<div class="mobile-speed-dial" id="mobileSpeedDial">
+  <div class="msd-backdrop" id="msdBackdrop"></div>
+  <div class="msd-actions" id="msdActions">
+    <button class="msd-action" id="msdScanPhoto">
+      <svg viewBox="0 0 24 24" fill="currentColor" width="20" height="20"><path d="M9 2L7.17 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2h-3.17L15 2H9zm3 15c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.65 0-3 1.35-3 3s1.35 3 3 3 3-1.35 3-3-1.35-3-3-3z"/></svg>
+      <span>Scan Photo</span>
+    </button>
+    <button class="msd-action" id="msdImportCSV">
+      <svg viewBox="0 0 24 24" fill="currentColor" width="20" height="20"><path d="M14 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V8l-6-6zm2 14H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/></svg>
+      <span>Import CSV</span>
+    </button>
+    <button class="msd-action msd-action--primary" id="msdAddContact">
+      <svg viewBox="0 0 24 24" fill="currentColor" width="20" height="20"><path d="M15 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm-9-2V7H4v3H1v2h3v3h2v-3h3v-2H6zm9 4c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+      <span>Add Contact</span>
+    </button>
+  </div>
+  <button class="msd-trigger" id="msdTrigger" aria-label="Quick actions">
+    <svg class="msd-icon-plus" viewBox="0 0 24 24" fill="currentColor" width="26" height="26"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
+    <svg class="msd-icon-close" viewBox="0 0 24 24" fill="currentColor" width="26" height="26" style="display:none"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+  </button>
+</div>
+
+<script src="app.js?v=8"></script>
 </body>
 </html>
