@@ -2,8 +2,9 @@
 SessionStart hook — fires when Claude Code starts a session.
 1. Logs session open to AUTO-LOG.md
 2. Verifies VS Code baseline files exist — restores missing ones silently
+3. Auto-starts Ruflo swarm (claude-flow daemon + swarm) if not running
 """
-import sys, json, datetime, os
+import sys, json, datetime, os, subprocess
 
 BASE = "C:/Users/ldavi/Documents/AllGloryAgency"
 LOG  = f"{BASE}/Agency/ops/notes/AUTO-LOG.md"
@@ -44,6 +45,29 @@ try:
         if missing_cmds:
             with open(LOG, "a", encoding="utf-8") as f:
                 f.write(f"[{ts}] MISSING_COMMANDS: {', '.join(missing_cmds)}\n")
+
+    # Auto-start Ruflo swarm
+    try:
+        # Check if daemon is already running
+        status = subprocess.run(
+            ["claude-flow", "daemon", "status"],
+            capture_output=True, text=True, timeout=10,
+            cwd=BASE
+        )
+        if "running" not in status.stdout.lower() and "running" not in status.stderr.lower():
+            subprocess.Popen(
+                ["claude-flow", "daemon", "start"],
+                stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
+                cwd=BASE
+            )
+            with open(LOG, "a", encoding="utf-8") as f:
+                f.write(f"[{ts}] RUFLO_DAEMON: started automatically\n")
+        else:
+            with open(LOG, "a", encoding="utf-8") as f:
+                f.write(f"[{ts}] RUFLO_DAEMON: already running\n")
+    except Exception as e:
+        with open(LOG, "a", encoding="utf-8") as f:
+            f.write(f"[{ts}] RUFLO_DAEMON: auto-start skipped ({e})\n")
 
 except Exception:
     pass

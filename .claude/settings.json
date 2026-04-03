@@ -1,67 +1,83 @@
 {
-  "permissions": {
-    "allow": [
-      "Bash(*)",
-      "Read(*)",
-      "Write(*)",
-      "Edit(*)",
-      "Glob(*)",
-      "Grep(*)",
-      "WebFetch(*)",
-      "WebSearch(*)",
-      "mcp__claude_ai_Gmail__*",
-      "mcp__claude_ai_Google_Calendar__*",
-      "mcp__claude_ai_Canva__*",
-      "mcp__claude_ai_Vibe_Prospecting__*",
-      "mcp__exa__*"
-    ]
-  },
   "hooks": {
-    "SessionStart": [
+    "PreToolUse": [
       {
+        "matcher": "Bash",
         "hooks": [
           {
             "type": "command",
-            "command": "python3 C:/Users/ldavi/Documents/AllGloryAgency/tools/hooks/session-start.py"
+            "command": "cmd /c node %CLAUDE_PROJECT_DIR%/.claude/helpers/hook-handler.cjs pre-bash",
+            "timeout": 5000
+          }
+        ]
+      },
+      {
+        "matcher": "Write|Edit|MultiEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "cmd /c node %CLAUDE_PROJECT_DIR%/.claude/helpers/hook-handler.cjs pre-edit",
+            "timeout": 5000
           }
         ]
       }
     ],
     "PostToolUse": [
       {
-        "matcher": "Write|Edit",
+        "matcher": "Write|Edit|MultiEdit",
         "hooks": [
           {
             "type": "command",
-            "command": "python3 C:/Users/ldavi/Documents/AllGloryAgency/tools/hooks/post-file-change.py"
+            "command": "cmd /c node %CLAUDE_PROJECT_DIR%/.claude/helpers/hook-handler.cjs post-edit",
+            "timeout": 10000
           }
         ]
       },
       {
-        "matcher": "Write|Edit",
+        "matcher": "Bash",
         "hooks": [
           {
-            "type": "agent",
-            "prompt": "You are a CRM QA + Security agent. Check the tool input to get the file_path. If the file_path contains 'tools/crm' — read that file and run a full review: (1) check JS-HTML ID binding integrity (every getElementById ID must exist in index.html), (2) verify all inline onclick functions are assigned on window, (3) check for XSS vulnerabilities (innerHTML with user input), (4) verify cache busting version is current (?v= is present). Return CRITICAL/WARNING/OK bullets + VERDICT: SAFE TO DEPLOY or HOLD. If file_path does NOT contain 'tools/crm' — output only: 'SKIP: not a CRM file' and stop immediately."
-          }
-        ]
-      },
-      {
-        "matcher": "Write|Edit",
-        "hooks": [
-          {
-            "type": "agent",
-            "prompt": "You are a code quality reviewer. Check the tool input to get the file_path. Only act if the file ends in .js, .html, .py, or .css. If it does — read the file and review for: undefined variable refs, missing null checks on DOM queries, unreachable code, logic gaps, broken function calls, unhandled async errors. Return CRITICAL/WARNING/OK bullets + VERDICT: CLEAN or ISSUES FOUND. If not a .js/.html/.py/.css file — output 'SKIP' and stop immediately."
+            "type": "command",
+            "command": "cmd /c node %CLAUDE_PROJECT_DIR%/.claude/helpers/hook-handler.cjs post-bash",
+            "timeout": 5000
           }
         ]
       }
     ],
-    "PreCompact": [
+    "UserPromptSubmit": [
       {
         "hooks": [
           {
             "type": "command",
-            "command": "python3 C:/Users/ldavi/Documents/AllGloryAgency/tools/hooks/pre-compact.py"
+            "command": "cmd /c node %CLAUDE_PROJECT_DIR%/.claude/helpers/hook-handler.cjs route",
+            "timeout": 10000
+          }
+        ]
+      }
+    ],
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "cmd /c node %CLAUDE_PROJECT_DIR%/.claude/helpers/hook-handler.cjs session-restore",
+            "timeout": 15000
+          },
+          {
+            "type": "command",
+            "command": "cmd /c node %CLAUDE_PROJECT_DIR%/.claude/helpers/auto-memory-hook.mjs import",
+            "timeout": 8000
+          }
+        ]
+      }
+    ],
+    "SessionEnd": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "cmd /c node %CLAUDE_PROJECT_DIR%/.claude/helpers/hook-handler.cjs session-end",
+            "timeout": 10000
           }
         ]
       }
@@ -71,18 +87,203 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python3 C:/Users/ldavi/Documents/AllGloryAgency/tools/hooks/session-stop.py"
+            "command": "cmd /c node %CLAUDE_PROJECT_DIR%/.claude/helpers/auto-memory-hook.mjs sync",
+            "timeout": 10000
+          }
+        ]
+      }
+    ],
+    "PreCompact": [
+      {
+        "matcher": "manual",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "cmd /c node %CLAUDE_PROJECT_DIR%/.claude/helpers/hook-handler.cjs compact-manual"
+          },
+          {
+            "type": "command",
+            "command": "cmd /c node %CLAUDE_PROJECT_DIR%/.claude/helpers/hook-handler.cjs session-end",
+            "timeout": 5000
           }
         ]
       },
       {
+        "matcher": "auto",
         "hooks": [
           {
-            "type": "agent",
-            "prompt": "You are a session optimizer for Crown Media Group. Read the last 30 lines of C:/Users/ldavi/Documents/AllGloryAgency/Agency/ops/notes/AUTO-LOG.md to see what files changed this session. Then run: cd C:/Users/ldavi/Documents/AllGloryAgency && git status --short. Report: (1) what was changed, (2) anything uncommitted or undeployed that looks like code, (3) top 1-2 quick wins for next session. Keep response under 15 lines. If nothing is pending — say CLEAN CLOSE and stop."
+            "type": "command",
+            "command": "cmd /c node %CLAUDE_PROJECT_DIR%/.claude/helpers/hook-handler.cjs compact-auto"
+          },
+          {
+            "type": "command",
+            "command": "cmd /c node %CLAUDE_PROJECT_DIR%/.claude/helpers/hook-handler.cjs session-end",
+            "timeout": 6000
+          }
+        ]
+      }
+    ],
+    "SubagentStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "cmd /c node %CLAUDE_PROJECT_DIR%/.claude/helpers/hook-handler.cjs status",
+            "timeout": 3000
+          }
+        ]
+      }
+    ],
+    "SubagentStop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "cmd /c node %CLAUDE_PROJECT_DIR%/.claude/helpers/hook-handler.cjs post-task",
+            "timeout": 5000
+          }
+        ]
+      }
+    ],
+    "Notification": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "cmd /c node %CLAUDE_PROJECT_DIR%/.claude/helpers/hook-handler.cjs notify",
+            "timeout": 3000
           }
         ]
       }
     ]
+  },
+  "statusLine": {
+    "type": "command",
+    "command": "sh -c 'exec node \"${CLAUDE_PROJECT_DIR:-.}/.claude/helpers/statusline.cjs\"'"
+  },
+  "permissions": {
+    "allow": [
+      "Bash(npx @claude-flow*)",
+      "Bash(npx claude-flow*)",
+      "Bash(node .claude/*)",
+      "mcp__claude-flow__:*"
+    ],
+    "deny": [
+      "Read(./.env)",
+      "Read(./.env.*)"
+    ]
+  },
+  "attribution": {
+    "commit": "Co-Authored-By: claude-flow <ruv@ruv.net>",
+    "pr": "🤖 Generated with [claude-flow](https://github.com/ruvnet/claude-flow)"
+  },
+  "env": {
+    "CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS": "1",
+    "CLAUDE_FLOW_V3_ENABLED": "true",
+    "CLAUDE_FLOW_HOOKS_ENABLED": "true"
+  },
+  "claudeFlow": {
+    "version": "3.0.0",
+    "enabled": true,
+    "platform": {
+      "os": "windows",
+      "arch": "x64",
+      "shell": "powershell"
+    },
+    "modelPreferences": {
+      "default": "claude-opus-4-6",
+      "routing": "claude-haiku-4-5-20251001"
+    },
+    "agentTeams": {
+      "enabled": true,
+      "teammateMode": "auto",
+      "taskListEnabled": true,
+      "mailboxEnabled": true,
+      "coordination": {
+        "autoAssignOnIdle": true,
+        "trainPatternsOnComplete": true,
+        "notifyLeadOnComplete": true,
+        "sharedMemoryNamespace": "agent-teams"
+      },
+      "hooks": {
+        "teammateIdle": {
+          "enabled": true,
+          "autoAssign": true,
+          "checkTaskList": true
+        },
+        "taskCompleted": {
+          "enabled": true,
+          "trainPatterns": true,
+          "notifyLead": true
+        }
+      }
+    },
+    "swarm": {
+      "topology": "hierarchical-mesh",
+      "maxAgents": 15
+    },
+    "memory": {
+      "backend": "hybrid",
+      "enableHNSW": true,
+      "learningBridge": {
+        "enabled": true
+      },
+      "memoryGraph": {
+        "enabled": true
+      },
+      "agentScopes": {
+        "enabled": true
+      }
+    },
+    "neural": {
+      "enabled": true
+    },
+    "daemon": {
+      "autoStart": false,
+      "workers": [
+        "map",
+        "audit",
+        "optimize"
+      ],
+      "schedules": {
+        "audit": {
+          "interval": "4h",
+          "priority": "critical"
+        },
+        "optimize": {
+          "interval": "2h",
+          "priority": "high"
+        }
+      }
+    },
+    "learning": {
+      "enabled": true,
+      "autoTrain": true,
+      "patterns": [
+        "coordination",
+        "optimization",
+        "prediction"
+      ],
+      "retention": {
+        "shortTerm": "24h",
+        "longTerm": "30d"
+      }
+    },
+    "adr": {
+      "autoGenerate": true,
+      "directory": "/docs/adr",
+      "template": "madr"
+    },
+    "ddd": {
+      "trackDomains": true,
+      "validateBoundedContexts": true,
+      "directory": "/docs/ddd"
+    },
+    "security": {
+      "autoScan": true,
+      "scanOnEdit": true,
+      "cveCheck": true,
+      "threatModel": true
+    }
   }
 }

@@ -26,10 +26,18 @@ async function run() {
   await page.goto(BASE_URL, { waitUntil: 'networkidle', timeout: 20000 }).catch(() => {});
 
   if (page.url().includes('login')) {
-    console.log('INFO: Login wall — screenshotting login page only.');
+    console.log('  INFO: Login wall detected — auto-logging in...');
     await page.screenshot({ path: path.join(SHOTS_DIR, '00-login.png') });
-    await browser.close();
-    return;
+    // Fill login form
+    const emailField = page.locator('#email').first();
+    const passField  = page.locator('#password').first();
+    const submitBtn  = page.locator('#loginBtn');
+    await emailField.fill(process.env.CRM_EMAIL || 'king@crownmediagroup.co');
+    await passField.fill(process.env.CRM_PASS   || 'AllGlory2026!');
+    await submitBtn.click();
+    await page.waitForURL(url => !url.includes('login'), { timeout: 10000 }).catch(() => {});
+    await page.waitForTimeout(1000);
+    console.log('  INFO: Login submitted — current URL:', page.url());
   }
 
   // Check bottom nav visible
@@ -49,6 +57,18 @@ async function run() {
     console.log(`  PASS: ${tab} tab — screenshot saved`);
   }
 
+  // Scroll down to see contact cards
+  await page.locator('.mbn-tab[data-tab="contacts"]').tap().catch(() => {});
+  await page.waitForTimeout(600);
+  await page.evaluate(() => {
+    const main = document.querySelector('.main') || document.querySelector('.crm-content') || document.body;
+    main.scrollTop = 600;
+    window.scrollY && window.scrollTo(0, 600);
+  });
+  await page.waitForTimeout(300);
+  await page.screenshot({ path: path.join(SHOTS_DIR, 'contacts-cards.png') });
+  console.log('  INFO: contact card list screenshot saved');
+
   // Go back to contacts, open contact modal
   await page.locator('.mbn-tab[data-tab="contacts"]').tap().catch(() => {});
   await page.waitForTimeout(400);
@@ -67,6 +87,24 @@ async function run() {
   // Check body does NOT scroll behind modal
   const bodyOverflow = await page.evaluate(() => document.body.style.overflow);
   console.log(bodyOverflow === 'hidden' ? '  PASS: scroll lock active' : `  INFO: body.overflow = "${bodyOverflow}"`);
+
+  // Close modal, go back to contacts, check speed-dial FAB
+  await page.keyboard.press('Escape');
+  await page.waitForTimeout(400);
+  await page.locator('.mbn-tab[data-tab="contacts"]').tap().catch(() => {});
+  await page.waitForTimeout(400);
+  const speedDial = page.locator('#mobileSpeedDial');
+  const sdOk = await speedDial.isVisible().catch(() => false);
+  console.log(sdOk ? '  PASS: speed-dial FAB visible' : '  FAIL: speed-dial FAB NOT visible');
+  // Tap speed-dial to open
+  if (sdOk) {
+    await page.locator('#msdTrigger').tap();
+    await page.waitForTimeout(300);
+    await page.screenshot({ path: path.join(SHOTS_DIR, 'speed-dial-open.png') });
+    console.log('  INFO: speed-dial open — screenshot saved');
+    await page.locator('#msdTrigger').tap(); // close
+    await page.waitForTimeout(200);
+  }
 
   await page.screenshot({ path: path.join(SHOTS_DIR, 'final.png') });
   console.log(`\nScreenshots: ${SHOTS_DIR}`);

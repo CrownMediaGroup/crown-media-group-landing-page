@@ -98,6 +98,12 @@ assets/personal/
 # --- Claude Code local settings (contains personal data) ---
 .claude/settings.local.json
 
+# --- MCP config (contains API keys — never commit) ---
+.mcp.json
+
+# --- n8n MCP tool (nested git repo — tracked separately) ---
+tools/n8n-mcp/
+
 # --- Misc ---
 .temp/
 tmp/

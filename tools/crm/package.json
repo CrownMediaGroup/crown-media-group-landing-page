@@ -17,5 +17,8 @@
     "nodemailer": "^6.9.9",
     "pdfkit": "^0.18.0",
     "twilio": "^5.4.5"
+  },
+  "devDependencies": {
+    "playwright": "^1.59.1"
   }
 }
