@@ -116,6 +116,10 @@ tmp/
 # --- Loose media files at root ---
 CMG - Banner*.png
 "CMG - Banner*.png"
+*.jpg
+*.jpeg
+*.png
+!landing-page/assets/**
 
 # --- Screenshot captures ---
 tools/screen/*.png
