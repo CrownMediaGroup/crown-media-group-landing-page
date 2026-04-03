@@ -132,7 +132,7 @@ async function logToSupabase(username, message, status) {
   if (!supabase) return;
   const { error } = await supabase.from('leads').upsert({
     ig_username: username,
-    message,
+    notes: message,
     status,
     sent_at: new Date().toISOString(),
     updated_at: new Date().toISOString(),
