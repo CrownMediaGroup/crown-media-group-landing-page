@@ -174,6 +174,7 @@ function toggleTheme() {
 
 function switchTab(tab) {
   document.querySelectorAll('.nav-tab').forEach(b => b.classList.toggle('active', b.dataset.tab === tab));
+  document.querySelectorAll('.mbn-tab').forEach(b => b.classList.toggle('active', b.dataset.tab === tab));
   document.querySelectorAll('.main').forEach(m => m.classList.toggle('hidden', m.id !== `tab-${tab}`));
   if (tab === 'settings')  loadSettings();
   if (tab === 'pipeline')  loadPipeline();
@@ -373,6 +374,12 @@ function updateMassBar() {
   const n   = selectedIds.size;
   const bar = document.getElementById('massBar');
   bar.classList.toggle('visible', n > 0);
+  const fab = document.getElementById('mobileFabBar');
+  if (fab) {
+    fab.classList.toggle('visible', n > 0);
+    const fabCount = document.getElementById('mobileFabCount');
+    if (fabCount) fabCount.textContent = `${n} selected`;
+  }
   document.getElementById('massBarText').textContent = `${n} selected`;
   document.getElementById('massEmailSendCount').textContent = n;
   document.getElementById('massSMSSendCount').textContent   = n;
@@ -401,6 +408,7 @@ function handleSort(col) {
 async function openModal(id) {
   currentContactId = id;
   currentDrafts    = null;
+  document.body.style.overflow = 'hidden';
 
   // Reset draft panel
   document.getElementById('aiTabs').style.display    = 'none';
@@ -454,13 +462,39 @@ async function openModal(id) {
   document.getElementById('contactModal').classList.remove('hidden');
 }
 
+function attachSwipeToClose(overlayId, closeFn) {
+  const overlay = document.getElementById(overlayId);
+  if (!overlay) return;
+  const modal = overlay.querySelector('.modal');
+  if (!modal) return;
+  let startY = 0;
+  modal.addEventListener('touchstart', e => { startY = e.touches[0].clientY; }, { passive: true });
+  modal.addEventListener('touchmove', e => {
+    const d = e.touches[0].clientY - startY;
+    if (d > 0) { modal.style.transform = `translateY(${d}px)`; modal.style.transition = 'none'; }
+  }, { passive: true });
+  modal.addEventListener('touchend', e => {
+    const d = e.changedTouches[0].clientY - startY;
+    if (d > 80) {
+      modal.style.transform = ''; modal.style.transition = '';
+      closeFn();
+    } else {
+      modal.style.transition = 'transform .2s ease';
+      modal.style.transform = '';
+      setTimeout(() => { modal.style.transition = ''; }, 200);
+    }
+  }, { passive: true });
+}
+
 function closeContactModal() {
+  document.body.style.overflow = '';
   document.getElementById('contactModal').classList.add('hidden');
   currentContactId = null;
 }
 window.closeContactModal = closeContactModal;
 
 function closeModal(id) {
+  document.body.style.overflow = '';
   document.getElementById(id).classList.add('hidden');
 }
 window.closeModal = closeModal;
@@ -649,6 +683,7 @@ async function sendSingleSMS() {
 // ── Mass Email ────────────────────────────────────────────────────────────────
 
 function openMassEmailModal() {
+  document.body.style.overflow = 'hidden';
   if (!selectedIds.size) { toast('Select at least one contact first', 'error'); return; }
   document.getElementById('massEmailPreview').style.display = 'none';
   document.getElementById('massEmailModal').classList.remove('hidden');
@@ -700,6 +735,7 @@ async function sendMassEmail() {
 // ── Mass SMS ──────────────────────────────────────────────────────────────────
 
 function openMassSMSModal() {
+  document.body.style.overflow = 'hidden';
   if (!selectedIds.size) { toast('Select at least one contact first', 'error'); return; }
   document.getElementById('massSMSModal').classList.remove('hidden');
 }
@@ -870,6 +906,12 @@ function bindEvents() {
   // Nav tabs
   document.querySelectorAll('.nav-tab').forEach(btn =>
     btn.addEventListener('click', () => switchTab(btn.dataset.tab)));
+  // Mobile bottom nav
+  document.querySelectorAll('.mbn-tab').forEach(btn =>
+    btn.addEventListener('click', () => switchTab(btn.dataset.tab)));
+  // Mobile FAB mass actions
+  document.getElementById('mobileFabEmail')?.addEventListener('click', openMassEmailModal);
+  document.getElementById('mobileFabSMS')?.addEventListener('click', openMassSMSModal);
 
   // Search / filters
   document.getElementById('searchInput').addEventListener('input', () => {
@@ -963,6 +1005,13 @@ function bindEvents() {
     if (e.target === document.getElementById('importModal')) closeModal('importModal');
   });
 
+  // Swipe-down to close bottom-sheet modals on mobile
+  attachSwipeToClose('contactModal',    closeContactModal);
+  attachSwipeToClose('massEmailModal',  () => closeModal('massEmailModal'));
+  attachSwipeToClose('massSMSModal',    () => closeModal('massSMSModal'));
+  attachSwipeToClose('addContactModal', () => closeModal('addContactModal'));
+  attachSwipeToClose('importModal',     () => closeModal('importModal'));
+
   // Toggle archived
   document.getElementById('toggleArchived').addEventListener('click', toggleArchivedView);
 
@@ -1041,6 +1090,7 @@ function bindEvents() {
 // ── Add Contact ───────────────────────────────────────────────────────────────
 
 function openAddContactModal() {
+  document.body.style.overflow = 'hidden';
   ['addName','addBusiness','addPhone','addEmail','addNotes'].forEach(id => {
     const el = document.getElementById(id);
     if (el) el.value = '';
@@ -1124,6 +1174,7 @@ async function toggleArchivedView() {
 // ── Import CSV ────────────────────────────────────────────────────────────────
 
 function openImportModal() {
+  document.body.style.overflow = 'hidden';
   importedContacts = [];
   const fi = document.getElementById('csvFileInput');
   if (fi) fi.value = '';
@@ -1333,6 +1384,59 @@ function bindPipelineDrag() {
         loadContacts();
       } catch (err) { toast(err.message, 'error'); }
     });
+  });
+
+  // ── Touch drag for mobile ────────────────────────────────────────────────
+  let touchDragId = null, touchGhost = null, touchOffsetX = 0, touchOffsetY = 0, lastTouchedCol = null;
+
+  document.querySelectorAll('.pipeline-card').forEach(card => {
+    card.addEventListener('touchstart', e => {
+      if (e.touches.length !== 1) return;
+      touchDragId = card.dataset.id;
+      const rect = card.getBoundingClientRect();
+      touchOffsetX = e.touches[0].clientX - rect.left;
+      touchOffsetY = e.touches[0].clientY - rect.top;
+      touchGhost = card.cloneNode(true);
+      touchGhost.style.cssText = `position:fixed;pointer-events:none;z-index:9998;width:${rect.width}px;opacity:.85;left:${rect.left}px;top:${rect.top}px;box-shadow:0 8px 24px rgba(0,0,0,.5);border:1px solid var(--gold-line);border-radius:8px;transform:scale(1.04);`;
+      document.body.appendChild(touchGhost);
+      card.style.opacity = '0.3';
+    }, { passive: true });
+
+    card.addEventListener('touchmove', e => {
+      if (!touchDragId || !touchGhost) return;
+      e.preventDefault();
+      const t = e.touches[0];
+      touchGhost.style.left = `${t.clientX - touchOffsetX}px`;
+      touchGhost.style.top  = `${t.clientY - touchOffsetY}px`;
+      touchGhost.style.display = 'none';
+      const el = document.elementFromPoint(t.clientX, t.clientY);
+      touchGhost.style.display = '';
+      const col = el?.closest('.pipeline-col-body');
+      if (lastTouchedCol && lastTouchedCol !== col) lastTouchedCol.classList.remove('drag-over');
+      if (col) { col.classList.add('drag-over'); lastTouchedCol = col; }
+    }, { passive: false });
+
+    card.addEventListener('touchend', async e => {
+      if (!touchDragId) return;
+      if (touchGhost) { touchGhost.remove(); touchGhost = null; }
+      const origCard = document.querySelector(`.pipeline-card[data-id="${touchDragId}"]`);
+      if (origCard) origCard.style.opacity = '';
+      if (lastTouchedCol) lastTouchedCol.classList.remove('drag-over');
+      const t = e.changedTouches[0];
+      const el = document.elementFromPoint(t.clientX, t.clientY);
+      const col = el?.closest('.pipeline-col-body');
+      const id = touchDragId;
+      touchDragId = null; lastTouchedCol = null;
+      if (!col) return;
+      const stage = col.dataset.stage;
+      const status = PIPELINE_STAGE_STATUS[stage];
+      if (!status) return;
+      try {
+        await put(`/api/contacts/${id}`, { status });
+        toast(`Moved to ${stage}`, 'success');
+        loadPipeline(); loadStats(); loadContacts();
+      } catch (err) { toast(err.message, 'error'); }
+    }, { passive: true });
   });
 }
 

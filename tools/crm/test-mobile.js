@@ -1,0 +1,76 @@
+// CRM Mobile Smoke Test — iPhone 14 viewport
+// Usage: node test-mobile.js
+// Live:  CRM_URL=https://crm.crownmediagroup.co node test-mobile.js
+// Requires: npm install -D playwright && npx playwright install chromium
+
+import { chromium, devices } from 'playwright';
+import path from 'path';
+import { fileURLToPath } from 'url';
+import fs from 'fs';
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const BASE_URL   = process.env.CRM_URL || 'http://localhost:3001';
+const iPhone14   = devices['iPhone 14'];
+const SHOTS_DIR  = path.join(__dirname, 'test-screenshots');
+
+if (!fs.existsSync(SHOTS_DIR)) fs.mkdirSync(SHOTS_DIR, { recursive: true });
+
+async function run() {
+  const browser = await chromium.launch({ headless: true });
+  const context = await browser.newContext({ ...iPhone14, ignoreHTTPSErrors: true });
+  const page    = await context.newPage();
+
+  console.log(`\nCRM Mobile Test — ${BASE_URL}`);
+  console.log(`Viewport: ${iPhone14.viewport.width}x${iPhone14.viewport.height} (iPhone 14)\n`);
+
+  await page.goto(BASE_URL, { waitUntil: 'networkidle', timeout: 20000 }).catch(() => {});
+
+  if (page.url().includes('login')) {
+    console.log('INFO: Login wall — screenshotting login page only.');
+    await page.screenshot({ path: path.join(SHOTS_DIR, '00-login.png') });
+    await browser.close();
+    return;
+  }
+
+  // Check bottom nav visible
+  const nav = page.locator('#mobileBottomNav');
+  const navOk = await nav.isVisible().catch(() => false);
+  console.log(navOk ? '  PASS: bottom nav visible' : '  FAIL: bottom nav NOT visible');
+
+  // Screenshot each tab via bottom nav
+  const tabs = ['contacts', 'pipeline', 'reports', 'settings', 'leads'];
+  for (const tab of tabs) {
+    const btn = page.locator(`.mbn-tab[data-tab="${tab}"]`);
+    const ok  = await btn.isVisible().catch(() => false);
+    if (!ok) { console.log(`  FAIL: .mbn-tab[data-tab="${tab}"] not found`); continue; }
+    await btn.tap();
+    await page.waitForTimeout(500);
+    await page.screenshot({ path: path.join(SHOTS_DIR, `tab-${tab}.png`) });
+    console.log(`  PASS: ${tab} tab — screenshot saved`);
+  }
+
+  // Go back to contacts, open contact modal
+  await page.locator('.mbn-tab[data-tab="contacts"]').tap().catch(() => {});
+  await page.waitForTimeout(400);
+  const firstRow = page.locator('#contactsBody tr').first();
+  if (await firstRow.isVisible().catch(() => false)) {
+    await firstRow.tap();
+    await page.waitForTimeout(500);
+    const modal = page.locator('#contactModal');
+    const modalOk = await modal.isVisible().catch(() => false);
+    console.log(modalOk ? '  PASS: contact modal opens' : '  FAIL: contact modal did not open');
+    if (modalOk) {
+      await page.screenshot({ path: path.join(SHOTS_DIR, 'modal-contact.png') });
+    }
+  }
+
+  // Check body does NOT scroll behind modal
+  const bodyOverflow = await page.evaluate(() => document.body.style.overflow);
+  console.log(bodyOverflow === 'hidden' ? '  PASS: scroll lock active' : `  INFO: body.overflow = "${bodyOverflow}"`);
+
+  await page.screenshot({ path: path.join(SHOTS_DIR, 'final.png') });
+  console.log(`\nScreenshots: ${SHOTS_DIR}`);
+  await browser.close();
+}
+
+run().catch(err => { console.error('Test error:', err.message); process.exit(1); });
