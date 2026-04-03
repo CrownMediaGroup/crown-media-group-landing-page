@@ -933,11 +933,16 @@ function bindEvents() {
   });
   document.getElementById('msdScanPhoto')?.addEventListener('click', () => {
     closeSpeeddial();
-    openImportModal();
-    // Switch to OCR tab
-    setTimeout(() => {
-      document.getElementById('importModeOCR')?.click();
-    }, 100);
+    // On mobile: trigger camera directly without opening full modal
+    const fileInput = document.getElementById('ocrFileInput');
+    if (fileInput && /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent)) {
+      fileInput.click();
+    } else {
+      openImportModal();
+      setTimeout(() => {
+        document.getElementById('importModeOCR')?.click();
+      }, 100);
+    }
   });
 
   // Search / filters

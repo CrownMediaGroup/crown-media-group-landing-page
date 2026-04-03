@@ -162,10 +162,14 @@ async function humanType(page, selector, text) {
 async function loadSession(context) {
   if (fs.existsSync(CONFIG.SESSION_FILE)) {
     try {
-      const cookies = JSON.parse(fs.readFileSync(CONFIG.SESSION_FILE, 'utf8'));
-      await context.addCookies(cookies);
-      console.log('[SESSION] Loaded existing session');
-      return true;
+      const raw = JSON.parse(fs.readFileSync(CONFIG.SESSION_FILE, 'utf8'));
+      // Handle both formats: bare cookie array OR {cookies, storage} object
+      const cookies = Array.isArray(raw) ? raw : raw.cookies;
+      if (cookies && cookies.length) {
+        await context.addCookies(cookies);
+        console.log('[SESSION] Loaded existing session');
+        return true;
+      }
     } catch {}
   }
   return false;
@@ -187,12 +191,13 @@ async function login(page) {
   }
 
   console.log('[LOGIN] Navigating to Instagram...');
-  await page.goto(`${CONFIG.BASE_URL}/accounts/login/`, { waitUntil: 'networkidle' });
+  await page.goto(`${CONFIG.BASE_URL}/accounts/login/`, { waitUntil: 'domcontentloaded' });
+  await page.waitForSelector('input[name="username"]', { timeout: 20000 });
   await randDelay(CONFIG.DELAYS.page_load);
 
   // Handle cookie consent if present
   try {
-    const allowBtn = page.locator('button:has-text("Allow all cookies"), button:has-text("Allow essential")');
+    const allowBtn = page.locator('button:has-text("Allow all cookies"), button:has-text("Allow essential"), button:has-text("Accept all")');
     if (await allowBtn.first().isVisible({ timeout: 3000 })) {
       await allowBtn.first().click();
       await randDelay(CONFIG.DELAYS.between_actions);
@@ -250,12 +255,28 @@ async function sendDM(page, username, message, dryRun = false) {
   }
 
   // Navigate to profile
-  await page.goto(`${CONFIG.BASE_URL}/${username}/`, { waitUntil: 'networkidle' });
+  await page.goto(`${CONFIG.BASE_URL}/${username}/`, { waitUntil: 'domcontentloaded' });
   await randDelay(CONFIG.DELAYS.page_load);
 
+  // Dismiss login wall popup if present (Instagram shows this to non-logged-in sessions)
+  try {
+    const closeBtn = page.locator('button[aria-label="Close"], svg[aria-label="Close"]').first();
+    if (await closeBtn.isVisible({ timeout: 3000 })) {
+      await closeBtn.click();
+      await randDelay([500, 1000]);
+    }
+  } catch {}
+
+  // Check if still showing login wall
+  if (page.url().includes('/login') || await page.locator('text=Sign up to see photos').isVisible({ timeout: 2000 }).catch(() => false)) {
+    console.log(`[DM] Session expired — login wall detected`);
+    await logToSupabase(username, message, 'failed_session_expired');
+    return { success: false, reason: 'session_expired' };
+  }
+
   // Check if profile exists
-  if (page.url().includes('/login') || await page.locator('h2:has-text("Page Not Found")').isVisible({ timeout: 2000 }).catch(() => false)) {
-    console.log(`[DM] Profile @${username} not found or redirected`);
+  if (await page.locator('h2:has-text("Page Not Found")').isVisible({ timeout: 2000 }).catch(() => false)) {
+    console.log(`[DM] Profile @${username} not found`);
     await logToSupabase(username, message, 'failed_not_found');
     return { success: false, reason: 'profile_not_found' };
   }
@@ -264,8 +285,8 @@ async function sendDM(page, username, message, dryRun = false) {
 
   // Click Message button
   try {
-    const msgBtn = page.locator('button:has-text("Message"), div[role="button"]:has-text("Message")');
-    await msgBtn.first().waitFor({ timeout: 8000 });
+    const msgBtn = page.locator('button:has-text("Message"), div[role="button"]:has-text("Message"), a:has-text("Message")');
+    await msgBtn.first().waitFor({ timeout: 10000 });
     await msgBtn.first().click();
     await randDelay(CONFIG.DELAYS.page_load);
   } catch (e) {
@@ -369,15 +390,25 @@ async function main() {
     console.log(`[RATE] Only sending ${queue.length} of ${targets.length} (daily cap)`);
   }
 
-  // Launch Playwright (headful)
-  const browser = await chromium.launch({
+  // Launch Playwright with stealth (bypasses Instagram bot detection)
+  let chromiumLauncher = chromium;
+  try {
+    const { chromium: stealthChromium } = await import('playwright-extra');
+    const StealthPlugin = (await import('playwright-extra-plugin-stealth')).default;
+    stealthChromium.use(StealthPlugin());
+    chromiumLauncher = stealthChromium;
+  } catch {
+    console.log('[STEALTH] Plugin not available, using standard Playwright');
+  }
+
+  const browser = await chromiumLauncher.launch({
     headless: false,
-    args: ['--no-sandbox', '--disable-blink-features=AutomationControlled'],
+    args: ['--no-sandbox', '--disable-blink-features=AutomationControlled', '--disable-web-security'],
     slowMo: 50,
   });
 
   const context = await browser.newContext({
-    userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+    userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36',
     viewport: { width: 1280, height: 900 },
     locale: 'en-US',
     timezoneId: 'America/New_York',
