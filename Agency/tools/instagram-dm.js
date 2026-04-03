@@ -45,10 +45,12 @@ if (!supabase) console.warn('[WARN] Supabase not configured — DMs will not be 
 // ── Config ───────────────────────────────────────────────────────────────────
 const CONFIG = {
   DAILY_MAX: 8,                    // max DMs per day (stay 5–10)
-  SESSION_FILE: path.join(__dirname, '../../security/ig-session.json'),
+  PROFILE_DIR:  path.join(__dirname, '../../security/browser-profile'),  // persistent browser state
+  SESSION_FILE: path.join(__dirname, '../../security/ig-session.json'),  // legacy (kept for migration)
   RATE_LOG:     path.join(__dirname, '../../security/ig-rate.json'),
   SCREENSHOT_DIR: path.join(__dirname, '../../tools/screen'),
   BASE_URL: 'https://www.instagram.com',
+  USER_AGENT: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
   DELAYS: {
     page_load:    [2500, 4500],
     between_actions: [800, 2000],
@@ -132,6 +134,7 @@ async function logToSupabase(username, message, status) {
   if (!supabase) return;
   const { error } = await supabase.from('leads').upsert({
     ig_username: username,
+    business_name: username,   // satisfies NOT NULL constraint
     notes: message,
     status,
     sent_at: new Date().toISOString(),
@@ -283,7 +286,7 @@ async function sendDM(page, username, message, dryRun = false) {
 
   await takeScreenshot(page, `profile-${username}`);
 
-  // Click Message button
+  // Click Message button on profile
   try {
     const msgBtn = page.locator('button:has-text("Message"), div[role="button"]:has-text("Message"), a:has-text("Message")');
     await msgBtn.first().waitFor({ timeout: 10000 });
@@ -296,10 +299,68 @@ async function sendDM(page, username, message, dryRun = false) {
     return { success: false, reason: 'no_message_button' };
   }
 
-  // Type message in DM composer
+  // Instagram's new UI: Message button → general inbox → need to open new conversation
+  // If we landed on the inbox (not a direct thread), use the new-message flow
+  await randDelay([1500, 2500]);
+  const onInbox = page.url().includes('/direct/inbox') || page.url().includes('/direct/t/') === false;
+
+  if (onInbox || page.url().includes('/direct/inbox')) {
+    console.log(`[DM] Inbox opened — starting new conversation with @${username}`);
+
+    // Click the compose/pencil icon or "Send message" button to open new message dialog
+    try {
+      const newMsgBtn = page.locator('button[aria-label="New message"], a[aria-label="New message"], button:has-text("Send message"), svg[aria-label="New message"]');
+      await newMsgBtn.first().waitFor({ timeout: 6000 });
+      await newMsgBtn.first().click();
+      await randDelay([1000, 2000]);
+    } catch {
+      // Try clicking the pencil/compose icon in the DM inbox header
+      try {
+        const pencil = page.locator('[aria-label="New Message"], [aria-label="Compose"]').first();
+        await pencil.click({ timeout: 4000 });
+        await randDelay([800, 1500]);
+      } catch {}
+    }
+
+    // Search for the username in the new message dialog
+    try {
+      const searchInput = page.locator('input[placeholder*="Search"], input[name="queryBox"], input[aria-label*="Search"]');
+      await searchInput.first().waitFor({ timeout: 8000 });
+      await searchInput.first().click();
+      await randDelay([500, 1000]);
+      await page.keyboard.type(username, { delay: 80 });
+      await randDelay([1500, 2500]);
+
+      // Click the first search result
+      const result = page.locator(`button:has-text("${username}"), div[role="button"]:has-text("${username}"), span:has-text("${username}")`);
+      await result.first().waitFor({ timeout: 8000 });
+      await result.first().click();
+      await randDelay([800, 1500]);
+
+      // Click Chat/Next button to open conversation
+      const chatBtn = page.locator('button:has-text("Chat"), button:has-text("Next"), div[role="button"]:has-text("Next")');
+      await chatBtn.first().waitFor({ timeout: 5000 });
+      await chatBtn.first().click();
+      await randDelay(CONFIG.DELAYS.page_load);
+    } catch (e) {
+      console.log(`[DM] New message dialog failed for @${username}: ${e.message}`);
+      await takeScreenshot(page, `new-msg-fail-${username}`);
+      await logToSupabase(username, message, 'failed_compose');
+      return { success: false, reason: 'new_message_dialog_failed' };
+    }
+  }
+
+  // Type message in DM composer (handles both Lexical editor and standard inputs)
   try {
-    const composer = page.locator('div[aria-label="Message"], textarea[placeholder*="essage"], div[data-lexical-editor="true"]');
-    await composer.first().waitFor({ timeout: 8000 });
+    await takeScreenshot(page, `before-compose-${username}`);
+    const composer = page.locator([
+      'div[contenteditable="true"]',
+      'div[role="textbox"]',
+      'div[aria-label="Message"]',
+      'div[data-lexical-editor="true"]',
+      'textarea[placeholder*="essage"]',
+    ].join(', '));
+    await composer.first().waitFor({ timeout: 10000 });
     await composer.first().click();
     await randDelay(CONFIG.DELAYS.between_actions);
 
@@ -344,46 +405,79 @@ async function main() {
     }
   }
 
-  // ── Setup mode: open browser for manual login, save session ─────────────────
+  // ── Setup mode: manual login → save cookies + localStorage ──────────────────
+  // Run once: node Agency/tools/instagram-dm.js --setup
+  // Log in manually, press Enter — full session saved (cookies + localStorage).
   if (flags['setup']) {
     console.log('\n════════════════════════════════════════════════════');
     console.log('  Instagram Session Setup — Crown Media Group');
     console.log('════════════════════════════════════════════════════');
     console.log('\nOpening browser. Log in to @crownmediagroupco.');
-    console.log('Once you see your Instagram home feed — press ENTER.\n');
+    console.log('Once you see your Instagram home feed — press ENTER here.\n');
 
-    let setupLauncher = chromium;
-    try {
-      const { chromium: sc } = await import('playwright-extra');
-      const SP = (await import('playwright-extra-plugin-stealth')).default;
-      sc.use(SP());
-      setupLauncher = sc;
-    } catch {}
-
-    const setupBrowser = await setupLauncher.launch({
+    const setupBrowser = await chromium.launch({
       headless: false,
       args: ['--no-sandbox', '--disable-blink-features=AutomationControlled'],
       slowMo: 50,
     });
     const setupCtx = await setupBrowser.newContext({
-      userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36',
+      userAgent: CONFIG.USER_AGENT,
       viewport: { width: 1280, height: 900 },
     });
+
+    // Override automation signals before any page loads
+    await setupCtx.addInitScript(() => {
+      Object.defineProperty(navigator, 'webdriver', { get: () => undefined });
+      window.chrome = { runtime: {}, loadTimes: () => {}, csi: () => {}, app: {} };
+    });
+
     const setupPage = await setupCtx.newPage();
     await setupPage.goto('https://www.instagram.com/accounts/login/', { waitUntil: 'domcontentloaded' });
 
+    // Auto-detect login — poll for sessionid cookie (no Enter needed)
+    console.log('[SETUP] Waiting for login... (log in to @crownmediagroupco in the browser)');
+    console.log('[SETUP] Session saves automatically once your home feed loads.\n');
+
     await new Promise(resolve => {
-      process.stdin.resume();
-      process.stdin.once('data', resolve);
+      const check = setInterval(async () => {
+        try {
+          const cookies = await setupCtx.cookies('https://www.instagram.com');
+          const hasSession = cookies.some(c => c.name === 'sessionid' && c.value);
+          if (hasSession) {
+            clearInterval(check);
+            resolve();
+          }
+        } catch { clearInterval(check); resolve(); }
+      }, 2000);
+      // Safety timeout: 5 minutes
+      setTimeout(() => { clearInterval(check); resolve(); }, 300000);
     });
 
+    console.log('[SETUP] Login detected — saving session...');
+    await sleep(2000); // let Instagram finish setting all cookies/localStorage
+
+    // Save cookies AND localStorage
     const cookies = await setupCtx.cookies();
+    let storage = {};
+    try {
+      storage = await setupPage.evaluate(() => {
+        const ls = {};
+        for (let i = 0; i < localStorage.length; i++) {
+          const k = localStorage.key(i);
+          ls[k] = localStorage.getItem(k);
+        }
+        return ls;
+      });
+    } catch {}
+
     const dir = path.dirname(CONFIG.SESSION_FILE);
     if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
-    fs.writeFileSync(CONFIG.SESSION_FILE, JSON.stringify(cookies, null, 2));
+    fs.writeFileSync(CONFIG.SESSION_FILE, JSON.stringify({ cookies, storage }, null, 2));
 
-    console.log('\n[SESSION] Saved to', CONFIG.SESSION_FILE);
-    console.log('[SESSION] Run DMs now: node Agency/tools/instagram-dm.js --user <target> --template cold_outreach\n');
+    console.log(`\n[SESSION] Saved ${cookies.length} cookies + ${Object.keys(storage).length} localStorage keys`);
+    const hasSessionid = cookies.some(c => c.name === 'sessionid');
+    console.log(`[SESSION] sessionid present: ${hasSessionid ? 'YES — fully authenticated' : 'NO — try logging in again'}`);
+    console.log('[SESSION] Run DMs: node Agency/tools/instagram-dm.js --user <target> --template cold_outreach\n');
     await setupBrowser.close();
     process.exit(0);
   }
@@ -434,52 +528,71 @@ async function main() {
     console.log(`[RATE] Only sending ${queue.length} of ${targets.length} (daily cap)`);
   }
 
-  // Launch Playwright with stealth (bypasses Instagram bot detection)
-  let chromiumLauncher = chromium;
-  try {
-    const { chromium: stealthChromium } = await import('playwright-extra');
-    const StealthPlugin = (await import('playwright-extra-plugin-stealth')).default;
-    stealthChromium.use(StealthPlugin());
-    chromiumLauncher = stealthChromium;
-  } catch {
-    console.log('[STEALTH] Plugin not available, using standard Playwright');
-  }
-
-  const browser = await chromiumLauncher.launch({
+  // Launch browser with stealth overrides
+  const browser = await chromium.launch({
     headless: false,
-    args: ['--no-sandbox', '--disable-blink-features=AutomationControlled', '--disable-web-security'],
+    args: ['--no-sandbox', '--disable-blink-features=AutomationControlled'],
     slowMo: 50,
   });
 
   const context = await browser.newContext({
-    userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36',
+    userAgent: CONFIG.USER_AGENT,
     viewport: { width: 1280, height: 900 },
     locale: 'en-US',
     timezoneId: 'America/New_York',
   });
+
+  // Load session file (cookies + localStorage)
+  let savedCookies = [];
+  let savedStorage = {};
+  if (!dryRun) {
+    if (!fs.existsSync(CONFIG.SESSION_FILE)) {
+      console.error('[SESSION] No session found. Run: node Agency/tools/instagram-dm.js --setup');
+      await browser.close();
+      process.exit(1);
+    }
+    const raw = JSON.parse(fs.readFileSync(CONFIG.SESSION_FILE, 'utf8'));
+    savedCookies = Array.isArray(raw) ? raw : (raw.cookies || []);
+    savedStorage = Array.isArray(raw) ? {} : (raw.storage || {});
+    if (savedCookies.length) await context.addCookies(savedCookies);
+  }
+
+  // addInitScript runs before EVERY page's JS — injects localStorage + stealth BEFORE Instagram reads them
+  await context.addInitScript((storageData) => {
+    // Restore Instagram session storage keys before their JS checks them
+    // Key keys: ig_did, ig_nonce, mid, ds_user_id
+    for (const [k, v] of Object.entries(storageData)) {
+      try { localStorage.setItem(k, v); } catch {}
+    }
+    // Hide automation fingerprints
+    Object.defineProperty(navigator, 'webdriver', { get: () => undefined });
+    Object.defineProperty(navigator, 'plugins', { get: () => [1, 2, 3, 4, 5] });
+    Object.defineProperty(navigator, 'languages', { get: () => ['en-US', 'en'] });
+    window.chrome = { runtime: {}, loadTimes: () => {}, csi: () => {}, app: {} };
+  }, savedStorage);
 
   const page = await context.newPage();
   const results = [];
 
   try {
     if (!dryRun) {
-      const sessionLoaded = await loadSession(context);
+      // Warmup sequence (research-confirmed): home → explore → profile
+      // Cold-hitting a profile directly always triggers Instagram's login wall
+      console.log('[WARMUP] Home...');
+      await page.goto(CONFIG.BASE_URL, { waitUntil: 'domcontentloaded' });
+      await randDelay([2500, 4000]);
 
-      if (!sessionLoaded) {
-        await login(page);
-        await saveSession(context);
-      } else {
-        // Verify session is still valid
-        await page.goto(CONFIG.BASE_URL, { waitUntil: 'domcontentloaded' });
-        await randDelay(CONFIG.DELAYS.page_load);
-        if (page.url().includes('/login')) {
-          console.log('[SESSION] Expired — logging in fresh');
-          await login(page);
-          await saveSession(context);
-        } else {
-          console.log('[SESSION] Valid');
-        }
+      if (page.url().includes('/login')) {
+        console.log('[SESSION] Expired — run --setup again');
+        await browser.close();
+        process.exit(1);
       }
+
+      console.log('[WARMUP] Explore...');
+      await page.goto(`${CONFIG.BASE_URL}/explore/`, { waitUntil: 'domcontentloaded' });
+      await randDelay([3000, 5000]);
+
+      console.log('[SESSION] Authenticated — ready to send DMs');
     }
 
     for (let i = 0; i < queue.length; i++) {
@@ -507,7 +620,6 @@ async function main() {
     }
 
   } finally {
-    if (!dryRun) await saveSession(context);
     await browser.close();
   }
 
