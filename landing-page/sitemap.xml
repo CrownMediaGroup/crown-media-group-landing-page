@@ -22,6 +22,12 @@
     <priority>0.8</priority>
   </url>
   <url>
+    <loc>https://crownmediagroup.co/blog/how-crown-media-group-helps-columbia-sc-businesses-get-more-/</loc>
+    <lastmod>2026-04-05</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
     <loc>https://crownmediagroup.co/blog/what-columbia-sc-business-owners-need-to-know-about-ai-power/</loc>
     <lastmod>2026-04-02</lastmod>
     <changefreq>monthly</changefreq>
@@ -107,6 +113,11 @@
   </url>
   <url>
     <loc>https://crownmediagroup.co/blog/category/faith-business/</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://crownmediagroup.co/blog/category/local-business/</loc>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
