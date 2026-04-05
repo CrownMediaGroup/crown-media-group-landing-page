@@ -16,6 +16,12 @@
     <priority>0.9</priority>
   </url>
   <url>
+    <loc>https://crownmediagroup.co/blog/how-to-build-a-faith-driven-brand-that-actually-converts-the/</loc>
+    <lastmod>2026-04-05</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
     <loc>https://crownmediagroup.co/blog/what-columbia-sc-business-owners-need-to-know-about-ai-power/</loc>
     <lastmod>2026-04-02</lastmod>
     <changefreq>monthly</changefreq>
@@ -98,6 +104,11 @@
     <lastmod>2026-03-27</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://crownmediagroup.co/blog/category/faith-business/</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
   </url>
   <url>
     <loc>https://crownmediagroup.co/blog/category/ai-marketing/</loc>
