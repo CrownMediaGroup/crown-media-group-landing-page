@@ -82,6 +82,17 @@
   <h1>CRM Admin</h1>
   <p class="sub">Create client workspaces and logins. Only you can see this page.</p>
 
+  <!-- Command Center -->
+  <div class="card" id="cmdCenter" style="margin-bottom:24px">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+      <h2 style="margin:0">Command Center</h2>
+      <button type="button" onclick="loadStats()" style="background:none;border:1px solid #333;color:#aaa;border-radius:6px;padding:4px 12px;font-size:.75rem;cursor:pointer">Refresh</button>
+    </div>
+    <div id="statsGrid" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px">
+      <div class="empty-table">Loading...</div>
+    </div>
+  </div>
+
   <!-- Create new client workspace -->
   <div class="card">
     <h2>Add New Client</h2>
@@ -152,6 +163,7 @@
     const data = await res.json();
     if (data.user.role !== 'superadmin') { window.location.replace('/'); }
   } catch { window.location.replace('/login'); }
+  loadStats();
   loadWorkspaces();
   loadMaintenance('all');
 })();
@@ -292,6 +304,35 @@ function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;'
 
 function copyText(text) {
   navigator.clipboard.writeText(text).then(() => alert('Copied!')).catch(() => {});
+}
+
+// ── Command Center Stats ──────────────────────────────────────────────────────
+async function loadStats() {
+  const grid = document.getElementById('statsGrid');
+  try {
+    const res  = await fetch('/api/dashboard/stats', { credentials: 'same-origin' });
+    const data = await res.json();
+    if (!data.ok) { grid.innerHTML = '<div class="empty-table">Stats unavailable.</div>'; return; }
+    const s = data.stats;
+
+    const tile = (label, value, color, sub) => `
+      <div style="background:#111;border:1px solid #222;border-radius:8px;padding:14px 12px;text-align:center">
+        <div style="font-size:1.6rem;font-weight:700;color:${color}">${value ?? '—'}</div>
+        <div style="font-size:.7rem;color:#666;text-transform:uppercase;letter-spacing:.06em;margin-top:4px">${label}</div>
+        ${sub ? `<div style="font-size:.68rem;color:#444;margin-top:3px">${sub}</div>` : ''}
+      </div>`;
+
+    grid.innerHTML =
+      tile('Revenue MTD', s.revenue_mtd !== undefined ? '$' + s.revenue_mtd : '—', '#22c55e', s.revenue_txns ? s.revenue_txns + ' txns' : '') +
+      tile('Active Clients', s.clients_active, '#C9A84C', '') +
+      tile('Hot Leads', s.contacts_hot, '#f97316', s.followups_due ? s.followups_due + ' due today' : '') +
+      tile('Total Leads DB', s.leads_total ?? '—', '#C9A84C', s.leads_new ? s.leads_new + ' new' : '') +
+      tile('In Sequence', s.leads_sequence ?? '—', '#aaa', 'outreach active') +
+      tile('Outreach Sent', s.outreach_sent_today ?? '—', '#aaa', 'today') +
+      tile('Content Queued', s.content_queued ?? '—', '#C9A84C', 'scheduled posts') +
+      tile('🔴 Red Tickets', s.maint_red ?? 0, s.maint_red > 0 ? '#e05c5c' : '#4caf7d', s.maint_open + ' open total') +
+      tile('Contacts', s.contacts_total, '#aaa', '');
+  } catch { grid.innerHTML = '<div class="empty-table">Stats failed to load.</div>'; }
 }
 
 // ── Maintenance Requests ──────────────────────────────────────────────────────

@@ -143,6 +143,55 @@ ${businesses.slice(0, IS_TEST ? 3 : 20).map((b, i) => `${i + 1}. ${b.business_na
   return businesses.map(b => ({ ...b, lead_score: 50, category: 'Unknown', notes: '' }));
 }
 
+// ── Enrich top leads via EXA contact search ───────────────────────────────────
+
+async function enrichTopLeads(leads) {
+  if (!EXA_KEY) return leads;
+  const top = leads.filter(l => l.lead_score >= 60).slice(0, IS_TEST ? 2 : 10);
+  log(`Enriching ${top.length} top leads for owner/contact info...`);
+
+  for (const lead of top) {
+    try {
+      const name = (lead.business_name || '').split('|')[0].trim();
+      const res = await fetch('https://api.exa.ai/search', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'x-api-key': EXA_KEY },
+        body: JSON.stringify({
+          query: `${name} Columbia SC owner contact email`,
+          numResults: 3, type: 'neural', useAutoprompt: false,
+          contents: { text: { maxCharacters: 300 } },
+        }),
+      });
+      const data = await res.json();
+      if (!data.results?.length) continue;
+
+      // Pass snippets to Claude to extract contact info
+      if (!ANTHROPIC_KEY) continue;
+      const snippets = data.results.map(r => r.text || '').join('\n---\n');
+      const aiRes = await fetch('https://api.anthropic.com/v1/messages', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'x-api-key': ANTHROPIC_KEY, 'anthropic-version': '2023-06-01' },
+        body: JSON.stringify({
+          model: 'claude-haiku-4-5-20251001', max_tokens: 200,
+          messages: [{ role: 'user', content: `Extract contact info from these snippets about "${name}" in Columbia SC. Return JSON only: { "owner_name": string|null, "email": string|null, "phone": string|null }. If not found return null for that field.\n\n${snippets}` }],
+        }),
+      });
+      const aiData = await aiRes.json();
+      const match = (aiData.content?.[0]?.text || '').match(/\{[\s\S]*\}/);
+      if (match) {
+        const info = JSON.parse(match[0]);
+        if (info.owner_name) lead.owner_name = info.owner_name;
+        if (info.email)      lead.email      = info.email;
+        if (info.phone)      lead.phone      = info.phone;
+        if (info.owner_name || info.email) {
+          log(`  Enriched: ${name} — ${info.owner_name || ''} ${info.email || ''}`);
+        }
+      }
+    } catch { /* skip enrichment errors */ }
+  }
+  return leads;
+}
+
 // ── Push to Supabase leads table ──────────────────────────────────────────────
 
 async function pushToSupabase(leads) {
@@ -167,6 +216,9 @@ async function pushToSupabase(leads) {
           website: lead.website || '',
           category: lead.category || 'Unknown',
           notes: lead.notes || '',
+          contact_name: lead.owner_name || null,
+          email: lead.email || null,
+          phone: lead.phone || null,
           lead_score: lead.lead_score || 50,
           source: 'nightly-lead-gen',
           status: 'new',
@@ -242,7 +294,8 @@ async function run() {
     log(`  ${bar} ${l.lead_score} | ${l.business_name}`);
   });
 
-  await pushToSupabase(sorted);
+  const enriched = await enrichTopLeads(sorted);
+  await pushToSupabase(enriched);
   writeReport(sorted);
 
   if (!IS_TEST) {

@@ -1467,6 +1467,71 @@ Rules:
   }
 });
 
+// ── Command Center Dashboard Stats ───────────────────────────────────────────
+app.get('/api/dashboard/stats', async (req, res) => {
+  const session = validateSession(getCookie(req, 'crm_session'));
+  if (!session) return res.status(401).json({ error: 'Unauthorized' });
+
+  const stats = {};
+
+  // CRM stats (local SQLite)
+  stats.contacts_total  = db.prepare('SELECT COUNT(*) as c FROM contacts WHERE workspace_id=1 AND archived=0').get().c;
+  stats.clients_active  = db.prepare("SELECT COUNT(*) as c FROM contacts WHERE workspace_id=1 AND status='Active Client'").get().c;
+  stats.contacts_hot    = db.prepare("SELECT COUNT(*) as c FROM contacts WHERE workspace_id=1 AND priority='Hot' AND archived=0").get().c;
+  stats.followups_due   = db.prepare("SELECT COUNT(*) as c FROM contacts WHERE workspace_id=1 AND next_followup <= date('now') AND archived=0").get().c;
+
+  // Maintenance stats
+  stats.maint_open  = db.prepare("SELECT COUNT(*) as c FROM maintenance_requests WHERE status='open'").get().c;
+  stats.maint_red   = db.prepare("SELECT COUNT(*) as c FROM maintenance_requests WHERE traffic_light='red'").get().c;
+  stats.maint_green = db.prepare("SELECT COUNT(*) as c FROM maintenance_requests WHERE traffic_light='green'").get().c;
+
+  // Outreach log (read from file)
+  try {
+    const logPath = join(__dirname, '../../Agency/ops/notes/OUTREACH-LOG.md');
+    if (existsSync(logPath)) {
+      const logTxt = readFileSync(logPath, 'utf8');
+      const sentMatch = logTxt.match(/\*\*Sent:\*\* (\d+)/);
+      stats.outreach_sent_today = sentMatch ? parseInt(sentMatch[1]) : 0;
+    } else { stats.outreach_sent_today = 0; }
+  } catch { stats.outreach_sent_today = 0; }
+
+  // Lead counts from Supabase
+  try {
+    const SURL = process.env.SUPABASE_URL, SKEY = process.env.SUPABASE_KEY;
+    if (SURL && SKEY) {
+      const r = await fetch(`${SURL}/rest/v1/leads?select=id,status`, { headers: { apikey: SKEY, Authorization: `Bearer ${SKEY}` } });
+      const leads = await r.json();
+      if (Array.isArray(leads)) {
+        stats.leads_total    = leads.length;
+        stats.leads_new      = leads.filter(l => l.status === 'new').length;
+        stats.leads_sequence = leads.filter(l => l.status === 'in_sequence').length;
+      }
+    }
+  } catch { stats.leads_total = 0; stats.leads_new = 0; stats.leads_sequence = 0; }
+
+  // Stripe revenue MTD
+  try {
+    const SK = process.env.STRIPE_SECRET_KEY;
+    if (SK) {
+      const mtdStart = Math.floor(new Date(new Date().getFullYear(), new Date().getMonth(), 1).getTime() / 1000);
+      const r = await fetch(`https://api.stripe.com/v1/charges?created[gte]=${mtdStart}&limit=100`, { headers: { Authorization: `Bearer ${SK}` } });
+      const data = await r.json();
+      if (data.data) {
+        stats.revenue_mtd  = (data.data.filter(c => c.paid && !c.refunded).reduce((s, c) => s + c.amount, 0) / 100).toFixed(2);
+        stats.revenue_txns = data.data.filter(c => c.paid).length;
+      }
+    }
+  } catch { stats.revenue_mtd = '0.00'; stats.revenue_txns = 0; }
+
+  // Content queue count
+  try {
+    const sp = join(__dirname, '../../Agency/ops/scheduled-posts.json');
+    stats.content_queued = existsSync(sp) ? (JSON.parse(readFileSync(sp, 'utf8')) || []).filter(p => p.status === 'pending').length : 0;
+  } catch { stats.content_queued = 0; }
+
+  res.json({ ok: true, stats });
+});
+
 // ── Maintenance Requests ──────────────────────────────────────────────────────
 
 // Helper: send email via Resend (fallback when Gmail mailer not set up)
@@ -1506,6 +1571,17 @@ async function sendEmail({ to, subject, html, text, attachments }) {
       body: JSON.stringify(body),
     });
     return r.ok;
+  } catch { return false; }
+}
+
+// ── SMS alert helper (texts King directly) ────────────────────────────────────
+async function sendAlertSMS(body) {
+  const to   = process.env.TWILIO_ALERT_TO || process.env.KING_PHONE;
+  const from = process.env.TWILIO_FROM_NUMBER;
+  if (!twilioClient || !to || !from) return false;
+  try {
+    await twilioClient.messages.create({ from, to, body: body.substring(0, 1600) });
+    return true;
   } catch { return false; }
 }
 
@@ -1555,7 +1631,7 @@ app.post('/api/maintenance/submit', maintenanceLimiter, async (req, res) => {
 <p>—<br>Crown Media Group<br>crownmediagroup.co</p>`;
   sendEmail({ to: client_email, subject: 'Maintenance Request Received — Crown Media Group', html: ackHtml, text: `Hi ${client_name},\n\nWe received your request: ${description}\n\nPriority: ${prio}\n\nWe'll be in touch within 24 hours.\n\n— Crown Media Group` });
 
-  // Notify King — red gets urgent subject
+  // Notify King — red gets urgent subject + SMS
   const isRed = traffic_light === 'red';
   const kingSubject = isRed ? `🔴 RED ALERT: ${client_name} — ${ai_category || prio} — needs urgent attention` : `[${prio}] New Maintenance Request — ${client_name}`;
   const kingHtml = `<p><strong>${isRed ? '🔴 URGENT — ' : ''}New maintenance request from ${client_name}</strong> (${client_email})</p>
@@ -1565,6 +1641,7 @@ app.post('/api/maintenance/submit', maintenanceLimiter, async (req, res) => {
 <p><strong>Request:</strong> ${description}</p>
 <p><a href="https://crm.crownmediagroup.co/admin">View in CRM →</a></p>`;
   sendEmail({ to: 'king@crownmediagroup.co', subject: kingSubject, html: kingHtml, text: `${isRed ? '🔴 RED ALERT\n' : ''}New maintenance request:\nFrom: ${client_name} (${client_email})\nSite: ${website || 'n/a'}\nPriority: ${prio}\nCategory: ${ai_category}\nRequest: ${description}` });
+  if (isRed) sendAlertSMS(`🔴 RED ALERT\n${client_name}: ${description.substring(0, 100)}\nSite: ${website || 'n/a'}\ncrm.crownmediagroup.co/admin`);
 
   res.json({ ok: true, id: row.lastInsertRowid, traffic_light });
 });
@@ -1809,6 +1886,7 @@ app.post('/api/onboard/submit', onboardLimiter, async (req, res) => {
     <a href="https://crm.crownmediagroup.co" style="display:inline-block;margin-top:16px;background:#C9A84C;color:#000;padding:10px 20px;border-radius:6px;text-decoration:none;font-weight:700">View in CRM →</a>
   </div>`;
   sendEmail({ to: 'king@crownmediagroup.co', subject: `New Client Onboarded — ${business_name}`, html: kingHtml, text: `New onboarding from ${owner_name} (${business_name}) — ${email}\n\nBrief saved to Agency/ops/clients/`, attachments: icsAttachment });
+  sendAlertSMS(`✅ NEW CLIENT SIGNED UP\n${business_name} — ${owner_name}\nTier: ${service_tier}\nKickoff in 3 days. Brief ready.\ncrm.crownmediagroup.co`);
 
   res.json({ ok: true, contactId, briefGenerated: !!brief });
 });

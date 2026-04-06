@@ -200,6 +200,8 @@ function checkMaintenanceAlerts() {
     if (redTickets.length > 0) {
       log(`[Thor] 🔴 ${redTickets.length} RED maintenance ticket(s) need urgent attention`);
       const details = redTickets.map(r => `- ${r.client_name}: ${r.description.substring(0, 80)}`).join('\n');
+
+      // Email via Resend
       const RESEND_KEY = process.env.RESEND_API_KEY;
       if (RESEND_KEY) {
         fetch('https://api.resend.com/emails', {
@@ -213,6 +215,23 @@ function checkMaintenanceAlerts() {
             text: `RED ALERT\n\n${details}\n\nView: https://crm.crownmediagroup.co/admin`,
           }),
         }).catch(() => {});
+      }
+
+      // SMS via Twilio REST API (no package needed — direct HTTP)
+      const SID  = process.env.TWILIO_ACCOUNT_SID;
+      const AUTH = process.env.TWILIO_AUTH_TOKEN;
+      const FROM = process.env.TWILIO_FROM_NUMBER;
+      const TO   = process.env.TWILIO_ALERT_TO || process.env.KING_PHONE;
+      if (SID && AUTH && FROM && TO) {
+        const smsBody = `🔴 RED ALERT (Thor)\n${redTickets.length} urgent maintenance ticket(s):\n${redTickets.map(r => `${r.client_name}: ${r.description.substring(0,60)}`).join('\n')}\ncrm.crownmediagroup.co/admin`;
+        fetch(`https://api.twilio.com/2010-04-01/Accounts/${SID}/Messages.json`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+            'Authorization': 'Basic ' + Buffer.from(`${SID}:${AUTH}`).toString('base64'),
+          },
+          body: new URLSearchParams({ From: FROM, To: TO, Body: smsBody }).toString(),
+        }).then(r => { if (r.ok) log('[Thor] SMS alert sent'); }).catch(() => {});
       }
     }
     if (orangeTickets.length > 0) {
