@@ -402,7 +402,7 @@ footer{background:#0F0F28;padding:56px 64px;display:flex;align-items:center;just
 </div>
 
 <div id="hero">
-  <video id="hero-video" autoplay muted loop playsinline preload="auto" poster="/assets/social/crown-media-post-1.jpg">
+  <video id="hero-video" autoplay muted loop playsinline preload="auto" poster="/logo.png">
     <source src="/assets/video/hero-bg.mp4" type="video/mp4">
   </video>
   <canvas id="hero-canvas"></canvas>
@@ -858,6 +858,8 @@ try{(function(){
 })();}catch(e){console.warn('[hero-canvas] Three.js unavailable:',e.message);}
 (function(){
   var all=document.querySelectorAll('.reveal');
+  // Add .animate class to enable the hidden→visible transition
+  all.forEach(function(el){el.classList.add('animate');});
   if(typeof IntersectionObserver!=='undefined'){
     var obs=new IntersectionObserver(function(entries){entries.forEach(function(e){if(e.isIntersecting){e.target.classList.add('visible');obs.unobserve(e.target);}});},{threshold:0.05});
     all.forEach(function(el){obs.observe(el);});
