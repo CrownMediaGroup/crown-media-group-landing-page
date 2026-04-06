@@ -127,6 +127,10 @@ if (arg === '--uninstall') {
 const VIDEO_PIPELINE = path.join(ROOT, 'landing-page/scripts/blog-to-video.js');
 const VIDEO_LOG      = path.join(ROOT, 'landing-page/content/blog/.video-log.json');
 
+// In-memory guard — tracks slugs already spawned this session to prevent re-firing
+// even if the video pipeline crashes before writing to video-log.json
+const _spawnedThisSession = new Set();
+
 function getProcessedSlugs() {
   try {
     if (!fs.existsSync(VIDEO_LOG)) return new Set();
@@ -142,9 +146,10 @@ function triggerVideoForNewPosts() {
     const posts = fs.readdirSync(BLOG_DIR)
       .filter(f => f.endsWith('.md') && f !== 'fallback-post.md')
       .map(f => ({ file: f, slug: f.replace(/^\d{4}-\d{2}-\d{2}-/, '').replace(/\.md$/, '') }))
-      .filter(({ slug }) => !processed.has(slug));
+      .filter(({ slug }) => !processed.has(slug) && !_spawnedThisSession.has(slug));
 
-    for (const { file } of posts) {
+    for (const { file, slug } of posts) {
+      _spawnedThisSession.add(slug); // guard — never spawn this slug again this session
       log(`[Video Pipeline] New post detected: ${file} — spawning video pipeline...`);
       const { spawn } = require('child_process');
       const child = spawn(process.execPath, [VIDEO_PIPELINE, '--file', file], {
