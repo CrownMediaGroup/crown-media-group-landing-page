@@ -1899,6 +1899,91 @@ app.get('/api/onboard/list', (req, res) => {
   res.json({ ok: true, clients });
 });
 
+// ── Client Portal ─────────────────────────────────────────────────────────────
+// Clients log in with their workspace credentials and see content + requests + reports
+
+app.get('/portal', (req, res) => {
+  res.sendFile(join(__dirname, 'public', 'portal.html'));
+});
+
+// Portal login — returns portal_session cookie scoped to workspace
+app.post('/api/portal/login', loginLimiter, (req, res) => {
+  const { email, password } = req.body;
+  if (!email || !password) return res.status(400).json({ error: 'Email and password required' });
+  if (email.length > 254 || password.length > 128) return res.status(400).json({ error: 'Invalid credentials' });
+
+  const user = db.prepare('SELECT * FROM users WHERE email = ?').get(email.toLowerCase().trim());
+  const dummyHash = 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa$' + 'a'.repeat(128);
+  const valid = user ? verifyPassword(password, user.password_hash) : (verifyPassword(password, dummyHash), false);
+
+  if (!valid) return res.status(401).json({ error: 'Wrong email or password.' });
+
+  const token = createSession(user.id, user.workspace_id);
+  const isProd = process.env.NODE_ENV === 'production';
+  res.setHeader('Set-Cookie', `portal_session=${token}; Path=/portal; HttpOnly; SameSite=Strict; Max-Age=${30 * 24 * 60 * 60}${isProd ? '; Secure' : ''}`);
+  res.json({ ok: true, workspaceId: user.workspace_id });
+});
+
+// Portal data — content calendar, maintenance requests, reports, brand profile
+app.get('/api/portal/data', async (req, res) => {
+  const token = getCookie(req, 'portal_session') || getCookie(req, 'crm_session');
+  const session = validateSession(token);
+  if (!session) return res.status(401).json({ error: 'Unauthorized' });
+
+  const wsId = session.workspaceId;
+
+  // Get workspace/contact info
+  const contact = db.prepare("SELECT * FROM contacts WHERE workspace_id = ? LIMIT 1").get(wsId);
+  const workspace = db.prepare('SELECT * FROM workspaces WHERE id = ?').get(wsId);
+
+  // Content queue — scheduled posts for this workspace
+  let contentQueue = [];
+  try {
+    const contentPath = path.join(ROOT, 'Agency/ops/content');
+    if (fs.existsSync(contentPath)) {
+      const files = fs.readdirSync(contentPath).filter(f => f.endsWith('.json') || f.endsWith('.md'));
+      contentQueue = files.slice(0, 10).map(f => ({
+        file: f,
+        date: f.split('-').slice(0, 3).join('-') || 'Scheduled',
+        type: f.endsWith('.json') ? 'social' : 'content',
+      }));
+    }
+  } catch { /* skip */ }
+
+  // Maintenance requests for this workspace
+  const requests = db.prepare(
+    "SELECT id, description, status, traffic_light, ai_category, created_at FROM maintenance_requests WHERE workspace_id = ? ORDER BY created_at DESC LIMIT 20"
+  ).all(wsId);
+
+  // Content brief — read from Agency/ops/clients/
+  let contentBrief = null;
+  try {
+    const slug = (contact?.company || workspace?.name || '').toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
+    if (slug) {
+      const clientDir = path.join(ROOT, `Agency/ops/clients/${slug}`);
+      if (fs.existsSync(clientDir)) {
+        const briefs = fs.readdirSync(clientDir).filter(f => f.startsWith('content-brief')).sort().reverse();
+        if (briefs[0]) {
+          contentBrief = fs.readFileSync(path.join(clientDir, briefs[0]), 'utf8').substring(0, 2000);
+        }
+      }
+    }
+  } catch { /* skip */ }
+
+  res.json({
+    ok: true,
+    client: {
+      name: contact?.name || workspace?.name || session.user.email,
+      company: contact?.company || workspace?.name || '',
+      email: session.user.email,
+    },
+    contentQueue,
+    maintenanceRequests: requests,
+    contentBrief,
+    reportUrl: null, // placeholder — monthly PDF link when available
+  });
+});
+
 // ── Fallback → serve index.html (requires auth) ───────────────────────────────
 app.get('*', (req, res) => {
   const session = validateSession(getCookie(req, 'crm_session'));
