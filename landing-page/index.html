@@ -117,6 +117,7 @@ body{background:var(--cream);color:var(--text);font-family:'Inter',sans-serif;ov
 .grad-gold{background:linear-gradient(135deg,var(--gold-deep) 0%,var(--gold-light) 50%,var(--gold-deep) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
 .reveal{opacity:0;transform:translateY(32px);transition:opacity .9s ease,transform .9s ease}
 .reveal.visible{opacity:1;transform:translateY(0)}
+@media(prefers-reduced-motion:reduce){.reveal{opacity:1;transform:none}}
 nav{position:fixed;top:0;left:0;right:0;z-index:1000;padding:20px 64px;display:flex;align-items:center;justify-content:space-between;background:rgba(253,251,247,0.93);-webkit-backdrop-filter:blur(20px);backdrop-filter:blur(20px);border-bottom:1px solid var(--border-soft);transition:box-shadow .3s}
 nav.scrolled{box-shadow:0 4px 30px rgba(201,152,26,.08)}
 .nav-logo{display:flex;align-items:center;gap:12px;text-decoration:none}
@@ -809,7 +810,8 @@ const s='data:image/png;base64,'+LOGO;
 document.getElementById('nav-logo').src=s;
 document.getElementById('footer-logo').src=s;
 window.addEventListener('scroll',()=>document.getElementById('navbar').classList.toggle('scrolled',scrollY>40));
-(function(){
+try{(function(){
+  if(typeof THREE==='undefined')throw new Error('THREE not loaded');
   const canvas=document.getElementById('hero-canvas');
   const renderer=new THREE.WebGLRenderer({canvas,antialias:true,alpha:true});
   renderer.setPixelRatio(Math.min(devicePixelRatio,2));
@@ -853,9 +855,11 @@ window.addEventListener('scroll',()=>document.getElementById('navbar').classList
     renderer.render(scene,camera);
   })();
   window.addEventListener('resize',()=>{renderer.setSize(innerWidth,innerHeight);camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();});
-})();
+})();}catch(e){console.warn('[hero-canvas] Three.js unavailable:',e.message);}
 const obs=new IntersectionObserver(entries=>{entries.forEach(e=>{if(e.isIntersecting){e.target.classList.add('visible');obs.unobserve(e.target);}});},{threshold:.1});
 document.querySelectorAll('.reveal').forEach(el=>obs.observe(el));
+// Failsafe: force-show all reveals if observer never fires (e.g. Three.js crash blocked JS)
+setTimeout(function(){document.querySelectorAll('.reveal:not(.visible)').forEach(function(el){el.classList.add('visible');});},3000);
 function runC(el){
   const txt=el.dataset.text;if(txt){el.textContent=txt;return;}
   const target=parseInt(el.dataset.target),suf=el.dataset.suffix||'';
