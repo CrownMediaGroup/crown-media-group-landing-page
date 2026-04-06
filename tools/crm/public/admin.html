@@ -105,6 +105,19 @@
     <h2>All Client Workspaces</h2>
     <div id="wsTable"><div class="empty-table">Loading...</div></div>
   </div>
+
+  <!-- Maintenance Requests -->
+  <div class="card" style="margin-top:24px">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+      <h2 style="margin:0">Maintenance Requests <span id="maint-badge" style="background:#C9A84C;color:#000;border-radius:12px;padding:2px 9px;font-size:.72rem;vertical-align:middle;display:none"></span></h2>
+      <div style="display:flex;gap:8px">
+        <button type="button" onclick="loadMaintenance('open')" id="maint-open-btn" style="background:#C9A84C;color:#000;border:none;border-radius:6px;padding:6px 14px;font-size:.78rem;font-weight:700;cursor:pointer">Open</button>
+        <button type="button" onclick="loadMaintenance('all')" id="maint-all-btn" style="background:#1e1e1e;color:#aaa;border:1px solid #333;border-radius:6px;padding:6px 14px;font-size:.78rem;cursor:pointer">All</button>
+        <a href="/maintenance" target="_blank" style="background:#1e1e1e;color:#C9A84C;border:1px solid #333;border-radius:6px;padding:6px 14px;font-size:.78rem;text-decoration:none">Client Form</a>
+      </div>
+    </div>
+    <div id="maintTable"><div class="empty-table">Loading...</div></div>
+  </div>
 </div>
 
 <script>
@@ -117,6 +130,7 @@
     if (data.user.role !== 'superadmin') { window.location.replace('/'); }
   } catch { window.location.replace('/login'); }
   loadWorkspaces();
+  loadMaintenance('open');
 })();
 
 // ── Auto-generate password on load ───────────────────────────────────────────
@@ -255,6 +269,58 @@ function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;'
 
 function copyText(text) {
   navigator.clipboard.writeText(text).then(() => alert('Copied!')).catch(() => {});
+}
+
+// ── Maintenance Requests ──────────────────────────────────────────────────────
+let _maintView = 'open';
+const PRIO_COLOR = { Urgent: '#e05c5c', Normal: '#C9A84C', Low: '#666' };
+
+async function loadMaintenance(view) {
+  _maintView = view;
+  document.getElementById('maint-open-btn').style.background = view === 'open' ? '#C9A84C' : '#1e1e1e';
+  document.getElementById('maint-open-btn').style.color      = view === 'open' ? '#000' : '#aaa';
+  document.getElementById('maint-all-btn').style.background  = view === 'all'  ? '#C9A84C' : '#1e1e1e';
+  document.getElementById('maint-all-btn').style.color       = view === 'all'  ? '#000' : '#aaa';
+  const el = document.getElementById('maintTable');
+  el.innerHTML = '<div class="empty-table">Loading...</div>';
+  try {
+    const res  = await fetch(`/api/maintenance?status=${view}`, { credentials: 'same-origin' });
+    const data = await res.json();
+    const reqs = data.requests || [];
+    const openCount = reqs.filter(r => r.status === 'open').length;
+    const badge = document.getElementById('maint-badge');
+    if (openCount > 0 && view === 'open') { badge.textContent = openCount; badge.style.display = 'inline'; }
+    else badge.style.display = 'none';
+    if (!reqs.length) { el.innerHTML = `<div class="empty-table">${view === 'open' ? 'No open requests.' : 'No requests yet.'} Share the <a href="/maintenance" target="_blank" style="color:#C9A84C">client form</a>.</div>`; return; }
+    el.innerHTML = `<table>
+      <thead><tr><th>#</th><th>Client</th><th>Website</th><th>Request</th><th>Priority</th><th>Date</th><th>Action</th></tr></thead>
+      <tbody>${reqs.map(r => `<tr>
+        <td style="color:var(--muted);font-size:.75rem">${r.id}</td>
+        <td><strong>${esc(r.client_name)}</strong><br><span style="font-size:.72rem;color:var(--muted)">${esc(r.client_email)}</span></td>
+        <td style="font-size:.78rem;color:var(--muted)">${r.website ? `<a href="${esc(r.website)}" target="_blank" style="color:#C9A84C">${esc(r.website.replace(/^https?:\/\//, ''))}</a>` : '—'}</td>
+        <td style="font-size:.8rem;max-width:220px">${esc(r.description)}</td>
+        <td><span style="color:${PRIO_COLOR[r.priority]||'#aaa'};font-size:.78rem;font-weight:700">${r.priority}</span></td>
+        <td style="font-size:.72rem;color:var(--muted)">${r.created_at ? r.created_at.split('T')[0] : '—'}</td>
+        <td>${r.status === 'open'
+          ? `<button type="button" class="act-btn green" onclick="completeMaintenance(${r.id})">Mark Done</button>`
+          : `<span style="font-size:.72rem;color:#4caf50">Done ${(r.completed_at||'').split('T')[0]}</span>`}</td>
+      </tr>`).join('')}</tbody>
+    </table>`;
+  } catch { el.innerHTML = '<div class="empty-table">Failed to load maintenance requests.</div>'; }
+}
+
+async function completeMaintenance(id) {
+  const notes = prompt('Resolution notes (optional — sent to client):') ?? '';
+  if (notes === null) return; // cancelled
+  try {
+    const res = await fetch(`/api/maintenance/${id}/complete`, {
+      method: 'PUT', credentials: 'same-origin',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ notes }),
+    });
+    if (!res.ok) throw new Error((await res.json()).error);
+    loadMaintenance(_maintView);
+  } catch (err) { alert('Error: ' + err.message); }
 }
 </script>
 </body>

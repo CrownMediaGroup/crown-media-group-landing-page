@@ -103,6 +103,23 @@ db.exec(`
   );
 `);
 
+// ── Maintenance Requests ──────────────────────────────────────────────────────
+db.exec(`
+  CREATE TABLE IF NOT EXISTS maintenance_requests (
+    id          INTEGER PRIMARY KEY AUTOINCREMENT,
+    client_name TEXT NOT NULL,
+    client_email TEXT NOT NULL,
+    website     TEXT,
+    description TEXT NOT NULL,
+    priority    TEXT DEFAULT 'Normal',
+    status      TEXT DEFAULT 'open',
+    notes       TEXT DEFAULT '',
+    created_at  DATETIME DEFAULT CURRENT_TIMESTAMP,
+    completed_at DATETIME
+  );
+  CREATE INDEX IF NOT EXISTS idx_maintenance_status ON maintenance_requests(status, created_at);
+`);
+
 // ── Campaigns (NxLevel outreach + future) ─────────────────────────────────────
 db.exec(`
   CREATE TABLE IF NOT EXISTS campaigns (

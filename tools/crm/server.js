@@ -1467,6 +1467,104 @@ Rules:
   }
 });
 
+// ── Maintenance Requests ──────────────────────────────────────────────────────
+
+// Helper: send email via Resend (fallback when Gmail mailer not set up)
+async function sendResendEmail({ to, subject, html, text }) {
+  const key = process.env.RESEND_API_KEY;
+  if (!key) return false;
+  try {
+    const r = await fetch('https://api.resend.com/emails', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${key}` },
+      body: JSON.stringify({ from: 'Crown Media Group <king@crownmediagroup.co>', to, subject, html, text }),
+    });
+    return r.ok;
+  } catch { return false; }
+}
+
+async function sendEmail({ to, subject, html, text }) {
+  if (mailer) {
+    try {
+      await mailer.sendMail({ from: `Crown Media Group <${process.env.GMAIL_USER}>`, to, subject, html, text });
+      return true;
+    } catch { /* fall through to Resend */ }
+  }
+  return sendResendEmail({ to, subject, html, text });
+}
+
+const maintenanceLimiter = rateLimit({ windowMs: 15 * 60 * 1000, max: 10, standardHeaders: true, legacyHeaders: false });
+
+// Public submit endpoint — no auth required
+app.post('/api/maintenance/submit', maintenanceLimiter, async (req, res) => {
+  const { client_name, client_email, website, description, priority } = req.body;
+  if (!client_name || !client_email || !description) {
+    return res.status(400).json({ error: 'Name, email, and description are required.' });
+  }
+  const prio = ['Low', 'Normal', 'Urgent'].includes(priority) ? priority : 'Normal';
+  const row = db.prepare(
+    'INSERT INTO maintenance_requests (client_name, client_email, website, description, priority) VALUES (?, ?, ?, ?, ?)'
+  ).run(client_name.trim(), client_email.trim(), (website || '').trim(), description.trim(), prio);
+
+  // Auto-ack to client
+  const ackHtml = `<p>Hi ${client_name},</p>
+<p>We've received your maintenance request and will get back to you within 24 hours.</p>
+<p><strong>Request:</strong> ${description}</p>
+<p><strong>Priority:</strong> ${prio}</p>
+<p>—<br>Crown Media Group<br>crownmediagroup.co</p>`;
+  sendEmail({ to: client_email, subject: 'Maintenance Request Received — Crown Media Group', html: ackHtml, text: `Hi ${client_name},\n\nWe received your request: ${description}\n\nPriority: ${prio}\n\nWe'll be in touch within 24 hours.\n\n— Crown Media Group` });
+
+  // Notify King
+  const kingHtml = `<p><strong>New maintenance request from ${client_name}</strong> (${client_email})</p>
+<p><strong>Website:</strong> ${website || 'not provided'}</p>
+<p><strong>Priority:</strong> ${prio}</p>
+<p><strong>Request:</strong> ${description}</p>
+<p><a href="https://crm.crownmediagroup.co/admin">View in CRM →</a></p>`;
+  sendEmail({ to: 'king@crownmediagroup.co', subject: `[${prio}] New Maintenance Request — ${client_name}`, html: kingHtml, text: `New maintenance request:\nFrom: ${client_name} (${client_email})\nSite: ${website || 'n/a'}\nPriority: ${prio}\nRequest: ${description}` });
+
+  res.json({ ok: true, id: row.lastInsertRowid });
+});
+
+// Auth-gated: King lists all maintenance requests
+app.get('/api/maintenance', (req, res) => {
+  const session = validateSession(getCookie(req, 'crm_session'));
+  if (!session) return res.status(401).json({ error: 'Unauthorized' });
+  const { status } = req.query;
+  let rows;
+  if (status === 'all') {
+    rows = db.prepare('SELECT * FROM maintenance_requests ORDER BY created_at DESC').all();
+  } else {
+    rows = db.prepare("SELECT * FROM maintenance_requests WHERE status = 'open' ORDER BY CASE priority WHEN 'Urgent' THEN 1 WHEN 'Normal' THEN 2 ELSE 3 END, created_at ASC").all();
+  }
+  res.json({ ok: true, requests: rows });
+});
+
+// Auth-gated: King marks a request complete
+app.put('/api/maintenance/:id/complete', async (req, res) => {
+  const session = validateSession(getCookie(req, 'crm_session'));
+  if (!session) return res.status(401).json({ error: 'Unauthorized' });
+  const { id } = req.params;
+  const { notes } = req.body;
+  const row = db.prepare('SELECT * FROM maintenance_requests WHERE id = ?').get(id);
+  if (!row) return res.status(404).json({ error: 'Not found' });
+  db.prepare("UPDATE maintenance_requests SET status = 'complete', notes = ?, completed_at = datetime('now') WHERE id = ?").run(notes || '', id);
+
+  // Notify client of completion
+  const html = `<p>Hi ${row.client_name},</p>
+<p>Your maintenance request has been completed.</p>
+<p><strong>Original request:</strong> ${row.description}</p>
+${notes ? `<p><strong>Resolution notes:</strong> ${notes}</p>` : ''}
+<p>Let us know if you have any other questions.</p>
+<p>—<br>Crown Media Group<br>crownmediagroup.co</p>`;
+  await sendEmail({ to: row.client_email, subject: 'Your Maintenance Request is Complete — Crown Media Group', html, text: `Hi ${row.client_name},\n\nYour request has been completed.\n\nOriginal: ${row.description}\n${notes ? 'Notes: ' + notes + '\n' : ''}\n— Crown Media Group` });
+  res.json({ ok: true });
+});
+
+// Serve the public maintenance form (no auth)
+app.get('/maintenance', (req, res) => {
+  res.sendFile(join(__dirname, 'public', 'maintenance.html'));
+});
+
 // ── Fallback → serve index.html (requires auth) ───────────────────────────────
 app.get('*', (req, res) => {
   const session = validateSession(getCookie(req, 'crm_session'));
