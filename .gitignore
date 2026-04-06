@@ -104,6 +104,9 @@ assets/personal/
 # --- n8n MCP tool (nested git repo — tracked separately) ---
 tools/n8n-mcp/
 
+# --- Client onboarding system (standalone deployable, own git repo) ---
+client-onboarding-system/
+
 # --- Local runtime DBs and caches ---
 .claude/memory.db
 .claude/skills/
