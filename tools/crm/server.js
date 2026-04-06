@@ -1483,14 +1483,30 @@ async function sendResendEmail({ to, subject, html, text }) {
   } catch { return false; }
 }
 
-async function sendEmail({ to, subject, html, text }) {
+async function sendEmail({ to, subject, html, text, attachments }) {
   if (mailer) {
     try {
-      await mailer.sendMail({ from: `Crown Media Group <${process.env.GMAIL_USER}>`, to, subject, html, text });
+      await mailer.sendMail({ from: `Crown Media Group <${process.env.GMAIL_USER}>`, to, subject, html, text, attachments });
       return true;
     } catch { /* fall through to Resend */ }
   }
-  return sendResendEmail({ to, subject, html, text });
+  // Resend with attachments (base64)
+  const key = process.env.RESEND_API_KEY;
+  if (!key) return false;
+  try {
+    const body = { from: 'Crown Media Group <king@crownmediagroup.co>', to, subject, html, text };
+    if (attachments?.length) {
+      body.attachments = attachments.map(a => ({
+        filename: a.filename,
+        content: Buffer.isBuffer(a.content) ? a.content.toString('base64') : Buffer.from(a.content).toString('base64'),
+      }));
+    }
+    const r = await fetch('https://api.resend.com/emails', {
+      method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${key}` },
+      body: JSON.stringify(body),
+    });
+    return r.ok;
+  } catch { return false; }
 }
 
 const maintenanceLimiter = rateLimit({ windowMs: 15 * 60 * 1000, max: 10, standardHeaders: true, legacyHeaders: false });
@@ -1648,6 +1664,64 @@ app.get('/onboard', (req, res) => {
   res.sendFile(join(__dirname, 'public', 'onboarding.html'));
 });
 
+// ── Onboarding helpers ────────────────────────────────────────────────────────
+
+function buildICS({ summary, description, startISO, endISO, attendeeEmail, attendeeName }) {
+  const uid = randomBytes(16).toString('hex') + '@crownmediagroup.co';
+  const stamp = new Date().toISOString().replace(/[-:]/g, '').replace(/\.\d+/, '');
+  const start = startISO.replace(/[-:]/g, '').replace(/\.\d+/, '');
+  const end   = endISO.replace(/[-:]/g, '').replace(/\.\d+/, '');
+  return [
+    'BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//Crown Media Group//CRM//EN',
+    'METHOD:REQUEST', 'BEGIN:VEVENT',
+    `UID:${uid}`, `DTSTAMP:${stamp}`,
+    `DTSTART:${start}`, `DTEND:${end}`,
+    `SUMMARY:${summary}`,
+    `DESCRIPTION:${description.replace(/\n/g, '\\n')}`,
+    `ORGANIZER;CN=King:mailto:king@crownmediagroup.co`,
+    `ATTENDEE;CN=King;ROLE=REQ-PARTICIPANT:mailto:king@crownmediagroup.co`,
+    `ATTENDEE;CN=${attendeeName};ROLE=REQ-PARTICIPANT:mailto:${attendeeEmail}`,
+    'STATUS:CONFIRMED', 'END:VEVENT', 'END:VCALENDAR',
+  ].join('\r\n');
+}
+
+async function generateContentBrief({ business_name, owner_name, target_audience, content_goals, primary_offer, brand_tones, brand_color, brand_notes, service_tier }) {
+  const ANTHROPIC_KEY = process.env.ANTHROPIC_API_KEY;
+  if (!ANTHROPIC_KEY) return null;
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'x-api-key': ANTHROPIC_KEY, 'anthropic-version': '2023-06-01' },
+      body: JSON.stringify({
+        model: 'claude-haiku-4-5-20251001', max_tokens: 1200,
+        messages: [{ role: 'user', content: `Create a 30-day content brief for a new Crown Media Group client.
+
+Business: ${business_name}
+Owner: ${owner_name}
+Service Tier: ${service_tier}
+Audience: ${target_audience}
+Goals: ${content_goals}
+Primary Offer: ${primary_offer}
+Brand Tone: ${brand_tones}
+Brand Color: ${brand_color}
+Notes: ${brand_notes}
+
+Format as markdown. Include:
+1. Brand Voice Summary (3 sentences)
+2. Content Pillars (4, with % split)
+3. Week 1 Content Plan (7 post ideas with captions/hooks)
+4. Hashtag Strategy (3 sets: branded, niche, broad)
+5. First Reel Concept (hook, script outline, CTA)
+6. Quick Wins (3 immediate actions)
+
+Keep it specific, actionable, faith-aligned where relevant.` }],
+      }),
+    });
+    const data = await res.json();
+    return data.content?.[0]?.text || null;
+  } catch { return null; }
+}
+
 // Public submit endpoint
 app.post('/api/onboard/submit', onboardLimiter, async (req, res) => {
   const { owner_name, business_name, email, phone, website, ig_handle, target_audience, content_goals, primary_offer, brand_tones, brand_color, brand_notes, service_tier } = req.body;
@@ -1669,11 +1743,42 @@ app.post('/api/onboard/submit', onboardLimiter, async (req, res) => {
   // Log interaction
   db.prepare('INSERT INTO interactions (contact_id, type, notes, outcome) VALUES (?, ?, ?, ?)').run(contactId, 'onboarding', `Onboarding form submitted. Offer: ${primary_offer}`, 'Positive');
 
-  // Welcome email to client
+  // Generate content brief + kickoff ICS in parallel (fire and await)
+  const [brief] = await Promise.all([
+    generateContentBrief({ business_name, owner_name, target_audience, content_goals, primary_offer, brand_tones, brand_color, brand_notes, service_tier }),
+  ]);
+
+  // Write brief to client folder
+  const ROOT = join(__dirname, '../..');
+  const clientDir = join(ROOT, 'Agency/ops/clients', business_name.replace(/[^a-z0-9\s-]/gi, '').replace(/\s+/g, '-').toLowerCase());
+  if (!existsSync(clientDir)) mkdirSync(clientDir, { recursive: true });
+  const today = new Date().toISOString().split('T')[0];
+  if (brief) {
+    writeFileSync(join(clientDir, `content-brief-${today}.md`), `# Content Brief — ${business_name}\n_Generated: ${today}_\n\n${brief}`);
+  }
+  // Write brand profile
+  writeFileSync(join(clientDir, 'brand-profile.md'), `# Brand Profile — ${business_name}\n\n**Owner:** ${owner_name}\n**Email:** ${email}\n**Phone:** ${phone || 'n/a'}\n**Website:** ${website || 'n/a'}\n**IG:** ${ig_handle || 'n/a'}\n**Tier:** ${service_tier}\n**Color:** ${brand_color}\n**Tone:** ${brand_tones}\n**Audience:** ${target_audience}\n**Goals:** ${content_goals}\n**Offer:** ${primary_offer}\n**Notes:** ${brand_notes}\n`);
+
+  // Build kickoff ICS (3 days from now at 10 AM ET)
+  const kickoff = new Date();
+  kickoff.setDate(kickoff.getDate() + 3);
+  kickoff.setHours(14, 0, 0, 0); // 10 AM ET = 14:00 UTC
+  const kickoffEnd = new Date(kickoff.getTime() + 30 * 60 * 1000);
+  const icsContent = buildICS({
+    summary: `Kickoff Call — ${business_name} x Crown Media Group`,
+    description: `30-min strategy kickoff\\nService: ${service_tier}\\nPrimary Offer: ${primary_offer}\\nGoals: ${content_goals}`,
+    startISO: kickoff.toISOString(),
+    endISO: kickoffEnd.toISOString(),
+    attendeeEmail: email,
+    attendeeName: owner_name,
+  });
+  const icsAttachment = [{ filename: 'kickoff-call.ics', content: icsContent, contentType: 'text/calendar' }];
+
+  // Welcome email to client — includes kickoff ICS
   const welcomeHtml = `<div style="font-family:sans-serif;max-width:560px;padding:40px 20px;background:#0d0d14;color:#e8e8e8">
     <h1 style="color:#C9A84C;font-size:22px">Welcome to Crown Media Group, ${owner_name}.</h1>
-    <p style="color:#aaa;line-height:1.7;margin:16px 0">You're officially part of the team. King will reach out within 24 hours to schedule your kickoff call and walk you through exactly what's coming.</p>
-    <p style="color:#aaa;line-height:1.7">In the meantime, we're already building your first content brief — tailored to <strong>${business_name}</strong>, your audience, and your goals.</p>
+    <p style="color:#aaa;line-height:1.7;margin:16px 0">You're officially part of the team. A kickoff call has been scheduled for <strong>3 days from now at 10 AM</strong> — check your calendar for the invite.</p>
+    <p style="color:#aaa;line-height:1.7">Your first content brief is already being built — tailored to <strong>${business_name}</strong>, your audience, and your goals.</p>
     <div style="margin:28px 0;padding:20px;background:#111;border-radius:8px;border:1px solid #222">
       <p style="color:#666;font-size:12px;margin-bottom:8px">YOUR PACKAGE</p>
       <p style="color:#C9A84C;font-weight:700;font-size:16px">${service_tier || 'Custom'}</p>
@@ -1681,11 +1786,12 @@ app.post('/api/onboard/submit', onboardLimiter, async (req, res) => {
     <p style="color:#555;font-size:12px;margin-top:24px;font-style:italic">"Whatever you do, work at it with all your heart, as working for the Lord." — Colossians 3:23</p>
     <p style="color:#333;font-size:12px;margin-top:16px">Crown Media Group · Columbia, SC · crownmediagroup.co</p>
   </div>`;
-  sendEmail({ to: email, subject: `You're in — Crown Media Group`, html: welcomeHtml, text: `Welcome ${owner_name}!\n\nYou're officially part of the team. King will reach out within 24 hours.\n\n— Crown Media Group` });
+  sendEmail({ to: email, subject: `You're in — Crown Media Group`, html: welcomeHtml, text: `Welcome ${owner_name}!\n\nYou're in. Kickoff call is 3 days from now at 10 AM — calendar invite attached.\n\n— Crown Media Group`, attachments: icsAttachment });
 
-  // Notify King
+  // Notify King — includes ICS + brief summary
+  const briefPreview = brief ? brief.substring(0, 400) + '...' : 'Brief generation in progress.';
   const kingHtml = `<div style="font-family:sans-serif;max-width:480px;padding:32px;background:#0d0d14;color:#e8e8e8">
-    <h2 style="color:#C9A84C">New Client Onboarding — ${business_name}</h2>
+    <h2 style="color:#C9A84C">New Client Onboarded — ${business_name}</h2>
     <p><strong>Owner:</strong> ${owner_name}</p>
     <p><strong>Email:</strong> ${email}</p>
     <p><strong>Phone:</strong> ${phone || 'not provided'}</p>
@@ -1696,11 +1802,15 @@ app.post('/api/onboard/submit', onboardLimiter, async (req, res) => {
     <p><strong>Audience:</strong> ${target_audience}</p>
     <p><strong>Goals:</strong> ${content_goals}</p>
     <p><strong>Tone:</strong> ${brand_tones}</p>
+    <hr style="border-color:#333;margin:16px 0">
+    <p style="color:#C9A84C;font-weight:700">Content Brief Preview:</p>
+    <p style="font-size:.8rem;color:#aaa;white-space:pre-wrap">${briefPreview}</p>
+    <p style="color:#666;font-size:.75rem">Full brief saved: Agency/ops/clients/${business_name.replace(/\s+/g, '-').toLowerCase()}/</p>
     <a href="https://crm.crownmediagroup.co" style="display:inline-block;margin-top:16px;background:#C9A84C;color:#000;padding:10px 20px;border-radius:6px;text-decoration:none;font-weight:700">View in CRM →</a>
   </div>`;
-  sendEmail({ to: 'king@crownmediagroup.co', subject: `New Client Onboarded — ${business_name}`, html: kingHtml, text: `New onboarding from ${owner_name} (${business_name}) — ${email}` });
+  sendEmail({ to: 'king@crownmediagroup.co', subject: `New Client Onboarded — ${business_name}`, html: kingHtml, text: `New onboarding from ${owner_name} (${business_name}) — ${email}\n\nBrief saved to Agency/ops/clients/`, attachments: icsAttachment });
 
-  res.json({ ok: true, contactId });
+  res.json({ ok: true, contactId, briefGenerated: !!brief });
 });
 
 // Auth-gated: list all onboarding submissions
