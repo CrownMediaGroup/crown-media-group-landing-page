@@ -25,7 +25,7 @@ require('dotenv').config();
 
 const SEEN_FILE = path.join(__dirname, '../personal/gov-opportunities/seen.json');
 const RESEND_KEY = process.env.RESEND_API_KEY;
-const SAM_KEY = process.env.SAM_API_KEY || 'DEMO_KEY';
+const SAM_KEY = process.env.SAM_API_KEY || 'DEMO_KEY'; // DEMO_KEY is rate-limited but functional for testing
 const EMAIL_TO = 'king@crownmediagroup.co';
 const EMAIL_FROM = 'contracts@crownmediagroup.co';
 

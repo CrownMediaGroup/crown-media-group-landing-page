@@ -189,7 +189,8 @@ function cmdRun(dryRun = false) {
     console.log(`[SCHEDULER] Firing: ${post.id} → ${post.platform}`);
 
     try {
-      const out = execSync(cmd, { cwd: ROOT, shell: 'bash', timeout: 120000, encoding: 'utf8' });
+      const shell = process.platform === 'win32' ? undefined : 'bash';
+      const out = execSync(cmd, { cwd: ROOT, shell, timeout: 120000, encoding: 'utf8' });
       console.log(out);
       queue[idx].status     = dryRun ? 'dry_run' : 'sent';
       queue[idx].sent_at    = new Date().toISOString();

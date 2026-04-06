@@ -172,7 +172,7 @@ if (command === 'add') {
 
   console.log(`[QUEUE] Processing ${pending.length} items...`);
 
-  (async () => {
+  (async () => { try {
     for (const item of pending) {
       console.log(`\n[PROCESSING] "${item.topic}"`);
 
@@ -204,6 +204,7 @@ if (command === 'add') {
     saveQueue(queue);
     console.log(`\n[QUEUE] Done. Captions written to Agency/ops/post-*.txt`);
     console.log('[QUEUE] Review captions, then run social-post.js to fire them.');
+  } catch(err) { console.error('[QUEUE] Fatal error:', err.message); process.exit(1); }
   })();
 
 } else {
