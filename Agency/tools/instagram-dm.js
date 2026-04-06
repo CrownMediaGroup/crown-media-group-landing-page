@@ -130,16 +130,32 @@ function bumpRateLog(log, username) {
   saveRateLog(log);
 }
 
+// Map internal DM statuses to Supabase leads table valid statuses
+function mapStatus(dmStatus) {
+  const map = {
+    sent:                  'contacted',
+    dry_run:               'new',
+    rate_limited:          'new',
+    failed_session_expired:'new',
+    failed_not_found:      'new',
+    failed_no_message_button: 'new',
+    failed_compose:        'new',
+    new_message_dialog_failed: 'new',
+  };
+  return map[dmStatus] || 'new';
+}
+
 async function logToSupabase(username, message, status) {
   if (!supabase) return;
   const { error } = await supabase.from('leads').upsert({
-    ig_username: username,
-    business_name: username,   // satisfies NOT NULL constraint
-    notes: message,
-    status,
-    sent_at: new Date().toISOString(),
-    updated_at: new Date().toISOString(),
-    source: 'instagram_dm',
+    ig_username:   username,
+    business_name: username,
+    notes:         message,
+    status:        mapStatus(status),
+    sent_at:       new Date().toISOString(),
+    updated_at:    new Date().toISOString(),
+    source:        'instagram_dm',
+    platform:      'instagram',
   }, { onConflict: 'ig_username' });
   if (error) console.error('[Supabase]', error.message);
 }
@@ -150,6 +166,34 @@ async function takeScreenshot(page, label) {
   const file = path.join(dir, `ig-dm-${label}-${Date.now()}.png`);
   await page.screenshot({ path: file, fullPage: false });
   console.log(`[SCREENSHOT] ${file}`);
+}
+
+// ── Dismiss Instagram popups (notifications, save-login, cookie consent) ────
+async function dismissPopups(page) {
+  const dismissSelectors = [
+    'button:has-text("Not Now")',
+    'button:has-text("Not now")',
+    'button:has-text("Turn On")',   // skip — we want "Not Now"
+    'button:has-text("Skip")',
+    'button:has-text("Close")',
+    'button[aria-label="Close"]',
+  ];
+  // Only click "Not Now" / "Skip" — never "Turn On"
+  const safeSelectors = [
+    'button:has-text("Not Now")',
+    'button:has-text("Not now")',
+    'button:has-text("Skip")',
+  ];
+  for (const sel of safeSelectors) {
+    try {
+      const btn = page.locator(sel).first();
+      if (await btn.isVisible({ timeout: 1500 })) {
+        await btn.click({ force: true });
+        await sleep(500);
+        console.log(`[POPUP] Dismissed: ${sel}`);
+      }
+    } catch {}
+  }
 }
 
 // ── Human-like typing ────────────────────────────────────────────────────────
@@ -324,23 +368,27 @@ async function sendDM(page, username, message, dryRun = false) {
 
     // Search for the username in the new message dialog
     try {
-      const searchInput = page.locator('input[placeholder*="Search"], input[name="queryBox"], input[aria-label*="Search"]');
+      const searchInput = page.locator('input[placeholder*="Search"], input[name="queryBox"], input[name="searchInput"], input[aria-label*="Search"]');
       await searchInput.first().waitFor({ timeout: 8000 });
-      await searchInput.first().click();
+      // Force click bypasses the intercepting overlay div
+      await searchInput.first().click({ force: true });
       await randDelay([500, 1000]);
+      // Also focus via JS as fallback
+      await page.evaluate(() => {
+        const inp = document.querySelector('input[name="searchInput"], input[placeholder*="Search"]');
+        if (inp) inp.focus();
+      });
       await page.keyboard.type(username, { delay: 80 });
       await randDelay([1500, 2500]);
 
-      // Click the first search result
-      const result = page.locator(`button:has-text("${username}"), div[role="button"]:has-text("${username}"), span:has-text("${username}")`);
-      await result.first().waitFor({ timeout: 8000 });
-      await result.first().click();
-      await randDelay([800, 1500]);
+      // Dismiss any popup that appeared during search (e.g. "Turn on Notifications")
+      await dismissPopups(page);
 
-      // Click Chat/Next button to open conversation
-      const chatBtn = page.locator('button:has-text("Chat"), button:has-text("Next"), div[role="button"]:has-text("Next")');
-      await chatBtn.first().waitFor({ timeout: 5000 });
-      await chatBtn.first().click();
+      // Click the first search result — use JS click to bypass any overlay
+      const result = page.locator(`div[role="button"]:has-text("${username}"), button:has-text("${username}")`);
+      await result.first().waitFor({ timeout: 8000 });
+      await result.first().evaluate(el => el.click()); // JS click bypasses pointer-event interceptors
+      // Clicking result opens the conversation directly — no Chat/Next button needed
       await randDelay(CONFIG.DELAYS.page_load);
     } catch (e) {
       console.log(`[DM] New message dialog failed for @${username}: ${e.message}`);
@@ -353,15 +401,16 @@ async function sendDM(page, username, message, dryRun = false) {
   // Type message in DM composer (handles both Lexical editor and standard inputs)
   try {
     await takeScreenshot(page, `before-compose-${username}`);
-    const composer = page.locator([
-      'div[contenteditable="true"]',
-      'div[role="textbox"]',
-      'div[aria-label="Message"]',
-      'div[data-lexical-editor="true"]',
-      'textarea[placeholder*="essage"]',
-    ].join(', '));
-    await composer.first().waitFor({ timeout: 10000 });
-    await composer.first().click();
+    // Target the message input specifically — use the placeholder text or aria-label
+    // last() gets the bottom-most contenteditable (the message box, not the search box)
+    const composer = page.locator('div[contenteditable="true"][aria-label="Message"], div[aria-label="Message"]');
+    let composerEl = composer.first();
+    // Fallback: last contenteditable on page (message bar is always last)
+    if (!await composerEl.isVisible({ timeout: 3000 }).catch(() => false)) {
+      composerEl = page.locator('div[contenteditable="true"]').last();
+    }
+    await composerEl.waitFor({ timeout: 10000 });
+    await composerEl.click({ force: true });
     await randDelay(CONFIG.DELAYS.between_actions);
 
     for (const char of message) {
@@ -588,9 +637,13 @@ async function main() {
         process.exit(1);
       }
 
+      // Dismiss any popups (notifications, save-login, cookie consent)
+      await dismissPopups(page);
+
       console.log('[WARMUP] Explore...');
       await page.goto(`${CONFIG.BASE_URL}/explore/`, { waitUntil: 'domcontentloaded' });
-      await randDelay([3000, 5000]);
+      await randDelay([2000, 3000]);
+      await dismissPopups(page);
 
       console.log('[SESSION] Authenticated — ready to send DMs');
     }
