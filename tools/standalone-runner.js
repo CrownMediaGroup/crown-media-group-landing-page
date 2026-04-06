@@ -177,6 +177,66 @@ function checkScheduler() {
   triggerVideoForNewPosts();
 }
 
+// ── Black Widow: Nightly lead gen (midnight) ──────────────────────────────────
+const LEAD_GEN       = path.join(ROOT, 'tools/nightly-lead-gen.js');
+const LEAD_GEN_LOG   = path.join(ROOT, 'Agency/ops/notes/.lead-gen-last-run');
+
+function checkLeadGen() {
+  try {
+    if (!fs.existsSync(LEAD_GEN)) return;
+    const now = new Date();
+    if (now.getHours() !== 0) return;
+    const today = now.toISOString().slice(0, 10);
+    const lastRun = fs.existsSync(LEAD_GEN_LOG) ? fs.readFileSync(LEAD_GEN_LOG, 'utf8').trim() : '';
+    if (lastRun === today) return;
+    log('[Black Widow] Nightly lead gen starting — hunting Columbia SC targets...');
+    const { spawn } = require('child_process');
+    const child = spawn(process.execPath, [LEAD_GEN], { cwd: ROOT, detached: true, stdio: 'ignore' });
+    child.unref();
+    log('[Black Widow] Intel mission deployed.');
+  } catch (e) { log(`[Black Widow] Error: ${e.message}`); }
+}
+
+// ── Iron Man: Shatiea daily content (6 AM) ────────────────────────────────────
+const SHATIEA_CONTENT    = path.join(ROOT, 'tools/shatiea-content.js');
+const SHATIEA_CONTENT_LOG = path.join(ROOT, 'Agency/ops/content/.shatiea-last-run');
+
+function checkShatiea() {
+  try {
+    if (!fs.existsSync(SHATIEA_CONTENT)) return;
+    const now = new Date();
+    if (now.getHours() !== 6) return;
+    const today = now.toISOString().slice(0, 10);
+    const lastRun = fs.existsSync(SHATIEA_CONTENT_LOG) ? fs.readFileSync(SHATIEA_CONTENT_LOG, 'utf8').trim() : '';
+    if (lastRun === today) return;
+    log('[Iron Man] Building Shatiea content suite — 5 pieces incoming...');
+    const { spawn } = require('child_process');
+    const child = spawn(process.execPath, [SHATIEA_CONTENT], { cwd: ROOT, detached: true, stdio: 'ignore' });
+    child.unref();
+    log('[Iron Man] Content build deployed.');
+  } catch (e) { log(`[Iron Man] Error: ${e.message}`); }
+}
+
+// ── Hawkeye: Cold outreach sequences (9 AM) ───────────────────────────────────
+const OUTREACH     = path.join(ROOT, 'tools/outreach-sequence.js');
+const OUTREACH_LOG = path.join(ROOT, 'Agency/ops/notes/.outreach-last-run');
+
+function checkOutreach() {
+  try {
+    if (!fs.existsSync(OUTREACH)) return;
+    const now = new Date();
+    if (now.getHours() !== 9) return;
+    const today = now.toISOString().slice(0, 10);
+    const lastRun = fs.existsSync(OUTREACH_LOG) ? fs.readFileSync(OUTREACH_LOG, 'utf8').trim() : '';
+    if (lastRun === today) return;
+    log('[Hawkeye] Cold outreach sequencer — taking aim at today\'s targets...');
+    const { spawn } = require('child_process');
+    const child = spawn(process.execPath, [OUTREACH], { cwd: ROOT, detached: true, stdio: 'ignore' });
+    child.unref();
+    log('[Hawkeye] Shots fired.');
+  } catch (e) { log(`[Hawkeye] Error: ${e.message}`); }
+}
+
 // ── Topical map auto-refresh (daily at 3 AM) ─────────────────────────────────
 const TOPICAL_MAP = path.join(ROOT, 'Agency/tools/topical-map.js');
 const TOPICAL_LOG = path.join(ROOT, 'Agency/ops/topical-maps/.last-run');
@@ -223,8 +283,16 @@ function checkVideoPoster() {
 }
 
 // Normal run
-log('Standalone runner started — polling every 60s (directives + content scheduler)');
-setInterval(() => { checkQueue(); checkScheduler(); checkTopicalMap(); /* checkVideoPoster() — DISABLED: WSL error */ }, POLL);
+log('Standalone runner started — polling every 60s | Team: Black Widow (0AM) · Iron Man (6AM) · Hawkeye (9AM) · TopMap (3AM)');
+setInterval(() => {
+  checkQueue();
+  checkScheduler();
+  checkTopicalMap();
+  checkLeadGen();    // Black Widow — midnight
+  checkShatiea();    // Iron Man — 6 AM
+  checkOutreach();   // Hawkeye — 9 AM
+  /* checkVideoPoster() — DISABLED: WSL error */
+}, POLL);
 checkQueue();
 checkScheduler();
 // Video poster disabled — WSL environment error on this machine

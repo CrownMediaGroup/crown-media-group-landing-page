@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Welcome to Crown Media Group — Let's Get Started</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #0a0a0a; color: #e8e8e8; min-height: 100vh; display: flex; flex-direction: column; align-items: center; padding: 40px 16px; }
+  .logo { font-size: 1.1rem; font-weight: 700; letter-spacing: .04em; color: #C9A84C; margin-bottom: 4px; text-align: center; }
+  .tagline { font-size: .78rem; color: #555; text-align: center; margin-bottom: 36px; }
+  .card { background: #111; border: 1px solid #1e1e1e; border-radius: 14px; padding: 36px 32px; width: 100%; max-width: 580px; }
+  .welcome-badge { background: rgba(201,168,76,.12); border: 1px solid rgba(201,168,76,.25); color: #C9A84C; font-size: .72rem; font-weight: 700; letter-spacing: .08em; padding: 5px 12px; border-radius: 20px; display: inline-block; margin-bottom: 18px; text-transform: uppercase; }
+  h1 { font-size: 1.4rem; font-weight: 800; margin-bottom: 8px; line-height: 1.25; }
+  .sub { font-size: .82rem; color: #777; margin-bottom: 32px; line-height: 1.6; }
+  .section { margin-bottom: 28px; }
+  .section-title { font-size: .68rem; font-weight: 700; color: #C9A84C; letter-spacing: .1em; text-transform: uppercase; margin-bottom: 14px; padding-bottom: 6px; border-bottom: 1px solid #1e1e1e; }
+  label { display: block; font-size: .78rem; color: #999; margin-bottom: 5px; font-weight: 500; }
+  input, textarea, select { width: 100%; background: #0d0d0d; border: 1px solid #222; border-radius: 8px; padding: 10px 13px; color: #e8e8e8; font-size: .87rem; font-family: inherit; outline: none; transition: border-color .15s; margin-bottom: 16px; }
+  input:focus, textarea:focus, select:focus { border-color: #C9A84C; }
+  textarea { min-height: 90px; resize: vertical; }
+  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .color-row { display: flex; gap: 10px; align-items: center; margin-bottom: 16px; }
+  .color-row input[type="color"] { width: 44px; height: 38px; border-radius: 6px; padding: 2px; cursor: pointer; flex-shrink: 0; }
+  .color-row input[type="text"] { flex: 1; margin-bottom: 0; }
+  .tone-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 16px; }
+  .tone-opt input { display: none; }
+  .tone-opt label { border: 1px solid #222; border-radius: 7px; padding: 9px 12px; font-size: .78rem; color: #777; cursor: pointer; display: block; transition: all .15s; margin-bottom: 0; text-align: center; }
+  .tone-opt input:checked + label { border-color: #C9A84C; color: #C9A84C; background: rgba(201,168,76,.08); }
+  .btn { width: 100%; background: #C9A84C; color: #000; font-weight: 800; font-size: .95rem; border: none; border-radius: 9px; padding: 14px; cursor: pointer; transition: opacity .15s; letter-spacing: .02em; }
+  .btn:hover { opacity: .88; }
+  .btn:disabled { opacity: .45; cursor: not-allowed; }
+  .err { color: #e05c5c; font-size: .76rem; margin-bottom: 14px; display: none; }
+  .success { display: none; text-align: center; padding: 40px 0; }
+  .success .icon { font-size: 3rem; margin-bottom: 16px; }
+  .success h2 { font-size: 1.2rem; font-weight: 800; margin-bottom: 10px; }
+  .success p { font-size: .82rem; color: #777; line-height: 1.7; }
+  .scripture { text-align: center; font-size: .72rem; color: #444; margin-top: 32px; font-style: italic; }
+</style>
+</head>
+<body>
+
+<div class="logo">Crown Media Group</div>
+<div class="tagline">Faith-Driven AI Marketing — Columbia, SC</div>
+
+<div class="card">
+  <div id="form-area">
+    <div class="welcome-badge">Client Onboarding</div>
+    <h1>Welcome to the team. Let's build something great.</h1>
+    <p class="sub">Fill this out once — we'll handle everything from here. This gives us everything we need to start creating content, building your presence, and delivering results.</p>
+
+    <!-- Section 1: Business Info -->
+    <div class="section">
+      <div class="section-title">Your Business</div>
+      <label>Your Name</label>
+      <input type="text" id="owner_name" placeholder="First and last name">
+      <label>Business Name</label>
+      <input type="text" id="business_name" placeholder="Your business name">
+      <div class="two-col">
+        <div>
+          <label>Your Email</label>
+          <input type="email" id="email" placeholder="you@business.com">
+        </div>
+        <div>
+          <label>Phone (optional)</label>
+          <input type="tel" id="phone" placeholder="(803) 000-0000">
+        </div>
+      </div>
+      <label>Website (if you have one)</label>
+      <input type="url" id="website" placeholder="https://yourbusiness.com">
+      <label>Instagram Handle</label>
+      <input type="text" id="ig_handle" placeholder="@yourbusiness">
+    </div>
+
+    <!-- Section 2: Audience + Goals -->
+    <div class="section">
+      <div class="section-title">Your Audience & Goals</div>
+      <label>Who is your ideal customer? (Be specific)</label>
+      <textarea id="target_audience" placeholder="e.g. Faith-based women 25–45 in Columbia SC who value health and community..."></textarea>
+      <label>What are your top 3 content goals?</label>
+      <textarea id="content_goals" placeholder="e.g. More IG followers, drive DMs for bookings, build trust with my community..."></textarea>
+      <label>What is your primary service or product?</label>
+      <input type="text" id="primary_offer" placeholder="e.g. Custom juice cleanses, social media management...">
+    </div>
+
+    <!-- Section 3: Brand Voice -->
+    <div class="section">
+      <div class="section-title">Brand Voice</div>
+      <label>Pick the tones that describe your brand (select all that apply)</label>
+      <div class="tone-grid">
+        <div class="tone-opt"><input type="checkbox" id="t1" value="Bold & Direct"><label for="t1">Bold & Direct</label></div>
+        <div class="tone-opt"><input type="checkbox" id="t2" value="Warm & Personal"><label for="t2">Warm & Personal</label></div>
+        <div class="tone-opt"><input type="checkbox" id="t3" value="Faith-Forward"><label for="t3">Faith-Forward</label></div>
+        <div class="tone-opt"><input type="checkbox" id="t4" value="Professional"><label for="t4">Professional</label></div>
+        <div class="tone-opt"><input type="checkbox" id="t5" value="Fun & Playful"><label for="t5">Fun & Playful</label></div>
+        <div class="tone-opt"><input type="checkbox" id="t6" value="Educational"><label for="t6">Educational</label></div>
+      </div>
+      <label>Brand colors (pick your primary color)</label>
+      <div class="color-row">
+        <input type="color" id="brand_color_picker" value="#C9A84C" oninput="document.getElementById('brand_color').value = this.value">
+        <input type="text" id="brand_color" value="#C9A84C" oninput="document.getElementById('brand_color_picker').value = this.value" placeholder="Hex code e.g. #C9A84C">
+      </div>
+      <label>Anything else we should know about your brand?</label>
+      <textarea id="brand_notes" placeholder="Any guidelines, things to avoid, past content that worked well..."></textarea>
+    </div>
+
+    <!-- Section 4: Service Tier -->
+    <div class="section">
+      <div class="section-title">Your Package</div>
+      <label>Which service tier are you on?</label>
+      <select id="service_tier">
+        <option value="">Select your package</option>
+        <option value="starter">Starter — $500/mo (10 posts, basic reporting)</option>
+        <option value="growth">Growth — $1,000/mo (20 posts, ads, monthly report)</option>
+        <option value="premium">Premium — $2,000/mo (30 posts, ads, video, strategy calls)</option>
+        <option value="custom">Custom — as agreed</option>
+      </select>
+    </div>
+
+    <div class="err" id="err-msg"></div>
+    <button type="button" class="btn" id="submit-btn" onclick="submitOnboarding()">Submit & Let's Get to Work</button>
+  </div>
+
+  <div class="success" id="success-area">
+    <div class="icon">⚡</div>
+    <h2>You're in. Mission starts now.</h2>
+    <p>Your intake is received. King will reach out within 24 hours to schedule your kickoff call.<br><br>In the meantime, your first content brief is being built right now — faith-aligned, audience-matched, and ready to deploy.</p>
+  </div>
+
+  <p class="scripture">"Whatever you do, work at it with all your heart, as working for the Lord." — Colossians 3:23</p>
+</div>
+
+<script>
+async function submitOnboarding() {
+  const btn  = document.getElementById('submit-btn');
+  const err  = document.getElementById('err-msg');
+  err.style.display = 'none';
+
+  const tones = [...document.querySelectorAll('.tone-opt input:checked')].map(el => el.value);
+
+  const payload = {
+    owner_name:      document.getElementById('owner_name').value.trim(),
+    business_name:   document.getElementById('business_name').value.trim(),
+    email:           document.getElementById('email').value.trim(),
+    phone:           document.getElementById('phone').value.trim(),
+    website:         document.getElementById('website').value.trim(),
+    ig_handle:       document.getElementById('ig_handle').value.trim(),
+    target_audience: document.getElementById('target_audience').value.trim(),
+    content_goals:   document.getElementById('content_goals').value.trim(),
+    primary_offer:   document.getElementById('primary_offer').value.trim(),
+    brand_tones:     tones.join(', '),
+    brand_color:     document.getElementById('brand_color').value.trim(),
+    brand_notes:     document.getElementById('brand_notes').value.trim(),
+    service_tier:    document.getElementById('service_tier').value,
+  };
+
+  if (!payload.owner_name || !payload.business_name || !payload.email) {
+    err.textContent = 'Name, business name, and email are required.';
+    err.style.display = 'block';
+    return;
+  }
+  if (!payload.email.includes('@')) {
+    err.textContent = 'Please enter a valid email address.';
+    err.style.display = 'block';
+    return;
+  }
+
+  btn.disabled = true;
+  btn.textContent = 'Submitting...';
+
+  try {
+    const res = await fetch('/api/onboard/submit', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Submission failed');
+    document.getElementById('form-area').style.display = 'none';
+    document.getElementById('success-area').style.display = 'block';
+  } catch (e) {
+    err.textContent = e.message;
+    err.style.display = 'block';
+    btn.disabled = false;
+    btn.textContent = 'Submit & Let\'s Get to Work';
+  }
+}
+</script>
+</body>
+</html>

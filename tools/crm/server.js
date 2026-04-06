@@ -1565,6 +1565,78 @@ app.get('/maintenance', (req, res) => {
   res.sendFile(join(__dirname, 'public', 'maintenance.html'));
 });
 
+// ── Client Onboarding ─────────────────────────────────────────────────────────
+
+const onboardLimiter = rateLimit({ windowMs: 60 * 60 * 1000, max: 20, standardHeaders: true, legacyHeaders: false });
+
+// Serve public onboarding form (no auth)
+app.get('/onboard', (req, res) => {
+  res.sendFile(join(__dirname, 'public', 'onboarding.html'));
+});
+
+// Public submit endpoint
+app.post('/api/onboard/submit', onboardLimiter, async (req, res) => {
+  const { owner_name, business_name, email, phone, website, ig_handle, target_audience, content_goals, primary_offer, brand_tones, brand_color, brand_notes, service_tier } = req.body;
+  if (!owner_name || !business_name || !email) return res.status(400).json({ error: 'Name, business name, and email are required.' });
+
+  // Save to CRM contacts
+  const existing = db.prepare('SELECT id FROM contacts WHERE email = ? AND workspace_id = 1').get(email);
+  let contactId;
+  if (existing) {
+    db.prepare("UPDATE contacts SET name=?, business=?, phone=?, website=?, status='Active Client', notes=?, workspace_id=1 WHERE id=?")
+      .run(owner_name, business_name, phone || '', website || '', `Tier: ${service_tier}. IG: ${ig_handle}. Tones: ${brand_tones}. Colors: ${brand_color}. Notes: ${brand_notes}`, existing.id);
+    contactId = existing.id;
+  } else {
+    const ins = db.prepare("INSERT INTO contacts (name, business, email, phone, source, status, notes, workspace_id) VALUES (?, ?, ?, ?, 'Onboarding', 'Active Client', ?, 1)")
+      .run(owner_name, business_name, email, phone || '', `Tier: ${service_tier}. IG: ${ig_handle}. Goals: ${content_goals}. Audience: ${target_audience}`);
+    contactId = ins.lastInsertRowid;
+  }
+
+  // Log interaction
+  db.prepare('INSERT INTO interactions (contact_id, type, notes, outcome) VALUES (?, ?, ?, ?)').run(contactId, 'onboarding', `Onboarding form submitted. Offer: ${primary_offer}`, 'Positive');
+
+  // Welcome email to client
+  const welcomeHtml = `<div style="font-family:sans-serif;max-width:560px;padding:40px 20px;background:#0d0d14;color:#e8e8e8">
+    <h1 style="color:#C9A84C;font-size:22px">Welcome to Crown Media Group, ${owner_name}.</h1>
+    <p style="color:#aaa;line-height:1.7;margin:16px 0">You're officially part of the team. King will reach out within 24 hours to schedule your kickoff call and walk you through exactly what's coming.</p>
+    <p style="color:#aaa;line-height:1.7">In the meantime, we're already building your first content brief — tailored to <strong>${business_name}</strong>, your audience, and your goals.</p>
+    <div style="margin:28px 0;padding:20px;background:#111;border-radius:8px;border:1px solid #222">
+      <p style="color:#666;font-size:12px;margin-bottom:8px">YOUR PACKAGE</p>
+      <p style="color:#C9A84C;font-weight:700;font-size:16px">${service_tier || 'Custom'}</p>
+    </div>
+    <p style="color:#555;font-size:12px;margin-top:24px;font-style:italic">"Whatever you do, work at it with all your heart, as working for the Lord." — Colossians 3:23</p>
+    <p style="color:#333;font-size:12px;margin-top:16px">Crown Media Group · Columbia, SC · crownmediagroup.co</p>
+  </div>`;
+  sendEmail({ to: email, subject: `You're in — Crown Media Group`, html: welcomeHtml, text: `Welcome ${owner_name}!\n\nYou're officially part of the team. King will reach out within 24 hours.\n\n— Crown Media Group` });
+
+  // Notify King
+  const kingHtml = `<div style="font-family:sans-serif;max-width:480px;padding:32px;background:#0d0d14;color:#e8e8e8">
+    <h2 style="color:#C9A84C">New Client Onboarding — ${business_name}</h2>
+    <p><strong>Owner:</strong> ${owner_name}</p>
+    <p><strong>Email:</strong> ${email}</p>
+    <p><strong>Phone:</strong> ${phone || 'not provided'}</p>
+    <p><strong>Website:</strong> ${website || 'none'}</p>
+    <p><strong>IG:</strong> ${ig_handle || 'not provided'}</p>
+    <p><strong>Tier:</strong> ${service_tier || 'not selected'}</p>
+    <p><strong>Offer:</strong> ${primary_offer}</p>
+    <p><strong>Audience:</strong> ${target_audience}</p>
+    <p><strong>Goals:</strong> ${content_goals}</p>
+    <p><strong>Tone:</strong> ${brand_tones}</p>
+    <a href="https://crm.crownmediagroup.co" style="display:inline-block;margin-top:16px;background:#C9A84C;color:#000;padding:10px 20px;border-radius:6px;text-decoration:none;font-weight:700">View in CRM →</a>
+  </div>`;
+  sendEmail({ to: 'king@crownmediagroup.co', subject: `New Client Onboarded — ${business_name}`, html: kingHtml, text: `New onboarding from ${owner_name} (${business_name}) — ${email}` });
+
+  res.json({ ok: true, contactId });
+});
+
+// Auth-gated: list all onboarding submissions
+app.get('/api/onboard/list', (req, res) => {
+  const session = validateSession(getCookie(req, 'crm_session'));
+  if (!session) return res.status(401).json({ error: 'Unauthorized' });
+  const clients = db.prepare("SELECT * FROM contacts WHERE status = 'Active Client' ORDER BY created_at DESC").all();
+  res.json({ ok: true, clients });
+});
+
 // ── Fallback → serve index.html (requires auth) ───────────────────────────────
 app.get('*', (req, res) => {
   const session = validateSession(getCookie(req, 'crm_session'));
