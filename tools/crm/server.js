@@ -1162,19 +1162,24 @@ function sbHeaders() {
   };
 }
 
+function requireSupabase(req, res, next) {
+  if (!SB_URL || !SB_KEY) return res.status(503).json({ error: 'Video service not configured — add SUPABASE_URL and SUPABASE_KEY to .env' });
+  next();
+}
+
 // GET /api/video-service/projects — list all projects (newest first)
-app.get('/api/video-service/projects', async (req, res) => {
+app.get('/api/video-service/projects', requireSupabase, async (req, res) => {
   try {
     const params = new URLSearchParams({ select: '*', order: 'created_at.desc' });
     if (req.query.status) params.set('status', `eq.${req.query.status}`);
     const r = await fetch(`${SB_URL}/rest/v1/video_projects?${params}`, { headers: sbHeaders() });
-    const data = await r.json();
-    res.json(data);
+    if (!r.ok) return res.status(r.status).json({ error: `Supabase error: ${r.status}` });
+    res.json(await r.json());
   } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
 // POST /api/video-service/projects — create project
-app.post('/api/video-service/projects', async (req, res) => {
+app.post('/api/video-service/projects', requireSupabase, async (req, res) => {
   try {
     const r = await fetch(`${SB_URL}/rest/v1/video_projects`, {
       method: 'POST',
@@ -1187,7 +1192,7 @@ app.post('/api/video-service/projects', async (req, res) => {
 });
 
 // PATCH /api/video-service/projects/:id — update status/notes/schedule
-app.patch('/api/video-service/projects/:id', async (req, res) => {
+app.patch('/api/video-service/projects/:id', requireSupabase, async (req, res) => {
   try {
     const r = await fetch(`${SB_URL}/rest/v1/video_projects?id=eq.${req.params.id}`, {
       method: 'PATCH',
@@ -1200,7 +1205,7 @@ app.patch('/api/video-service/projects/:id', async (req, res) => {
 });
 
 // GET /api/video-service/projects/:id/posts — get platform posts for a project
-app.get('/api/video-service/projects/:id/posts', async (req, res) => {
+app.get('/api/video-service/projects/:id/posts', requireSupabase, async (req, res) => {
   try {
     const r = await fetch(`${SB_URL}/rest/v1/video_platform_posts?project_id=eq.${req.params.id}&order=platform.asc`, { headers: sbHeaders() });
     res.json(await r.json());
@@ -1223,7 +1228,7 @@ app.post('/api/video-service/generate-descriptions', async (req, res) => {
 });
 
 // GET /api/video-service/revenue — revenue data for dashboard chart
-app.get('/api/video-service/revenue', async (req, res) => {
+app.get('/api/video-service/revenue', requireSupabase, async (req, res) => {
   try {
     const r = await fetch(`${SB_URL}/rest/v1/video_revenue?order=revenue_month.desc&limit=12`, { headers: sbHeaders() });
     res.json(await r.json());
@@ -1401,7 +1406,8 @@ Rules:
     const text      = msg.content[0].text.trim();
     const jsonMatch = text.match(/\[[\s\S]*\]/);
     if (!jsonMatch) throw new Error('No JSON array in response');
-    const leads = JSON.parse(jsonMatch[0]);
+    let leads;
+    try { leads = JSON.parse(jsonMatch[0]); } catch { throw new Error('AI returned malformed JSON'); }
     res.json({ ok: true, leads });
   } catch (err) {
     console.error('[LEADS]', err.message);
@@ -1414,6 +1420,7 @@ app.post('/api/contacts/ocr', async (req, res) => {
   if (!anthropic) return res.status(503).json({ error: 'AI not configured. Add ANTHROPIC_API_KEY to .env' });
   const { image, mimeType = 'image/jpeg' } = req.body;
   if (!image) return res.status(400).json({ error: 'image required (base64)' });
+  if (image.length > 5_000_000) return res.status(413).json({ error: 'Image too large (max 5MB)' });
 
   const allowed = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
   if (!allowed.includes(mimeType)) return res.status(400).json({ error: 'Unsupported image type' });
@@ -1451,7 +1458,8 @@ Rules:
     const text      = msg.content[0].text.trim();
     const jsonMatch = text.match(/\[[\s\S]*\]/);
     if (!jsonMatch) return res.json({ ok: true, contacts: [] });
-    const contacts = JSON.parse(jsonMatch[0]).filter(c => c.name?.trim());
+    let contacts;
+    try { contacts = JSON.parse(jsonMatch[0]).filter(c => c.name?.trim()); } catch { return res.json({ ok: true, contacts: [] }); }
     res.json({ ok: true, contacts });
   } catch (err) {
     console.error('[OCR]', err.message);
