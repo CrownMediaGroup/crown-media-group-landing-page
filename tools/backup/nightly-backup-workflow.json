@@ -1,0 +1,38 @@
+{
+  "name": "Crown Media — Nightly Backup",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [{ "field": "cronExpression", "expression": "0 2 * * *" }]
+        }
+      },
+      "name": "Schedule Trigger (2AM)",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.1,
+      "position": [240, 300]
+    },
+    {
+      "parameters": {
+        "command": "node C:/Users/ldavi/Documents/AllGloryAgency/tools/backup/auto-backup.js"
+      },
+      "name": "Run Backup",
+      "type": "n8n-nodes-base.executeCommand",
+      "typeVersion": 1,
+      "position": [480, 300]
+    },
+    {
+      "parameters": {
+        "command": "cd C:/Users/ldavi/Documents/AllGloryAgency && git push origin --tags 2>&1"
+      },
+      "name": "Push Tags to GitHub",
+      "type": "n8n-nodes-base.executeCommand",
+      "typeVersion": 1,
+      "position": [720, 300]
+    }
+  ],
+  "connections": {
+    "Schedule Trigger (2AM)": { "main": [[{ "node": "Run Backup", "type": "main", "index": 0 }]] },
+    "Run Backup": { "main": [[{ "node": "Push Tags to GitHub", "type": "main", "index": 0 }]] }
+  }
+}
