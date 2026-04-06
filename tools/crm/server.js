@@ -1502,9 +1502,34 @@ app.post('/api/maintenance/submit', maintenanceLimiter, async (req, res) => {
     return res.status(400).json({ error: 'Name, email, and description are required.' });
   }
   const prio = ['Low', 'Normal', 'Urgent'].includes(priority) ? priority : 'Normal';
+
+  // AI classification — determine urgency and category
+  let traffic_light = prio === 'Urgent' ? 'red' : 'yellow';
+  let ai_category = '';
+  const ANTHROPIC_KEY = process.env.ANTHROPIC_API_KEY;
+  if (ANTHROPIC_KEY) {
+    try {
+      const aiRes = await fetch('https://api.anthropic.com/v1/messages', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'x-api-key': ANTHROPIC_KEY, 'anthropic-version': '2023-06-01' },
+        body: JSON.stringify({
+          model: 'claude-haiku-4-5-20251001', max_tokens: 150,
+          messages: [{ role: 'user', content: `Classify this website maintenance request. Return JSON only: { "urgent": boolean, "category": string (e.g. "content update", "bug fix", "site down", "design change", "SEO", "security"), "summary": string (10 words max) }\n\nRequest: ${description}` }],
+        }),
+      });
+      const aiData = await aiRes.json();
+      const match = (aiData.content?.[0]?.text || '').match(/\{[\s\S]*\}/);
+      if (match) {
+        const parsed = JSON.parse(match[0]);
+        if (parsed.urgent) traffic_light = 'red';
+        ai_category = parsed.category || '';
+      }
+    } catch { /* use defaults */ }
+  }
+
   const row = db.prepare(
-    'INSERT INTO maintenance_requests (client_name, client_email, website, description, priority) VALUES (?, ?, ?, ?, ?)'
-  ).run(client_name.trim(), client_email.trim(), (website || '').trim(), description.trim(), prio);
+    'INSERT INTO maintenance_requests (client_name, client_email, website, description, priority, traffic_light, ai_category) VALUES (?, ?, ?, ?, ?, ?, ?)'
+  ).run(client_name.trim(), client_email.trim(), (website || '').trim(), description.trim(), prio, traffic_light, ai_category);
 
   // Auto-ack to client
   const ackHtml = `<p>Hi ${client_name},</p>
@@ -1514,15 +1539,18 @@ app.post('/api/maintenance/submit', maintenanceLimiter, async (req, res) => {
 <p>—<br>Crown Media Group<br>crownmediagroup.co</p>`;
   sendEmail({ to: client_email, subject: 'Maintenance Request Received — Crown Media Group', html: ackHtml, text: `Hi ${client_name},\n\nWe received your request: ${description}\n\nPriority: ${prio}\n\nWe'll be in touch within 24 hours.\n\n— Crown Media Group` });
 
-  // Notify King
-  const kingHtml = `<p><strong>New maintenance request from ${client_name}</strong> (${client_email})</p>
+  // Notify King — red gets urgent subject
+  const isRed = traffic_light === 'red';
+  const kingSubject = isRed ? `🔴 RED ALERT: ${client_name} — ${ai_category || prio} — needs urgent attention` : `[${prio}] New Maintenance Request — ${client_name}`;
+  const kingHtml = `<p><strong>${isRed ? '🔴 URGENT — ' : ''}New maintenance request from ${client_name}</strong> (${client_email})</p>
 <p><strong>Website:</strong> ${website || 'not provided'}</p>
-<p><strong>Priority:</strong> ${prio}</p>
+<p><strong>Priority:</strong> ${prio} | <strong>Status:</strong> ${traffic_light.toUpperCase()}</p>
+<p><strong>Category:</strong> ${ai_category || 'unclassified'}</p>
 <p><strong>Request:</strong> ${description}</p>
 <p><a href="https://crm.crownmediagroup.co/admin">View in CRM →</a></p>`;
-  sendEmail({ to: 'king@crownmediagroup.co', subject: `[${prio}] New Maintenance Request — ${client_name}`, html: kingHtml, text: `New maintenance request:\nFrom: ${client_name} (${client_email})\nSite: ${website || 'n/a'}\nPriority: ${prio}\nRequest: ${description}` });
+  sendEmail({ to: 'king@crownmediagroup.co', subject: kingSubject, html: kingHtml, text: `${isRed ? '🔴 RED ALERT\n' : ''}New maintenance request:\nFrom: ${client_name} (${client_email})\nSite: ${website || 'n/a'}\nPriority: ${prio}\nCategory: ${ai_category}\nRequest: ${description}` });
 
-  res.json({ ok: true, id: row.lastInsertRowid });
+  res.json({ ok: true, id: row.lastInsertRowid, traffic_light });
 });
 
 // Auth-gated: King lists all maintenance requests
@@ -1539,7 +1567,7 @@ app.get('/api/maintenance', (req, res) => {
   res.json({ ok: true, requests: rows });
 });
 
-// Auth-gated: King marks a request complete
+// Auth-gated: King marks a request complete — fires client satisfaction email
 app.put('/api/maintenance/:id/complete', async (req, res) => {
   const session = validateSession(getCookie(req, 'crm_session'));
   if (!session) return res.status(401).json({ error: 'Unauthorized' });
@@ -1547,16 +1575,62 @@ app.put('/api/maintenance/:id/complete', async (req, res) => {
   const { notes } = req.body;
   const row = db.prepare('SELECT * FROM maintenance_requests WHERE id = ?').get(id);
   if (!row) return res.status(404).json({ error: 'Not found' });
-  db.prepare("UPDATE maintenance_requests SET status = 'complete', notes = ?, completed_at = datetime('now') WHERE id = ?").run(notes || '', id);
 
-  // Notify client of completion
-  const html = `<p>Hi ${row.client_name},</p>
+  // Generate unique confirm token for satisfaction loop
+  const token = randomBytes(24).toString('hex');
+  db.prepare("UPDATE maintenance_requests SET status='complete', notes=?, completed_at=datetime('now'), traffic_light='green_pending', confirm_token=? WHERE id=?").run(notes || '', token, id);
+
+  const BASE_URL = process.env.CRM_BASE_URL || 'https://crm.crownmediagroup.co';
+  const yesLink = `${BASE_URL}/api/maintenance/confirm/${token}?result=yes`;
+  const noLink  = `${BASE_URL}/api/maintenance/confirm/${token}?result=no`;
+
+  const html = `<div style="font-family:sans-serif;max-width:520px;color:#1a1a1a;line-height:1.7">
+<p>Hi ${row.client_name},</p>
 <p>Your maintenance request has been completed.</p>
 <p><strong>Original request:</strong> ${row.description}</p>
 ${notes ? `<p><strong>Resolution notes:</strong> ${notes}</p>` : ''}
-<p>Let us know if you have any other questions.</p>
-<p>—<br>Crown Media Group<br>crownmediagroup.co</p>`;
-  await sendEmail({ to: row.client_email, subject: 'Your Maintenance Request is Complete — Crown Media Group', html, text: `Hi ${row.client_name},\n\nYour request has been completed.\n\nOriginal: ${row.description}\n${notes ? 'Notes: ' + notes + '\n' : ''}\n— Crown Media Group` });
+<p>Was everything handled to your satisfaction?</p>
+<p style="margin:24px 0">
+  <a href="${yesLink}" style="background:#22c55e;color:#fff;padding:10px 24px;border-radius:6px;text-decoration:none;font-weight:700;margin-right:12px">✅ Yes, all good</a>
+  <a href="${noLink}" style="background:#e05c5c;color:#fff;padding:10px 24px;border-radius:6px;text-decoration:none;font-weight:700">❌ Needs more work</a>
+</p>
+<p>—<br>Crown Media Group<br>crownmediagroup.co</p>
+</div>`;
+  await sendEmail({ to: row.client_email, subject: 'Your Maintenance Request is Complete — Crown Media Group', html, text: `Hi ${row.client_name},\n\nYour request has been completed.\n\nOriginal: ${row.description}\n${notes ? 'Notes: ' + notes + '\n' : ''}\nWas this resolved? YES: ${yesLink}\nNO: ${noLink}\n\n— Crown Media Group` });
+  res.json({ ok: true });
+});
+
+// Client satisfaction confirmation — public, token-gated
+app.get('/api/maintenance/confirm/:token', async (req, res) => {
+  const { token } = req.params;
+  const { result } = req.query;
+  const row = db.prepare('SELECT * FROM maintenance_requests WHERE confirm_token = ?').get(token);
+  if (!row) return res.status(404).send('<p>Link expired or not found.</p>');
+
+  if (result === 'yes') {
+    db.prepare("UPDATE maintenance_requests SET traffic_light='green', confirm_token='' WHERE id=?").run(row.id);
+    sendEmail({ to: 'king@crownmediagroup.co', subject: `✅ Job Complete — ${row.client_name} confirmed happy`, html: `<p>✅ <strong>${row.client_name}</strong> confirmed their maintenance request is resolved.<br>Request: ${row.description}</p>`, text: `${row.client_name} confirmed satisfied. Job: ${row.description}` });
+    return res.send(`<div style="font-family:sans-serif;max-width:480px;margin:80px auto;text-align:center"><h2 style="color:#22c55e">Thank you!</h2><p>We're glad everything is taken care of. Reach out anytime.</p><p style="color:#888">— Crown Media Group</p></div>`);
+  }
+
+  if (result === 'no') {
+    db.prepare("UPDATE maintenance_requests SET traffic_light='yellow', status='open', confirm_token='', completed_at=NULL WHERE id=?").run(row.id);
+    sendEmail({ to: 'king@crownmediagroup.co', subject: `⚠️ ${row.client_name} — maintenance needs more work`, html: `<p>⚠️ <strong>${row.client_name}</strong> said their request was NOT fully resolved.<br>Request: ${row.description}<br><a href="https://crm.crownmediagroup.co/admin">Review in CRM →</a></p>`, text: `${row.client_name} not satisfied. Re-open ticket: ${row.description}` });
+    return res.send(`<div style="font-family:sans-serif;max-width:480px;margin:80px auto;text-align:center"><h2 style="color:#C9A84C">Got it.</h2><p>We'll review your request and follow up shortly.</p><p style="color:#888">— Crown Media Group</p></div>`);
+  }
+
+  res.status(400).send('<p>Invalid confirmation link.</p>');
+});
+
+// Auth-gated: King manually sets traffic light on any ticket
+app.put('/api/maintenance/:id/flag', (req, res) => {
+  const session = validateSession(getCookie(req, 'crm_session'));
+  if (!session) return res.status(401).json({ error: 'Unauthorized' });
+  const { id } = req.params;
+  const { traffic_light } = req.body;
+  const valid = ['red', 'orange', 'yellow', 'green_pending', 'green'];
+  if (!valid.includes(traffic_light)) return res.status(400).json({ error: 'Invalid traffic light value' });
+  db.prepare('UPDATE maintenance_requests SET traffic_light=? WHERE id=?').run(traffic_light, id);
   res.json({ ok: true });
 });
 

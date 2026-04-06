@@ -120,6 +120,12 @@ db.exec(`
   CREATE INDEX IF NOT EXISTS idx_maintenance_status ON maintenance_requests(status, created_at);
 `);
 
+// ── Runtime column additions for maintenance_requests (traffic light system) ──
+const _maintCols = db.prepare('PRAGMA table_info(maintenance_requests)').all().map(r => r.name);
+if (!_maintCols.includes('traffic_light'))  db.exec("ALTER TABLE maintenance_requests ADD COLUMN traffic_light TEXT DEFAULT 'yellow'");
+if (!_maintCols.includes('ai_category'))    db.exec("ALTER TABLE maintenance_requests ADD COLUMN ai_category TEXT DEFAULT ''");
+if (!_maintCols.includes('confirm_token'))  db.exec("ALTER TABLE maintenance_requests ADD COLUMN confirm_token TEXT DEFAULT ''");
+
 // ── Campaigns (NxLevel outreach + future) ─────────────────────────────────────
 db.exec(`
   CREATE TABLE IF NOT EXISTS campaigns (

@@ -53,6 +53,26 @@
   .act-btn:hover { border-color:var(--gold); color:var(--gold); }
   .act-btn.green { border-color:var(--green); color:var(--green); }
   .act-btn.red   { border-color:var(--red); color:var(--red); }
+  /* Traffic light rows */
+  .tl-red    { border-left:4px solid #e05c5c !important; background:rgba(224,92,92,0.07); }
+  .tl-orange { border-left:4px solid #f97316 !important; background:rgba(249,115,22,0.07); }
+  .tl-yellow { border-left:4px solid #C9A84C !important; background:rgba(201,168,76,0.04); }
+  .tl-green  { border-left:4px solid #22c55e !important; background:rgba(34,197,94,0.05); }
+  .tl-dot { display:inline-block; width:9px; height:9px; border-radius:50%; margin-right:5px; vertical-align:middle; }
+  .tl-dot.red    { background:#e05c5c; }
+  .tl-dot.orange { background:#f97316; }
+  .tl-dot.yellow { background:#C9A84C; }
+  .tl-dot.green  { background:#22c55e; }
+  @keyframes tl-pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.5;transform:scale(1.4)} }
+  .tl-dot.red { animation:tl-pulse 1.2s ease-in-out infinite; }
+  .tl-filter-btn { background:#1e1e1e; color:#aaa; border:1px solid #333; border-radius:6px; padding:5px 12px; font-size:.75rem; cursor:pointer; }
+  .tl-filter-btn.active { font-weight:700; }
+  .tl-filter-btn.f-red.active    { background:rgba(224,92,92,0.2); color:#e05c5c; border-color:#e05c5c; }
+  .tl-filter-btn.f-orange.active { background:rgba(249,115,22,0.2); color:#f97316; border-color:#f97316; }
+  .tl-filter-btn.f-yellow.active { background:rgba(201,168,76,0.2); color:#C9A84C; border-color:#C9A84C; }
+  .tl-filter-btn.f-green.active  { background:rgba(34,197,94,0.2);  color:#22c55e; border-color:#22c55e; }
+  .tl-filter-btn.f-all.active    { background:#C9A84C; color:#000; border-color:#C9A84C; }
+  #red-alert-badge { display:none; background:#e05c5c; color:#fff; border-radius:12px; padding:2px 9px; font-size:.72rem; font-weight:700; vertical-align:middle; animation:tl-pulse 1.2s ease-in-out infinite; margin-left:6px; }
 </style>
 </head>
 <body>
@@ -108,13 +128,16 @@
 
   <!-- Maintenance Requests -->
   <div class="card" style="margin-top:24px">
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
-      <h2 style="margin:0">Maintenance Requests <span id="maint-badge" style="background:#C9A84C;color:#000;border-radius:12px;padding:2px 9px;font-size:.72rem;vertical-align:middle;display:none"></span></h2>
-      <div style="display:flex;gap:8px">
-        <button type="button" onclick="loadMaintenance('open')" id="maint-open-btn" style="background:#C9A84C;color:#000;border:none;border-radius:6px;padding:6px 14px;font-size:.78rem;font-weight:700;cursor:pointer">Open</button>
-        <button type="button" onclick="loadMaintenance('all')" id="maint-all-btn" style="background:#1e1e1e;color:#aaa;border:1px solid #333;border-radius:6px;padding:6px 14px;font-size:.78rem;cursor:pointer">All</button>
-        <a href="/maintenance" target="_blank" style="background:#1e1e1e;color:#C9A84C;border:1px solid #333;border-radius:6px;padding:6px 14px;font-size:.78rem;text-decoration:none">Client Form</a>
-      </div>
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:8px">
+      <h2 style="margin:0">Maintenance Requests <span id="red-alert-badge"></span></h2>
+      <a href="/maintenance" target="_blank" style="background:#1e1e1e;color:#C9A84C;border:1px solid #333;border-radius:6px;padding:5px 12px;font-size:.75rem;text-decoration:none">Client Form</a>
+    </div>
+    <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:16px">
+      <button type="button" class="tl-filter-btn f-all active" id="mf-all"    onclick="loadMaintenance('all')">All</button>
+      <button type="button" class="tl-filter-btn f-red"        id="mf-red"    onclick="loadMaintenance('red')">🔴 Red</button>
+      <button type="button" class="tl-filter-btn f-orange"     id="mf-orange" onclick="loadMaintenance('orange')">🟠 Orange</button>
+      <button type="button" class="tl-filter-btn f-yellow"     id="mf-yellow" onclick="loadMaintenance('yellow')">🟡 Yellow</button>
+      <button type="button" class="tl-filter-btn f-green"      id="mf-green"  onclick="loadMaintenance('green')">🟢 Green</button>
     </div>
     <div id="maintTable"><div class="empty-table">Loading...</div></div>
   </div>
@@ -130,7 +153,7 @@
     if (data.user.role !== 'superadmin') { window.location.replace('/'); }
   } catch { window.location.replace('/login'); }
   loadWorkspaces();
-  loadMaintenance('open');
+  loadMaintenance('all');
 })();
 
 // ── Auto-generate password on load ───────────────────────────────────────────
@@ -272,51 +295,98 @@ function copyText(text) {
 }
 
 // ── Maintenance Requests ──────────────────────────────────────────────────────
-let _maintView = 'open';
+let _maintView = 'all';
 const PRIO_COLOR = { Urgent: '#e05c5c', Normal: '#C9A84C', Low: '#666' };
+const TL_MAP = {
+  red:          { cls: 'tl-red',    dot: 'red',    label: '🔴 Urgent' },
+  orange:       { cls: 'tl-orange', dot: 'orange', label: '🟠 Needs Fix' },
+  yellow:       { cls: 'tl-yellow', dot: 'yellow', label: '🟡 Queued' },
+  green_pending:{ cls: 'tl-green',  dot: 'green',  label: '🟢 Awaiting Confirm' },
+  green:        { cls: 'tl-green',  dot: 'green',  label: '🟢 Complete' },
+};
+
+function setFilterActive(view) {
+  ['all','red','orange','yellow','green'].forEach(f => {
+    const el = document.getElementById('mf-' + f);
+    if (el) el.classList.toggle('active', f === view || (view === 'all' && f === 'all') || (view !== 'all' && f === view));
+  });
+  // For green filter — match both green states
+  if (view === 'green') document.getElementById('mf-green').classList.add('active');
+}
 
 async function loadMaintenance(view) {
   _maintView = view;
-  document.getElementById('maint-open-btn').style.background = view === 'open' ? '#C9A84C' : '#1e1e1e';
-  document.getElementById('maint-open-btn').style.color      = view === 'open' ? '#000' : '#aaa';
-  document.getElementById('maint-all-btn').style.background  = view === 'all'  ? '#C9A84C' : '#1e1e1e';
-  document.getElementById('maint-all-btn').style.color       = view === 'all'  ? '#000' : '#aaa';
+  setFilterActive(view);
   const el = document.getElementById('maintTable');
   el.innerHTML = '<div class="empty-table">Loading...</div>';
   try {
-    const res  = await fetch(`/api/maintenance?status=${view}`, { credentials: 'same-origin' });
+    const res  = await fetch('/api/maintenance?status=all', { credentials: 'same-origin' });
     const data = await res.json();
-    const reqs = data.requests || [];
-    const openCount = reqs.filter(r => r.status === 'open').length;
-    const badge = document.getElementById('maint-badge');
-    if (openCount > 0 && view === 'open') { badge.textContent = openCount; badge.style.display = 'inline'; }
-    else badge.style.display = 'none';
-    if (!reqs.length) { el.innerHTML = `<div class="empty-table">${view === 'open' ? 'No open requests.' : 'No requests yet.'} Share the <a href="/maintenance" target="_blank" style="color:#C9A84C">client form</a>.</div>`; return; }
+    let reqs = data.requests || [];
+
+    // Client-side filter by traffic light color
+    if (view === 'red')    reqs = reqs.filter(r => r.traffic_light === 'red');
+    else if (view === 'orange') reqs = reqs.filter(r => r.traffic_light === 'orange');
+    else if (view === 'yellow') reqs = reqs.filter(r => r.traffic_light === 'yellow');
+    else if (view === 'green')  reqs = reqs.filter(r => r.traffic_light === 'green' || r.traffic_light === 'green_pending');
+
+    // Update red alert badge in header
+    const redCount = (data.requests || []).filter(r => r.traffic_light === 'red').length;
+    const alertBadge = document.getElementById('red-alert-badge');
+    if (alertBadge) { alertBadge.textContent = redCount > 0 ? redCount + ' RED' : ''; alertBadge.style.display = redCount > 0 ? 'inline' : 'none'; }
+
+    if (!reqs.length) { el.innerHTML = `<div class="empty-table">No requests${view !== 'all' ? ' with this status' : ''}. Share the <a href="/maintenance" target="_blank" style="color:#C9A84C">client form</a>.</div>`; return; }
+
     el.innerHTML = `<table>
-      <thead><tr><th>#</th><th>Client</th><th>Website</th><th>Request</th><th>Priority</th><th>Date</th><th>Action</th></tr></thead>
-      <tbody>${reqs.map(r => `<tr>
-        <td style="color:var(--muted);font-size:.75rem">${r.id}</td>
-        <td><strong>${esc(r.client_name)}</strong><br><span style="font-size:.72rem;color:var(--muted)">${esc(r.client_email)}</span></td>
-        <td style="font-size:.78rem;color:var(--muted)">${r.website ? `<a href="${esc(r.website)}" target="_blank" style="color:#C9A84C">${esc(r.website.replace(/^https?:\/\//, ''))}</a>` : '—'}</td>
-        <td style="font-size:.8rem;max-width:220px">${esc(r.description)}</td>
-        <td><span style="color:${PRIO_COLOR[r.priority]||'#aaa'};font-size:.78rem;font-weight:700">${r.priority}</span></td>
-        <td style="font-size:.72rem;color:var(--muted)">${r.created_at ? r.created_at.split('T')[0] : '—'}</td>
-        <td>${r.status === 'open'
-          ? `<button type="button" class="act-btn green" onclick="completeMaintenance(${r.id})">Mark Done</button>`
-          : `<span style="font-size:.72rem;color:#4caf50">Done ${(r.completed_at||'').split('T')[0]}</span>`}</td>
-      </tr>`).join('')}</tbody>
+      <thead><tr><th>#</th><th>Client</th><th>Request</th><th>Status</th><th>Priority</th><th>Date</th><th>Action</th></tr></thead>
+      <tbody>${reqs.map(r => {
+        const tl = TL_MAP[r.traffic_light] || TL_MAP.yellow;
+        return `<tr class="${tl.cls}">
+          <td style="color:var(--muted);font-size:.75rem;padding-left:8px">${r.id}</td>
+          <td><strong>${esc(r.client_name)}</strong><br><span style="font-size:.72rem;color:var(--muted)">${esc(r.client_email)}</span>${r.website ? `<br><a href="${esc(r.website)}" target="_blank" style="font-size:.7rem;color:#C9A84C">${esc(r.website.replace(/^https?:\/\//, ''))}</a>` : ''}</td>
+          <td style="font-size:.8rem;max-width:200px">${esc(r.description)}${r.ai_category ? `<br><span style="font-size:.68rem;color:#666;font-style:italic">${esc(r.ai_category)}</span>` : ''}</td>
+          <td><span class="tl-dot ${tl.dot}"></span><span style="font-size:.75rem">${tl.label}</span></td>
+          <td><span style="color:${PRIO_COLOR[r.priority]||'#aaa'};font-size:.75rem;font-weight:700">${r.priority}</span></td>
+          <td style="font-size:.72rem;color:var(--muted)">${r.created_at ? r.created_at.split('T')[0] : '—'}</td>
+          <td style="min-width:120px">
+            ${r.status === 'open' || r.traffic_light === 'yellow' || r.traffic_light === 'orange' || r.traffic_light === 'red'
+              ? `<button type="button" class="act-btn green" onclick="completeMaintenance(${r.id})" style="margin-bottom:4px;display:block">Mark Done</button>`
+              : `<span style="font-size:.72rem;color:#4caf50;display:block;margin-bottom:4px">Done ${(r.completed_at||'').split('T')[0]}</span>`}
+            <select class="act-btn" onchange="flagMaintenance(${r.id}, this.value); this.value=''" style="font-size:.68rem;padding:2px 4px">
+              <option value="">Flag...</option>
+              <option value="red">🔴 Red</option>
+              <option value="orange">🟠 Orange</option>
+              <option value="yellow">🟡 Yellow</option>
+              <option value="green">🟢 Green</option>
+            </select>
+          </td>
+        </tr>`;
+      }).join('')}</tbody>
     </table>`;
   } catch { el.innerHTML = '<div class="empty-table">Failed to load maintenance requests.</div>'; }
 }
 
 async function completeMaintenance(id) {
-  const notes = prompt('Resolution notes (optional — sent to client):') ?? '';
-  if (notes === null) return; // cancelled
+  const notes = prompt('Resolution notes (optional — sent to client with satisfaction email):') ?? '';
+  if (notes === null) return;
   try {
     const res = await fetch(`/api/maintenance/${id}/complete`, {
       method: 'PUT', credentials: 'same-origin',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ notes }),
+    });
+    if (!res.ok) throw new Error((await res.json()).error);
+    loadMaintenance(_maintView);
+  } catch (err) { alert('Error: ' + err.message); }
+}
+
+async function flagMaintenance(id, traffic_light) {
+  if (!traffic_light) return;
+  try {
+    const res = await fetch(`/api/maintenance/${id}/flag`, {
+      method: 'PUT', credentials: 'same-origin',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ traffic_light }),
     });
     if (!res.ok) throw new Error((await res.json()).error);
     loadMaintenance(_maintView);

@@ -177,6 +177,57 @@ function checkScheduler() {
   triggerVideoForNewPosts();
 }
 
+// ── Thor: Maintenance alert watchdog (every 30 min) ──────────────────────────
+const CRM_DB_PATH = path.join(ROOT, 'tools/crm/crm.db');
+
+function checkMaintenanceAlerts() {
+  try {
+    if (!fs.existsSync(CRM_DB_PATH)) return;
+    // Use node:sqlite to query maintenance_requests
+    let db;
+    try {
+      const { DatabaseSync } = require('node:sqlite');
+      db = new DatabaseSync(CRM_DB_PATH);
+    } catch { return; } // node:sqlite not available
+
+    const twoHoursAgo = new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString();
+    const oneDayAgo   = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
+
+    const redTickets    = db.prepare("SELECT * FROM maintenance_requests WHERE traffic_light='red' AND created_at > ?").all(twoHoursAgo);
+    const orangeTickets = db.prepare("SELECT * FROM maintenance_requests WHERE traffic_light='orange' AND created_at < ?").all(oneDayAgo);
+    db.close();
+
+    if (redTickets.length > 0) {
+      log(`[Thor] 🔴 ${redTickets.length} RED maintenance ticket(s) need urgent attention`);
+      const details = redTickets.map(r => `- ${r.client_name}: ${r.description.substring(0, 80)}`).join('\n');
+      const RESEND_KEY = process.env.RESEND_API_KEY;
+      if (RESEND_KEY) {
+        fetch('https://api.resend.com/emails', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${RESEND_KEY}` },
+          body: JSON.stringify({
+            from: 'Crown Media Group <king@crownmediagroup.co>',
+            to: 'king@crownmediagroup.co',
+            subject: `🔴 RED ALERT: ${redTickets.length} urgent maintenance ticket(s) need you NOW`,
+            html: `<p>🔴 <strong>URGENT: ${redTickets.length} maintenance request(s) need your immediate attention.</strong></p><ul>${redTickets.map(r => `<li><strong>${r.client_name}</strong>: ${r.description}</li>`).join('')}</ul><p><a href="https://crm.crownmediagroup.co/admin">View in CRM →</a></p>`,
+            text: `RED ALERT\n\n${details}\n\nView: https://crm.crownmediagroup.co/admin`,
+          }),
+        }).catch(() => {});
+      }
+    }
+    if (orangeTickets.length > 0) {
+      log(`[Thor] 🟠 ${orangeTickets.length} ORANGE ticket(s) unresolved for 24h+`);
+    }
+  } catch (e) { log(`[Thor] Alert check error: ${e.message}`); }
+}
+
+let _maintAlertTick = 0;
+function checkMaintenanceAlertsThrottled() {
+  _maintAlertTick++;
+  if (_maintAlertTick % 30 !== 0) return; // every 30 ticks = 30 min
+  checkMaintenanceAlerts();
+}
+
 // ── Black Widow: Nightly lead gen (midnight) ──────────────────────────────────
 const LEAD_GEN       = path.join(ROOT, 'tools/nightly-lead-gen.js');
 const LEAD_GEN_LOG   = path.join(ROOT, 'Agency/ops/notes/.lead-gen-last-run');
@@ -283,14 +334,15 @@ function checkVideoPoster() {
 }
 
 // Normal run
-log('Standalone runner started — polling every 60s | Team: Black Widow (0AM) · Iron Man (6AM) · Hawkeye (9AM) · TopMap (3AM)');
+log('Standalone runner started — polling every 60s | Team: Black Widow (0AM) · Iron Man (6AM) · Hawkeye (9AM) · TopMap (3AM) · Thor (30min maintenance watch)');
 setInterval(() => {
   checkQueue();
   checkScheduler();
   checkTopicalMap();
-  checkLeadGen();    // Black Widow — midnight
-  checkShatiea();    // Iron Man — 6 AM
-  checkOutreach();   // Hawkeye — 9 AM
+  checkLeadGen();                    // Black Widow — midnight
+  checkShatiea();                    // Iron Man — 6 AM
+  checkOutreach();                   // Hawkeye — 9 AM
+  checkMaintenanceAlertsThrottled(); // Thor — every 30 min
   /* checkVideoPoster() — DISABLED: WSL error */
 }, POLL);
 checkQueue();

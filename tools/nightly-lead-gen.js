@@ -46,10 +46,12 @@ function log(msg) {
 
 async function searchBusinesses() {
   const queries = [
-    'Columbia SC small business services no online presence 2024',
-    'Columbia SC local business restaurant salon beauty shop',
-    'Columbia SC contractor plumber electrician cleaning service',
-    'Columbia SC food truck catering event planning business',
+    'Columbia SC restaurant food business local',
+    'Columbia SC hair salon beauty spa studio',
+    'Columbia SC cleaning service home contractor',
+    'Columbia SC event planner catering business',
+    'Columbia SC boutique retail clothing shop',
+    'Columbia SC fitness trainer coach wellness',
   ];
 
   const results = [];
@@ -65,8 +67,6 @@ async function searchBusinesses() {
           numResults: IS_TEST ? 2 : 8,
           type: 'neural',
           useAutoprompt: true,
-          includeDomains: [],
-          includeText: true,
           contents: { text: { maxCharacters: 500 } },
         }),
       });
