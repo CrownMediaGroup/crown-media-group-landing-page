@@ -287,6 +287,70 @@ function checkShatiea() {
   } catch (e) { log(`[Iron Man] Error: ${e.message}`); }
 }
 
+// ── Iron Man Post: Fire Shatiea content to IG + FB (7 AM) ────────────────────
+const SHATIEA_CONTENT_DIR = path.join(ROOT, 'Agency/ops/content');
+const SOCIAL_POST_SCRIPT  = path.join(ROOT, 'Agency/tools/social-post.js');
+const IRON_MAN_POST_LOG   = path.join(ROOT, 'Agency/ops/content/.iron-man-post-last-run');
+
+function checkIronManPost() {
+  try {
+    if (!fs.existsSync(SOCIAL_POST_SCRIPT)) return;
+    const now = new Date();
+    if (now.getHours() !== 7) return;
+    const today = now.toISOString().slice(0, 10);
+    const lastRun = fs.existsSync(IRON_MAN_POST_LOG) ? fs.readFileSync(IRON_MAN_POST_LOG, 'utf8').trim() : '';
+    if (lastRun === today) return;
+
+    const contentFile = path.join(SHATIEA_CONTENT_DIR, `shatiea-${today}.md`);
+    if (!fs.existsSync(contentFile)) {
+      log('[Iron Man] Content file not ready yet — skipping social post (will retry)');
+      return;
+    }
+
+    const md = fs.readFileSync(contentFile, 'utf8');
+
+    // Parse IG caption
+    const igMatch = md.match(/## Instagram Caption\s*([\s\S]*?)(?:---|\n## )/);
+    const igCaption = igMatch ? igMatch[1].trim() : null;
+
+    // Parse FB caption
+    const fbMatch = md.match(/## Facebook Caption\s*([\s\S]*?)(?:---|\n## )/);
+    const fbCaption = fbMatch ? fbMatch[1].trim() : null;
+
+    if (!igCaption && !fbCaption) {
+      log('[Iron Man] Could not parse captions from content file — skipping');
+      return;
+    }
+
+    fs.writeFileSync(IRON_MAN_POST_LOG, today);
+    log('[Iron Man] Firing Shatiea content to social platforms...');
+
+    const { spawn } = require('child_process');
+
+    if (igCaption) {
+      const igChild = spawn(process.execPath, [
+        SOCIAL_POST_SCRIPT,
+        '--platform', 'instagram',
+        '--caption', igCaption,
+      ], { cwd: ROOT, detached: true, stdio: 'ignore' });
+      igChild.unref();
+      log('[Iron Man] Instagram post queued.');
+    }
+
+    if (fbCaption) {
+      const fbChild = spawn(process.execPath, [
+        SOCIAL_POST_SCRIPT,
+        '--platform', 'facebook',
+        '--caption', fbCaption,
+      ], { cwd: ROOT, detached: true, stdio: 'ignore' });
+      fbChild.unref();
+      log('[Iron Man] Facebook post queued.');
+    }
+
+    log('[Iron Man] Content live — Shatiea is on the feed.');
+  } catch (e) { log(`[Iron Man Post] Error: ${e.message}`); }
+}
+
 // ── Hawkeye: Cold outreach sequences (9 AM) ───────────────────────────────────
 const OUTREACH     = path.join(ROOT, 'tools/outreach-sequence.js');
 const OUTREACH_LOG = path.join(ROOT, 'Agency/ops/notes/.outreach-last-run');
@@ -305,6 +369,87 @@ function checkOutreach() {
     child.unref();
     log('[Hawkeye] Shots fired.');
   } catch (e) { log(`[Hawkeye] Error: ${e.message}`); }
+}
+
+// ── Vision: LinkedIn personal brand post (11 AM) ─────────────────────────────
+const LINKEDIN_CONTENT_DIR = path.join(ROOT, 'Agency/ops/content');
+const VISION_LOG           = path.join(ROOT, 'Agency/ops/content/.vision-last-run');
+const ANTHROPIC_KEY_VISION = process.env.ANTHROPIC_API_KEY;
+
+async function generateLinkedInPost(today) {
+  const key = ANTHROPIC_KEY_VISION || (() => {
+    try {
+      const env = fs.readFileSync(path.join(ROOT, '.env'), 'utf8');
+      const m = env.match(/ANTHROPIC_API_KEY=(.+)/);
+      return m ? m[1].trim().replace(/^["']|["']$/g, '') : null;
+    } catch { return null; }
+  })();
+  if (!key) throw new Error('ANTHROPIC_API_KEY not set');
+
+  const dayOfWeek = new Date(today).toLocaleDateString('en-US', { weekday: 'long' });
+
+  // Try to pull Shatiea's content theme for today as inspiration
+  let shatiea = '';
+  const sFile = path.join(SHATIEA_CONTENT_DIR, `shatiea-${today}.md`);
+  if (fs.existsSync(sFile)) {
+    const raw = fs.readFileSync(sFile, 'utf8');
+    const m = raw.match(/## Instagram Caption\s*([\s\S]*?)---/);
+    if (m) shatiea = `\nContent theme from today's client work: ${m[1].trim().slice(0, 200)}`;
+  }
+
+  const prompt = `You are writing a LinkedIn post for David King (@mkdavidking), CEO of Crown Media Group — a faith-driven AI marketing agency in Columbia, SC.
+
+Today is ${dayOfWeek}.${shatiea}
+
+Write a single LinkedIn thought leadership post (150-250 words) that:
+- Opens with a scroll-stopping insight or observation (no "I" as first word)
+- Tells a micro-story OR shares a lesson from agency/AI marketing work
+- Positions Crown Media Group as the go-to AI agency in Columbia SC
+- Has a subtle faith undertone (never preachy)
+- Ends with a direct question to drive comments
+- Includes 3-5 relevant hashtags at the bottom
+
+Return only the post text, no preamble.`;
+
+  const res = await fetch('https://api.anthropic.com/v1/messages', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'x-api-key': key,
+      'anthropic-version': '2023-06-01',
+    },
+    body: JSON.stringify({
+      model: 'claude-haiku-4-5-20251001',
+      max_tokens: 600,
+      messages: [{ role: 'user', content: prompt }],
+    }),
+  });
+
+  const data = await res.json();
+  if (data.error) throw new Error(data.error.message);
+  return (data.content?.[0]?.text || '').trim();
+}
+
+function checkVision() {
+  try {
+    const now = new Date();
+    if (now.getHours() !== 11) return;
+    const today = now.toISOString().slice(0, 10);
+    const lastRun = fs.existsSync(VISION_LOG) ? fs.readFileSync(VISION_LOG, 'utf8').trim() : '';
+    if (lastRun === today) return;
+    fs.writeFileSync(VISION_LOG, today);
+    log('[Vision] Generating King\'s LinkedIn post for today...');
+
+    generateLinkedInPost(today).then(post => {
+      const outFile = path.join(LINKEDIN_CONTENT_DIR, `linkedin-${today}.md`);
+      const md = `# LinkedIn Post — ${today}\n\n${post}\n\n---\n_Generated by Vision agent — ${new Date().toISOString()}_\n`;
+      fs.writeFileSync(outFile, md);
+      log(`[Vision] LinkedIn post saved → Agency/ops/content/linkedin-${today}.md`);
+      log('[Vision] Post ready — King can copy-paste or /screen to review.');
+    }).catch(e => {
+      log(`[Vision] Generation failed: ${e.message}`);
+    });
+  } catch (e) { log(`[Vision] Error: ${e.message}`); }
 }
 
 // ── Topical map auto-refresh (daily at 3 AM) ─────────────────────────────────
@@ -353,14 +498,16 @@ function checkVideoPoster() {
 }
 
 // Normal run
-log('Standalone runner started — polling every 60s | Team: Black Widow (0AM) · Iron Man (6AM) · Hawkeye (9AM) · TopMap (3AM) · Thor (30min maintenance watch)');
+log('Standalone runner started — polling every 60s | Team: Black Widow (0AM) · Iron Man (6AM) · Iron Man Post (7AM) · Hawkeye (9AM) · Vision (11AM) · TopMap (3AM) · Thor (30min maintenance watch)');
 setInterval(() => {
   checkQueue();
   checkScheduler();
   checkTopicalMap();
   checkLeadGen();                    // Black Widow — midnight
   checkShatiea();                    // Iron Man — 6 AM
+  checkIronManPost();                // Iron Man Post — 7 AM (fire generated content to IG + FB)
   checkOutreach();                   // Hawkeye — 9 AM
+  checkVision();                     // Vision — 11 AM (LinkedIn personal brand post)
   checkMaintenanceAlertsThrottled(); // Thor — every 30 min
   /* checkVideoPoster() — DISABLED: WSL error */
 }, POLL);
