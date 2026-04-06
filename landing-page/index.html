@@ -1053,6 +1053,7 @@ if (/iPhone|iPad/.test(navigator.userAgent) && !navigator.standalone) {
 (function(){
   var btn=document.getElementById('support-btn');
   var pop=document.getElementById('support-pop');
+  if(!btn||!pop)return;
   btn.addEventListener('click',function(e){e.stopPropagation();pop.classList.toggle('open');btn.classList.toggle('open');});
   document.addEventListener('click',function(){pop.classList.remove('open');btn.classList.remove('open');});
   pop.addEventListener('click',function(e){e.stopPropagation();});
@@ -1064,5 +1065,4 @@ if (/iPhone|iPad/.test(navigator.userAgent) && !navigator.standalone) {
 })();
 </script>
 </body>
-</html>
 </html>
