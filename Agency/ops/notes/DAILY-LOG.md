@@ -223,3 +223,16 @@
 [2026-04-06T01:31:44.328Z] [Video Pipeline] New post detected: 2026-04-05-crown-media-group-vs-diy-marketing-what-columbia-sc-business.md — spawning video pipeline...
 [2026-04-06T01:31:44.336Z] [Video Pipeline] New post detected: 2026-04-05-how-crown-media-group-helps-columbia-sc-businesses-get-more-.md — spawning video pipeline...
 [2026-04-06T01:31:44.345Z] [Video Pipeline] New post detected: 2026-04-05-tiktok-vs-instagram-reels-which-platform-should-columbia-sc-.md — spawning video pipeline...
+[2026-04-06T03:18:22.915Z] [VIDEO-POSTER] [CRON] Auto-poster starting — runs every 15 minutes
+[2026-04-06T03:18:22.917Z] [VIDEO-POSTER] --- Video poster check start ---
+[2026-04-06T03:18:24.656Z] [VIDEO-POSTER] Found 0 projects due for posting
+[2026-04-06T03:18:24.656Z] [VIDEO-POSTER] --- Video poster check end ---
+[2026-04-06T03:30:00.512Z] [VIDEO-POSTER] --- Video poster check start ---
+[2026-04-06T03:30:00.852Z] [VIDEO-POSTER] Found 0 projects due for posting
+[2026-04-06T03:30:00.853Z] [VIDEO-POSTER] --- Video poster check end ---
+[2026-04-06T03:45:00.368Z] [VIDEO-POSTER] --- Video poster check start ---
+[2026-04-06T03:45:01.505Z] [VIDEO-POSTER] Found 0 projects due for posting
+[2026-04-06T03:45:01.505Z] [VIDEO-POSTER] --- Video poster check end ---
+[2026-04-06T04:00:00.741Z] [VIDEO-POSTER] --- Video poster check start ---
+
+[2026-04-06T00:00:00Z] [SESSION-CLOSE] PHASE 6 COMPLETE. Captain Marvel /check-replies live. Iron Man Post fires IG+FB at 7AM (queue bug fixed). Vision agent generates LinkedIn post at 11AM. Shatiea monthly report built (tools/shatiea-report.js). Twilio SMS LIVE (+19088481436). Full repo org: root cleaned, 276 portfolio files renamed, images compressed 39-66%, client-onboarding-system gitignored. 3 commits pushed. crownmediagroup.co + crm.crownmediagroup.co verified LIVE. Avengers debrief protocol + sensitive info protocol locked in memory. Phase 7 next session.
