@@ -33,7 +33,9 @@ const TWILIO_SID      = process.env.TWILIO_ACCOUNT_SID;
 const TWILIO_TOKEN    = process.env.TWILIO_AUTH_TOKEN;
 const TWILIO_FROM     = process.env.TWILIO_FROM_NUMBER;
 const KING_PHONE      = process.env.KING_PHONE || process.env.TWILIO_TO_NUMBER;
-const BUFFER_TOKEN    = process.env.BUFFER_ACCESS_TOKEN;
+const YT_CLIENT_ID     = process.env.YOUTUBE_CLIENT_ID;
+const YT_CLIENT_SECRET = process.env.YOUTUBE_CLIENT_SECRET;
+const YT_REFRESH_TOKEN = process.env.YOUTUBE_REFRESH_TOKEN;
 const GMAIL_USER      = process.env.GMAIL_USER;
 const GMAIL_PASS      = process.env.GMAIL_APP_PASSWORD;
 
@@ -202,48 +204,61 @@ function postToSocial(platform, caption, videoPath, dryRun = false) {
   }
 }
 
-// ── Buffer API poster ─────────────────────────────────────────
-async function postToBuffer(platform, caption, videoUrl, scheduledAt) {
-  if (!BUFFER_TOKEN) {
-    log(`[BUFFER SKIP] No BUFFER_ACCESS_TOKEN for ${platform}`);
+// ── YouTube API direct upload (bypasses Buffer) ───────────────
+async function postToYouTube(caption, videoPath, platformTitle) {
+  if (!YT_CLIENT_ID || !YT_CLIENT_SECRET || !YT_REFRESH_TOKEN) {
+    log('[YOUTUBE SKIP] YOUTUBE_CLIENT_ID / CLIENT_SECRET / REFRESH_TOKEN not set');
     return false;
   }
   try {
-    // Get profile IDs first time — cache in memory
-    if (!postToBuffer._profiles) {
-      const res = await fetch('https://api.bufferapp.com/1/profiles.json?access_token=' + BUFFER_TOKEN);
-      const profiles = await res.json();
-      postToBuffer._profiles = profiles || [];
+    const { google } = require('googleapis');
+    const os         = require('os');
+    const oauth2 = new google.auth.OAuth2(YT_CLIENT_ID, YT_CLIENT_SECRET, 'http://localhost:3001/callback');
+    oauth2.setCredentials({ refresh_token: YT_REFRESH_TOKEN });
+    const youtube = google.youtube({ version: 'v3', auth: oauth2 });
+
+    // If videoPath is a remote URL, download to temp first
+    let localPath = videoPath;
+    if (videoPath.startsWith('http')) {
+      const tmpFile = path.join(os.tmpdir(), `yt-upload-${Date.now()}.mp4`);
+      log(`[YOUTUBE] Downloading video to temp: ${tmpFile}`);
+      const res  = await fetch(videoPath);
+      if (!res.ok) throw new Error(`Download failed: ${res.status}`);
+      const buf  = await res.arrayBuffer();
+      fs.writeFileSync(tmpFile, Buffer.from(buf));
+      localPath = tmpFile;
     }
-    const profile = postToBuffer._profiles.find(p =>
-      p.service?.toLowerCase().includes(platform) ||
-      p.service_type?.toLowerCase().includes(platform)
-    );
-    if (!profile) {
-      log(`[BUFFER] No profile found for ${platform}`);
-      return false;
-    }
-    const payload = new URLSearchParams({
-      access_token: BUFFER_TOKEN,
-      'profile_ids[]': profile.id,
-      text: caption,
-      'media[video]': videoUrl,
-      now: scheduledAt ? 'false' : 'true',
+
+    const title = (platformTitle || caption).slice(0, 100);
+    log(`[YOUTUBE] Uploading: ${title}`);
+
+    const response = await youtube.videos.insert({
+      part: ['snippet', 'status'],
+      requestBody: {
+        snippet: {
+          title,
+          description: caption.slice(0, 5000),
+          categoryId:  '22', // People & Blogs
+          defaultLanguage: 'en',
+        },
+        status: {
+          privacyStatus:           'public',
+          selfDeclaredMadeForKids: false,
+          madeForKids:             false,
+        },
+      },
+      media: {
+        mimeType: 'video/mp4',
+        body:     fs.createReadStream(localPath),
+      },
     });
-    if (scheduledAt) payload.append('scheduled_at', scheduledAt);
-    const res = await fetch('https://api.bufferapp.com/1/updates/create.json', {
-      method: 'POST',
-      body: payload,
-    });
-    const data = await res.json();
-    if (data.success) {
-      log(`[BUFFER OK] ${platform}: update ${data.updates?.[0]?.id}`);
-      return data.updates?.[0]?.id || true;
-    }
-    log(`[BUFFER FAIL] ${platform}: ${JSON.stringify(data)}`);
-    return false;
+
+    const videoId  = response.data.id;
+    const videoUrl = `https://www.youtube.com/watch?v=${videoId}`;
+    log(`[YOUTUBE OK] ${videoUrl}`);
+    return videoId;
   } catch (err) {
-    log(`[BUFFER ERROR] ${platform}: ${err.message}`);
+    log(`[YOUTUBE ERROR] ${err.message}`);
     return false;
   }
 }
@@ -309,11 +324,15 @@ async function processProject(project) {
     if (['instagram', 'facebook', 'tiktok', 'threads'].includes(post.platform)) {
       // Use social-post.js (Playwright)
       success = postToSocial(post.platform, caption, localVideoPath);
-    } else if (['youtube', 'x'].includes(post.platform)) {
-      // Use Buffer API
-      const bufferId = await postToBuffer(post.platform, caption, localVideoPath, project.scheduled_post_at);
-      success = !!bufferId;
-      platformId = typeof bufferId === 'string' ? bufferId : null;
+    } else if (post.platform === 'youtube') {
+      // Use YouTube Data API v3 directly
+      const ytId = await postToYouTube(caption, localVideoPath, post.platform_title);
+      success    = !!ytId;
+      platformId = typeof ytId === 'string' ? ytId : null;
+    } else if (post.platform === 'x') {
+      // X requires Twitter API v2 credentials — skip, notify King
+      log('[X SKIP] X/Twitter posting requires Twitter API v2 — post manually');
+      await markPostFailed(post.id, 'X requires Twitter API v2 credentials');
     }
 
     if (success) {
