@@ -383,6 +383,21 @@
       color: var(--muted);
       font-size: 14px;
     }
+
+    /* Content Calendar */
+    .cal-header { display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px; margin-bottom: 4px; }
+    .cal-dow { font-size: 10px; font-weight: 700; color: var(--muted); text-align: center; text-transform: uppercase; letter-spacing: .04em; padding: 4px 0; }
+    .cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px; }
+    .cal-day { min-height: 44px; background: #1a1a1a; border: 1px solid #222; border-radius: 4px; padding: 4px; position: relative; }
+    .cal-day.other-month { background: #111; opacity: .45; }
+    .cal-day.today { border-color: var(--gold); }
+    .cal-day-num { font-size: 10px; color: var(--muted); line-height: 1; }
+    .cal-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--gold); display: inline-block; margin: 2px 1px; cursor: default; }
+    .cal-dot:hover::after { content: attr(data-label); position: absolute; bottom: 100%; left: 0; background: #222; color: #eee; font-size: 10px; white-space: nowrap; padding: 3px 7px; border-radius: 4px; pointer-events: none; z-index: 10; }
+    .cal-month-nav { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+    .cal-month-nav button { background: none; border: 1px solid var(--border); color: var(--muted); padding: 4px 10px; border-radius: 4px; cursor: pointer; font-size: 12px; }
+    .cal-month-nav button:hover { color: var(--text); }
+    .cal-month-label { font-size: 13px; font-weight: 700; color: var(--text); }
   </style>
 </head>
 <body>
@@ -522,14 +537,8 @@
         }).join('')
       : '<div class="empty-state">No requests yet.</div>';
 
-    const contentHtml = contentQueue.length
-      ? contentQueue.map(c => `
-          <div class="content-item">
-            <div class="content-icon">${c.type === 'social' ? '📱' : '📝'}</div>
-            <div class="content-name">${esc(c.file)}</div>
-            <div class="content-date">${c.date}</div>
-          </div>`).join('')
-      : '<div class="empty-state">Content is being prepared. Check back soon.</div>';
+    // Build content calendar grid
+    const contentHtml = buildContentCalendar(contentQueue);
 
     const briefHtml = contentBrief
       ? `<div class="brief-text">${esc(contentBrief)}</div>`
@@ -552,8 +561,8 @@
 
         <div class="panel">
           <div class="panel-header">
-            <h2>Content Queue</h2>
-            <span class="badge">${contentQueue.length} items</span>
+            <h2>Content Calendar</h2>
+            <span class="badge">${contentQueue.length} scheduled</span>
           </div>
           <div class="panel-body">${contentHtml}</div>
         </div>
@@ -612,6 +621,87 @@
       msg.style.display = 'block';
     } finally {
       btn.disabled = false;
+    }
+  }
+
+  // ── Content Calendar ───────────────────────────────────────────────────────
+
+  let _calYear  = new Date().getFullYear();
+  let _calMonth = new Date().getMonth(); // 0-indexed
+  let _calQueue = [];
+
+  function buildContentCalendar(queue) {
+    _calQueue = queue;
+    return renderCalendar(_calYear, _calMonth, queue);
+  }
+
+  function renderCalendar(year, month, queue) {
+    const monthNames = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+    const today = new Date();
+
+    // Map dates → items
+    const dotMap = {};
+    for (const item of queue) {
+      if (!item.date || item.date === 'Scheduled') continue;
+      const key = item.date; // e.g. "2026-04-15"
+      if (!dotMap[key]) dotMap[key] = [];
+      dotMap[key].push(item.file);
+    }
+
+    // Calendar math
+    const firstDay = new Date(year, month, 1).getDay(); // 0=Sun
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
+    const daysInPrev  = new Date(year, month, 0).getDate();
+    const totalCells  = Math.ceil((firstDay + daysInMonth) / 7) * 7;
+
+    const dows = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'].map(d =>
+      `<div class="cal-dow">${d}</div>`).join('');
+
+    let cells = '';
+    for (let i = 0; i < totalCells; i++) {
+      let dayNum, dateStr, isOther = false;
+      if (i < firstDay) {
+        dayNum  = daysInPrev - firstDay + i + 1;
+        dateStr = `${year}-${String(month === 0 ? 12 : month).padStart(2,'0')}-${String(dayNum).padStart(2,'0')}`;
+        isOther = true;
+      } else if (i >= firstDay + daysInMonth) {
+        dayNum  = i - firstDay - daysInMonth + 1;
+        dateStr = `${year}-${String(month === 11 ? 1 : month + 2).padStart(2,'0')}-${String(dayNum).padStart(2,'0')}`;
+        isOther = true;
+      } else {
+        dayNum  = i - firstDay + 1;
+        dateStr = `${year}-${String(month + 1).padStart(2,'0')}-${String(dayNum).padStart(2,'0')}`;
+      }
+      const isToday = !isOther && dayNum === today.getDate() && month === today.getMonth() && year === today.getFullYear();
+      const dots = (dotMap[dateStr] || []).map(label =>
+        `<span class="cal-dot" title="${label}" data-label="${label.substring(0,30)}"></span>`).join('');
+      cells += `<div class="cal-day${isOther ? ' other-month' : ''}${isToday ? ' today' : ''}">
+        <div class="cal-day-num">${dayNum}</div>${dots}</div>`;
+    }
+
+    return `<div>
+      <div class="cal-month-nav">
+        <button onclick="shiftCal(-1)">&#8592;</button>
+        <span class="cal-month-label">${monthNames[month]} ${year}</span>
+        <button onclick="shiftCal(1)">&#8594;</button>
+      </div>
+      <div class="cal-header">${dows}</div>
+      <div class="cal-grid">${cells}</div>
+      ${queue.length === 0 ? '<p style="font-size:12px;color:#555;text-align:center;margin-top:10px">Content is being prepared. Check back soon.</p>' : ''}
+    </div>`;
+  }
+
+  function shiftCal(dir) {
+    _calMonth += dir;
+    if (_calMonth > 11) { _calMonth = 0; _calYear++; }
+    if (_calMonth < 0)  { _calMonth = 11; _calYear--; }
+    // Re-render just the calendar panel body
+    const panels = document.querySelectorAll('.panel-body');
+    for (const p of panels) {
+      if (p.querySelector('.cal-grid') || p.querySelector('.cal-month-nav')) {
+        p.innerHTML = renderCalendar(_calYear, _calMonth, _calQueue);
+        break;
+      }
     }
   }
 

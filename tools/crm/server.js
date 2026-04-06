@@ -1703,6 +1703,10 @@ app.get('/api/maintenance/confirm/:token', async (req, res) => {
   if (result === 'yes') {
     db.prepare("UPDATE maintenance_requests SET traffic_light='green', confirm_token='' WHERE id=?").run(row.id);
     sendEmail({ to: 'king@crownmediagroup.co', subject: `✅ Job Complete — ${row.client_name} confirmed happy`, html: `<p>✅ <strong>${row.client_name}</strong> confirmed their maintenance request is resolved.<br>Request: ${row.description}</p>`, text: `${row.client_name} confirmed satisfied. Job: ${row.description}` });
+
+    // BUILD 6 — Auto-generate case study when client confirms satisfaction
+    generateCaseStudy(row).catch(e => console.error('[CaseStudy]', e.message));
+
     return res.send(`<div style="font-family:sans-serif;max-width:480px;margin:80px auto;text-align:center"><h2 style="color:#22c55e">Thank you!</h2><p>We're glad everything is taken care of. Reach out anytime.</p><p style="color:#888">— Crown Media Group</p></div>`);
   }
 
@@ -1983,6 +1987,171 @@ app.get('/api/portal/data', async (req, res) => {
     reportUrl: null, // placeholder — monthly PDF link when available
   });
 });
+
+// ── BUILD 4: Stripe Payment Link helper ───────────────────────────────────────
+const PROPOSAL_TIERS = {
+  starter: { name: 'Starter',  monthly: 750,  setup: 250,  cents: 75000  },
+  growth:  { name: 'Growth',   monthly: 1200, setup: 400,  cents: 120000 },
+  premium: { name: 'Premium',  monthly: 3500, setup: 1000, cents: 350000 },
+};
+
+async function createStripePaymentLink(tier) {
+  const sk = process.env.STRIPE_SECRET_KEY;
+  if (!sk) return null;
+  const t = PROPOSAL_TIERS[tier] || PROPOSAL_TIERS.starter;
+  try {
+    // Create a price on-the-fly (Stripe requires a price object for payment links)
+    const priceRes = await fetch('https://api.stripe.com/v1/prices', {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${sk}`, 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: new URLSearchParams({
+        currency: 'usd',
+        unit_amount: String(t.cents),
+        'product_data[name]': `Crown Media Group — ${t.name} Package (First Month)`,
+      }).toString(),
+    });
+    const price = await priceRes.json();
+    if (!price.id) return null;
+
+    const linkRes = await fetch('https://api.stripe.com/v1/payment_links', {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${sk}`, 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: new URLSearchParams({
+        'line_items[0][price]': price.id,
+        'line_items[0][quantity]': '1',
+        'after_completion[type]': 'redirect',
+        'after_completion[redirect][url]': 'https://crownmediagroup.co?payment=success',
+      }).toString(),
+    });
+    const link = await linkRes.json();
+    return link.url || null;
+  } catch (e) {
+    console.error('[Stripe PayLink]', e.message);
+    return null;
+  }
+}
+
+// ── BUILD 3: Auto-proposal on pipeline stage change ───────────────────────────
+const PROPOSAL_TRIGGER_STAGES = ['Proposal Sent', 'Pitched'];
+
+function buildProposalHtml(business, tier, notes, paymentUrl) {
+  const t    = PROPOSAL_TIERS[tier] || PROPOSAL_TIERS.starter;
+  const date = new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+  const deliverables = {
+    starter: ['8 custom social media posts/month','Basic brand voice guide','Monthly performance report','Content calendar','Hashtag strategy'],
+    growth:  ['16 custom social media posts/month','2 AI Reels/month','Meta ads management','Full brand strategy session','Monthly analytics report'],
+    premium: ['30+ posts/month across all platforms','4+ AI Reels/month','Meta + Google ads','Landing page build','Email marketing sequence','Weekly strategy calls'],
+  };
+  const items = (deliverables[tier] || deliverables.starter).map(d => `<li>${d}</li>`).join('');
+  const cta = paymentUrl
+    ? `<div style="text-align:center;margin:32px 0"><a href="${paymentUrl}" style="background:#C9A84C;color:#000;padding:16px 36px;border-radius:8px;text-decoration:none;font-weight:700;font-size:16px;display:inline-block">Get Started — Pay Setup Fee ($${t.setup.toLocaleString()})</a></div>`
+    : `<p><strong>Reply to this email</strong> and we'll send you a payment link to get started.</p>`;
+
+  return `<div style="font-family:Georgia,serif;max-width:600px;margin:0 auto;color:#1a1a1a;background:#fff;padding:40px">
+<div style="text-align:center;margin-bottom:32px">
+  <h1 style="color:#C9A84C;font-size:28px;margin-bottom:4px">Crown Media Group</h1>
+  <p style="color:#888;font-size:13px">Faith-driven AI Marketing | Columbia, SC | crownmediagroup.co</p>
+</div>
+<hr style="border:1px solid #eee">
+<h2 style="font-size:22px">Marketing Proposal for ${business}</h2>
+<p style="color:#888;font-size:13px">Prepared by David King &middot; ${date}</p>
+<p style="background:#f9f5e8;border-left:4px solid #C9A84C;padding:12px 16px;font-style:italic">&ldquo;Write the vision and make it plain.&rdquo; &mdash; Habakkuk 2:2</p>
+<h3>Recommended: ${t.name} Package &mdash; $${t.monthly.toLocaleString()}/month</h3>
+<ul style="line-height:1.8">${items}</ul>
+<table style="width:100%;border-collapse:collapse;margin:20px 0">
+  <tr style="background:#f5f5f5"><td style="padding:10px;font-weight:bold">Monthly retainer</td><td style="padding:10px;text-align:right">$${t.monthly.toLocaleString()}/month</td></tr>
+  <tr><td style="padding:10px">One-time setup fee</td><td style="padding:10px;text-align:right">$${t.setup.toLocaleString()}</td></tr>
+  <tr style="background:#C9A84C;color:#000"><td style="padding:10px;font-weight:bold">First month total</td><td style="padding:10px;text-align:right;font-weight:bold">$${(t.monthly + t.setup).toLocaleString()}</td></tr>
+</table>
+${cta}
+<p style="font-size:13px;color:#888;text-align:center">Questions? Reply to this email or call us anytime.<br>king@crownmediagroup.co &middot; crownmediagroup.co</p>
+</div>`;
+}
+
+app.put('/api/contacts/:id/stage', async (req, res) => {
+  const { stage, tier = 'starter', notes = '' } = req.body;
+  if (!stage) return res.status(400).json({ error: 'stage required' });
+
+  // Map stage → status
+  const STAGE_TO_STATUS = {
+    'Not Contacted': 'Not Contacted',
+    'Reached Out':   'Called',
+    'Interested':    'Pitched',
+    'Proposal Sent': 'Proposal Sent',
+    'Closed Won':    'Client',
+    'Closed Lost':   'Not Interested',
+  };
+  const status = STAGE_TO_STATUS[stage];
+  if (!status) return res.status(400).json({ error: 'Unknown stage' });
+
+  // Update contact status
+  db.prepare('UPDATE contacts SET status=? WHERE id=? AND workspace_id=?').run(status, req.params.id, req.workspaceId);
+
+  // Auto-proposal when moving to "Proposal Sent" or "Interested" (Pitched)
+  if (PROPOSAL_TRIGGER_STAGES.includes(stage)) {
+    const contact = db.prepare('SELECT * FROM contacts WHERE id=?').get(req.params.id);
+    if (contact && contact.email) {
+      try {
+        const paymentUrl = await createStripePaymentLink(tier);
+        const html = buildProposalHtml(contact.business || contact.name, tier, notes, paymentUrl);
+        await sendEmail({
+          to: contact.email,
+          subject: `Marketing Proposal for ${contact.business || contact.name} — Crown Media Group`,
+          html,
+          text: `Hi ${contact.name}, your proposal from Crown Media Group is ready. Visit crownmediagroup.co or reply to this email to get started.`,
+        });
+        console.log(`[Proposal] Sent to ${contact.email} | tier=${tier} | paylink=${paymentUrl ? 'yes' : 'no'}`);
+      } catch (e) {
+        console.error('[Proposal send error]', e.message);
+      }
+    }
+  }
+
+  res.json({ ok: true, status });
+});
+
+// ── BUILD 6: Case study auto-generator ────────────────────────────────────────
+async function generateCaseStudy(maintenanceRow) {
+  if (!anthropic) return;
+  const slug = (maintenanceRow.client_name || 'client').toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
+  const date = new Date().toISOString().slice(0, 10);
+
+  const msg = await anthropic.messages.create({
+    model: 'claude-haiku-4-5-20251001',
+    max_tokens: 600,
+    messages: [{
+      role: 'user',
+      content: `Write a 3-paragraph case study for Crown Media Group's portfolio.
+Client: ${maintenanceRow.client_name || 'A Columbia SC business'}
+Problem they reported: "${maintenanceRow.description}"
+Result: Resolved and client confirmed satisfied.
+
+Format:
+**Problem:** [what they came to us with — 2-3 sentences]
+**Solution:** [what Crown Media Group did — 2-3 sentences, professional and specific]
+**Result:** [outcome — 1-2 sentences, client happy, business improved]
+
+Keep it under 200 words. Professional, faith-forward, results-focused. Do NOT invent fake metrics.`,
+    }],
+  });
+
+  const body = msg.content[0]?.text || '';
+  const dir  = path.join(ROOT, 'Agency/ops/docs/case-studies');
+  if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
+
+  const filename = `CASE-${date}-${slug}.md`;
+  const full = `# Case Study: ${maintenanceRow.client_name || 'Client'}\n_Crown Media Group | ${date}_\n\n${body}\n`;
+  fs.writeFileSync(path.join(dir, filename), full);
+
+  // Email King the case study
+  await sendEmail({
+    to: 'king@crownmediagroup.co',
+    subject: `New Win — Case Study Ready: ${maintenanceRow.client_name || 'Client'}`,
+    html: `<h2>New Portfolio Win</h2><p>${body.replace(/\n/g,'<br>')}</p><p style="color:#888;font-size:13px">Saved to Agency/ops/docs/case-studies/${filename}</p>`,
+    text: `New case study ready:\n\n${body}\n\nSaved to Agency/ops/docs/case-studies/${filename}`,
+  });
+  console.log(`[CaseStudy] Generated: ${filename}`);
+}
 
 // ── Fallback → serve index.html (requires auth) ───────────────────────────────
 app.get('*', (req, res) => {

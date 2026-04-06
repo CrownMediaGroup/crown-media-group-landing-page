@@ -73,6 +73,19 @@
   .tl-filter-btn.f-green.active  { background:rgba(34,197,94,0.2);  color:#22c55e; border-color:#22c55e; }
   .tl-filter-btn.f-all.active    { background:#C9A84C; color:#000; border-color:#C9A84C; }
   #red-alert-badge { display:none; background:#e05c5c; color:#fff; border-radius:12px; padding:2px 9px; font-size:.72rem; font-weight:700; vertical-align:middle; animation:tl-pulse 1.2s ease-in-out infinite; margin-left:6px; }
+  .pipe-col { flex:0 0 150px; background:#111; border:1px solid #222; border-radius:8px; padding:10px 8px; }
+  .pipe-col-header { font-size:.72rem; font-weight:700; text-transform:uppercase; letter-spacing:.06em; color:#aaa; margin-bottom:10px; display:flex; align-items:center; justify-content:space-between; }
+  .pipe-total { font-size:.68rem; color:#C9A84C; font-weight:600; }
+  .pipe-card { background:#1a1a1a; border:1px solid #2a2a2a; border-radius:6px; padding:9px 10px; margin-bottom:7px; cursor:pointer; transition:border-color .15s; }
+  .pipe-card:hover { border-color:#C9A84C; }
+  .pipe-card .pc-name { font-size:.78rem; font-weight:600; color:#e8e8e8; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .pipe-card .pc-biz  { font-size:.68rem; color:#777; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .pipe-card .pc-val  { font-size:.68rem; color:#C9A84C; margin-top:4px; }
+  .pipe-move { display:none; flex-direction:column; gap:4px; margin-top:8px; }
+  .pipe-card.open .pipe-move { display:flex; }
+  .pipe-move button { background:#111; border:1px solid #333; color:#aaa; border-radius:4px; padding:3px 7px; font-size:.68rem; cursor:pointer; text-align:left; }
+  .pipe-move button:hover { border-color:#C9A84C; color:#C9A84C; }
+  .pipe-empty { font-size:.72rem; color:#444; text-align:center; padding:12px 0; }
 </style>
 </head>
 <body>
@@ -90,6 +103,17 @@
     </div>
     <div id="statsGrid" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px">
       <div class="empty-table">Loading...</div>
+    </div>
+  </div>
+
+  <!-- Sales Pipeline Board -->
+  <div class="card" style="margin-bottom:24px;overflow-x:auto">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+      <h2 style="margin:0">Sales Pipeline</h2>
+      <button type="button" onclick="loadPipeline()" style="background:none;border:1px solid #333;color:#aaa;border-radius:6px;padding:4px 12px;font-size:.75rem;cursor:pointer">Refresh</button>
+    </div>
+    <div id="pipelineBoard" style="display:flex;gap:12px;min-width:900px;align-items:flex-start">
+      <div class="empty-table" style="width:100%">Loading pipeline...</div>
     </div>
   </div>
 
@@ -164,6 +188,7 @@
     if (data.user.role !== 'superadmin') { window.location.replace('/'); }
   } catch { window.location.replace('/login'); }
   loadStats();
+  loadPipeline();
   loadWorkspaces();
   loadMaintenance('all');
 })();
@@ -432,6 +457,87 @@ async function flagMaintenance(id, traffic_light) {
     if (!res.ok) throw new Error((await res.json()).error);
     loadMaintenance(_maintView);
   } catch (err) { alert('Error: ' + err.message); }
+}
+
+// ── Pipeline Board ────────────────────────────────────────────────────────────
+const PIPE_STAGES = ['Not Contacted','Reached Out','Interested','Proposal Sent','Closed Won','Closed Lost'];
+const STAGE_TO_STATUS = {
+  'Not Contacted': 'Not Contacted',
+  'Reached Out':   'Called',
+  'Interested':    'Pitched',
+  'Proposal Sent': 'Proposal Sent',
+  'Closed Won':    'Client',
+  'Closed Lost':   'Not Interested',
+};
+const STAGE_COLORS = {
+  'Not Contacted': '#555',
+  'Reached Out':   '#3b82f6',
+  'Interested':    '#a855f7',
+  'Proposal Sent': '#C9A84C',
+  'Closed Won':    '#22c55e',
+  'Closed Lost':   '#e05c5c',
+};
+
+function fmtVal(v) {
+  if (!v) return '';
+  return '$' + Number(v).toLocaleString();
+}
+
+function togglePipeCard(el) {
+  el.classList.toggle('open');
+}
+
+async function moveContact(id, toStage) {
+  const status = STAGE_TO_STATUS[toStage];
+  if (!status) return;
+  try {
+    const res = await fetch(`/api/contacts/${id}`, {
+      method: 'PUT', credentials: 'same-origin',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ status }),
+    });
+    if (!res.ok) throw new Error((await res.json()).error || 'Failed');
+    loadPipeline();
+  } catch (err) { alert('Move failed: ' + err.message); }
+}
+
+async function loadPipeline() {
+  const board = document.getElementById('pipelineBoard');
+  board.innerHTML = '<div class="empty-table" style="width:100%">Loading...</div>';
+  try {
+    const res   = await fetch('/api/pipeline', { credentials: 'same-origin' });
+    const data  = await res.json();
+    if (!data || typeof data !== 'object') throw new Error('Bad response');
+
+    board.innerHTML = PIPE_STAGES.map(stage => {
+      const s       = data[stage] || { contacts: [], total: 0 };
+      const color   = STAGE_COLORS[stage] || '#555';
+      const cards   = s.contacts.map(c => {
+        const moveOpts = PIPE_STAGES
+          .filter(st => st !== stage)
+          .map(st => `<button onclick="event.stopPropagation();moveContact(${c.id},'${st}')">${st}</button>`)
+          .join('');
+        return `
+          <div class="pipe-card" onclick="togglePipeCard(this)">
+            <div class="pc-name">${c.name || '—'}</div>
+            <div class="pc-biz">${c.business || ''}</div>
+            ${c.deal_value ? `<div class="pc-val">${fmtVal(c.deal_value)}</div>` : ''}
+            <div class="pipe-move">${moveOpts}</div>
+          </div>`;
+      }).join('');
+
+      return `
+        <div class="pipe-col" style="border-top:3px solid ${color}">
+          <div class="pipe-col-header">
+            <span>${stage}</span>
+            ${s.total ? `<span class="pipe-total">${fmtVal(s.total)}</span>` : `<span style="font-size:.65rem;color:#444">${s.contacts.length}</span>`}
+          </div>
+          ${cards || '<div class="pipe-empty">Empty</div>'}
+        </div>`;
+    }).join('');
+  } catch (e) {
+    board.innerHTML = `<div class="empty-table" style="width:100%">Pipeline failed: ${e.message}</div>`;
+  }
 }
 </script>
 </body>
