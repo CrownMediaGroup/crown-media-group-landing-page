@@ -108,7 +108,6 @@
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;0,700;1,300;1,400&family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-<script>document.documentElement.className+=' js-ready';</script>
 <script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
 <style>
 :root{--white:#FFFFFF;--cream:#FDFBF7;--warm:#F9F5EE;--deep:#0E0E28;--gold:#C9981A;--gold-light:#E8B832;--gold-deep:#9A720D;--gold-pale:#F5E6B8;--royal:#1A1A3E;--royal-mid:#2D2D5A;--text:#1A1A2E;--text-mid:#4A4A6A;--text-light:#8A8AAA;--border:rgba(201,152,26,0.2);--border-soft:rgba(201,152,26,0.1)}
@@ -116,9 +115,9 @@
 body{background:var(--cream);color:var(--text);font-family:'Inter',sans-serif;overflow-x:hidden}
 .display{font-family:'Cormorant Garamond',serif;font-weight:700;letter-spacing:-.02em;line-height:1.05}
 .grad-gold{background:linear-gradient(135deg,var(--gold-deep) 0%,var(--gold-light) 50%,var(--gold-deep) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
-.js-ready .reveal{opacity:0;transform:translateY(32px);transition:opacity .9s ease,transform .9s ease}
-.js-ready .reveal.visible{opacity:1;transform:translateY(0)}
-@media(prefers-reduced-motion:reduce){.js-ready .reveal{opacity:1;transform:none}}
+.reveal{opacity:0;transform:translateY(32px);transition:opacity .9s ease,transform .9s ease}
+.reveal.visible{opacity:1;transform:translateY(0)}
+@media(prefers-reduced-motion:reduce){.reveal{opacity:1!important;transform:none!important}}
 nav{position:fixed;top:0;left:0;right:0;z-index:1000;padding:20px 64px;display:flex;align-items:center;justify-content:space-between;background:rgba(253,251,247,0.93);-webkit-backdrop-filter:blur(20px);backdrop-filter:blur(20px);border-bottom:1px solid var(--border-soft);transition:box-shadow .3s}
 nav.scrolled{box-shadow:0 4px 30px rgba(201,152,26,.08)}
 .nav-logo{display:flex;align-items:center;gap:12px;text-decoration:none}
@@ -857,17 +856,13 @@ try{(function(){
   })();
   window.addEventListener('resize',()=>{renderer.setSize(innerWidth,innerHeight);camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();});
 })();}catch(e){console.warn('[hero-canvas] Three.js unavailable:',e.message);}
-// Reveal animation — js-ready class on <html> means content shows even if this fails
-(function initReveal(){
-  try{
-    const obs=new IntersectionObserver(function(entries){entries.forEach(function(e){if(e.isIntersecting){e.target.classList.add('visible');obs.unobserve(e.target);}});},{threshold:.08,rootMargin:'0px 0px -40px 0px'});
-    document.querySelectorAll('.reveal').forEach(function(el){obs.observe(el);});
-    // Failsafe: force-show anything still hidden after 2.5s
-    setTimeout(function(){document.querySelectorAll('.reveal:not(.visible)').forEach(function(el){el.classList.add('visible');});},2500);
-  }catch(err){
-    // If IntersectionObserver fails entirely, show everything immediately
-    document.querySelectorAll('.reveal').forEach(function(el){el.classList.add('visible');});
-  }
+(function(){
+  var all=document.querySelectorAll('.reveal');
+  if(typeof IntersectionObserver!=='undefined'){
+    var obs=new IntersectionObserver(function(entries){entries.forEach(function(e){if(e.isIntersecting){e.target.classList.add('visible');obs.unobserve(e.target);}});},{threshold:0.05});
+    all.forEach(function(el){obs.observe(el);});
+  }else{all.forEach(function(el){el.classList.add('visible');});}
+  setTimeout(function(){document.querySelectorAll('.reveal:not(.visible)').forEach(function(el){el.classList.add('visible');});},1000);
 })();
 function runC(el){
   const txt=el.dataset.text;if(txt){el.textContent=txt;return;}
