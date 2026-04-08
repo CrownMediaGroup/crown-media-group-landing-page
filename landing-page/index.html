@@ -414,7 +414,7 @@ footer{background:#0F0F28;padding:56px 64px;display:flex;align-items:center;just
     <p class="hero-sub">AI-powered marketing that puts your business in a class of its own. Content, ads, brand &mdash; fast turnaround. Built for Columbia SC businesses ready to grow.</p>
     <div class="hero-ctas">
       <a href="https://calendly.com/crownmediagroupco" target="_blank" rel="noopener noreferrer" class="btn-royal">Claim Your Free Strategy Session</a>
-      <a href="https://crm.crownmediagroup.co" target="_blank" rel="noopener noreferrer" class="btn-crm-trial">Try CRM Free &rarr;</a>
+      <a href="#scouts" class="btn-crm-trial">We're Hiring — Earn $50 &rarr;</a>
     </div>
   </div>
 </div>
@@ -825,7 +825,7 @@ async function submitScout(e) {
   msg.style.display = 'none';
 
   try {
-    const res = await fetch('https://crm.crownmediagroup.co/api/scouts/apply', {
+    const res = await fetch('/api/scout-apply', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
