@@ -840,6 +840,8 @@ async function submitScout(e) {
       msg.style.cssText = 'margin-top:14px;font-size:.9rem;display:block;color:#22c55e';
       msg.textContent = 'You\'re in! Check your email for your referral link.';
       document.getElementById('scout-form').reset();
+      btn.disabled = false;
+      btn.textContent = 'Join the Scout Program — Free';
     } else {
       msg.style.cssText = 'margin-top:14px;font-size:.9rem;display:block;color:#ef4444';
       msg.textContent = data.error || 'Something went wrong. Try again.';
