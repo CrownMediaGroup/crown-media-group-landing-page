@@ -491,6 +491,8 @@ app.get('/api/branding', (req, res) => {
 app.use('/api', (req, res, next) => {
   const publicPaths = ['/login', '/logout', '/branding', '/register', '/auth/google', '/config/public'];
   if (publicPaths.includes(req.path)) return next();
+  // Public scout endpoints — no auth required
+  if (req.path === '/scouts/apply' || req.path.startsWith('/scouts/dashboard/')) return next();
   const session = validateSession(getCookie(req, 'crm_session'));
   if (!session) return res.status(401).json({ error: 'Unauthorized' });
   req.user        = session.user;
