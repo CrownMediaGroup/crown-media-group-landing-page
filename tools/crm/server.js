@@ -2153,6 +2153,220 @@ Keep it under 200 words. Professional, faith-forward, results-focused. Do NOT in
   console.log(`[CaseStudy] Generated: ${filename}`);
 }
 
+// ══════════════════════════════════════════════════════════════════════════════
+// ── CROWN SCOUT PROGRAM ───────────────────────────────────────────────────────
+// ══════════════════════════════════════════════════════════════════════════════
+
+// Helper: generate unique 8-char referral code
+function genReferralCode(name) {
+  const slug = name.replace(/\s+/g, '').toUpperCase().slice(0, 4).padEnd(4, 'X');
+  const rand = randomBytes(2).toString('hex').toUpperCase();
+  return `${slug}${rand}`;
+}
+
+// Serve scout dashboard page (public)
+app.get('/scout-dashboard', (req, res) => {
+  res.sendFile(join(__dirname, 'public', 'scout-dashboard.html'));
+});
+
+// POST /api/scouts/apply — public, no auth — scout sign-up
+app.post('/api/scouts/apply', async (req, res) => {
+  try {
+    const { name, email, phone, how_you_know } = req.body || {};
+    if (!name || !email) return res.status(400).json({ error: 'Name and email required' });
+
+    const existing = db.prepare('SELECT id FROM scouts WHERE email = ?').get(email);
+    if (existing) return res.status(409).json({ error: 'This email is already registered as a Scout.' });
+
+    let code = genReferralCode(name);
+    // Ensure uniqueness
+    while (db.prepare('SELECT id FROM scouts WHERE referral_code = ?').get(code)) {
+      code = genReferralCode(name + Math.random());
+    }
+
+    db.prepare('INSERT INTO scouts (name, email, phone, referral_code, notes) VALUES (?, ?, ?, ?, ?)')
+      .run(name, email, phone || '', code, how_you_know || '');
+
+    // Welcome email
+    const refLink = `https://crownmediagroup.co/?ref=${code}`;
+    const welcomeHtml = `
+<div style="font-family:sans-serif;max-width:560px;margin:0 auto">
+  <div style="background:#1a1a2e;padding:24px;text-align:center">
+    <h1 style="color:#C9A84C;margin:0;font-size:22px">Welcome to the Crown Scout Program</h1>
+  </div>
+  <div style="padding:24px;background:#fff">
+    <p>Hi ${name},</p>
+    <p>You're in. Here's how to start earning $50 per client you send our way:</p>
+
+    <div style="background:#f0fdf4;border-left:4px solid #059669;padding:16px;margin:16px 0;border-radius:4px">
+      <strong>Your referral link:</strong><br>
+      <a href="${refLink}" style="color:#059669;word-break:break-all">${refLink}</a><br><br>
+      <strong>Your Scout code:</strong> <code style="font-size:18px;font-weight:bold;color:#1a1a2e">${code}</code>
+    </div>
+
+    <h3>How it works:</h3>
+    <ol>
+      <li>Share your link with any business owner who needs marketing</li>
+      <li>We close the deal — you don't sell anything</li>
+      <li>Get <strong>$50 cash</strong> within 7 days of their first payment</li>
+    </ol>
+
+    <h3>Done-for-you message (copy and send):</h3>
+    <div style="background:#f9fafb;border:1px solid #e5e7eb;padding:16px;border-radius:4px;font-style:italic">
+      "Hey [Name], I just found a marketing agency that's doing serious work for local businesses — AI-powered content, social media, the whole thing. Thought of you. Check them out: ${refLink}"
+    </div>
+
+    <p style="margin-top:24px">Track your referrals anytime:<br>
+    <a href="https://crm.crownmediagroup.co/scout-dashboard" style="color:#C9A84C">crm.crownmediagroup.co/scout-dashboard</a> → enter code <strong>${code}</strong></p>
+
+    <p>Questions? Reply to this email.<br><br>— David King<br><em>Crown Media Group</em></p>
+  </div>
+  <div style="background:#1a1a2e;padding:12px;text-align:center">
+    <p style="color:#888;font-size:11px;margin:0">Crown Media Group | Columbia, SC | crownmediagroup.co</p>
+  </div>
+</div>`;
+
+    await sendEmail({
+      to: email,
+      subject: 'You\'re a Crown Scout — here\'s your $50 referral link',
+      html: welcomeHtml,
+      text: `Welcome ${name}!\n\nYour referral link: ${refLink}\nYour code: ${code}\n\nShare with any business owner who needs marketing — we close, you earn $50 cash within 7 days.\n\nTrack your referrals: crm.crownmediagroup.co/scout-dashboard\n\n— Crown Media Group`,
+    });
+
+    // Notify King
+    sendEmail({
+      to: 'king@crownmediagroup.co',
+      subject: `New Scout: ${name}`,
+      html: `<p><strong>${name}</strong> (${email}) just joined the Crown Scout Program.<br>Code: <strong>${code}</strong><br>${how_you_know ? 'How they know business owners: ' + how_you_know : ''}</p>`,
+      text: `New scout: ${name} (${email}) — code: ${code}`,
+    });
+
+    res.json({ ok: true, referral_code: code, referral_link: refLink });
+  } catch (e) {
+    console.error('[Scout] Apply error:', e.message);
+    res.status(500).json({ error: 'Something went wrong. Try again.' });
+  }
+});
+
+// GET /api/scouts/dashboard/:code — public — scout sees their own stats
+app.get('/api/scouts/dashboard/:code', (req, res) => {
+  const scout = db.prepare('SELECT id, name, email, referral_code, status, tier, total_referrals, total_earned, joined_at FROM scouts WHERE referral_code = ?').get(req.params.code);
+  if (!scout) return res.status(404).json({ error: 'Scout code not found.' });
+
+  const refs = db.prepare('SELECT referred_business, referred_email, status, commission_amount, paid_out, created_at FROM referrals WHERE scout_id = ? ORDER BY created_at DESC').all(scout.id);
+  const pending_payout = refs.filter(r => r.status === 'signed' && !r.paid_out).reduce((s, r) => s + r.commission_amount, 0);
+
+  res.json({ ok: true, scout, referrals: refs, pending_payout });
+});
+
+// GET /api/scouts — admin — list all scouts
+app.get('/api/scouts', (req, res) => {
+  const session = validateSession(getCookie(req, 'crm_session'));
+  if (!session) return res.status(401).json({ error: 'Unauthorized' });
+
+  const scouts = db.prepare(`
+    SELECT s.*, COUNT(r.id) as referral_count,
+      SUM(CASE WHEN r.paid_out = 1 THEN r.commission_amount ELSE 0 END) as paid_total,
+      SUM(CASE WHEN r.paid_out = 0 AND r.status = 'signed' THEN r.commission_amount ELSE 0 END) as owed_total
+    FROM scouts s
+    LEFT JOIN referrals r ON r.scout_id = s.id
+    GROUP BY s.id
+    ORDER BY s.joined_at DESC
+  `).all();
+
+  res.json({ ok: true, scouts });
+});
+
+// GET /api/scouts/:id — admin — scout detail + referrals
+app.get('/api/scouts/:id', (req, res) => {
+  const session = validateSession(getCookie(req, 'crm_session'));
+  if (!session) return res.status(401).json({ error: 'Unauthorized' });
+
+  const scout = db.prepare('SELECT * FROM scouts WHERE id = ?').get(req.params.id);
+  if (!scout) return res.status(404).json({ error: 'Scout not found' });
+
+  const refs = db.prepare('SELECT * FROM referrals WHERE scout_id = ? ORDER BY created_at DESC').all(scout.id);
+  res.json({ ok: true, scout, referrals: refs });
+});
+
+// PUT /api/referrals/:id/status — admin — mark paid/signed/lost
+app.put('/api/referrals/:id/status', async (req, res) => {
+  const session = validateSession(getCookie(req, 'crm_session'));
+  if (!session) return res.status(401).json({ error: 'Unauthorized' });
+
+  const { status, paid_out } = req.body || {};
+  const ref = db.prepare('SELECT * FROM referrals WHERE id = ?').get(req.params.id);
+  if (!ref) return res.status(404).json({ error: 'Referral not found' });
+
+  const updates = [];
+  const vals = [];
+  if (status) { updates.push('status = ?'); vals.push(status); }
+  if (paid_out !== undefined) {
+    updates.push('paid_out = ?', 'paid_at = ?');
+    vals.push(paid_out ? 1 : 0, paid_out ? new Date().toISOString() : null);
+  }
+  if (!updates.length) return res.status(400).json({ error: 'Nothing to update' });
+  vals.push(ref.id);
+  db.prepare(`UPDATE referrals SET ${updates.join(', ')} WHERE id = ?`).run(...vals);
+
+  // If marking paid, email the scout
+  if (paid_out) {
+    const scout = db.prepare('SELECT * FROM scouts WHERE id = ?').get(ref.scout_id);
+    if (scout) {
+      db.prepare('UPDATE scouts SET total_earned = total_earned + ?, total_referrals = total_referrals + 1 WHERE id = ?').run(ref.commission_amount, scout.id);
+      sendEmail({
+        to: scout.email,
+        subject: `You've been paid — $${ref.commission_amount} from Crown Media Group`,
+        html: `<div style="font-family:sans-serif;max-width:560px"><div style="background:#1a1a2e;padding:20px;text-align:center"><h2 style="color:#C9A84C;margin:0">Payment Sent!</h2></div><div style="padding:24px"><p>Hi ${scout.name},</p><p>Your <strong>$${ref.commission_amount}</strong> referral commission for <strong>${ref.referred_business || 'your referral'}</strong> has been paid.</p><p>Total earned so far: <strong>$${(scout.total_earned + ref.commission_amount).toFixed(2)}</strong></p><p>Keep sending business owners our way — every one is $50 in your pocket.</p><p>— David King<br>Crown Media Group</p></div></div>`,
+        text: `Hi ${scout.name},\n\nYour $${ref.commission_amount} commission for ${ref.referred_business || 'your referral'} has been paid. Total earned: $${(scout.total_earned + ref.commission_amount).toFixed(2)}.\n\n— Crown Media Group`,
+      });
+    }
+  }
+
+  res.json({ ok: true });
+});
+
+// POST /api/scouts/:id/referral — scout submits a lead they're sending
+app.post('/api/scouts/:id/referral', (req, res) => {
+  const scout = db.prepare('SELECT * FROM scouts WHERE id = ?').get(req.params.id);
+  if (!scout || scout.status !== 'active') return res.status(404).json({ error: 'Scout not found' });
+
+  const { referred_business, referred_email } = req.body || {};
+  if (!referred_business) return res.status(400).json({ error: 'Business name required' });
+
+  db.prepare('INSERT INTO referrals (scout_id, referred_business, referred_email) VALUES (?, ?, ?)')
+    .run(scout.id, referred_business, referred_email || '');
+
+  sendEmail({
+    to: 'king@crownmediagroup.co',
+    subject: `Scout Lead: ${referred_business} — from ${scout.name}`,
+    html: `<p>Scout <strong>${scout.name}</strong> sent a new lead:<br><strong>${referred_business}</strong>${referred_email ? ' — ' + referred_email : ''}</p><p><a href="https://crm.crownmediagroup.co/admin">View in CRM →</a></p>`,
+    text: `Scout ${scout.name} sent a lead: ${referred_business} ${referred_email || ''}`,
+  });
+
+  res.json({ ok: true });
+});
+
+// GET /api/stats/scouts — admin — aggregate scout stats
+app.get('/api/stats/scouts', (req, res) => {
+  const session = validateSession(getCookie(req, 'crm_session'));
+  if (!session) return res.status(401).json({ error: 'Unauthorized' });
+
+  const stats = db.prepare(`
+    SELECT
+      COUNT(DISTINCT s.id)                                                    as total_scouts,
+      COUNT(r.id)                                                             as total_referrals,
+      SUM(CASE WHEN r.status = 'signed' THEN 1 ELSE 0 END)                  as signed_count,
+      SUM(CASE WHEN r.paid_out = 1 THEN r.commission_amount ELSE 0 END)     as total_paid_out,
+      SUM(CASE WHEN r.paid_out = 0 AND r.status = 'signed' THEN r.commission_amount ELSE 0 END) as owed
+    FROM scouts s
+    LEFT JOIN referrals r ON r.scout_id = s.id
+    WHERE s.status = 'active'
+  `).get();
+
+  res.json({ ok: true, stats });
+});
+
 // ── Fallback → serve index.html (requires auth) ───────────────────────────────
 app.get('*', (req, res) => {
   const session = validateSession(getCookie(req, 'crm_session'));

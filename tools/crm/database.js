@@ -150,6 +150,46 @@ db.exec(`
   );
 `);
 
+// ── Crown Scout Program ───────────────────────────────────────────────────────
+db.exec(`
+  CREATE TABLE IF NOT EXISTS scouts (
+    id              INTEGER PRIMARY KEY AUTOINCREMENT,
+    name            TEXT NOT NULL,
+    email           TEXT UNIQUE NOT NULL,
+    phone           TEXT DEFAULT '',
+    referral_code   TEXT UNIQUE NOT NULL,
+    status          TEXT DEFAULT 'active',
+    tier            TEXT DEFAULT 'standard',
+    total_referrals INTEGER DEFAULT 0,
+    total_earned    REAL DEFAULT 0,
+    joined_at       DATETIME DEFAULT CURRENT_TIMESTAMP,
+    notes           TEXT DEFAULT ''
+  );
+
+  CREATE TABLE IF NOT EXISTS referrals (
+    id                INTEGER PRIMARY KEY AUTOINCREMENT,
+    scout_id          INTEGER NOT NULL REFERENCES scouts(id),
+    contact_id        INTEGER REFERENCES contacts(id),
+    referred_business TEXT DEFAULT '',
+    referred_email    TEXT DEFAULT '',
+    status            TEXT DEFAULT 'pending',
+    contract_value    REAL DEFAULT 0,
+    commission_amount REAL DEFAULT 50,
+    paid_out          INTEGER DEFAULT 0,
+    paid_at           DATETIME,
+    created_at        DATETIME DEFAULT CURRENT_TIMESTAMP
+  );
+
+  CREATE INDEX IF NOT EXISTS idx_scouts_code    ON scouts(referral_code);
+  CREATE INDEX IF NOT EXISTS idx_scouts_status  ON scouts(status);
+  CREATE INDEX IF NOT EXISTS idx_referrals_scout ON referrals(scout_id);
+  CREATE INDEX IF NOT EXISTS idx_referrals_status ON referrals(status, paid_out);
+`);
+
+// ── Runtime column addition: referred_by_scout on contacts ────────────────────
+const _scoutCols = db.prepare('PRAGMA table_info(contacts)').all().map(r => r.name);
+if (!_scoutCols.includes('referred_by_scout')) db.exec("ALTER TABLE contacts ADD COLUMN referred_by_scout TEXT DEFAULT ''");
+
 // ── Indexes (safe — CREATE INDEX IF NOT EXISTS) ───────────────────────────────
 db.exec(`
   CREATE INDEX IF NOT EXISTS idx_contacts_workspace    ON contacts(workspace_id);

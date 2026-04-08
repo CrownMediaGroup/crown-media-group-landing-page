@@ -161,6 +161,21 @@
     <div id="wsTable"><div class="empty-table">Loading...</div></div>
   </div>
 
+  <!-- Crown Scout Program -->
+  <div class="card" style="margin-top:24px">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:8px">
+      <h2 style="margin:0">Crown Scout Program</h2>
+      <a href="/scout-dashboard" target="_blank" style="background:#1e1e1e;color:#C9A84C;border:1px solid #333;border-radius:6px;padding:5px 12px;font-size:.75rem;text-decoration:none">Scout Portal</a>
+    </div>
+    <div id="scoutStats" style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px">
+      <div style="background:#1a1a2e;border-radius:8px;padding:14px;text-align:center"><div id="ss-scouts" style="font-size:1.6rem;font-weight:800;color:#C9A84C">—</div><div style="font-size:.72rem;color:#6b7280;text-transform:uppercase;letter-spacing:.05em">Active Scouts</div></div>
+      <div style="background:#1a1a2e;border-radius:8px;padding:14px;text-align:center"><div id="ss-refs" style="font-size:1.6rem;font-weight:800;color:#C9A84C">—</div><div style="font-size:.72rem;color:#6b7280;text-transform:uppercase;letter-spacing:.05em">Total Referrals</div></div>
+      <div style="background:#1a1a2e;border-radius:8px;padding:14px;text-align:center"><div id="ss-paid" style="font-size:1.6rem;font-weight:800;color:#22c55e">—</div><div style="font-size:.72rem;color:#6b7280;text-transform:uppercase;letter-spacing:.05em">Total Paid Out</div></div>
+      <div style="background:#1a1a2e;border-radius:8px;padding:14px;text-align:center"><div id="ss-owed" style="font-size:1.6rem;font-weight:800;color:#fbbf24">—</div><div style="font-size:.72rem;color:#6b7280;text-transform:uppercase;letter-spacing:.05em">Owed to Scouts</div></div>
+    </div>
+    <div id="scoutTable"><div class="empty-table">Loading scouts...</div></div>
+  </div>
+
   <!-- Maintenance Requests -->
   <div class="card" style="margin-top:24px">
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:8px">
@@ -191,6 +206,7 @@
   loadPipeline();
   loadWorkspaces();
   loadMaintenance('all');
+  loadScouts();
 })();
 
 // ── Auto-generate password on load ───────────────────────────────────────────
@@ -457,6 +473,78 @@ async function flagMaintenance(id, traffic_light) {
     if (!res.ok) throw new Error((await res.json()).error);
     loadMaintenance(_maintView);
   } catch (err) { alert('Error: ' + err.message); }
+}
+
+// ── Crown Scout Program ───────────────────────────────────────────────────────
+async function loadScouts() {
+  try {
+    const [statsRes, scoutsRes] = await Promise.all([
+      fetch('/api/stats/scouts', { credentials: 'same-origin' }),
+      fetch('/api/scouts', { credentials: 'same-origin' }),
+    ]);
+    const { stats } = await statsRes.json();
+    const { scouts } = await scoutsRes.json();
+
+    document.getElementById('ss-scouts').textContent = stats.total_scouts || 0;
+    document.getElementById('ss-refs').textContent   = stats.total_referrals || 0;
+    document.getElementById('ss-paid').textContent   = '$' + (stats.total_paid_out || 0).toFixed(0);
+    document.getElementById('ss-owed').textContent   = '$' + (stats.owed || 0).toFixed(0);
+
+    const tbl = document.getElementById('scoutTable');
+    if (!scouts || !scouts.length) {
+      tbl.innerHTML = '<div class="empty-table">No scouts yet — share crownmediagroup.co/#scouts to recruit.</div>';
+      return;
+    }
+
+    tbl.innerHTML = `
+      <table style="width:100%;border-collapse:collapse;font-size:.85rem">
+        <thead><tr style="color:#6b7280;text-align:left;border-bottom:1px solid #333">
+          <th style="padding:8px 4px">Name</th>
+          <th style="padding:8px 4px">Code</th>
+          <th style="padding:8px 4px">Refs</th>
+          <th style="padding:8px 4px">Paid</th>
+          <th style="padding:8px 4px">Owed</th>
+          <th style="padding:8px 4px">Joined</th>
+          <th style="padding:8px 4px">Actions</th>
+        </tr></thead>
+        <tbody>
+          ${scouts.map(s => `
+            <tr style="border-bottom:1px solid #1e1e1e">
+              <td style="padding:8px 4px;color:#fff;font-weight:600">${s.name}<br><span style="color:#6b7280;font-size:.75rem">${s.email}</span></td>
+              <td style="padding:8px 4px"><code style="background:#1a1a2e;padding:2px 8px;border-radius:4px;color:#C9A84C;font-size:.82rem">${s.referral_code}</code></td>
+              <td style="padding:8px 4px;color:#fff">${s.referral_count || 0}</td>
+              <td style="padding:8px 4px;color:#22c55e">$${(s.paid_total || 0).toFixed(0)}</td>
+              <td style="padding:8px 4px;color:#fbbf24">$${(s.owed_total || 0).toFixed(0)}</td>
+              <td style="padding:8px 4px;color:#6b7280;font-size:.78rem">${new Date(s.joined_at).toLocaleDateString()}</td>
+              <td style="padding:8px 4px">
+                ${s.owed_total > 0 ? `<button type="button" class="act-btn green" onclick="markScoutPaid(${s.id})">Mark Paid</button>` : ''}
+              </td>
+            </tr>
+          `).join('')}
+        </tbody>
+      </table>`;
+  } catch (e) {
+    document.getElementById('scoutTable').innerHTML = '<div class="empty-table">Failed to load scouts.</div>';
+  }
+}
+
+async function markScoutPaid(scoutId) {
+  try {
+    const res = await fetch(`/api/scouts/${scoutId}`, { credentials: 'same-origin' });
+    const { referrals } = await res.json();
+    const unpaid = referrals.filter(r => r.status === 'signed' && !r.paid_out);
+    if (!unpaid.length) { alert('No pending payouts for this scout.'); return; }
+    if (!confirm(`Mark ${unpaid.length} referral(s) as paid for this scout?`)) return;
+    for (const r of unpaid) {
+      await fetch(`/api/referrals/${r.id}/status`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'same-origin',
+        body: JSON.stringify({ paid_out: true }),
+      });
+    }
+    loadScouts();
+  } catch (e) { alert('Error: ' + e.message); }
 }
 
 // ── Pipeline Board ────────────────────────────────────────────────────────────

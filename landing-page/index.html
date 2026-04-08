@@ -763,6 +763,98 @@ footer{background:#0F0F28;padding:56px 64px;display:flex;align-items:center;just
   </div>
 </div>
 
+<div id="scouts" style="background:#0d0d1a;padding:120px 64px;text-align:center">
+  <div style="max-width:960px;margin:0 auto">
+    <div class="reveal">
+      <span class="label" style="color:#C9A84C;font-size:.75rem;letter-spacing:.12em;text-transform:uppercase;font-weight:600">We're Hiring</span>
+      <h2 style="font-size:clamp(2rem,4vw,3.2rem);font-weight:800;color:#fff;margin:16px 0 12px;line-height:1.15">Know a Business That Needs Marketing?<br><span style="color:#C9A84C">Get $50.</span></h2>
+      <p style="color:#9ca3af;font-size:1.05rem;max-width:600px;margin:0 auto 48px">Join the Crown Scout Program. You connect. We close. You get paid $50 cash within 7 days of their first payment. No selling. No experience needed. Free to join.</p>
+    </div>
+
+    <div class="reveal" style="display:grid;grid-template-columns:repeat(3,1fr);gap:24px;margin-bottom:56px">
+      <div style="background:#161628;border:1px solid rgba(201,168,76,.15);border-radius:12px;padding:32px 24px">
+        <div style="font-size:2rem;margin-bottom:12px">🔗</div>
+        <h3 style="color:#fff;font-size:1rem;font-weight:700;margin:0 0 8px">1. Sign Up Free</h3>
+        <p style="color:#9ca3af;font-size:.88rem;margin:0">Get your personal referral link in 60 seconds. No cost, no commitment.</p>
+      </div>
+      <div style="background:#161628;border:1px solid rgba(201,168,76,.15);border-radius:12px;padding:32px 24px">
+        <div style="font-size:2rem;margin-bottom:12px">🤝</div>
+        <h3 style="color:#fff;font-size:1rem;font-weight:700;margin:0 0 8px">2. Make the Introduction</h3>
+        <p style="color:#9ca3af;font-size:.88rem;margin:0">Share your link with any business owner. We handle the pitch, the close, the work.</p>
+      </div>
+      <div style="background:#161628;border:1px solid rgba(201,168,76,.15);border-radius:12px;padding:32px 24px">
+        <div style="font-size:2rem;margin-bottom:12px">💵</div>
+        <h3 style="color:#fff;font-size:1rem;font-weight:700;margin:0 0 8px">3. Get Paid</h3>
+        <p style="color:#9ca3af;font-size:.88rem;margin:0">$50 cash sent to you within 7 days of their first payment. Every time. No cap.</p>
+      </div>
+    </div>
+
+    <div class="reveal" style="background:#161628;border:1px solid rgba(201,168,76,.2);border-radius:16px;padding:40px;max-width:520px;margin:0 auto 32px">
+      <h3 style="color:#C9A84C;font-size:1.1rem;font-weight:700;margin:0 0 24px">Become a Crown Scout</h3>
+      <form id="scout-form" onsubmit="submitScout(event)">
+        <input type="text" id="scout-name" placeholder="Your Name" required style="width:100%;box-sizing:border-box;background:#0d0d1a;border:1px solid #333;color:#fff;padding:12px 16px;border-radius:8px;font-size:.95rem;margin-bottom:12px;outline:none">
+        <input type="email" id="scout-email" placeholder="Your Email" required style="width:100%;box-sizing:border-box;background:#0d0d1a;border:1px solid #333;color:#fff;padding:12px 16px;border-radius:8px;font-size:.95rem;margin-bottom:12px;outline:none">
+        <input type="tel" id="scout-phone" placeholder="Your Phone (optional)" style="width:100%;box-sizing:border-box;background:#0d0d1a;border:1px solid #333;color:#fff;padding:12px 16px;border-radius:8px;font-size:.95rem;margin-bottom:12px;outline:none">
+        <input type="text" id="scout-how" placeholder="How do you know business owners?" style="width:100%;box-sizing:border-box;background:#0d0d1a;border:1px solid #333;color:#fff;padding:12px 16px;border-radius:8px;font-size:.95rem;margin-bottom:20px;outline:none">
+        <button type="submit" id="scout-btn" style="width:100%;background:#C9A84C;color:#0d0d1a;font-weight:700;font-size:1rem;padding:14px;border:none;border-radius:8px;cursor:pointer;letter-spacing:.02em">Join the Scout Program — Free</button>
+        <div id="scout-msg" style="margin-top:14px;font-size:.9rem;display:none"></div>
+      </form>
+    </div>
+
+    <p class="reveal" style="color:#6b7280;font-size:.83rem">Barbers, realtors, pastors, photographers, stylists — anyone who knows business owners is a great Scout. Columbia SC and beyond.</p>
+  </div>
+</div>
+
+<script>
+// ── Referral cookie — set on ?ref=CODE in URL ──────────────────────────────
+(function(){
+  const p = new URLSearchParams(window.location.search);
+  const ref = p.get('ref');
+  if (ref) {
+    document.cookie = 'cmg_ref=' + encodeURIComponent(ref) + ';path=/;max-age=' + (30*24*60*60) + ';SameSite=Lax';
+  }
+})();
+
+// ── Scout sign-up form ─────────────────────────────────────────────────────
+async function submitScout(e) {
+  e.preventDefault();
+  const btn = document.getElementById('scout-btn');
+  const msg = document.getElementById('scout-msg');
+  btn.disabled = true;
+  btn.textContent = 'Sending...';
+  msg.style.display = 'none';
+
+  try {
+    const res = await fetch('https://crm.crownmediagroup.co/api/scouts/apply', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        name: document.getElementById('scout-name').value,
+        email: document.getElementById('scout-email').value,
+        phone: document.getElementById('scout-phone').value,
+        how_you_know: document.getElementById('scout-how').value,
+      }),
+    });
+    const data = await res.json();
+    if (data.ok) {
+      msg.style.cssText = 'margin-top:14px;font-size:.9rem;display:block;color:#22c55e';
+      msg.textContent = 'You\'re in! Check your email for your referral link.';
+      document.getElementById('scout-form').reset();
+    } else {
+      msg.style.cssText = 'margin-top:14px;font-size:.9rem;display:block;color:#ef4444';
+      msg.textContent = data.error || 'Something went wrong. Try again.';
+      btn.disabled = false;
+      btn.textContent = 'Join the Scout Program — Free';
+    }
+  } catch {
+    msg.style.cssText = 'margin-top:14px;font-size:.9rem;display:block;color:#ef4444';
+    msg.textContent = 'Network error. Please try again.';
+    btn.disabled = false;
+    btn.textContent = 'Join the Scout Program — Free';
+  }
+}
+</script>
+
 <div id="cta-final">
   <div class="cta-glow"></div>
   <div class="reveal">
