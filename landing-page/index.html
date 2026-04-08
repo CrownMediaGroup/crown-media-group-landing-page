@@ -825,7 +825,7 @@ async function submitScout(e) {
   msg.style.display = 'none';
 
   try {
-    const res = await fetch('/api/scout-apply', {
+    const res = await fetch('https://crm.crownmediagroup.co/api/scouts/apply', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
