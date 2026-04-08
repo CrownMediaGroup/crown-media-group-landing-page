@@ -2178,7 +2178,23 @@ app.post('/api/scouts/apply', async (req, res) => {
     if (!name || !email) return res.status(400).json({ error: 'Name and email required' });
 
     const existing = db.prepare('SELECT id FROM scouts WHERE email = ?').get(email);
-    if (existing) return res.status(409).json({ error: 'This email is already registered as a Scout.' });
+    if (existing) {
+      const scout = db.prepare('SELECT name, referral_code, total_earned, total_referrals FROM scouts WHERE email = ?').get(email);
+      const refLink = `https://crownmediagroup.co/?ref=${scout.referral_code}`;
+      sendEmail({
+        to: email,
+        subject: 'Your Crown Scout referral link',
+        html: `<div style="font-family:sans-serif;max-width:560px;margin:0 auto"><div style="background:#1a1a2e;padding:24px;text-align:center"><h1 style="color:#C9A84C;margin:0;font-size:22px">Your Crown Scout Link</h1></div><div style="padding:24px;background:#fff"><p>Hi ${scout.name},</p><p>Here's your referral link — every business you send that signs with us earns you <strong>$50 cash</strong>:</p><div style="background:#f0fdf4;border-left:4px solid #059669;padding:16px;margin:16px 0;border-radius:4px"><strong>Referral link:</strong><br><a href="${refLink}" style="color:#059669;word-break:break-all">${refLink}</a><br><br><strong>Your Scout code:</strong> <code style="font-size:18px;font-weight:bold;color:#1a1a2e">${scout.referral_code}</code></div><p>Track your earnings:<br><a href="https://crm.crownmediagroup.co/scout-dashboard" style="color:#C9A84C">crm.crownmediagroup.co/scout-dashboard</a> → enter code <strong>${scout.referral_code}</strong></p><p>— Crown Media Group</p></div></div>`,
+        text: `Hi ${scout.name},\n\nYour referral link: ${refLink}\nYour code: ${scout.referral_code}\n\nTrack earnings: crm.crownmediagroup.co/scout-dashboard\n\n— Crown Media Group`,
+      });
+      return res.status(409).json({
+        error: 'already_registered',
+        name: scout.name,
+        referral_code: scout.referral_code,
+        total_earned: scout.total_earned,
+        total_referrals: scout.total_referrals,
+      });
+    }
 
     let code = genReferralCode(name);
     // Ensure uniqueness

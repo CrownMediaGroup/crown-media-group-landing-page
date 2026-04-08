@@ -842,6 +842,11 @@ async function submitScout(e) {
       document.getElementById('scout-form').reset();
       btn.disabled = false;
       btn.textContent = 'Join the Scout Program — Free';
+    } else if (data.error === 'already_registered') {
+      msg.style.cssText = 'margin-top:14px;font-size:.9rem;display:block;color:#22c55e';
+      msg.textContent = `Welcome back, ${data.name}! Your Scout code is ${data.referral_code}. We just resent your welcome email with your referral link.`;
+      btn.disabled = false;
+      btn.textContent = 'Join the Scout Program — Free';
     } else {
       msg.style.cssText = 'margin-top:14px;font-size:.9rem;display:block;color:#ef4444';
       msg.textContent = data.error || 'Something went wrong. Try again.';
