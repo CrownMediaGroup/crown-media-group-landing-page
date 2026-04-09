@@ -1,0 +1,10 @@
+# flyctl launch added from .gitignore
+**\crm.db
+**\crm.db-journal
+**\crm.db-shm
+**\crm.db-wal
+**\portfolio-uploads
+**\*.sqlite
+**\.env
+**\node_modules
+fly.toml

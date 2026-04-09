@@ -1,11 +1,12 @@
-app = "crown-media-crm"
-primary_region = "iad"
+# fly.toml app configuration file generated for crown-media-crm on 2026-04-09T19:43:36-04:00
+#
+# See https://fly.io/docs/reference/configuration/ for information about how to use this file.
+#
+
+app = 'crown-media-crm'
+primary_region = 'iad'
 
 [build]
-
-[env]
-  PORT = "3001"
-  NODE_ENV = "production"
 
 [http_service]
   internal_port = 3001
@@ -13,12 +14,13 @@ primary_region = "iad"
   auto_stop_machines = false
   auto_start_machines = true
   min_machines_running = 1
+  processes = ['app']
 
 [[mounts]]
-  source = "crm_data"
-  destination = "/data"
+  source = 'crm_data'
+  destination = '/data'
 
 [[vm]]
-  memory = "256mb"
-  cpu_kind = "shared"
+  memory = '256mb'
+  cpu_kind = 'shared'
   cpus = 1
