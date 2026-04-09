@@ -497,8 +497,41 @@ function checkVideoPoster() {
   }
 }
 
+// ── Amplify Engine — content distribution queue check (8 AM) ─────────────────
+const AMPLIFY_ENGINE = path.join(__dirname, 'amplify-engine.js');
+const AMPLIFY_QUEUE  = path.join(ROOT, 'Agency/ops/amplify-queue.json');
+const AMPLIFY_LOG    = path.join(ROOT, '.amplify-last-run');
+
+function checkAmplify() {
+  try {
+    if (!fs.existsSync(AMPLIFY_ENGINE)) return;
+    const now = new Date();
+    if (now.getHours() !== 8) return; // only at 8 AM
+    const today = now.toISOString().slice(0, 10);
+    const lastRun = fs.existsSync(AMPLIFY_LOG) ? fs.readFileSync(AMPLIFY_LOG, 'utf8').trim() : '';
+    if (lastRun === today) return;
+    fs.writeFileSync(AMPLIFY_LOG, today);
+
+    if (!fs.existsSync(AMPLIFY_QUEUE)) return;
+    let queue = [];
+    try { queue = JSON.parse(fs.readFileSync(AMPLIFY_QUEUE, 'utf8')); } catch { return; }
+    const pending = queue.filter(j => j.status === 'pending' && j.date === today);
+    if (!pending.length) { log('[Amplify] No pending jobs for today'); return; }
+
+    log(`[Amplify] Processing ${pending.length} job(s) for today...`);
+    const { spawn } = require('child_process');
+    pending.forEach(job => {
+      const child = spawn(process.execPath, [AMPLIFY_ENGINE, '--file', job.variantsFile], {
+        cwd: ROOT, detached: true, stdio: 'ignore'
+      });
+      child.unref();
+    });
+    log('[Amplify] Jobs dispatched — variants will appear in Agency/ops/content/');
+  } catch (e) { log(`[Amplify] Error: ${e.message}`); }
+}
+
 // Normal run
-log('Standalone runner started — polling every 60s | Team: Black Widow (0AM) · Iron Man (6AM) · Iron Man Post (7AM) · Hawkeye (9AM) · Vision (11AM) · TopMap (3AM) · Thor (30min maintenance watch)');
+log('Standalone runner started — polling every 60s | Team: Black Widow (0AM) · Iron Man (6AM) · Iron Man Post (7AM) · Hawkeye (9AM) · Vision (11AM) · TopMap (3AM) · Thor (30min maintenance watch) · Amplify (8AM)');
 setInterval(() => {
   checkQueue();
   checkScheduler();
@@ -506,6 +539,7 @@ setInterval(() => {
   checkLeadGen();                    // Black Widow — midnight
   checkShatiea();                    // Iron Man — 6 AM
   checkIronManPost();                // Iron Man Post — 7 AM (fire generated content to IG + FB)
+  checkAmplify();                    // Amplify — 8 AM (content distribution queue)
   checkOutreach();                   // Hawkeye — 9 AM
   checkVision();                     // Vision — 11 AM (LinkedIn personal brand post)
   checkMaintenanceAlertsThrottled(); // Thor — every 30 min
