@@ -175,17 +175,68 @@
     <div id="wsTable"><div class="empty-table">Loading...</div></div>
   </div>
 
+  <!-- Scout Detail Modal -->
+  <div id="scoutModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:1000;overflow-y:auto;padding:40px 16px">
+    <div style="background:#161628;border:1px solid rgba(201,168,76,.25);border-radius:14px;max-width:680px;margin:0 auto;padding:32px">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:24px">
+        <div>
+          <h2 id="sm-name" style="margin:0;font-size:1.2rem;color:#fff"></h2>
+          <p id="sm-email" style="margin:4px 0 0;color:#6b7280;font-size:.82rem"></p>
+        </div>
+        <button onclick="closeScoutModal()" style="background:none;border:none;color:#6b7280;font-size:1.4rem;cursor:pointer;line-height:1">&times;</button>
+      </div>
+      <!-- Payment info + edit -->
+      <div style="background:#0d0d1a;border:1px solid #333;border-radius:8px;padding:16px;margin-bottom:20px">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+          <span style="font-size:.78rem;color:#6b7280;text-transform:uppercase;letter-spacing:.06em">Payment Info</span>
+          <button onclick="togglePayEdit()" style="background:none;border:1px solid #333;color:#C9A84C;padding:4px 12px;border-radius:6px;font-size:.75rem;cursor:pointer">Edit</button>
+        </div>
+        <div id="sm-pay-display"></div>
+        <div id="sm-pay-edit" style="display:none;margin-top:12px">
+          <div style="display:flex;gap:8px">
+            <select id="sm-pay-method" style="flex:0 0 120px;background:#161628;border:1px solid #333;color:#fff;padding:8px;border-radius:6px;font-size:.85rem">
+              <option value="">Method...</option>
+              <option value="CashApp">CashApp</option>
+              <option value="Venmo">Venmo</option>
+              <option value="Zelle">Zelle</option>
+              <option value="PayPal">PayPal</option>
+            </select>
+            <input type="text" id="sm-pay-handle" placeholder="Handle / phone / email" style="flex:1;background:#161628;border:1px solid #333;color:#fff;padding:8px 12px;border-radius:6px;font-size:.85rem">
+            <button onclick="saveScoutPayment()" style="background:#C9A84C;color:#0d0d1a;border:none;padding:8px 16px;border-radius:6px;font-weight:700;font-size:.82rem;cursor:pointer">Save</button>
+          </div>
+        </div>
+      </div>
+      <!-- Manual referral add -->
+      <div style="background:#0d0d1a;border:1px solid #333;border-radius:8px;padding:16px;margin-bottom:20px">
+        <div style="font-size:.78rem;color:#6b7280;text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px">Log Word-of-Mouth Referral</div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <input type="text" id="sm-ref-biz" placeholder="Business name" style="flex:1;min-width:140px;background:#161628;border:1px solid #333;color:#fff;padding:8px 12px;border-radius:6px;font-size:.85rem">
+          <input type="email" id="sm-ref-email" placeholder="Client email (optional)" style="flex:1;min-width:160px;background:#161628;border:1px solid #333;color:#fff;padding:8px 12px;border-radius:6px;font-size:.85rem">
+          <button onclick="addManualReferral()" style="background:#1a1a2e;border:1px solid #C9A84C;color:#C9A84C;padding:8px 16px;border-radius:6px;font-weight:700;font-size:.82rem;cursor:pointer">+ Add</button>
+        </div>
+        <p style="font-size:.74rem;color:#4b5563;margin:6px 0 0">30-day hold auto-applied for refund protection.</p>
+      </div>
+      <!-- Referrals list -->
+      <div style="font-size:.78rem;color:#6b7280;text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px">Referral History</div>
+      <div id="sm-refs"></div>
+    </div>
+  </div>
+
   <!-- Crown Scout Program -->
   <div class="card" style="margin-top:24px">
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:8px">
       <h2 style="margin:0">Crown Scout Program</h2>
-      <a href="/scout-dashboard" target="_blank" style="background:#1e1e1e;color:#C9A84C;border:1px solid #333;border-radius:6px;padding:5px 12px;font-size:.75rem;text-decoration:none">Scout Portal</a>
+      <div style="display:flex;gap:8px;align-items:center">
+        <button id="payAllBtn" onclick="payAllOwed()" style="display:none;background:#22c55e;color:#000;font-weight:700;border:none;border-radius:6px;padding:6px 14px;font-size:.78rem;cursor:pointer">Pay All Owed</button>
+        <a href="/scout-dashboard" target="_blank" style="background:#1e1e1e;color:#C9A84C;border:1px solid #333;border-radius:6px;padding:5px 12px;font-size:.75rem;text-decoration:none">Scout Portal</a>
+      </div>
     </div>
-    <div id="scoutStats" style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px">
+    <div id="scoutStats" style="display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:20px">
       <div style="background:#1a1a2e;border-radius:8px;padding:14px;text-align:center"><div id="ss-scouts" style="font-size:1.6rem;font-weight:800;color:#C9A84C">—</div><div style="font-size:.72rem;color:#6b7280;text-transform:uppercase;letter-spacing:.05em">Active Scouts</div></div>
       <div style="background:#1a1a2e;border-radius:8px;padding:14px;text-align:center"><div id="ss-refs" style="font-size:1.6rem;font-weight:800;color:#C9A84C">—</div><div style="font-size:.72rem;color:#6b7280;text-transform:uppercase;letter-spacing:.05em">Total Referrals</div></div>
       <div style="background:#1a1a2e;border-radius:8px;padding:14px;text-align:center"><div id="ss-paid" style="font-size:1.6rem;font-weight:800;color:#22c55e">—</div><div style="font-size:.72rem;color:#6b7280;text-transform:uppercase;letter-spacing:.05em">Total Paid Out</div></div>
-      <div style="background:#1a1a2e;border-radius:8px;padding:14px;text-align:center"><div id="ss-owed" style="font-size:1.6rem;font-weight:800;color:#fbbf24">—</div><div style="font-size:.72rem;color:#6b7280;text-transform:uppercase;letter-spacing:.05em">Owed to Scouts</div></div>
+      <div style="background:#1a1a2e;border-radius:8px;padding:14px;text-align:center"><div id="ss-owed" style="font-size:1.6rem;font-weight:800;color:#fbbf24">—</div><div style="font-size:.72rem;color:#6b7280;text-transform:uppercase;letter-spacing:.05em">Ready to Pay</div></div>
+      <div style="background:#1a1a2e;border-radius:8px;padding:14px;text-align:center"><div id="ss-held" style="font-size:1.6rem;font-weight:800;color:#f97316">—</div><div style="font-size:.72rem;color:#6b7280;text-transform:uppercase;letter-spacing:.05em">On Hold</div></div>
     </div>
     <div id="scoutTable"><div class="empty-table">Loading scouts...</div></div>
   </div>
@@ -490,6 +541,8 @@ async function flagMaintenance(id, traffic_light) {
 }
 
 // ── Crown Scout Program ───────────────────────────────────────────────────────
+let _currentScoutId = null;
+
 async function loadScouts() {
   try {
     const [statsRes, scoutsRes] = await Promise.all([
@@ -503,6 +556,15 @@ async function loadScouts() {
     document.getElementById('ss-refs').textContent   = stats.total_referrals || 0;
     document.getElementById('ss-paid').textContent   = '$' + (stats.total_paid_out || 0).toFixed(0);
     document.getElementById('ss-owed').textContent   = '$' + (stats.owed || 0).toFixed(0);
+    document.getElementById('ss-held').textContent   = '$' + (stats.held || 0).toFixed(0);
+
+    const payAllBtn = document.getElementById('payAllBtn');
+    if (stats.owed > 0) {
+      payAllBtn.style.display = 'inline-block';
+      payAllBtn.textContent = `Pay All Owed ($${(stats.owed || 0).toFixed(0)})`;
+    } else {
+      payAllBtn.style.display = 'none';
+    }
 
     const tbl = document.getElementById('scoutTable');
     if (!scouts || !scouts.length) {
@@ -518,24 +580,25 @@ async function loadScouts() {
           <th style="padding:8px 4px">Pay To</th>
           <th style="padding:8px 4px">Refs</th>
           <th style="padding:8px 4px">Paid</th>
-          <th style="padding:8px 4px">Owed</th>
-          <th style="padding:8px 4px">Joined</th>
+          <th style="padding:8px 4px">Eligible</th>
           <th style="padding:8px 4px">Actions</th>
         </tr></thead>
         <tbody>
           ${scouts.map(s => `
             <tr style="border-bottom:1px solid #1e1e1e">
-              <td style="padding:8px 4px;color:#fff;font-weight:600">${s.name}<br><span style="color:#6b7280;font-size:.75rem">${s.email}</span></td>
+              <td style="padding:8px 4px;color:#fff;font-weight:600;cursor:pointer" onclick="openScoutModal(${s.id})">${s.name}<br><span style="color:#6b7280;font-size:.75rem">${s.email}</span></td>
               <td style="padding:8px 4px"><code style="background:#1a1a2e;padding:2px 8px;border-radius:4px;color:#C9A84C;font-size:.82rem">${s.referral_code}</code></td>
               <td style="padding:8px 4px">
-                ${s.payment_method ? `<span style="color:#C9A84C;font-weight:700">${s.payment_method}</span><br><span style="color:#fff;font-size:.8rem">${s.payment_handle || '—'}</span>` : '<span style="color:#6b7280;font-size:.78rem">Not set</span>'}
+                ${s.payment_method ? `<span style="color:#C9A84C;font-weight:700">${s.payment_method}</span><br><span style="color:#9ca3af;font-size:.78rem">${s.payment_handle || '—'}</span>` : '<span style="color:#ef4444;font-size:.75rem">Not set</span>'}
               </td>
               <td style="padding:8px 4px;color:#fff">${s.referral_count || 0}</td>
               <td style="padding:8px 4px;color:#22c55e">$${(s.paid_total || 0).toFixed(0)}</td>
               <td style="padding:8px 4px;color:#fbbf24">$${(s.owed_total || 0).toFixed(0)}</td>
-              <td style="padding:8px 4px;color:#6b7280;font-size:.78rem">${new Date(s.joined_at).toLocaleDateString()}</td>
               <td style="padding:8px 4px">
-                ${s.owed_total > 0 ? `<button type="button" class="act-btn green" onclick="markScoutPaid(${s.id}, '${(s.name||'').replace(/'/g,"\\'")}', '${(s.payment_method||'').replace(/'/g,"\\'")}', '${(s.payment_handle||'').replace(/'/g,"\\'")}', ${s.owed_total || 0})">Pay $${(s.owed_total || 0).toFixed(0)}</button>` : '<span style="color:#6b7280;font-size:.75rem">Settled</span>'}
+                ${s.owed_total > 0
+                  ? `<button type="button" class="act-btn green" onclick="markScoutPaid(${s.id}, '${(s.name||'').replace(/'/g,"\\'")}', '${(s.payment_method||'').replace(/'/g,"\\'")}', '${(s.payment_handle||'').replace(/'/g,"\\'")}', ${s.owed_total || 0})">Pay $${(s.owed_total || 0).toFixed(0)}</button>`
+                  : '<span style="color:#6b7280;font-size:.75rem">Settled</span>'}
+                <button type="button" class="act-btn" style="margin-left:4px" onclick="openScoutModal(${s.id})">Details</button>
               </td>
             </tr>
           `).join('')}
@@ -546,28 +609,142 @@ async function loadScouts() {
   }
 }
 
+async function openScoutModal(scoutId) {
+  _currentScoutId = scoutId;
+  document.getElementById('scoutModal').style.display = 'block';
+  document.getElementById('sm-refs').innerHTML = '<div style="color:#6b7280;font-size:.85rem;padding:12px 0">Loading...</div>';
+  try {
+    const res = await fetch(`/api/scouts/${scoutId}`, { credentials: 'same-origin' });
+    const { scout, referrals } = await res.json();
+    document.getElementById('sm-name').textContent  = scout.name;
+    document.getElementById('sm-email').textContent = scout.email + (scout.phone ? ' · ' + scout.phone : '');
+    document.getElementById('sm-pay-method').value  = scout.payment_method || '';
+    document.getElementById('sm-pay-handle').value  = scout.payment_handle || '';
+    const payDisplay = document.getElementById('sm-pay-display');
+    if (scout.payment_method && scout.payment_handle) {
+      payDisplay.innerHTML = `<span style="color:#C9A84C;font-weight:700">${scout.payment_method}:</span> <span style="color:#fff">${scout.payment_handle}</span>${scout.payment_updated_at ? '<br><span style="color:#4b5563;font-size:.74rem">Updated ' + new Date(scout.payment_updated_at).toLocaleDateString() + '</span>' : ''}`;
+    } else {
+      payDisplay.innerHTML = '<span style="color:#ef4444;font-size:.85rem">No payment method on file — ask scout to update via their dashboard.</span>';
+    }
+    const refHtml = referrals.length ? referrals.map(r => {
+      const holdBadge = r.payout_hold ? '<span style="background:rgba(249,115,22,.15);color:#f97316;padding:2px 8px;border-radius:12px;font-size:.7rem;font-weight:700">HOLD</span>' : '';
+      const refundBadge = r.refund_status === 'refunded' ? '<span style="background:rgba(239,68,68,.15);color:#ef4444;padding:2px 8px;border-radius:12px;font-size:.7rem;font-weight:700">REFUNDED</span>'
+                        : r.refund_status === 'clawback' ? '<span style="background:rgba(239,68,68,.25);color:#ef4444;padding:2px 8px;border-radius:12px;font-size:.7rem;font-weight:700">CLAWBACK</span>' : '';
+      const statusColor = r.paid_out ? '#22c55e' : r.status === 'signed' ? '#fbbf24' : r.status === 'lost' ? '#ef4444' : '#6b7280';
+      const eligDate = r.payout_eligible_at ? new Date(r.payout_eligible_at) : null;
+      const eligText = eligDate && !r.paid_out ? (eligDate > new Date() ? `<br><span style="color:#6b7280;font-size:.72rem">Eligible ${eligDate.toLocaleDateString()}</span>` : '') : '';
+      return `<div style="background:#0d0d1a;border:1px solid #1e1e1e;border-radius:8px;padding:12px;margin-bottom:8px;display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap">
+        <div>
+          <span style="color:#fff;font-weight:600;font-size:.88rem">${r.referred_business || 'Unnamed'}</span>
+          ${r.referred_email ? '<br><span style="color:#6b7280;font-size:.75rem">' + r.referred_email + '</span>' : ''}
+          ${eligText}
+        </div>
+        <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">
+          ${holdBadge}${refundBadge}
+          <span style="color:${statusColor};font-size:.78rem;font-weight:700">${r.paid_out ? 'PAID $' + r.commission_amount : r.status.toUpperCase()}</span>
+          ${!r.paid_out && r.status !== 'signed' && r.status !== 'lost' ? `<button type="button" onclick="setRefStatus(${r.id},'signed')" style="background:#1a1a2e;border:1px solid #22c55e;color:#22c55e;padding:3px 8px;border-radius:4px;font-size:.72rem;cursor:pointer">Mark Signed</button>` : ''}
+          ${!r.paid_out && r.status !== 'lost' ? `<button type="button" onclick="setRefStatus(${r.id},'lost')" style="background:#1a1a2e;border:1px solid #ef4444;color:#ef4444;padding:3px 8px;border-radius:4px;font-size:.72rem;cursor:pointer">Lost</button>` : ''}
+          ${r.payout_hold ? `<button type="button" onclick="toggleRefHold(${r.id},0)" style="background:#1a1a2e;border:1px solid #f97316;color:#f97316;padding:3px 8px;border-radius:4px;font-size:.72rem;cursor:pointer">Unfreeze</button>` : (r.status==='signed'&&!r.paid_out ? `<button type="button" onclick="toggleRefHold(${r.id},1)" style="background:#1a1a2e;border:1px solid #f97316;color:#f97316;padding:3px 8px;border-radius:4px;font-size:.72rem;cursor:pointer">Freeze</button>` : '')}
+        </div>
+      </div>`;
+    }).join('') : '<div style="color:#6b7280;font-size:.85rem;padding:8px 0">No referrals yet.</div>';
+    document.getElementById('sm-refs').innerHTML = refHtml;
+  } catch (e) {
+    document.getElementById('sm-refs').innerHTML = '<div style="color:#ef4444;font-size:.85rem">Failed to load.</div>';
+  }
+}
+
+function closeScoutModal() {
+  document.getElementById('scoutModal').style.display = 'none';
+  _currentScoutId = null;
+}
+
+function togglePayEdit() {
+  const ed = document.getElementById('sm-pay-edit');
+  ed.style.display = ed.style.display === 'none' ? 'block' : 'none';
+}
+
+async function saveScoutPayment() {
+  if (!_currentScoutId) return;
+  const method = document.getElementById('sm-pay-method').value;
+  const handle = document.getElementById('sm-pay-handle').value.trim();
+  if (!method || !handle) { alert('Select a payment method and enter a handle.'); return; }
+  try {
+    await fetch(`/api/scouts/${_currentScoutId}/payment`, {
+      method: 'PUT', credentials: 'same-origin',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ payment_method: method, payment_handle: handle }),
+    });
+    openScoutModal(_currentScoutId);
+    loadScouts();
+  } catch (e) { alert('Error: ' + e.message); }
+}
+
+async function addManualReferral() {
+  if (!_currentScoutId) return;
+  const biz   = document.getElementById('sm-ref-biz').value.trim();
+  const email = document.getElementById('sm-ref-email').value.trim();
+  if (!biz) { alert('Business name required'); return; }
+  try {
+    await fetch('/api/admin/referrals', {
+      method: 'POST', credentials: 'same-origin',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ scout_id: _currentScoutId, referred_business: biz, referred_email: email }),
+    });
+    document.getElementById('sm-ref-biz').value = '';
+    document.getElementById('sm-ref-email').value = '';
+    openScoutModal(_currentScoutId);
+  } catch (e) { alert('Error: ' + e.message); }
+}
+
+async function setRefStatus(refId, status) {
+  await fetch(`/api/referrals/${refId}/status`, {
+    method: 'PUT', credentials: 'same-origin',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ status }),
+  });
+  openScoutModal(_currentScoutId);
+  loadScouts();
+}
+
+async function toggleRefHold(refId, hold) {
+  await fetch(`/api/referrals/${refId}/status`, {
+    method: 'PUT', credentials: 'same-origin',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ payout_hold: hold }),
+  });
+  openScoutModal(_currentScoutId);
+  loadScouts();
+}
+
+async function payAllOwed() {
+  if (!confirm('Pay all eligible scouts now? This will mark all cleared referrals as paid and email each scout.')) return;
+  try {
+    const res  = await fetch('/api/scouts/batch-mark-paid', { method: 'POST', credentials: 'same-origin' });
+    const data = await res.json();
+    const msg  = `Done. Paid ${data.paid_count} referral(s) — $${(data.total_amount || 0).toFixed(2)} total.${data.skipped_hold_count ? '\n' + data.skipped_hold_count + ' referral(s) skipped (on hold or awaiting 30-day window).' : ''}`;
+    alert(msg);
+    loadScouts();
+  } catch (e) { alert('Error: ' + e.message); }
+}
+
 async function markScoutPaid(scoutId, scoutName, payMethod, payHandle, amountOwed) {
   try {
     const res = await fetch(`/api/scouts/${scoutId}`, { credentials: 'same-origin' });
     const { referrals } = await res.json();
-    const unpaid = referrals.filter(r => r.status === 'signed' && !r.paid_out);
-    if (!unpaid.length) { alert('No pending payouts for this scout.'); return; }
-
-    // Build payment instructions
-    let payInstructions = '';
-    if (payMethod && payHandle) {
-      payInstructions = `\n\nSEND PAYMENT NOW:\n${payMethod}: ${payHandle}\nAmount: $${Number(amountOwed).toFixed(2)}`;
-    } else {
-      payInstructions = `\n\nWARNING: No payment method on file for this scout.\nContact them at their email to arrange payment.`;
-    }
-
-    if (!confirm(`Pay ${scoutName} for ${unpaid.length} referral(s) — $${Number(amountOwed).toFixed(2)} total${payInstructions}\n\nClick OK after you have sent the payment to mark it as done.`)) return;
-
+    const unpaid = referrals.filter(r => r.status === 'signed' && !r.paid_out && !r.payout_hold && !r.refund_status);
+    const held   = referrals.filter(r => r.status === 'signed' && !r.paid_out && (r.payout_hold || r.refund_status));
+    if (!unpaid.length && held.length) { alert(`All pending commissions for ${scoutName} are on hold (refund window or dispute). Check Details for status.`); return; }
+    if (!unpaid.length) { alert('No eligible payouts for this scout.'); return; }
+    let payInstructions = payMethod && payHandle
+      ? `\n\nSEND PAYMENT:\n${payMethod}: ${payHandle}\nAmount: $${Number(amountOwed).toFixed(2)}`
+      : `\n\nWARNING: No payment method on file. Contact ${scoutName} directly.`;
+    if (held.length) payInstructions += `\n\nNOTE: ${held.length} additional referral(s) on hold (not included).`;
+    if (!confirm(`Pay ${scoutName} — ${unpaid.length} referral(s)${payInstructions}\n\nClick OK AFTER you have sent the money.`)) return;
     for (const r of unpaid) {
       await fetch(`/api/referrals/${r.id}/status`, {
-        method: 'PUT',
+        method: 'PUT', credentials: 'same-origin',
         headers: { 'Content-Type': 'application/json' },
-        credentials: 'same-origin',
         body: JSON.stringify({ paid_out: true }),
       });
     }

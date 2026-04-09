@@ -144,6 +144,30 @@ export default async (req) => {
           body: JSON.stringify({ orderId: order.id }),
         }).catch(console.error);
       }
+
+      // ── Scout referral auto-sign (30-day hold for refund protection) ──────────
+      const crmSecret = process.env.CRM_INTERNAL_SECRET;
+      if (crmSecret && email) {
+        fetch('https://crm.crownmediagroup.co/api/internal/referral-signed', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'x-crm-secret': crmSecret },
+          body: JSON.stringify({ email, scout_code: session.metadata?.scout_code || '' }),
+        }).catch(console.error);
+      }
+    }
+  }
+
+  // ── Refund → freeze scout commission / clawback if already paid ──────────────
+  if (event.type === 'charge.refunded') {
+    const charge = event.data.object;
+    const email = charge.billing_details?.email || charge.receipt_email || '';
+    const crmSecret = process.env.CRM_INTERNAL_SECRET;
+    if (crmSecret && email) {
+      fetch('https://crm.crownmediagroup.co/api/internal/referral-refunded', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'x-crm-secret': crmSecret },
+        body: JSON.stringify({ email }),
+      }).catch(console.error);
     }
   }
 

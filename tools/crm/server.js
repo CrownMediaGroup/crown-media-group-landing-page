@@ -492,7 +492,7 @@ app.use('/api', (req, res, next) => {
   const publicPaths = ['/login', '/logout', '/branding', '/register', '/auth/google', '/config/public'];
   if (publicPaths.includes(req.path)) return next();
   // Public scout endpoints — no auth required
-  if (req.path === '/scouts/apply' || req.path.startsWith('/scouts/dashboard/')) return next();
+  if (req.path === '/scouts/apply' || req.path.startsWith('/scouts/dashboard/') || req.path.startsWith('/scouts/by-code/') || req.path.startsWith('/internal/')) return next();
   const session = validateSession(getCookie(req, 'crm_session'));
   if (!session) return res.status(401).json({ error: 'Unauthorized' });
   req.user        = session.user;
@@ -2306,7 +2306,7 @@ app.put('/api/referrals/:id/status', async (req, res) => {
   const session = validateSession(getCookie(req, 'crm_session'));
   if (!session) return res.status(401).json({ error: 'Unauthorized' });
 
-  const { status, paid_out } = req.body || {};
+  const { status, paid_out, payout_hold } = req.body || {};
   const ref = db.prepare('SELECT * FROM referrals WHERE id = ?').get(req.params.id);
   if (!ref) return res.status(404).json({ error: 'Referral not found' });
 
@@ -2317,6 +2317,7 @@ app.put('/api/referrals/:id/status', async (req, res) => {
     updates.push('paid_out = ?', 'paid_at = ?');
     vals.push(paid_out ? 1 : 0, paid_out ? new Date().toISOString() : null);
   }
+  if (payout_hold !== undefined) { updates.push('payout_hold = ?'); vals.push(payout_hold ? 1 : 0); }
   if (!updates.length) return res.status(400).json({ error: 'Nothing to update' });
   vals.push(ref.id);
   db.prepare(`UPDATE referrals SET ${updates.join(', ')} WHERE id = ?`).run(...vals);
@@ -2370,13 +2371,146 @@ app.get('/api/stats/scouts', (req, res) => {
       COUNT(r.id)                                                             as total_referrals,
       SUM(CASE WHEN r.status = 'signed' THEN 1 ELSE 0 END)                  as signed_count,
       SUM(CASE WHEN r.paid_out = 1 THEN r.commission_amount ELSE 0 END)     as total_paid_out,
-      SUM(CASE WHEN r.paid_out = 0 AND r.status = 'signed' THEN r.commission_amount ELSE 0 END) as owed
+      SUM(CASE WHEN r.paid_out = 0 AND r.status = 'signed' AND r.payout_hold = 0 AND r.refund_status = '' THEN r.commission_amount ELSE 0 END) as owed,
+      SUM(CASE WHEN r.paid_out = 0 AND r.status = 'signed' AND (r.payout_hold = 1 OR r.refund_status != '') THEN r.commission_amount ELSE 0 END) as held
     FROM scouts s
     LEFT JOIN referrals r ON r.scout_id = s.id
     WHERE s.status = 'active'
   `).get();
 
   res.json({ ok: true, stats });
+});
+
+// PUT /api/scouts/:id/payment — admin updates scout payment info
+app.put('/api/scouts/:id/payment', (req, res) => {
+  const session = validateSession(getCookie(req, 'crm_session'));
+  if (!session) return res.status(401).json({ error: 'Unauthorized' });
+  const { payment_method, payment_handle } = req.body || {};
+  const allowed = ['CashApp', 'Venmo', 'Zelle', 'PayPal', ''];
+  if (payment_method && !allowed.includes(payment_method)) return res.status(400).json({ error: 'Invalid payment method' });
+  db.prepare('UPDATE scouts SET payment_method = ?, payment_handle = ?, payment_updated_at = ? WHERE id = ?')
+    .run(payment_method || '', payment_handle || '', new Date().toISOString(), req.params.id);
+  res.json({ ok: true });
+});
+
+// PUT /api/scouts/by-code/:code/payment — scout self-updates payment method (public, code is secret)
+app.put('/api/scouts/by-code/:code/payment', (req, res) => {
+  const scout = db.prepare("SELECT id FROM scouts WHERE referral_code = ? AND status = 'active'").get(req.params.code);
+  if (!scout) return res.status(404).json({ error: 'Scout not found' });
+  const { payment_method, payment_handle } = req.body || {};
+  const allowed = ['CashApp', 'Venmo', 'Zelle', 'PayPal'];
+  if (!payment_method || !allowed.includes(payment_method)) return res.status(400).json({ error: 'Valid payment method required (CashApp, Venmo, Zelle, PayPal)' });
+  if (!payment_handle?.trim()) return res.status(400).json({ error: 'Handle required' });
+  db.prepare('UPDATE scouts SET payment_method = ?, payment_handle = ?, payment_updated_at = ? WHERE id = ?')
+    .run(payment_method, payment_handle.trim(), new Date().toISOString(), scout.id);
+  res.json({ ok: true });
+});
+
+// POST /api/admin/referrals — admin manually logs a word-of-mouth referral
+app.post('/api/admin/referrals', (req, res) => {
+  const session = validateSession(getCookie(req, 'crm_session'));
+  if (!session) return res.status(401).json({ error: 'Unauthorized' });
+  const { scout_id, referred_business, referred_email, contact_id } = req.body || {};
+  if (!scout_id || !referred_business) return res.status(400).json({ error: 'scout_id and referred_business required' });
+  const scout = db.prepare('SELECT id FROM scouts WHERE id = ?').get(scout_id);
+  if (!scout) return res.status(404).json({ error: 'Scout not found' });
+  let linkedContact = contact_id || null;
+  if (!linkedContact && referred_email) {
+    const c = db.prepare('SELECT id FROM contacts WHERE email = ? LIMIT 1').get(referred_email);
+    if (c) linkedContact = c.id;
+  }
+  const eligible = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString();
+  db.prepare('INSERT INTO referrals (scout_id, contact_id, referred_business, referred_email, payout_eligible_at) VALUES (?, ?, ?, ?, ?)')
+    .run(scout.id, linkedContact, referred_business, referred_email || '', eligible);
+  res.json({ ok: true });
+});
+
+// POST /api/scouts/batch-mark-paid — pay all eligible scouts in one shot
+app.post('/api/scouts/batch-mark-paid', async (req, res) => {
+  const session = validateSession(getCookie(req, 'crm_session'));
+  if (!session) return res.status(401).json({ error: 'Unauthorized' });
+  const now = new Date().toISOString();
+  const eligible = db.prepare(`
+    SELECT r.*, s.name as scout_name, s.email as scout_email, s.total_earned as scout_earned,
+           s.payment_method, s.payment_handle
+    FROM referrals r JOIN scouts s ON s.id = r.scout_id
+    WHERE r.status = 'signed' AND r.paid_out = 0 AND r.payout_hold = 0 AND r.refund_status = ''
+      AND (r.payout_eligible_at IS NULL OR r.payout_eligible_at <= ?)
+  `).all(now);
+  const skipped = db.prepare(`
+    SELECT COUNT(*) as c FROM referrals
+    WHERE status = 'signed' AND paid_out = 0
+      AND (payout_hold = 1 OR refund_status != '' OR (payout_eligible_at > ? AND payout_eligible_at IS NOT NULL))
+  `).get(now).c;
+  let paid_count = 0, total_amount = 0;
+  for (const r of eligible) {
+    db.prepare('UPDATE referrals SET paid_out = 1, paid_at = ? WHERE id = ?').run(now, r.id);
+    db.prepare('UPDATE scouts SET total_earned = total_earned + ?, total_referrals = total_referrals + 1 WHERE id = ?').run(r.commission_amount, r.scout_id);
+    sendEmail({
+      to: r.scout_email,
+      subject: `You've been paid — $${r.commission_amount} from Crown Media Group`,
+      html: `<div style="font-family:sans-serif;max-width:560px"><div style="background:#1a1a2e;padding:20px;text-align:center"><h2 style="color:#C9A84C;margin:0">Payment Sent!</h2></div><div style="padding:24px"><p>Hi ${r.scout_name},</p><p>Your <strong>$${r.commission_amount}</strong> commission for <strong>${r.referred_business || 'your referral'}</strong> has been paid${r.payment_method ? ' via ' + r.payment_method + (r.payment_handle ? ' (' + r.payment_handle + ')' : '') : ''}.</p><p>Total earned: <strong>$${(r.scout_earned + r.commission_amount).toFixed(2)}</strong></p><p>Keep sending business owners our way!</p><p>— David King<br>Crown Media Group</p></div></div>`,
+      text: `Hi ${r.scout_name}, your $${r.commission_amount} commission has been paid. Total: $${(r.scout_earned + r.commission_amount).toFixed(2)}. — Crown Media Group`,
+    });
+    paid_count++;
+    total_amount += r.commission_amount;
+  }
+  res.json({ ok: true, paid_count, total_amount, skipped_hold_count: skipped });
+});
+
+// POST /api/internal/referral-signed — called by Stripe webhook when client pays
+app.post('/api/internal/referral-signed', (req, res) => {
+  if (req.headers['x-crm-secret'] !== process.env.CRM_INTERNAL_SECRET) return res.status(401).json({ error: 'Unauthorized' });
+  const { email, scout_code } = req.body || {};
+  if (!email) return res.status(400).json({ error: 'email required' });
+  const contact = db.prepare('SELECT id, referred_by_scout FROM contacts WHERE email = ? LIMIT 1').get(email);
+  const code = scout_code || contact?.referred_by_scout;
+  if (!code) return res.json({ ok: true, matched: false });
+  const scout = db.prepare('SELECT id FROM scouts WHERE referral_code = ?').get(code);
+  if (!scout) return res.json({ ok: true, matched: false });
+  const eligible = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString();
+  const existing = db.prepare('SELECT id FROM referrals WHERE scout_id = ? AND referred_email = ? LIMIT 1').get(scout.id, email);
+  if (existing) {
+    db.prepare("UPDATE referrals SET status = 'signed', payout_hold = 1, payout_eligible_at = ?, contact_id = COALESCE(contact_id, ?) WHERE id = ?")
+      .run(eligible, contact?.id || null, existing.id);
+  } else {
+    const biz = contact ? db.prepare('SELECT business FROM contacts WHERE id = ?').get(contact.id) : null;
+    db.prepare("INSERT INTO referrals (scout_id, contact_id, referred_email, referred_business, status, payout_hold, payout_eligible_at) VALUES (?, ?, ?, ?, 'signed', 1, ?)")
+      .run(scout.id, contact?.id || null, email, biz?.business || '', eligible);
+  }
+  res.json({ ok: true, matched: true });
+});
+
+// POST /api/internal/referral-refunded — called by Stripe webhook on refund
+app.post('/api/internal/referral-refunded', (req, res) => {
+  if (req.headers['x-crm-secret'] !== process.env.CRM_INTERNAL_SECRET) return res.status(401).json({ error: 'Unauthorized' });
+  const { email } = req.body || {};
+  if (!email) return res.status(400).json({ error: 'email required' });
+  const contact = db.prepare('SELECT id, referred_by_scout FROM contacts WHERE email = ? LIMIT 1').get(email);
+  if (!contact?.referred_by_scout) return res.json({ ok: true, matched: false });
+  const scout = db.prepare('SELECT * FROM scouts WHERE referral_code = ?').get(contact.referred_by_scout);
+  if (!scout) return res.json({ ok: true, matched: false });
+  const ref = db.prepare("SELECT * FROM referrals WHERE scout_id = ? AND (referred_email = ? OR contact_id = ?) AND status = 'signed' ORDER BY created_at DESC LIMIT 1")
+    .get(scout.id, email, contact.id);
+  if (!ref) return res.json({ ok: true, matched: false });
+  if (ref.paid_out) {
+    db.prepare("UPDATE referrals SET refund_status = 'clawback', payout_hold = 1 WHERE id = ?").run(ref.id);
+    sendEmail({
+      to: 'king@crownmediagroup.co',
+      subject: `CLAWBACK ALERT: ${scout.name} — client refunded`,
+      html: `<div style="font-family:sans-serif;max-width:560px;padding:24px"><h2 style="color:#ef4444">Clawback Required</h2><p>A client was refunded and the scout commission was already paid.</p><p><strong>Scout:</strong> ${scout.name} (${scout.email})<br><strong>Amount to deduct:</strong> $${ref.commission_amount}<br><strong>Referral:</strong> ${ref.referred_business || email}</p><p>Deduct $${ref.commission_amount} from ${scout.name}'s next payout or contact them directly.</p><a href="https://crm.crownmediagroup.co/admin">View in CRM</a></div>`,
+      text: `CLAWBACK: Deduct $${ref.commission_amount} from ${scout.name}. Client refunded.`,
+    });
+  } else {
+    db.prepare("UPDATE referrals SET refund_status = 'refunded', payout_hold = 1 WHERE id = ?").run(ref.id);
+    sendEmail({
+      to: scout.email,
+      subject: `Update on your referral — Crown Media Group`,
+      html: `<div style="font-family:sans-serif;max-width:560px;padding:24px"><p>Hi ${scout.name},</p><p>A refund was issued on a client you referred. The $${ref.commission_amount} commission for <strong>${ref.referred_business || 'that referral'}</strong> has been frozen.</p><p>We appreciate your continued partnership!</p><p>— David King<br>Crown Media Group</p></div>`,
+      text: `Hi ${scout.name}, a refund was issued on one of your referrals. Commission frozen. — Crown Media Group`,
+    });
+  }
+  res.json({ ok: true, matched: true });
 });
 
 // ── Fallback → serve index.html (requires auth) ───────────────────────────────

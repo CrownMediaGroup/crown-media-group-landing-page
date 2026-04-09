@@ -188,8 +188,15 @@ db.exec(`
 
 // ── Runtime column additions for scouts (payment info) ───────────────────────
 const _scoutPayCols = db.prepare('PRAGMA table_info(scouts)').all().map(r => r.name);
-if (!_scoutPayCols.includes('payment_method')) db.exec("ALTER TABLE scouts ADD COLUMN payment_method TEXT DEFAULT ''");
-if (!_scoutPayCols.includes('payment_handle')) db.exec("ALTER TABLE scouts ADD COLUMN payment_handle TEXT DEFAULT ''");
+if (!_scoutPayCols.includes('payment_method'))    db.exec("ALTER TABLE scouts ADD COLUMN payment_method TEXT DEFAULT ''");
+if (!_scoutPayCols.includes('payment_handle'))    db.exec("ALTER TABLE scouts ADD COLUMN payment_handle TEXT DEFAULT ''");
+if (!_scoutPayCols.includes('payment_updated_at')) db.exec("ALTER TABLE scouts ADD COLUMN payment_updated_at DATETIME");
+
+// ── Runtime column additions for referrals (payout protection + refund) ───────
+const _refCols = db.prepare('PRAGMA table_info(referrals)').all().map(r => r.name);
+if (!_refCols.includes('refund_status'))      db.exec("ALTER TABLE referrals ADD COLUMN refund_status TEXT DEFAULT ''");
+if (!_refCols.includes('payout_hold'))        db.exec("ALTER TABLE referrals ADD COLUMN payout_hold INTEGER DEFAULT 0");
+if (!_refCols.includes('payout_eligible_at')) db.exec("ALTER TABLE referrals ADD COLUMN payout_eligible_at DATETIME");
 
 // ── Runtime column addition: referred_by_scout on contacts ────────────────────
 const _scoutCols = db.prepare('PRAGMA table_info(contacts)').all().map(r => r.name);
