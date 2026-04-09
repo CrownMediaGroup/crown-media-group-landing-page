@@ -515,6 +515,7 @@ async function loadScouts() {
         <thead><tr style="color:#6b7280;text-align:left;border-bottom:1px solid #333">
           <th style="padding:8px 4px">Name</th>
           <th style="padding:8px 4px">Code</th>
+          <th style="padding:8px 4px">Pay To</th>
           <th style="padding:8px 4px">Refs</th>
           <th style="padding:8px 4px">Paid</th>
           <th style="padding:8px 4px">Owed</th>
@@ -526,12 +527,15 @@ async function loadScouts() {
             <tr style="border-bottom:1px solid #1e1e1e">
               <td style="padding:8px 4px;color:#fff;font-weight:600">${s.name}<br><span style="color:#6b7280;font-size:.75rem">${s.email}</span></td>
               <td style="padding:8px 4px"><code style="background:#1a1a2e;padding:2px 8px;border-radius:4px;color:#C9A84C;font-size:.82rem">${s.referral_code}</code></td>
+              <td style="padding:8px 4px">
+                ${s.payment_method ? `<span style="color:#C9A84C;font-weight:700">${s.payment_method}</span><br><span style="color:#fff;font-size:.8rem">${s.payment_handle || '—'}</span>` : '<span style="color:#6b7280;font-size:.78rem">Not set</span>'}
+              </td>
               <td style="padding:8px 4px;color:#fff">${s.referral_count || 0}</td>
               <td style="padding:8px 4px;color:#22c55e">$${(s.paid_total || 0).toFixed(0)}</td>
               <td style="padding:8px 4px;color:#fbbf24">$${(s.owed_total || 0).toFixed(0)}</td>
               <td style="padding:8px 4px;color:#6b7280;font-size:.78rem">${new Date(s.joined_at).toLocaleDateString()}</td>
               <td style="padding:8px 4px">
-                ${s.owed_total > 0 ? `<button type="button" class="act-btn green" onclick="markScoutPaid(${s.id})">Mark Paid</button>` : ''}
+                ${s.owed_total > 0 ? `<button type="button" class="act-btn green" onclick="markScoutPaid(${s.id}, '${(s.name||'').replace(/'/g,"\\'")}', '${(s.payment_method||'').replace(/'/g,"\\'")}', '${(s.payment_handle||'').replace(/'/g,"\\'")}', ${s.owed_total || 0})">Pay $${(s.owed_total || 0).toFixed(0)}</button>` : '<span style="color:#6b7280;font-size:.75rem">Settled</span>'}
               </td>
             </tr>
           `).join('')}
@@ -542,13 +546,23 @@ async function loadScouts() {
   }
 }
 
-async function markScoutPaid(scoutId) {
+async function markScoutPaid(scoutId, scoutName, payMethod, payHandle, amountOwed) {
   try {
     const res = await fetch(`/api/scouts/${scoutId}`, { credentials: 'same-origin' });
     const { referrals } = await res.json();
     const unpaid = referrals.filter(r => r.status === 'signed' && !r.paid_out);
     if (!unpaid.length) { alert('No pending payouts for this scout.'); return; }
-    if (!confirm(`Mark ${unpaid.length} referral(s) as paid for this scout?`)) return;
+
+    // Build payment instructions
+    let payInstructions = '';
+    if (payMethod && payHandle) {
+      payInstructions = `\n\nSEND PAYMENT NOW:\n${payMethod}: ${payHandle}\nAmount: $${Number(amountOwed).toFixed(2)}`;
+    } else {
+      payInstructions = `\n\nWARNING: No payment method on file for this scout.\nContact them at their email to arrange payment.`;
+    }
+
+    if (!confirm(`Pay ${scoutName} for ${unpaid.length} referral(s) — $${Number(amountOwed).toFixed(2)} total${payInstructions}\n\nClick OK after you have sent the payment to mark it as done.`)) return;
+
     for (const r of unpaid) {
       await fetch(`/api/referrals/${r.id}/status`, {
         method: 'PUT',

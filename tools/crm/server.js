@@ -2168,7 +2168,7 @@ app.get('/scout-dashboard', (req, res) => {
 // POST /api/scouts/apply — public, no auth — scout sign-up
 app.post('/api/scouts/apply', async (req, res) => {
   try {
-    const { name, email, phone, how_you_know } = req.body || {};
+    const { name, email, phone, how_you_know, payment_method, payment_handle } = req.body || {};
     if (!name || !email) return res.status(400).json({ error: 'Name and email required' });
 
     const existing = db.prepare('SELECT id FROM scouts WHERE email = ?').get(email);
@@ -2196,8 +2196,8 @@ app.post('/api/scouts/apply', async (req, res) => {
       code = genReferralCode(name + Math.random());
     }
 
-    db.prepare('INSERT INTO scouts (name, email, phone, referral_code, notes) VALUES (?, ?, ?, ?, ?)')
-      .run(name, email, phone || '', code, how_you_know || '');
+    db.prepare('INSERT INTO scouts (name, email, phone, referral_code, notes, payment_method, payment_handle) VALUES (?, ?, ?, ?, ?, ?, ?)')
+      .run(name, email, phone || '', code, how_you_know || '', payment_method || '', payment_handle || '');
 
     // Welcome email
     const refLink = `https://crownmediagroup.co/?ref=${code}`;
