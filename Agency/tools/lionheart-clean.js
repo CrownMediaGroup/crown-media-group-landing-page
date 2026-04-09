@@ -10,7 +10,6 @@
 
 require("dotenv").config({ path: require("path").resolve(__dirname, "../../.env") });
 
-const Anthropic = require("@anthropic-ai/sdk");
 const fs = require("fs");
 const path = require("path");
 
@@ -76,7 +75,8 @@ function sleep(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-async function cleanTranscript(client, rawText, title) {
+async function cleanTranscript(rawText, title) {
+  const apiKey = process.env.GEMINI_API_KEY;
   const prompt = `You are organizing sermon notes from Lionheart Church (Pastor Otha Turnbough).
 
 Clean and organize the following auto-generated transcript into structured study notes.
@@ -119,22 +119,27 @@ SERMON TITLE: ${title}
 TRANSCRIPT:
 ${rawText.slice(0, 12000)}`;
 
-  const response = await client.messages.create({
-    model: "claude-haiku-4-5-20251001",
-    max_tokens: 3000,
-    messages: [{ role: "user", content: prompt }],
-  });
-
-  return response.content[0].text;
+  const res = await fetch(
+    `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`,
+    {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        contents: [{ role: 'user', parts: [{ text: prompt }] }],
+        generationConfig: { maxOutputTokens: 3000 },
+      }),
+    }
+  );
+  const data = await res.json();
+  if (!data.candidates?.[0]) throw new Error(data.error?.message || 'Gemini returned no content');
+  return data.candidates[0].content.parts[0].text;
 }
 
 async function main() {
-  if (!process.env.ANTHROPIC_API_KEY) {
-    console.error("ERROR: ANTHROPIC_API_KEY not found in .env");
+  if (!process.env.GEMINI_API_KEY) {
+    console.error("ERROR: GEMINI_API_KEY not found in .env");
     process.exit(1);
   }
-
-  const client = new Anthropic();
 
   if (!fs.existsSync(RAW_DIR)) {
     console.error(`ERROR: raw/ directory not found at ${RAW_DIR}`);
@@ -161,7 +166,7 @@ async function main() {
     process.exit(0);
   }
 
-  console.log(`Cleaning ${total} sermon transcripts via Claude haiku...\n`);
+  console.log(`Cleaning ${total} sermon transcripts via Gemini 2.0 Flash...\n`);
 
   let done = 0;
   let skipped = 0;
@@ -188,7 +193,7 @@ async function main() {
     console.log(`[${i + 1}/${total}] ${title.slice(0, 70)}...`);
 
     try {
-      const cleaned = await cleanTranscript(client, rawText, title);
+      const cleaned = await cleanTranscript(rawText, title);
 
       // Write cleaned notes
       fs.writeFileSync(outFile, cleaned, "utf-8");

@@ -10,7 +10,6 @@
  * --from-queue  Pops next topic from content/blog/topics-queue.json
  */
 
-import Anthropic from '@anthropic-ai/sdk';
 import { readFileSync, writeFileSync, existsSync } from 'fs';
 import { resolve, join, dirname } from 'path';
 import { execSync } from 'child_process';
@@ -258,10 +257,10 @@ Rules:
 
 // ─── Main ─────────────────────────────────────────────────────────────────────
 async function main() {
-  const apiKey = process.env.ANTHROPIC_API_KEY;
+  const apiKey = process.env.GEMINI_API_KEY;
   if (!apiKey) {
-    console.error('Error: ANTHROPIC_API_KEY environment variable not set.');
-    console.error('Usage: ANTHROPIC_API_KEY=sk-ant-... node scripts/blog-writer.js --topic "..."');
+    console.error('Error: GEMINI_API_KEY environment variable not set.');
+    console.error('Usage: GEMINI_API_KEY=... node scripts/blog-writer.js --topic "..."');
     process.exit(1);
   }
 
@@ -283,16 +282,22 @@ async function main() {
   console.log(`\nGenerating post: "${topic}"`);
   console.log(`Keyword: ${keyword} | Category: ${category}\n`);
 
-  const client = new Anthropic({ apiKey });
+  const geminiRes = await fetch(
+    `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`,
+    {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        contents: [{ role: 'user', parts: [{ text: buildUserPrompt(topic, keyword, category) }] }],
+        systemInstruction: { parts: [{ text: SYSTEM_PROMPT }] },
+        generationConfig: { maxOutputTokens: 4000 },
+      }),
+    }
+  );
+  const geminiData = await geminiRes.json();
+  if (!geminiData.candidates?.[0]) throw new Error(geminiData.error?.message || 'Gemini returned no content');
 
-  const message = await client.messages.create({
-    model: 'claude-haiku-4-5-20251001',
-    max_tokens: 4000,
-    system: SYSTEM_PROMPT,
-    messages: [{ role: 'user', content: buildUserPrompt(topic, keyword, category) }],
-  });
-
-  const body = message.content[0].text;
+  const body = geminiData.candidates[0].content.parts[0].text;
   console.log(`Generated ${body.split(/\s+/).length} words.`);
 
   const faqs = extractFaqs(body);

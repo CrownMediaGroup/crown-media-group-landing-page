@@ -257,14 +257,29 @@ if (process.env.GMAIL_USER && process.env.GMAIL_APP_PASSWORD) {
   console.warn('[CRM] Gmail not configured — email disabled. Set GMAIL_USER + GMAIL_APP_PASSWORD in .env');
 }
 
-// ── Anthropic ─────────────────────────────────────────────────────────────────
-let anthropic = null;
-if (process.env.ANTHROPIC_API_KEY) {
-  const { default: Anthropic } = await import('@anthropic-ai/sdk');
-  anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
-  console.log('[CRM] Anthropic AI ready');
+// ── Gemini AI helper ──────────────────────────────────────────────────────────
+if (process.env.GEMINI_API_KEY) {
+  console.log('[CRM] Gemini AI ready (free tier)');
 } else {
-  console.warn('[CRM] ANTHROPIC_API_KEY not set — AI drafts disabled');
+  console.warn('[CRM] GEMINI_API_KEY not set — AI drafts disabled');
+}
+
+async function callGemini(prompt, { systemPrompt = '', maxTokens = 1024, imageParts = null } = {}) {
+  const key = process.env.GEMINI_API_KEY;
+  if (!key) throw new Error('GEMINI_API_KEY not set');
+  const parts = imageParts ? [...imageParts, { text: prompt }] : [{ text: prompt }];
+  const body = {
+    contents: [{ role: 'user', parts }],
+    generationConfig: { maxOutputTokens: maxTokens },
+  };
+  if (systemPrompt) body.systemInstruction = { parts: [{ text: systemPrompt }] };
+  const r = await fetch(
+    `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${key}`,
+    { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) }
+  );
+  const data = await r.json();
+  if (!data.candidates?.[0]) throw new Error(data.error?.message || 'Gemini returned no candidates');
+  return data.candidates[0].content.parts[0].text;
 }
 
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -662,7 +677,7 @@ app.get('/api/config', (req, res) => {
     primaryColor:  workspace?.primary_color || CONFIG.primaryColor,
     twilioConfigured: !!twilioClient,
     emailConfigured:  !!mailer,
-    aiConfigured:     !!anthropic,
+    aiConfigured:     !!process.env.GEMINI_API_KEY,
   });
 });
 
@@ -787,29 +802,22 @@ app.get('/api/contacts/:id/interactions', (req, res) => {
 
 // ── AI Draft ──────────────────────────────────────────────────────────────────
 app.post('/api/ai/draft', async (req, res) => {
-  if (!anthropic) return res.status(503).json({ error: 'AI not configured. Add ANTHROPIC_API_KEY to .env' });
+  if (!process.env.GEMINI_API_KEY) return res.status(503).json({ error: 'AI not configured. Add GEMINI_API_KEY to .env' });
   const { name, business, notes = '' } = req.body;
   if (!name) return res.status(400).json({ error: 'name required' });
 
   try {
-    const msg = await anthropic.messages.create({
-      model:      'claude-haiku-4-5-20251001',
-      max_tokens: 1024,
-      system:     CONFIG.aiSystemPrompt,
-      messages:   [{
-        role:    'user',
-        content: `Generate outreach for: ${name} | Business: ${business || 'Unknown'} | Notes: ${notes || 'None'}
+    const text = (await callGemini(
+      `Generate outreach for: ${name} | Business: ${business || 'Unknown'} | Notes: ${notes || 'None'}
 
 Return ONLY valid JSON in this exact format:
 {
   "email": { "subject": "...", "body": "..." },
   "callScript": "...",
   "dm": "..."
-}`
-      }]
-    });
-
-    const text      = msg.content[0].text.trim();
+}`,
+      { systemPrompt: CONFIG.aiSystemPrompt, maxTokens: 1024 }
+    )).trim();
     const jsonMatch = text.match(/\{[\s\S]*\}/);
     if (!jsonMatch) throw new Error('No JSON in response');
     const draft = JSON.parse(jsonMatch[0]);
@@ -958,7 +966,7 @@ app.get('/api/settings', (req, res) => {
     ...s,
     emailConfigured:  !!mailer,
     twilioConfigured: !!twilioClient,
-    aiConfigured:     !!anthropic,
+    aiConfigured:     !!process.env.GEMINI_API_KEY,
   });
 });
 
@@ -1374,17 +1382,13 @@ app.patch('/api/campaigns/:id/contacts/:contactId', (req, res) => {
 
 // ── Lead Generator ────────────────────────────────────────────────────────────
 app.post('/api/leads/generate', async (req, res) => {
-  if (!anthropic) return res.status(503).json({ error: 'AI not configured. Add ANTHROPIC_API_KEY to .env' });
+  if (!process.env.GEMINI_API_KEY) return res.status(503).json({ error: 'AI not configured. Add GEMINI_API_KEY to .env' });
   const { industry, location = 'Columbia, SC', count = 20, context = '' } = req.body;
   if (!industry) return res.status(400).json({ error: 'industry required' });
 
   try {
-    const msg = await anthropic.messages.create({
-      model:      'claude-haiku-4-5-20251001',
-      max_tokens: 2048,
-      messages:   [{
-        role:    'user',
-        content: `Generate ${count} realistic small business prospect leads for a social media marketing agency.
+    const text = (await callGemini(
+      `Generate ${count} realistic small business prospect leads for a social media marketing agency.
 
 Industry/Type: ${industry}
 Location: ${location}
@@ -1401,11 +1405,9 @@ Rules:
 - Make business names authentic to the industry
 - Keep notes short (1 sentence) about their marketing pain point
 - Only include email if it would logically exist
-- Generate exactly ${count} contacts`
-      }]
-    });
-
-    const text      = msg.content[0].text.trim();
+- Generate exactly ${count} contacts`,
+      { maxTokens: 2048 }
+    )).trim();
     const jsonMatch = text.match(/\[[\s\S]*\]/);
     if (!jsonMatch) throw new Error('No JSON array in response');
     let leads;
@@ -1419,7 +1421,7 @@ Rules:
 
 // ── Photo OCR — extract contacts from screenshot ──────────────────────────────
 app.post('/api/contacts/ocr', async (req, res) => {
-  if (!anthropic) return res.status(503).json({ error: 'AI not configured. Add ANTHROPIC_API_KEY to .env' });
+  if (!process.env.GEMINI_API_KEY) return res.status(503).json({ error: 'AI not configured. Add GEMINI_API_KEY to .env' });
   const { image, mimeType = 'image/jpeg' } = req.body;
   if (!image) return res.status(400).json({ error: 'image required (base64)' });
   if (image.length > 5_000_000) return res.status(413).json({ error: 'Image too large (max 5MB)' });
@@ -1428,19 +1430,8 @@ app.post('/api/contacts/ocr', async (req, res) => {
   if (!allowed.includes(mimeType)) return res.status(400).json({ error: 'Unsupported image type' });
 
   try {
-    const msg = await anthropic.messages.create({
-      model:      'claude-haiku-4-5-20251001',
-      max_tokens: 2048,
-      messages:   [{
-        role:    'user',
-        content: [
-          {
-            type:   'image',
-            source: { type: 'base64', media_type: mimeType, data: image }
-          },
-          {
-            type: 'text',
-            text: `Extract all business contacts visible in this screenshot (from Instagram, Facebook, Google Maps, business card, etc).
+    const text = (await callGemini(
+      `Extract all business contacts visible in this screenshot (from Instagram, Facebook, Google Maps, business card, etc).
 
 Return ONLY a valid JSON array (no markdown, no explanation):
 [
@@ -1451,13 +1442,9 @@ Rules:
 - Extract every visible contact (name, phone, email, business name)
 - If a field is not visible, use empty string ""
 - If no contacts are found, return []
-- name is required — skip entries with no name`
-          }
-        ]
-      }]
-    });
-
-    const text      = msg.content[0].text.trim();
+- name is required — skip entries with no name`,
+      { maxTokens: 2048, imageParts: [{ inlineData: { mimeType, data: image } }] }
+    )).trim();
     const jsonMatch = text.match(/\[[\s\S]*\]/);
     if (!jsonMatch) return res.json({ ok: true, contacts: [] });
     let contacts;
@@ -1594,19 +1581,13 @@ app.post('/api/maintenance/submit', maintenanceLimiter, async (req, res) => {
   // AI classification — determine urgency and category
   let traffic_light = prio === 'Urgent' ? 'red' : 'yellow';
   let ai_category = '';
-  const ANTHROPIC_KEY = process.env.ANTHROPIC_API_KEY;
-  if (ANTHROPIC_KEY) {
+  if (process.env.GEMINI_API_KEY) {
     try {
-      const aiRes = await fetch('https://api.anthropic.com/v1/messages', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'x-api-key': ANTHROPIC_KEY, 'anthropic-version': '2023-06-01' },
-        body: JSON.stringify({
-          model: 'claude-haiku-4-5-20251001', max_tokens: 150,
-          messages: [{ role: 'user', content: `Classify this website maintenance request. Return JSON only: { "urgent": boolean, "category": string (e.g. "content update", "bug fix", "site down", "design change", "SEO", "security"), "summary": string (10 words max) }\n\nRequest: ${description}` }],
-        }),
-      });
-      const aiData = await aiRes.json();
-      const match = (aiData.content?.[0]?.text || '').match(/\{[\s\S]*\}/);
+      const aiText = await callGemini(
+        `Classify this website maintenance request. Return JSON only: { "urgent": boolean, "category": string (e.g. "content update", "bug fix", "site down", "design change", "SEO", "security"), "summary": string (10 words max) }\n\nRequest: ${description}`,
+        { maxTokens: 150 }
+      );
+      const match = aiText.match(/\{[\s\S]*\}/);
       if (match) {
         const parsed = JSON.parse(match[0]);
         if (parsed.urgent) traffic_light = 'red';
@@ -1763,15 +1744,10 @@ function buildICS({ summary, description, startISO, endISO, attendeeEmail, atten
 }
 
 async function generateContentBrief({ business_name, owner_name, target_audience, content_goals, primary_offer, brand_tones, brand_color, brand_notes, service_tier }) {
-  const ANTHROPIC_KEY = process.env.ANTHROPIC_API_KEY;
-  if (!ANTHROPIC_KEY) return null;
+  if (!process.env.GEMINI_API_KEY) return null;
   try {
-    const res = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'x-api-key': ANTHROPIC_KEY, 'anthropic-version': '2023-06-01' },
-      body: JSON.stringify({
-        model: 'claude-haiku-4-5-20251001', max_tokens: 1200,
-        messages: [{ role: 'user', content: `Create a 30-day content brief for a new Crown Media Group client.
+    return await callGemini(
+      `Create a 30-day content brief for a new Crown Media Group client.
 
 Business: ${business_name}
 Owner: ${owner_name}
@@ -1791,11 +1767,9 @@ Format as markdown. Include:
 5. First Reel Concept (hook, script outline, CTA)
 6. Quick Wins (3 immediate actions)
 
-Keep it specific, actionable, faith-aligned where relevant.` }],
-      }),
-    });
-    const data = await res.json();
-    return data.content?.[0]?.text || null;
+Keep it specific, actionable, faith-aligned where relevant.`,
+      { maxTokens: 1200 }
+    );
   } catch { return null; }
 }
 
@@ -2108,16 +2082,12 @@ app.put('/api/contacts/:id/stage', async (req, res) => {
 
 // ── BUILD 6: Case study auto-generator ────────────────────────────────────────
 async function generateCaseStudy(maintenanceRow) {
-  if (!anthropic) return;
+  if (!process.env.GEMINI_API_KEY) return;
   const slug = (maintenanceRow.client_name || 'client').toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
   const date = new Date().toISOString().slice(0, 10);
 
-  const msg = await anthropic.messages.create({
-    model: 'claude-haiku-4-5-20251001',
-    max_tokens: 600,
-    messages: [{
-      role: 'user',
-      content: `Write a 3-paragraph case study for Crown Media Group's portfolio.
+  const body = await callGemini(
+    `Write a 3-paragraph case study for Crown Media Group's portfolio.
 Client: ${maintenanceRow.client_name || 'A Columbia SC business'}
 Problem they reported: "${maintenanceRow.description}"
 Result: Resolved and client confirmed satisfied.
@@ -2128,10 +2098,8 @@ Format:
 **Result:** [outcome — 1-2 sentences, client happy, business improved]
 
 Keep it under 200 words. Professional, faith-forward, results-focused. Do NOT invent fake metrics.`,
-    }],
-  });
-
-  const body = msg.content[0]?.text || '';
+    { maxTokens: 600 }
+  );
   const dir  = path.join(ROOT, 'Agency/ops/docs/case-studies');
   if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
 

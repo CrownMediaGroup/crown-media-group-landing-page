@@ -65,7 +65,7 @@ jobs:
         if: ${{ !inputs.topic }}
         working-directory: landing-page
         env:
-          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
           CI: true
         run: |
           QUEUE_COUNT=$(node -e "
@@ -92,7 +92,7 @@ jobs:
         if: ${{ !inputs.topic }}
         working-directory: landing-page
         env:
-          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
           CI: true
         run: |
           echo "=== Attempt 1: from queue ==="
@@ -136,7 +136,7 @@ jobs:
         if: ${{ inputs.topic }}
         working-directory: landing-page
         env:
-          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
           CI: true
         run: |
           node scripts/blog-writer.js \
