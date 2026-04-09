@@ -123,6 +123,8 @@ CMG - Banner*.png
 *.jpeg
 *.png
 !landing-page/assets/**
+!landing-page/logo.png
+!landing-page/icons/*.png
 
 # --- Screenshot captures ---
 tools/screen/*.png
