@@ -1551,13 +1551,7 @@ async function sendResendEmail({ to, subject, html, text }) {
 }
 
 async function sendEmail({ to, subject, html, text, attachments }) {
-  if (mailer) {
-    try {
-      await mailer.sendMail({ from: `Crown Media Group <${process.env.GMAIL_USER}>`, to, subject, html, text, attachments });
-      return true;
-    } catch { /* fall through to Resend */ }
-  }
-  // Resend with attachments (base64)
+  // Resend first — verified domain, reliable delivery
   const key = process.env.RESEND_API_KEY;
   if (!key) return false;
   try {
