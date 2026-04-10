@@ -842,3 +842,64 @@ input[type="checkbox"] { width: 20px; height: 20px; cursor: pointer; accent-colo
   .reports-charts-row   { grid-template-columns: 1fr; }
   .bar-label            { width: 90px; }
 }
+
+/* ── Admin Hub ──────────────────────────────────────────────────────────────── */
+.hub-section-title {
+  font-size: .65rem;
+  font-weight: 700;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin: 28px 0 12px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--border);
+}
+.hub-section-title:first-child { margin-top: 4px; }
+.hub-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 12px;
+  margin-bottom: 4px;
+}
+.hub-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 16px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  transition: border-color .15s;
+}
+.hub-card:hover { border-color: var(--gold); }
+.hub-card-header { display: flex; align-items: center; gap: 10px; margin-bottom: 2px; }
+.hub-card-icon {
+  width: 30px;
+  height: 30px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  font-size: 1rem;
+}
+.hub-card-name { font-size: .88rem; font-weight: 700; color: var(--text); }
+.hub-card-desc { font-size: .75rem; color: var(--text-muted); line-height: 1.45; flex: 1; }
+.hub-open-btn {
+  margin-top: 10px;
+  background: var(--gold);
+  color: #000;
+  border: none;
+  padding: 6px 14px;
+  border-radius: 5px;
+  font-size: .72rem;
+  font-weight: 700;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  cursor: pointer;
+  text-decoration: none;
+  display: inline-block;
+  align-self: flex-start;
+  transition: opacity .15s;
+}
+.hub-open-btn:hover { opacity: .8; }

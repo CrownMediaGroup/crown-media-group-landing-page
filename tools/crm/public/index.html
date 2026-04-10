@@ -63,6 +63,10 @@
       <svg viewBox="0 0 24 24" fill="currentColor"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/></svg>
       SMS Inbox <span id="inboxBadge" style="display:none;background:var(--gold,#C9A84C);color:#000;border-radius:9px;font-size:.65rem;font-weight:700;padding:1px 6px;margin-left:4px;vertical-align:middle">0</span>
     </button>
+    <button class="nav-item nav-tab" data-tab="hub">
+      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M4 8h4V4H4v4zm6 12h4v-4h-4v4zm-6 0h4v-4H4v4zm0-6h4v-4H4v4zm6 0h4v-4h-4v4zm6-10v4h4V4h-4zm-6 4h4V4h-4v4zm6 6h4v-4h-4v4zm0 6h4v-4h-4v4z"/></svg>
+      Admin Hub
+    </button>
   </nav>
 
   <!-- Actions -->
@@ -450,6 +454,176 @@
         <div id="inboxReplyBar" style="padding:12px 16px;border-top:1px solid var(--border);background:var(--card);display:flex;gap:10px;align-items:flex-end">
           <textarea id="inboxReplyText" rows="2" placeholder="Type a message..." style="flex:1;resize:none;background:var(--input-bg,rgba(255,255,255,.06));border:1.5px solid var(--border);border-radius:6px;color:var(--text);padding:10px 12px;font-family:inherit;font-size:.88rem;outline:none"></textarea>
           <button class="btn btn-gold" id="inboxSendBtn" onclick="sendInboxReply()" style="height:42px;padding:0 20px;white-space:nowrap">Send</button>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+
+  <!-- ══════════════════════════════════════════════
+       ADMIN HUB TAB
+       ══════════════════════════════════════════════ -->
+  <main class="main hidden" id="tab-hub">
+    <div class="page-header">
+      <div>
+        <h2>Admin Hub</h2>
+        <p>Every tool you need — one place. Click to open in a new tab.</p>
+      </div>
+    </div>
+
+    <div style="padding:0 28px 48px">
+
+      <!-- Revenue & Payments -->
+      <div class="hub-section-title">Revenue &amp; Payments</div>
+      <div class="hub-grid">
+        <div class="hub-card">
+          <div class="hub-card-header">
+            <div class="hub-card-icon" style="background:rgba(201,168,76,.15)">💰</div>
+            <div class="hub-card-name">Orders Dashboard</div>
+          </div>
+          <div class="hub-card-desc">AI Tools page orders — logos, websites, banners. Pulls from Supabase.</div>
+          <a class="hub-open-btn" href="https://crownmediagroup.co/admin?token=fab9ee99e25485c2021590171457136a0811ce1dab2d45bd" target="_blank" rel="noopener">Open</a>
+        </div>
+        <div class="hub-card">
+          <div class="hub-card-header">
+            <div class="hub-card-icon" style="background:rgba(99,91,255,.15)">💳</div>
+            <div class="hub-card-name">Stripe Dashboard</div>
+          </div>
+          <div class="hub-card-desc">Payments, subscriptions, payouts, refunds, and customer billing.</div>
+          <a class="hub-open-btn" href="https://dashboard.stripe.com" target="_blank" rel="noopener">Open</a>
+        </div>
+      </div>
+
+      <!-- Site & Infrastructure -->
+      <div class="hub-section-title">Site &amp; Infrastructure</div>
+      <div class="hub-grid">
+        <div class="hub-card">
+          <div class="hub-card-header">
+            <div class="hub-card-icon" style="background:rgba(0,173,133,.15)">🌐</div>
+            <div class="hub-card-name">Netlify</div>
+          </div>
+          <div class="hub-card-desc">crownmediagroup.co — deploys, Netlify functions, env vars, forms.</div>
+          <a class="hub-open-btn" href="https://app.netlify.com/sites/crown-media-group" target="_blank" rel="noopener">Open</a>
+        </div>
+        <div class="hub-card">
+          <div class="hub-card-header">
+            <div class="hub-card-icon" style="background:rgba(109,40,217,.15)">🚀</div>
+            <div class="hub-card-name">Fly.io — CRM</div>
+          </div>
+          <div class="hub-card-desc">This CRM server hosting. Machines, logs, secrets, deployments.</div>
+          <a class="hub-open-btn" href="https://fly.io/apps/crown-media-crm" target="_blank" rel="noopener">Open</a>
+        </div>
+        <div class="hub-card">
+          <div class="hub-card-header">
+            <div class="hub-card-icon" style="background:rgba(247,147,26,.15)">☁️</div>
+            <div class="hub-card-name">Cloudflare</div>
+          </div>
+          <div class="hub-card-desc">crownmediagroup.co DNS, SSL certificates, and domain management.</div>
+          <a class="hub-open-btn" href="https://dash.cloudflare.com" target="_blank" rel="noopener">Open</a>
+        </div>
+        <div class="hub-card">
+          <div class="hub-card-header">
+            <div class="hub-card-icon" style="background:rgba(12,140,233,.15)">🚂</div>
+            <div class="hub-card-name">Railway</div>
+          </div>
+          <div class="hub-card-desc">Onboarding service and background workers.</div>
+          <a class="hub-open-btn" href="https://railway.app" target="_blank" rel="noopener">Open</a>
+        </div>
+      </div>
+
+      <!-- Data & Analytics -->
+      <div class="hub-section-title">Data &amp; Analytics</div>
+      <div class="hub-grid">
+        <div class="hub-card">
+          <div class="hub-card-header">
+            <div class="hub-card-icon" style="background:rgba(62,207,142,.15)">🗄️</div>
+            <div class="hub-card-name">Supabase</div>
+          </div>
+          <div class="hub-card-desc">Database — ai_orders, leads, video projects. Project: pcikjtzvruvavaduawes.</div>
+          <a class="hub-open-btn" href="https://supabase.com/dashboard/project/pcikjtzvruvavaduawes" target="_blank" rel="noopener">Open</a>
+        </div>
+        <div class="hub-card">
+          <div class="hub-card-header">
+            <div class="hub-card-icon" style="background:rgba(234,88,12,.15)">📊</div>
+            <div class="hub-card-name">Google Analytics</div>
+          </div>
+          <div class="hub-card-desc">Site traffic, conversions, user behavior for crownmediagroup.co.</div>
+          <a class="hub-open-btn" href="https://analytics.google.com" target="_blank" rel="noopener">Open</a>
+        </div>
+        <div class="hub-card">
+          <div class="hub-card-header">
+            <div class="hub-card-icon" style="background:rgba(59,130,246,.15)">🔍</div>
+            <div class="hub-card-name">Search Console</div>
+          </div>
+          <div class="hub-card-desc">Google SEO rankings, indexing status, and search impressions.</div>
+          <a class="hub-open-btn" href="https://search.google.com/search-console" target="_blank" rel="noopener">Open</a>
+        </div>
+      </div>
+
+      <!-- Communication -->
+      <div class="hub-section-title">Communication</div>
+      <div class="hub-grid">
+        <div class="hub-card">
+          <div class="hub-card-header">
+            <div class="hub-card-icon" style="background:rgba(239,68,68,.15)">📱</div>
+            <div class="hub-card-name">Twilio Console</div>
+          </div>
+          <div class="hub-card-desc">SMS — +18882772498, inbound webhooks, trial credits, toll-free verification.</div>
+          <a class="hub-open-btn" href="https://console.twilio.com" target="_blank" rel="noopener">Open</a>
+        </div>
+        <div class="hub-card">
+          <div class="hub-card-header">
+            <div class="hub-card-icon" style="background:rgba(16,185,129,.15)">✉️</div>
+            <div class="hub-card-name">Resend</div>
+          </div>
+          <div class="hub-card-desc">Transactional email delivery logs, bounce rates, open tracking.</div>
+          <a class="hub-open-btn" href="https://resend.com/emails" target="_blank" rel="noopener">Open</a>
+        </div>
+        <div class="hub-card">
+          <div class="hub-card-header">
+            <div class="hub-card-icon" style="background:rgba(234,88,12,.15)">📧</div>
+            <div class="hub-card-name">Gmail</div>
+          </div>
+          <div class="hub-card-desc">king@crownmediagroup.co inbox — client replies, Stripe receipts.</div>
+          <a class="hub-open-btn" href="https://mail.google.com" target="_blank" rel="noopener">Open</a>
+        </div>
+      </div>
+
+      <!-- Content & Growth -->
+      <div class="hub-section-title">Content &amp; Growth</div>
+      <div class="hub-grid">
+        <div class="hub-card">
+          <div class="hub-card-header">
+            <div class="hub-card-icon" style="background:rgba(31,41,55,.6)">💻</div>
+            <div class="hub-card-name">GitHub Repo</div>
+          </div>
+          <div class="hub-card-desc">All site code — every push auto-deploys to Netlify + Fly.io.</div>
+          <a class="hub-open-btn" href="https://github.com/CrownMediaGroup/crown-media-group-landing-page" target="_blank" rel="noopener">Open</a>
+        </div>
+        <div class="hub-card">
+          <div class="hub-card-header">
+            <div class="hub-card-icon" style="background:rgba(239,68,68,.15)">🎬</div>
+            <div class="hub-card-name">YouTube Studio</div>
+          </div>
+          <div class="hub-card-desc">Video management, monetization status, analytics for @CrownMediaGroupco.</div>
+          <a class="hub-open-btn" href="https://studio.youtube.com" target="_blank" rel="noopener">Open</a>
+        </div>
+        <div class="hub-card">
+          <div class="hub-card-header">
+            <div class="hub-card-icon" style="background:rgba(59,130,246,.15)">📅</div>
+            <div class="hub-card-name">Buffer</div>
+          </div>
+          <div class="hub-card-desc">Scheduled social posts — Instagram, Facebook, YouTube.</div>
+          <a class="hub-open-btn" href="https://app.buffer.com" target="_blank" rel="noopener">Open</a>
+        </div>
+        <div class="hub-card">
+          <div class="hub-card-header">
+            <div class="hub-card-icon" style="background:rgba(16,185,129,.15)">📍</div>
+            <div class="hub-card-name">Google Business</div>
+          </div>
+          <div class="hub-card-desc">GBP listing, reviews, local SEO, business hours and photos.</div>
+          <a class="hub-open-btn" href="https://business.google.com" target="_blank" rel="noopener">Open</a>
         </div>
       </div>
 
