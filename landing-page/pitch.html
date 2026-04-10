@@ -1,0 +1,1354 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Crown Media Group — Business Presentation</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;0,700;1,300;1,400&family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  /* ── RESET & BASE ── */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --gold:      #C9981A;
+    --gold-lt:   #E8B832;
+    --gold-dk:   #9A720D;
+    --gold-pale: #F5E6B8;
+    --navy:      #1A1A3E;
+    --navy-mid:  #2D2D5A;
+    --navy-dk:   #0F0F28;
+    --white:     #FFFFFF;
+    --cream:     #FDFBF7;
+    --text:      #1A1A2E;
+    --text-mid:  #4A4A6A;
+    --red-mkt:   #C0392B;
+  }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: 'Inter', sans-serif;
+    background: var(--navy-dk);
+    color: var(--white);
+    overflow-x: hidden;
+  }
+
+  /* ── SLIDE CONTAINER ── */
+  .deck {
+    height: 100vh;
+    overflow-y: scroll;
+    scroll-snap-type: y mandatory;
+    scroll-behavior: smooth;
+  }
+  .slide {
+    min-height: 100vh;
+    scroll-snap-align: start;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 60px 40px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  /* ── NAV ── */
+  .nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 100;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 14px 32px;
+    background: rgba(15,15,40,0.92);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid rgba(201,152,26,0.2);
+  }
+  .nav-logo {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--gold);
+    letter-spacing: .04em;
+  }
+  .nav-controls {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .slide-counter {
+    font-size: .8rem;
+    color: rgba(255,255,255,0.5);
+    font-weight: 500;
+    min-width: 44px;
+    text-align: center;
+  }
+  .nav-btn {
+    background: rgba(201,152,26,0.15);
+    border: 1px solid rgba(201,152,26,0.4);
+    color: var(--gold);
+    width: 32px; height: 32px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 1rem;
+    display: flex; align-items: center; justify-content: center;
+    transition: all .2s;
+  }
+  .nav-btn:hover { background: var(--gold); color: var(--navy-dk); }
+  .print-btn {
+    background: var(--gold);
+    color: var(--navy-dk);
+    border: none;
+    padding: 6px 16px;
+    border-radius: 6px;
+    font-size: .78rem;
+    font-weight: 700;
+    cursor: pointer;
+    letter-spacing: .04em;
+    transition: all .2s;
+    margin-left: 8px;
+  }
+  .print-btn:hover { background: var(--gold-lt); }
+
+  /* ── TYPOGRAPHY ── */
+  h1, h2, h3 { font-family: 'Cormorant Garamond', serif; line-height: 1.1; }
+  h1 { font-size: clamp(2.4rem, 6vw, 4.5rem); font-weight: 700; }
+  h2 { font-size: clamp(1.8rem, 4vw, 3rem); font-weight: 600; }
+  h3 { font-size: clamp(1.2rem, 2.5vw, 1.8rem); font-weight: 600; }
+  .gold { color: var(--gold); }
+  .muted { color: rgba(255,255,255,0.55); }
+
+  /* ── SLIDE 1 — HERO ── */
+  #s1 {
+    background: radial-gradient(ellipse at 30% 60%, rgba(201,152,26,0.12) 0%, transparent 60%),
+                radial-gradient(ellipse at 80% 20%, rgba(45,45,90,0.8) 0%, transparent 60%),
+                var(--navy-dk);
+    text-align: center;
+  }
+  #s1::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23C9981A' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+    pointer-events: none;
+  }
+  .hero-eyebrow {
+    font-size: .75rem;
+    font-weight: 700;
+    letter-spacing: .2em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 20px;
+    opacity: 0.85;
+  }
+  .hero-title { margin-bottom: 16px; }
+  .hero-sub {
+    font-size: clamp(.95rem, 2vw, 1.2rem);
+    color: rgba(255,255,255,0.7);
+    max-width: 580px;
+    margin: 0 auto 40px;
+    line-height: 1.65;
+    font-weight: 300;
+  }
+  .hero-cta {
+    display: inline-block;
+    background: var(--gold);
+    color: var(--navy-dk);
+    text-decoration: none;
+    padding: 14px 36px;
+    border-radius: 8px;
+    font-weight: 700;
+    font-size: 1rem;
+    letter-spacing: .02em;
+    transition: all .25s;
+    margin-bottom: 20px;
+  }
+  .hero-cta:hover { background: var(--gold-lt); transform: translateY(-2px); box-shadow: 0 8px 32px rgba(201,152,26,0.35); }
+  .hero-footnote {
+    font-size: .78rem;
+    color: rgba(255,255,255,0.35);
+    letter-spacing: .05em;
+    margin-top: 8px;
+  }
+  .hero-tagline {
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-size: 1.05rem;
+    color: rgba(201,152,26,0.7);
+    margin-top: 28px;
+  }
+
+  /* ── SLIDE 2 — THE REALITY ── */
+  #s2 { background: var(--navy); }
+  .reality-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 40px;
+    max-width: 900px;
+    width: 100%;
+    margin-top: 40px;
+  }
+  .reality-col {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 16px;
+    padding: 32px;
+  }
+  .reality-col.ours {
+    background: rgba(201,152,26,0.08);
+    border-color: rgba(201,152,26,0.3);
+  }
+  .reality-label {
+    font-size: .7rem;
+    font-weight: 700;
+    letter-spacing: .18em;
+    text-transform: uppercase;
+    margin-bottom: 20px;
+  }
+  .reality-label.them { color: rgba(255,255,255,0.4); }
+  .reality-label.us { color: var(--gold); }
+  .reality-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    padding: 10px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+    font-size: .92rem;
+  }
+  .reality-item:last-child { border-bottom: none; }
+  .reality-service { color: rgba(255,255,255,0.65); font-weight: 400; }
+  .reality-price.them { color: #ff6b6b; font-weight: 600; font-size: .88rem; }
+  .reality-price.us { color: var(--gold-lt); font-weight: 700; font-size: 1rem; }
+  .reality-note {
+    font-size: .78rem;
+    color: rgba(255,255,255,0.35);
+    margin-top: 20px;
+    font-style: italic;
+  }
+  .slide-headline { text-align: center; max-width: 700px; }
+  .slide-headline p {
+    font-size: clamp(.9rem, 1.8vw, 1.05rem);
+    color: rgba(255,255,255,0.6);
+    margin-top: 12px;
+    line-height: 1.65;
+    font-weight: 300;
+  }
+
+  /* ── SLIDE 3 — SERVICES ── */
+  #s3 { background: var(--navy-dk); }
+  .services-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    max-width: 960px;
+    width: 100%;
+    margin-top: 36px;
+  }
+  .service-card {
+    background: rgba(45,45,90,0.5);
+    border: 1px solid rgba(201,152,26,0.15);
+    border-radius: 14px;
+    padding: 24px 20px;
+    transition: all .25s;
+    cursor: default;
+  }
+  .service-card:hover {
+    background: rgba(201,152,26,0.08);
+    border-color: rgba(201,152,26,0.4);
+    transform: translateY(-3px);
+  }
+  .service-icon {
+    font-size: 1.8rem;
+    margin-bottom: 12px;
+    display: block;
+  }
+  .service-name {
+    font-size: .9rem;
+    font-weight: 700;
+    color: var(--white);
+    margin-bottom: 6px;
+  }
+  .service-price {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: var(--gold);
+  }
+  .service-cadence {
+    font-size: .72rem;
+    color: rgba(255,255,255,0.4);
+    margin-top: 2px;
+  }
+
+  /* ── SLIDE 4 — PRICE COMPARISON ── */
+  #s4 { background: var(--navy); }
+  .compare-table {
+    max-width: 860px;
+    width: 100%;
+    margin-top: 36px;
+    border-collapse: collapse;
+    border-radius: 16px;
+    overflow: hidden;
+  }
+  .compare-table thead tr {
+    background: rgba(255,255,255,0.04);
+  }
+  .compare-table th {
+    padding: 16px 20px;
+    font-size: .72rem;
+    font-weight: 700;
+    letter-spacing: .14em;
+    text-transform: uppercase;
+    text-align: left;
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+  }
+  .compare-table th.col-agency { color: rgba(255,100,100,0.8); }
+  .compare-table th.col-free { color: rgba(255,255,255,0.4); }
+  .compare-table th.col-us { color: var(--gold); text-align: right; }
+  .compare-table tbody tr {
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+    transition: background .15s;
+  }
+  .compare-table tbody tr:hover { background: rgba(201,152,26,0.05); }
+  .compare-table tbody tr:last-child { border-bottom: none; }
+  .compare-table td {
+    padding: 14px 20px;
+    font-size: .9rem;
+    vertical-align: middle;
+  }
+  .col-service { color: rgba(255,255,255,0.8); font-weight: 500; }
+  .col-agency { color: #ff8080; font-size: .85rem; text-decoration: line-through; opacity: .75; }
+  .col-free { color: rgba(255,255,255,0.4); font-size: .85rem; text-decoration: line-through; opacity: .6; }
+  .col-us { color: var(--gold-lt); font-weight: 800; font-size: 1.05rem; text-align: right; }
+  .savings-badge {
+    display: inline-block;
+    background: rgba(201,152,26,0.15);
+    border: 1px solid rgba(201,152,26,0.3);
+    color: var(--gold);
+    font-size: .68rem;
+    font-weight: 700;
+    padding: 3px 8px;
+    border-radius: 20px;
+    letter-spacing: .06em;
+    margin-left: 8px;
+    vertical-align: middle;
+  }
+
+  /* ── SLIDE 5 — PACKAGES ── */
+  #s5 { background: var(--navy-dk); }
+  .packages-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+    max-width: 960px;
+    width: 100%;
+    margin-top: 36px;
+  }
+  .pkg-card {
+    background: rgba(45,45,90,0.4);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 18px;
+    padding: 32px 28px;
+    transition: all .25s;
+  }
+  .pkg-card.featured {
+    background: rgba(201,152,26,0.1);
+    border: 2px solid var(--gold);
+    position: relative;
+  }
+  .pkg-badge {
+    position: absolute;
+    top: -13px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--gold);
+    color: var(--navy-dk);
+    font-size: .68rem;
+    font-weight: 800;
+    padding: 4px 14px;
+    border-radius: 20px;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+  .pkg-tier {
+    font-size: .7rem;
+    font-weight: 700;
+    letter-spacing: .16em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 8px;
+  }
+  .pkg-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.6rem;
+    font-weight: 700;
+    color: var(--white);
+    margin-bottom: 6px;
+  }
+  .pkg-price {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 2.2rem;
+    font-weight: 700;
+    color: var(--gold-lt);
+    margin-bottom: 4px;
+  }
+  .pkg-cadence {
+    font-size: .75rem;
+    color: rgba(255,255,255,0.4);
+    margin-bottom: 20px;
+  }
+  .pkg-divider {
+    height: 1px;
+    background: rgba(255,255,255,0.08);
+    margin-bottom: 20px;
+  }
+  .pkg-feature {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    font-size: .87rem;
+    color: rgba(255,255,255,0.75);
+    margin-bottom: 10px;
+    line-height: 1.4;
+  }
+  .pkg-feature::before {
+    content: '✓';
+    color: var(--gold);
+    font-weight: 700;
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+  .classmate-pill {
+    display: inline-block;
+    background: rgba(201,152,26,0.2);
+    border: 1px solid rgba(201,152,26,0.4);
+    color: var(--gold-lt);
+    font-size: .72rem;
+    font-weight: 700;
+    padding: 4px 12px;
+    border-radius: 20px;
+    margin-top: 16px;
+    letter-spacing: .06em;
+  }
+
+  /* ── SLIDE 6 — CUSTOM PACKAGE (editable) ── */
+  #s6 { background: var(--navy); }
+  .custom-box {
+    max-width: 720px;
+    width: 100%;
+    background: rgba(201,152,26,0.06);
+    border: 2px solid rgba(201,152,26,0.25);
+    border-radius: 20px;
+    padding: 44px 48px;
+    margin-top: 32px;
+  }
+  .custom-greeting {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.5rem;
+    font-style: italic;
+    color: rgba(255,255,255,0.7);
+    margin-bottom: 24px;
+  }
+  .custom-greeting span {
+    color: var(--gold-lt);
+    font-style: normal;
+    font-weight: 700;
+  }
+  .custom-field-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 14px;
+  }
+  .custom-check {
+    color: var(--gold);
+    font-size: 1.1rem;
+    flex-shrink: 0;
+  }
+  .custom-input {
+    background: transparent;
+    border: none;
+    border-bottom: 1px dashed rgba(201,152,26,0.4);
+    color: var(--white);
+    font-size: 1rem;
+    font-family: 'Inter', sans-serif;
+    font-weight: 500;
+    padding: 4px 0;
+    outline: none;
+    flex: 1;
+    min-width: 0;
+  }
+  .custom-input::placeholder { color: rgba(255,255,255,0.25); font-style: italic; }
+  .custom-price-input {
+    background: rgba(201,152,26,0.1);
+    border: 1px solid rgba(201,152,26,0.3);
+    border-radius: 6px;
+    color: var(--gold-lt);
+    font-size: .95rem;
+    font-weight: 700;
+    font-family: 'Inter', sans-serif;
+    padding: 4px 10px;
+    outline: none;
+    width: 100px;
+    text-align: right;
+  }
+  .custom-price-input::placeholder { color: rgba(201,152,26,0.3); }
+  .custom-divider { height: 1px; background: rgba(255,255,255,0.07); margin: 24px 0; }
+  .custom-totals {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+  .custom-total-box {
+    background: rgba(255,255,255,0.04);
+    border-radius: 10px;
+    padding: 16px;
+    text-align: center;
+  }
+  .custom-total-box.highlight {
+    background: rgba(201,152,26,0.12);
+    border: 1px solid rgba(201,152,26,0.25);
+  }
+  .custom-total-label { font-size: .7rem; letter-spacing: .1em; text-transform: uppercase; color: rgba(255,255,255,0.4); margin-bottom: 6px; }
+  .custom-total-val {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.8rem;
+    font-weight: 700;
+  }
+  .custom-total-val.their { color: #ff8080; text-decoration: line-through; font-size: 1.4rem; opacity: .7; }
+  .custom-total-val.ours { color: var(--gold-lt); }
+  .custom-note { font-size: .78rem; color: rgba(255,255,255,0.35); margin-top: 8px; }
+  .custom-name-row {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 28px;
+  }
+  .custom-name-input {
+    background: transparent;
+    border: none;
+    border-bottom: 2px solid rgba(201,152,26,0.5);
+    color: var(--gold-lt);
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.6rem;
+    font-weight: 700;
+    outline: none;
+    flex: 1;
+    padding: 4px 0;
+  }
+  .custom-name-input::placeholder { color: rgba(201,152,26,0.25); }
+
+  /* ── SLIDE 7 — PROOF ── */
+  #s7 { background: var(--navy-dk); }
+  .proof-card {
+    max-width: 760px;
+    width: 100%;
+    background: rgba(45,45,90,0.5);
+    border: 1px solid rgba(201,152,26,0.2);
+    border-radius: 20px;
+    padding: 44px 48px;
+    margin-top: 32px;
+  }
+  .proof-client-label {
+    font-size: .7rem;
+    font-weight: 700;
+    letter-spacing: .18em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 12px;
+  }
+  .proof-client-name {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 2.2rem;
+    font-weight: 700;
+    margin-bottom: 4px;
+  }
+  .proof-client-biz {
+    font-size: .9rem;
+    color: rgba(255,255,255,0.5);
+    margin-bottom: 32px;
+  }
+  .proof-before-after {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+    margin-bottom: 32px;
+  }
+  .ba-box {
+    background: rgba(255,255,255,0.04);
+    border-radius: 12px;
+    padding: 20px;
+  }
+  .ba-label {
+    font-size: .68rem;
+    font-weight: 700;
+    letter-spacing: .14em;
+    text-transform: uppercase;
+    margin-bottom: 12px;
+  }
+  .ba-label.before { color: #ff8080; }
+  .ba-label.after { color: #6fcf97; }
+  .ba-item {
+    font-size: .87rem;
+    color: rgba(255,255,255,0.65);
+    margin-bottom: 8px;
+    padding-left: 16px;
+    position: relative;
+  }
+  .ba-item::before { content: '–'; position: absolute; left: 0; }
+  .ba-item.after::before { content: '✓'; color: #6fcf97; }
+  .proof-quote {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.4rem;
+    font-style: italic;
+    color: rgba(255,255,255,0.8);
+    border-left: 3px solid var(--gold);
+    padding-left: 20px;
+    line-height: 1.5;
+  }
+  .proof-metrics {
+    display: flex;
+    gap: 24px;
+    margin-top: 28px;
+  }
+  .proof-metric {
+    text-align: center;
+    flex: 1;
+    background: rgba(201,152,26,0.08);
+    border-radius: 10px;
+    padding: 14px;
+  }
+  .proof-metric-val {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: var(--gold-lt);
+  }
+  .proof-metric-label { font-size: .72rem; color: rgba(255,255,255,0.4); margin-top: 4px; }
+
+  /* ── SLIDE 8 — WHO ── */
+  #s8 { background: var(--navy); }
+  .who-card {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 48px;
+    max-width: 840px;
+    width: 100%;
+    align-items: center;
+    margin-top: 32px;
+  }
+  .who-avatar {
+    width: 160px;
+    height: 160px;
+    border-radius: 50%;
+    background: radial-gradient(circle at 40% 40%, var(--navy-mid), var(--navy-dk));
+    border: 3px solid var(--gold);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 3.5rem;
+    font-weight: 700;
+    color: var(--gold);
+    flex-shrink: 0;
+  }
+  .who-name {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 2.4rem;
+    font-weight: 700;
+    margin-bottom: 4px;
+  }
+  .who-title {
+    font-size: .88rem;
+    color: var(--gold);
+    font-weight: 600;
+    letter-spacing: .06em;
+    margin-bottom: 20px;
+  }
+  .who-pills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 20px;
+  }
+  .who-pill {
+    background: rgba(255,255,255,0.07);
+    border: 1px solid rgba(255,255,255,0.12);
+    color: rgba(255,255,255,0.75);
+    font-size: .78rem;
+    font-weight: 500;
+    padding: 5px 12px;
+    border-radius: 20px;
+  }
+  .who-bio {
+    font-size: .92rem;
+    color: rgba(255,255,255,0.6);
+    line-height: 1.7;
+    margin-bottom: 16px;
+  }
+  .who-verse {
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-size: 1.05rem;
+    color: rgba(201,152,26,0.7);
+    border-top: 1px solid rgba(201,152,26,0.15);
+    padding-top: 16px;
+  }
+
+  /* ── SLIDE 9 — CLASSMATE OFFER ── */
+  #s9 { background: var(--navy-dk); }
+  .offer-box {
+    max-width: 760px;
+    width: 100%;
+    text-align: center;
+    margin-top: 32px;
+  }
+  .offer-badge {
+    display: inline-block;
+    background: var(--gold);
+    color: var(--navy-dk);
+    font-size: .72rem;
+    font-weight: 800;
+    padding: 6px 18px;
+    border-radius: 20px;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    margin-bottom: 28px;
+  }
+  .offer-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    margin-top: 28px;
+    margin-bottom: 36px;
+  }
+  .offer-item {
+    background: rgba(201,152,26,0.07);
+    border: 1px solid rgba(201,152,26,0.2);
+    border-radius: 14px;
+    padding: 24px 20px;
+  }
+  .offer-item-name { font-size: .78rem; color: rgba(255,255,255,0.5); margin-bottom: 8px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; }
+  .offer-item-price {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--gold-lt);
+  }
+  .offer-item-was { font-size: .78rem; color: rgba(255,100,100,0.6); text-decoration: line-through; margin-top: 4px; }
+  .offer-guarantee {
+    background: rgba(255,255,255,0.04);
+    border-radius: 12px;
+    padding: 20px 28px;
+    font-size: .92rem;
+    color: rgba(255,255,255,0.6);
+    line-height: 1.65;
+  }
+  .offer-guarantee strong { color: var(--white); }
+
+  /* ── SLIDE 10 — CTA ── */
+  #s10 {
+    background: radial-gradient(ellipse at 50% 40%, rgba(201,152,26,0.18) 0%, transparent 65%),
+                var(--navy-dk);
+    text-align: center;
+  }
+  .cta-sub {
+    font-size: clamp(.95rem, 2vw, 1.15rem);
+    color: rgba(255,255,255,0.55);
+    max-width: 500px;
+    margin: 16px auto 40px;
+    line-height: 1.65;
+    font-weight: 300;
+  }
+  .cta-buttons {
+    display: flex;
+    gap: 16px;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-bottom: 48px;
+  }
+  .cta-btn-primary {
+    display: inline-block;
+    background: var(--gold);
+    color: var(--navy-dk);
+    text-decoration: none;
+    padding: 16px 40px;
+    border-radius: 8px;
+    font-weight: 800;
+    font-size: 1rem;
+    letter-spacing: .03em;
+    transition: all .25s;
+  }
+  .cta-btn-primary:hover { background: var(--gold-lt); transform: translateY(-2px); box-shadow: 0 8px 32px rgba(201,152,26,0.35); }
+  .cta-btn-secondary {
+    display: inline-block;
+    border: 2px solid rgba(201,152,26,0.4);
+    color: var(--gold);
+    text-decoration: none;
+    padding: 14px 36px;
+    border-radius: 8px;
+    font-weight: 700;
+    font-size: 1rem;
+    transition: all .25s;
+  }
+  .cta-btn-secondary:hover { border-color: var(--gold); background: rgba(201,152,26,0.08); }
+  .cta-contact-grid {
+    display: flex;
+    gap: 32px;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-bottom: 48px;
+  }
+  .cta-contact-item { text-align: center; }
+  .cta-contact-label { font-size: .68rem; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; color: rgba(255,255,255,0.35); margin-bottom: 6px; }
+  .cta-contact-val { font-size: .95rem; color: rgba(255,255,255,0.8); font-weight: 500; }
+  .cta-tagline {
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-size: 1.2rem;
+    color: rgba(201,152,26,0.6);
+  }
+
+  /* ── PRINT STYLES ── */
+  @media print {
+    body { background: white; color: #111; }
+    .nav { display: none; }
+    .deck {
+      height: auto;
+      overflow: visible;
+    }
+    .slide {
+      min-height: 100vh;
+      page-break-after: always;
+      scroll-snap-align: none;
+      background: white !important;
+      color: #111 !important;
+      border-bottom: 2px solid #C9981A;
+    }
+    .slide:last-child { page-break-after: auto; }
+    h1, h2, h3 { color: #1A1A3E !important; }
+    .gold { color: #9A720D !important; }
+    .muted { color: #666 !important; }
+    .reality-col { border: 2px solid #ddd; background: #fafafa; }
+    .reality-col.ours { background: #fffbf0; border-color: #C9981A; }
+    .service-card { border: 1px solid #C9981A; background: #fffbf0; }
+    .compare-table th, .compare-table td { color: #111 !important; }
+    .col-us { color: #9A720D !important; }
+    .col-agency { color: #c0392b !important; }
+    .pkg-card { border: 1px solid #ddd; background: #fafafa; }
+    .pkg-card.featured { border: 2px solid #C9981A; background: #fffbf0; }
+    .custom-box, .proof-card, .offer-box { background: #fafafa; border: 1px solid #C9981A; }
+    .hero-cta, .cta-btn-primary { background: #1A1A3E !important; color: white !important; }
+    * { box-shadow: none !important; }
+    .print-btn { display: none; }
+  }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 768px) {
+    .slide { padding: 80px 20px 40px; }
+    .reality-grid { grid-template-columns: 1fr; gap: 16px; }
+    .services-grid { grid-template-columns: repeat(2, 1fr); }
+    .packages-grid { grid-template-columns: 1fr; }
+    .compare-table { font-size: .78rem; }
+    .compare-table th, .compare-table td { padding: 10px 12px; }
+    .who-card { grid-template-columns: 1fr; text-align: center; }
+    .who-avatar { margin: 0 auto; }
+    .who-pills { justify-content: center; }
+    .offer-grid { grid-template-columns: 1fr; }
+    .custom-box { padding: 28px 20px; }
+    .proof-before-after { grid-template-columns: 1fr; }
+    .proof-metrics { flex-direction: column; }
+    .custom-name-row { flex-direction: column; }
+  }
+  @media (max-width: 480px) {
+    .services-grid { grid-template-columns: 1fr; }
+    .cta-contact-grid { flex-direction: column; gap: 16px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ── NAVIGATION ── -->
+<nav class="nav">
+  <div class="nav-logo">Crown Media Group</div>
+  <div class="nav-controls">
+    <button class="nav-btn" id="prevBtn" onclick="navigate(-1)">&#8593;</button>
+    <div class="slide-counter" id="counter">1 / 10</div>
+    <button class="nav-btn" id="nextBtn" onclick="navigate(1)">&#8595;</button>
+    <button class="print-btn" onclick="window.print()">Save as PDF</button>
+  </div>
+</nav>
+
+<!-- ── DECK ── -->
+<div class="deck" id="deck">
+
+  <!-- SLIDE 1: HERO -->
+  <section class="slide" id="s1">
+    <div class="hero-eyebrow">Crown Media Group &nbsp;·&nbsp; Columbia, SC</div>
+    <h1 class="hero-title">
+      AI-Powered Business Tools<br>
+      <span class="gold">Built for Columbia.</span>
+    </h1>
+    <p class="hero-sub">
+      Your logo, website, and marketing — done for you, fast,
+      and at prices your competitors can't believe.
+    </p>
+    <a href="https://crownmediagroup.co" target="_blank" class="hero-cta">Get Started at crownmediagroup.co</a>
+    <div class="hero-footnote">No long-term contracts &nbsp;·&nbsp; Not happy? Fixed or refunded.</div>
+    <div class="hero-tagline">"All Glory to Jesus"</div>
+  </section>
+
+  <!-- SLIDE 2: THE REALITY -->
+  <section class="slide" id="s2">
+    <div class="slide-headline">
+      <h2>Columbia Businesses Are <span class="gold">Being Overcharged.</span></h2>
+      <p>The same work that costs thousands at a local agency — we do for a fraction of the price. Same quality. No middleman. No corporate markup.</p>
+    </div>
+    <div class="reality-grid">
+      <div class="reality-col">
+        <div class="reality-label them">What Columbia Agencies Charge</div>
+        <div class="reality-item">
+          <span class="reality-service">Logo Design</span>
+          <span class="reality-price them">$500 – $2,000</span>
+        </div>
+        <div class="reality-item">
+          <span class="reality-service">Website</span>
+          <span class="reality-price them">$3,000 – $10,000</span>
+        </div>
+        <div class="reality-item">
+          <span class="reality-service">Social Media Mgmt</span>
+          <span class="reality-price them">$1,500 – $5,000/mo</span>
+        </div>
+        <div class="reality-item">
+          <span class="reality-service">CRM / Lead System</span>
+          <span class="reality-price them">$300 – $800/mo</span>
+        </div>
+        <div class="reality-item">
+          <span class="reality-service">Full Branding Package</span>
+          <span class="reality-price them">$5,000 – $15,000</span>
+        </div>
+        <div class="reality-note">Source: Average Columbia SC agency quotes, 2025–2026</div>
+      </div>
+      <div class="reality-col ours">
+        <div class="reality-label us">Crown Media Group</div>
+        <div class="reality-item">
+          <span class="reality-service">Logo Design</span>
+          <span class="reality-price us">$97</span>
+        </div>
+        <div class="reality-item">
+          <span class="reality-service">Website</span>
+          <span class="reality-price us">$197</span>
+        </div>
+        <div class="reality-item">
+          <span class="reality-service">Social Media Mgmt</span>
+          <span class="reality-price us">from $350/mo</span>
+        </div>
+        <div class="reality-item">
+          <span class="reality-service">CRM / Lead System</span>
+          <span class="reality-price us">$97/mo</span>
+        </div>
+        <div class="reality-item">
+          <span class="reality-service">Full Launch Package</span>
+          <span class="reality-price us">from $350</span>
+        </div>
+        <div class="reality-note">You own everything we build. Files delivered to your inbox.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SLIDE 3: SERVICES -->
+  <section class="slide" id="s3">
+    <div class="slide-headline">
+      <h2>Everything Your Business <span class="gold">Needs to Grow.</span></h2>
+      <p>Eight core services — all AI-powered, all delivered fast, all at prices built for small businesses like yours.</p>
+    </div>
+    <div class="services-grid">
+      <div class="service-card">
+        <span class="service-icon">🎨</span>
+        <div class="service-name">AI Logo Design</div>
+        <div class="service-price">$97</div>
+        <div class="service-cadence">4 options · delivered in 24 hrs · you own the files</div>
+      </div>
+      <div class="service-card">
+        <span class="service-icon">🌐</span>
+        <div class="service-name">Website Build</div>
+        <div class="service-price">$197</div>
+        <div class="service-cadence">professional · mobile-first · built in 48 hrs</div>
+      </div>
+      <div class="service-card">
+        <span class="service-icon">📱</span>
+        <div class="service-name">Social Media Mgmt</div>
+        <div class="service-price">from $350<span style="font-size:.9rem;font-weight:400">/mo</span></div>
+        <div class="service-cadence">posts · reels · calendar · strategy</div>
+      </div>
+      <div class="service-card">
+        <span class="service-icon">📊</span>
+        <div class="service-name">CRM & Lead System</div>
+        <div class="service-price">$97<span style="font-size:.9rem;font-weight:400">/mo</span></div>
+        <div class="service-cadence">track leads · auto follow-up · SMS + email</div>
+      </div>
+      <div class="service-card">
+        <span class="service-icon">📣</span>
+        <div class="service-name">Social Ads</div>
+        <div class="service-price">Custom</div>
+        <div class="service-cadence">Meta + Google · targeted to your customers</div>
+      </div>
+      <div class="service-card">
+        <span class="service-icon">🖼️</span>
+        <div class="service-name">Banners & Graphics</div>
+        <div class="service-price">from $47</div>
+        <div class="service-cadence">branded · print & digital ready</div>
+      </div>
+      <div class="service-card">
+        <span class="service-icon">✍️</span>
+        <div class="service-name">Auto-Blogger</div>
+        <div class="service-price">Included</div>
+        <div class="service-cadence">AI-written blogs for your business every week</div>
+      </div>
+      <div class="service-card">
+        <span class="service-icon">📱</span>
+        <div class="service-name">App Development</div>
+        <div class="service-price">Custom</div>
+        <div class="service-cadence">custom-scoped · mobile-first · AI-assisted</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SLIDE 4: PRICE COMPARISON -->
+  <section class="slide" id="s4">
+    <div class="slide-headline">
+      <h2>The Numbers <span class="gold">Don't Lie.</span></h2>
+      <p>Here's what you'd pay elsewhere in Columbia SC — and what you pay with Crown Media Group.</p>
+    </div>
+    <table class="compare-table">
+      <thead>
+        <tr>
+          <th>Service</th>
+          <th class="col-agency">Columbia Agency</th>
+          <th class="col-free">Freelancer</th>
+          <th class="col-us">Crown Media Group</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="col-service">Logo Design</td>
+          <td class="col-agency">$500 – $2,000</td>
+          <td class="col-free">$300 – $800</td>
+          <td class="col-us">$97 <span class="savings-badge">up to 95% off</span></td>
+        </tr>
+        <tr>
+          <td class="col-service">Website (5-page)</td>
+          <td class="col-agency">$3,000 – $10,000</td>
+          <td class="col-free">$800 – $2,500</td>
+          <td class="col-us">$197 <span class="savings-badge">up to 98% off</span></td>
+        </tr>
+        <tr>
+          <td class="col-service">Social Media (monthly)</td>
+          <td class="col-agency">$1,500 – $5,000</td>
+          <td class="col-free">$600 – $1,500</td>
+          <td class="col-us">from $350 <span class="savings-badge">76% less</span></td>
+        </tr>
+        <tr>
+          <td class="col-service">CRM / Lead System</td>
+          <td class="col-agency">$300 – $800/mo</td>
+          <td class="col-free">N/A</td>
+          <td class="col-us">$97/mo <span class="savings-badge">up to 88% off</span></td>
+        </tr>
+        <tr>
+          <td class="col-service">Logo + Website Bundle</td>
+          <td class="col-agency">$5,000 – $12,000</td>
+          <td class="col-free">$1,500 – $3,500</td>
+          <td class="col-us">$250 <span class="savings-badge">up to 97% off</span></td>
+        </tr>
+        <tr>
+          <td class="col-service">Full Growth Package</td>
+          <td class="col-agency">$3,000 – $8,000/mo</td>
+          <td class="col-free">$1,200 – $2,500/mo</td>
+          <td class="col-us">from $447/mo <span class="savings-badge">85% less</span></td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- SLIDE 5: PACKAGES -->
+  <section class="slide" id="s5">
+    <div class="slide-headline">
+      <h2>We Meet You <span class="gold">Where You Are.</span></h2>
+      <p>Whether you're just getting started or ready to go full throttle — we have a package that fits your budget and your goals.</p>
+    </div>
+    <div class="packages-grid">
+      <div class="pkg-card">
+        <div class="pkg-tier">Getting Started</div>
+        <div class="pkg-title">Presence</div>
+        <div class="pkg-price">$97 – $250</div>
+        <div class="pkg-cadence">one-time · you own it forever</div>
+        <div class="pkg-divider"></div>
+        <div class="pkg-feature">Professional logo (4 options, pick your favorite)</div>
+        <div class="pkg-feature">5-page business website, mobile-ready</div>
+        <div class="pkg-feature">Delivered to your inbox in 24–48 hours</div>
+        <div class="pkg-feature">Files are yours — use them anywhere, forever</div>
+        <div class="classmate-pill">Classmate Bundle: $250 (save $44)</div>
+      </div>
+      <div class="pkg-card featured">
+        <div class="pkg-badge">Most Popular</div>
+        <div class="pkg-tier">Ready to Grow</div>
+        <div class="pkg-title">Starter Social</div>
+        <div class="pkg-price">$350<span style="font-size:1rem;font-weight:400">/mo</span></div>
+        <div class="pkg-cadence">monthly · no long-term contract</div>
+        <div class="pkg-divider"></div>
+        <div class="pkg-feature">8 custom branded posts per month</div>
+        <div class="pkg-feature">1 Reel script (you just press record)</div>
+        <div class="pkg-feature">30-day content calendar — always know what to post</div>
+        <div class="pkg-feature">Monthly strategy check-in with King</div>
+        <div class="pkg-feature">Branded to your business, not generic templates</div>
+        <div class="classmate-pill">Classmate Rate: First month $200</div>
+      </div>
+      <div class="pkg-card">
+        <div class="pkg-tier">Full Launch</div>
+        <div class="pkg-title">Growth System</div>
+        <div class="pkg-price">from $447<span style="font-size:1rem;font-weight:400">/mo</span></div>
+        <div class="pkg-cadence">monthly · scales with your business</div>
+        <div class="pkg-divider"></div>
+        <div class="pkg-feature">Everything in Starter Social</div>
+        <div class="pkg-feature">CRM + lead management ($97/mo value)</div>
+        <div class="pkg-feature">Automated SMS + email follow-up system</div>
+        <div class="pkg-feature">Paid ad strategy (Meta + Google)</div>
+        <div class="pkg-feature">Custom scoped to your industry and goals</div>
+        <div class="classmate-pill">Custom quote — we'll build it on the call</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SLIDE 6: CUSTOM PACKAGE (EDITABLE LIVE) -->
+  <section class="slide" id="s6">
+    <div class="slide-headline">
+      <h2>Built <span class="gold">For You.</span> Specifically.</h2>
+      <p>Here's what I'd build for your business — priced to your budget, scoped to your goals.</p>
+    </div>
+    <div class="custom-box">
+      <div class="custom-name-row">
+        <input class="custom-name-input" id="clientName" placeholder="Client Name" maxlength="40">
+        <input class="custom-name-input" id="clientBiz" placeholder="Business Name" maxlength="50" style="color:rgba(255,255,255,0.7)">
+      </div>
+      <div class="custom-field-row">
+        <span class="custom-check">✓</span>
+        <input class="custom-input" placeholder="Service (e.g. Social Media Starter)" maxlength="60">
+        <input class="custom-price-input" placeholder="$0/mo">
+      </div>
+      <div class="custom-field-row">
+        <span class="custom-check">✓</span>
+        <input class="custom-input" placeholder="Service (e.g. Website Build)" maxlength="60">
+        <input class="custom-price-input" placeholder="$0">
+      </div>
+      <div class="custom-field-row">
+        <span class="custom-check">✓</span>
+        <input class="custom-input" placeholder="Service (e.g. CRM + Lead System)" maxlength="60">
+        <input class="custom-price-input" placeholder="$0/mo">
+      </div>
+      <div class="custom-field-row">
+        <span class="custom-check" style="color:rgba(201,152,26,0.3)">+</span>
+        <input class="custom-input" placeholder="Add another service..." maxlength="60">
+        <input class="custom-price-input" placeholder="$0">
+      </div>
+      <div class="custom-divider"></div>
+      <div class="custom-totals">
+        <div class="custom-total-box">
+          <div class="custom-total-label">Columbia Agency Would Charge</div>
+          <input class="custom-price-input custom-total-val their" id="marketTotal" placeholder="$0" style="width:100%;text-align:center;font-size:1.6rem;border:none;background:transparent;color:#ff8080;text-decoration:line-through;opacity:.7">
+          <div class="custom-note">avg. local agency quote</div>
+        </div>
+        <div class="custom-total-box highlight">
+          <div class="custom-total-label">Your Crown Media Price</div>
+          <input class="custom-price-input custom-total-val ours" id="ourTotal" placeholder="$0" style="width:100%;text-align:center;font-size:2rem;border:none;background:transparent;color:var(--gold-lt)">
+          <div class="custom-note">classmate rate · no contract</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SLIDE 7: PROOF -->
+  <section class="slide" id="s7">
+    <div class="slide-headline">
+      <h2>Real Results. <span class="gold">Right Here in Columbia.</span></h2>
+      <p>This isn't theory — here's what happened when a local Columbia business trusted Crown Media Group with their marketing.</p>
+    </div>
+    <div class="proof-card">
+      <div class="proof-client-label">Client Case Study</div>
+      <div class="proof-client-name">Shatiea</div>
+      <div class="proof-client-biz">Faith-Based Juice &amp; Wellness Business · Columbia, SC</div>
+      <div class="proof-before-after">
+        <div class="ba-box">
+          <div class="ba-label before">Before Crown Media Group</div>
+          <div class="ba-item">No consistent social media presence</div>
+          <div class="ba-item">All sales came from word-of-mouth only</div>
+          <div class="ba-item">No branded content or visual identity</div>
+          <div class="ba-item">No system to reach new customers online</div>
+        </div>
+        <div class="ba-box">
+          <div class="ba-label after">After Crown Media Group</div>
+          <div class="ba-item after">Branded content calendar — posts every week</div>
+          <div class="ba-item after">Professional visual identity across all platforms</div>
+          <div class="ba-item after">Instagram presence that reflects the brand</div>
+          <div class="ba-item after">First deliverables live in 48 hours of signing</div>
+        </div>
+      </div>
+      <div class="proof-quote">
+        "David handled everything — I just run my business."
+      </div>
+      <div class="proof-metrics">
+        <div class="proof-metric">
+          <div class="proof-metric-val">48 hrs</div>
+          <div class="proof-metric-label">First content delivered</div>
+        </div>
+        <div class="proof-metric">
+          <div class="proof-metric-val">Week 1</div>
+          <div class="proof-metric-label">30-day calendar live</div>
+        </div>
+        <div class="proof-metric">
+          <div class="proof-metric-val">$0</div>
+          <div class="proof-metric-label">Design software needed</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SLIDE 8: WHO -->
+  <section class="slide" id="s8">
+    <div class="slide-headline">
+      <h2>Who You're <span class="gold">Working With.</span></h2>
+    </div>
+    <div class="who-card">
+      <div class="who-avatar">DK</div>
+      <div class="who-info">
+        <div class="who-name">David King</div>
+        <div class="who-title">CEO &amp; Founder, Crown Media Group · @mkdavidking</div>
+        <div class="who-pills">
+          <span class="who-pill">Columbia, SC</span>
+          <span class="who-pill">AI-Powered Marketing</span>
+          <span class="who-pill">Faith-Driven</span>
+          <span class="who-pill">Business Coaching</span>
+          <span class="who-pill">Social Media</span>
+          <span class="who-pill">Web Development</span>
+        </div>
+        <div class="who-bio">
+          A local business owner who uses AI to deliver agency-quality work at prices built for small businesses like yours. No corporate layers. No overseas handoffs. You work with King directly — and he picks up the phone.<br><br>
+          Available for 1-on-1 business coaching, speaking engagements, and faith-aligned strategy sessions at $100/hr.
+        </div>
+        <div class="who-verse">
+          "Whatever you do, work at it with all your heart, as working for the Lord." — Colossians 3:23
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SLIDE 9: CLASSMATE OFFER -->
+  <section class="slide" id="s9">
+    <div class="offer-box">
+      <div class="offer-badge">Classmate Exclusive — April 2026</div>
+      <h2>Because We Went <span class="gold">to Class Together.</span></h2>
+      <p style="color:rgba(255,255,255,0.55);margin-top:12px;line-height:1.7;font-size:.95rem;max-width:560px;margin-left:auto;margin-right:auto;">
+        I'm giving classmates a rate you won't find anywhere on the website.
+        This is my way of investing in people I know personally —
+        because I believe in what you're building.
+      </p>
+      <div class="offer-grid">
+        <div class="offer-item">
+          <div class="offer-item-name">Logo + Website</div>
+          <div class="offer-item-price">$250</div>
+          <div class="offer-item-was">normally $294</div>
+        </div>
+        <div class="offer-item">
+          <div class="offer-item-name">Social Media (first month)</div>
+          <div class="offer-item-price">$200</div>
+          <div class="offer-item-was">normally $350</div>
+        </div>
+        <div class="offer-item">
+          <div class="offer-item-name">CRM Free Trial</div>
+          <div class="offer-item-price">33 days</div>
+          <div class="offer-item-was">no card required</div>
+        </div>
+      </div>
+      <div class="offer-guarantee">
+        <strong>Not happy? I fix it or refund you.</strong> If what you get doesn't feel right for your business, King will personally look at your order and make it right — or give you your money back. Simple as that.
+      </div>
+    </div>
+  </section>
+
+  <!-- SLIDE 10: CTA -->
+  <section class="slide" id="s10">
+    <div class="hero-eyebrow">Let's Build Something</div>
+    <h1>Ready to <span class="gold">Get Started?</span></h1>
+    <p class="cta-sub">
+      Book a free 15-minute call. I'll build your custom package before we hang up — no obligation, no pressure.
+    </p>
+    <div class="cta-buttons">
+      <a href="https://crownmediagroup.co" target="_blank" class="cta-btn-primary">Book a Free Call</a>
+      <a href="mailto:king@crownmediagroup.co" class="cta-btn-secondary">Email King Directly</a>
+    </div>
+    <div class="cta-contact-grid">
+      <div class="cta-contact-item">
+        <div class="cta-contact-label">Website</div>
+        <div class="cta-contact-val">crownmediagroup.co</div>
+      </div>
+      <div class="cta-contact-item">
+        <div class="cta-contact-label">Email</div>
+        <div class="cta-contact-val">king@crownmediagroup.co</div>
+      </div>
+      <div class="cta-contact-item">
+        <div class="cta-contact-label">Instagram</div>
+        <div class="cta-contact-val">@crownmediagroupco</div>
+      </div>
+      <div class="cta-contact-item">
+        <div class="cta-contact-label">Location</div>
+        <div class="cta-contact-val">Columbia, SC</div>
+      </div>
+    </div>
+    <div class="cta-tagline">All Glory to Jesus · Crown Media Group · 2026</div>
+  </section>
+
+</div><!-- /deck -->
+
+<script>
+  const deck = document.getElementById('deck');
+  const slides = document.querySelectorAll('.slide');
+  const counter = document.getElementById('counter');
+  const total = slides.length;
+  let current = 0;
+
+  function updateCounter() {
+    counter.textContent = (current + 1) + ' / ' + total;
+  }
+
+  function navigate(dir) {
+    const next = Math.max(0, Math.min(total - 1, current + dir));
+    slides[next].scrollIntoView({ behavior: 'smooth' });
+  }
+
+  // Track active slide via IntersectionObserver
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting && entry.intersectionRatio > 0.5) {
+        const idx = Array.from(slides).indexOf(entry.target);
+        if (idx !== -1) {
+          current = idx;
+          updateCounter();
+        }
+      }
+    });
+  }, { root: deck, threshold: 0.5 });
+
+  slides.forEach(s => observer.observe(s));
+
+  // Keyboard navigation
+  document.addEventListener('keydown', (e) => {
+    if (['ArrowDown', 'ArrowRight', 'PageDown', ' '].includes(e.key)) {
+      e.preventDefault();
+      navigate(1);
+    } else if (['ArrowUp', 'ArrowLeft', 'PageUp'].includes(e.key)) {
+      e.preventDefault();
+      navigate(-1);
+    }
+  });
+
+  updateCounter();
+</script>
+</body>
+</html>
