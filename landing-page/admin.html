@@ -185,6 +185,17 @@ let allOrders = [];
 let currentFilter = 'all';
 let adminToken = '';
 
+// ── Auto-login from URL param (?token=...) ────────────────────────────────────
+(function() {
+  const urlToken = new URLSearchParams(window.location.search).get('token');
+  if (urlToken) {
+    adminToken = urlToken;
+    // Remove token from URL bar for security
+    history.replaceState({}, '', window.location.pathname);
+    loadOrders();
+  }
+})();
+
 // ── Login ─────────────────────────────────────────────────────────────────────
 function login() {
   const t = document.getElementById('token-input').value.trim();
