@@ -1065,6 +1065,15 @@ app.get('/api/sms/inbox', (req, res) => {
   res.json({ threads, unknowns });
 });
 
+// GET /api/sms/thread/unknown/:fromNumber — thread for unmatched sender (must be before /:contactId)
+app.get('/api/sms/thread/unknown/:from', (req, res) => {
+  const from  = decodeURIComponent(req.params.from);
+  const wsId  = req.workspaceId;
+  const messages = db.prepare("SELECT * FROM sms_inbox WHERE from_number = ? AND contact_id IS NULL AND workspace_id = ? ORDER BY created_at ASC").all(from, wsId);
+  db.prepare("UPDATE sms_inbox SET read_at = datetime('now') WHERE from_number = ? AND direction = 'inbound' AND workspace_id = ? AND read_at IS NULL").run(from, wsId);
+  res.json({ contact: { name: from, phone: from }, messages });
+});
+
 // GET /api/sms/thread/:contactId — full conversation thread for a contact
 app.get('/api/sms/thread/:contactId', (req, res) => {
   const contact = db.prepare('SELECT id, name, phone, business, status FROM contacts WHERE id = ? AND workspace_id = ?').get(req.params.contactId, req.workspaceId);
@@ -1076,15 +1085,6 @@ app.get('/api/sms/thread/:contactId', (req, res) => {
   db.prepare("UPDATE sms_inbox SET read_at = datetime('now') WHERE contact_id = ? AND workspace_id = ? AND direction = 'inbound' AND read_at IS NULL").run(req.params.contactId, req.workspaceId);
 
   res.json({ contact, messages });
-});
-
-// GET /api/sms/thread/unknown/:fromNumber — thread for unmatched sender
-app.get('/api/sms/thread/unknown/:from', (req, res) => {
-  const from  = decodeURIComponent(req.params.from);
-  const wsId  = req.workspaceId;
-  const messages = db.prepare("SELECT * FROM sms_inbox WHERE from_number = ? AND contact_id IS NULL AND workspace_id = ? ORDER BY created_at ASC").all(from, wsId);
-  db.prepare("UPDATE sms_inbox SET read_at = datetime('now') WHERE from_number = ? AND direction = 'inbound' AND workspace_id = ? AND read_at IS NULL").run(from, wsId);
-  res.json({ contact: { name: from, phone: from }, messages });
 });
 
 // GET /api/sms/unread-count — badge count for nav
