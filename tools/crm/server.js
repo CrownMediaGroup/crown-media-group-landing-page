@@ -2474,11 +2474,11 @@ app.post('/api/scouts/apply', async (req, res) => {
 
 // GET /api/scouts/dashboard/:code — public — scout sees their own stats
 app.get('/api/scouts/dashboard/:code', (req, res) => {
-  const scout = db.prepare('SELECT id, name, email, referral_code, status, tier, total_referrals, total_earned, joined_at FROM scouts WHERE referral_code = ?').get(req.params.code);
-  if (!scout) return res.status(404).json({ error: 'Scout code not found.' });
+  const scout = db.prepare('SELECT id, name, email, referral_code, status, tier, total_referrals, total_earned, joined_at, payment_method, payment_handle FROM scouts WHERE referral_code = ?').get(req.params.code);
+  if (!scout) return res.status(404).json({ ok: false, error: 'Scout code not found. Double-check your welcome email.' });
 
-  const refs = db.prepare('SELECT referred_business, referred_email, status, commission_amount, paid_out, created_at FROM referrals WHERE scout_id = ? ORDER BY created_at DESC').all(scout.id);
-  const pending_payout = refs.filter(r => r.status === 'signed' && !r.paid_out).reduce((s, r) => s + r.commission_amount, 0);
+  const refs = db.prepare('SELECT referred_business, referred_email, status, commission_amount, paid_out, created_at, payout_hold, payout_eligible_at, refund_status FROM referrals WHERE scout_id = ? ORDER BY created_at DESC').all(scout.id);
+  const pending_payout = refs.filter(r => r.status === 'signed' && !r.paid_out).reduce((s, r) => s + (r.commission_amount || 0), 0);
 
   res.json({ ok: true, scout, referrals: refs, pending_payout });
 });

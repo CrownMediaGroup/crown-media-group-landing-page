@@ -56,8 +56,8 @@
     <h2>View Your Earnings</h2>
     <p>Enter your Scout code to see your referrals and payouts</p>
     <input type="text" id="code-input" placeholder="YOUR CODE" maxlength="8" oninput="this.value=this.value.toUpperCase()">
-    <button class="btn" onclick="loadDashboard()">View Dashboard</button>
-    <div id="lookup-error" class="error-msg" style="display:none"></div>
+    <button class="btn" id="lookup-btn" onclick="loadDashboard()">View Dashboard</button>
+    <div id="lookup-error" class="error-msg" style="display:none;margin-top:12px;font-size:.95rem;color:#ef4444;font-weight:600"></div>
     <p style="color:#6b7280;font-size:.78rem;margin-top:16px">Your code was in your welcome email. <a href="mailto:king@crownmediagroup.co" style="color:#C9A84C">Need help?</a></p>
   </div>
 
@@ -133,13 +133,19 @@ let currentMsg = '';
 
 async function loadDashboard() {
   const code = document.getElementById('code-input').value.trim().toUpperCase();
-  if (!code) return;
+  if (!code) { document.getElementById('lookup-error').style.display = 'block'; document.getElementById('lookup-error').textContent = 'Enter your Scout code first.'; return; }
   const err = document.getElementById('lookup-error');
+  const btn = document.getElementById('lookup-btn');
   err.style.display = 'none';
+  btn.disabled = true;
+  btn.textContent = 'Loading...';
 
   try {
     const res = await fetch(`/api/scouts/dashboard/${code}`);
     const data = await res.json();
+
+    btn.disabled = false;
+    btn.textContent = 'View Dashboard';
 
     if (!data.ok) {
       err.style.display = 'block';
@@ -206,9 +212,11 @@ async function loadDashboard() {
         </div>`;
       }).join('');
     }
-  } catch {
+  } catch (e) {
+    btn.disabled = false;
+    btn.textContent = 'View Dashboard';
     err.style.display = 'block';
-    err.textContent = 'Could not connect. Try again.';
+    err.textContent = 'Could not connect to server. Try again in a moment.';
   }
 }
 
