@@ -426,10 +426,26 @@
         <h2>SMS Inbox</h2>
         <p>2-way conversations with contacts</p>
       </div>
-      <button class="btn btn-sm" id="refreshInboxBtn" onclick="loadInbox()">Refresh</button>
+      <div style="display:flex;gap:8px">
+        <button class="btn btn-gold btn-sm" onclick="openNewSMSCompose()">+ New Message</button>
+        <button class="btn btn-sm" id="refreshInboxBtn" onclick="loadInbox()">Refresh</button>
+      </div>
     </div>
 
-    <div id="inboxLayout" style="display:grid;grid-template-columns:320px 1fr;gap:0;height:calc(100vh - 140px);border:1px solid var(--border);border-radius:8px;overflow:hidden">
+    <!-- New SMS Compose Bar (hidden until + New Message clicked) -->
+    <div id="newSMSBar" style="display:none;background:var(--card);border:1px solid var(--border);border-radius:8px;padding:14px 16px;margin-bottom:12px">
+      <div style="font-size:.8rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px">Send to a number</div>
+      <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+        <input id="newSMSPhone" type="tel" placeholder="+1 (803) 555-0000" autocomplete="off"
+               style="flex:0 0 200px;background:var(--input-bg,rgba(255,255,255,.06));border:1.5px solid var(--border);border-radius:6px;color:var(--text);padding:8px 12px;font-size:.88rem;outline:none">
+        <input id="newSMSBody" type="text" placeholder="Type message..." autocomplete="off"
+               style="flex:1;min-width:160px;background:var(--input-bg,rgba(255,255,255,.06));border:1.5px solid var(--border);border-radius:6px;color:var(--text);padding:8px 12px;font-size:.88rem;outline:none">
+        <button class="btn btn-gold btn-sm" onclick="sendNewSMS()" style="white-space:nowrap">Send</button>
+        <button class="btn btn-outline btn-sm" onclick="document.getElementById('newSMSBar').style.display='none'">Cancel</button>
+      </div>
+    </div>
+
+    <div id="inboxLayout" style="display:grid;grid-template-columns:320px 1fr;gap:0;height:calc(100vh - 180px);border:1px solid var(--border);border-radius:8px;overflow:hidden">
 
       <!-- Thread List -->
       <div id="inboxThreadList" style="border-right:1px solid var(--border);overflow-y:auto;background:var(--card)">
@@ -1011,6 +1027,6 @@
   </button>
 </div>
 
-<script src="app.js?v=9"></script>
+<script src="app.js?v=10"></script>
 </body>
 </html>

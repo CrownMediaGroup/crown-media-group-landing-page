@@ -1962,8 +1962,8 @@ function renderInboxThreads(threads, unknowns) {
 }
 
 async function openInboxThread(contactId, phone) {
-  inboxActiveContactId = contactId;
-  inboxActivePhone     = phone;
+  inboxActiveContactId = contactId || null;
+  inboxActivePhone     = phone || null;
 
   // Highlight active thread
   document.querySelectorAll('.inbox-thread').forEach((el, i) => {
@@ -1997,11 +1997,45 @@ async function openInboxThread(contactId, phone) {
     loadInbox();
   } catch (e) {
     toast('Failed to load thread: ' + e.message, 'error');
+    console.error('[openInboxThread]', e);
   }
 }
+window.openInboxThread = openInboxThread;
+
+function openNewSMSCompose() {
+  const bar = document.getElementById('newSMSBar');
+  bar.style.display = bar.style.display === 'none' || !bar.style.display ? 'block' : 'none';
+  if (bar.style.display === 'block') document.getElementById('newSMSPhone').focus();
+}
+window.openNewSMSCompose = openNewSMSCompose;
+
+async function sendNewSMS() {
+  const to = (document.getElementById('newSMSPhone').value || '').trim();
+  const body = (document.getElementById('newSMSBody').value || '').trim();
+  if (!to) { toast('Enter a phone number', 'error'); return; }
+  if (!body) { toast('Enter a message', 'error'); return; }
+  const btn = document.querySelector('#newSMSBar .btn-gold');
+  btn.disabled = true; btn.textContent = '...';
+  try {
+    await post('/api/sms/send', { to, body });
+    toast('Sent to ' + to);
+    document.getElementById('newSMSPhone').value = '';
+    document.getElementById('newSMSBody').value = '';
+    document.getElementById('newSMSBar').style.display = 'none';
+    await loadInbox();
+  } catch (e) {
+    toast('Send failed: ' + e.message, 'error');
+  } finally {
+    btn.disabled = false; btn.textContent = 'Send';
+  }
+}
+window.sendNewSMS = sendNewSMS;
 
 async function sendInboxReply() {
-  if (!inboxActiveContactId && !inboxActivePhone) { toast('Select a conversation first', 'error'); return; }
+  if (!inboxActiveContactId && !inboxActivePhone) {
+    openNewSMSCompose();
+    return;
+  }
   const body = (document.getElementById('inboxReplyText').value || '').trim();
   if (!body) return;
 
