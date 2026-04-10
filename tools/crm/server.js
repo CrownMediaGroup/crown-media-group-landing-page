@@ -916,7 +916,7 @@ app.post('/api/sms/webhook/inbound', (req, res) => {
   const normalizedFrom = normalizePhone(From);
 
   // Match sender to a contact by normalized phone across all workspaces
-  const allContacts = db.prepare('SELECT id, workspace_id, phone FROM contacts WHERE phone IS NOT NULL AND phone != ""').all();
+  const allContacts = db.prepare("SELECT id, workspace_id, phone FROM contacts WHERE phone IS NOT NULL AND phone != ''").all();
   let matched = null;
   for (const c of allContacts) {
     if (normalizePhone(c.phone) === normalizedFrom) { matched = c; break; }
