@@ -507,7 +507,7 @@ app.use('/api', (req, res, next) => {
   const publicPaths = ['/login', '/logout', '/branding', '/register', '/auth/google', '/config/public'];
   if (publicPaths.includes(req.path)) return next();
   // Public scout + webhook endpoints — no auth required
-  if (req.path === '/scouts/apply' || req.path.startsWith('/scouts/dashboard/') || req.path.startsWith('/scouts/by-code/') || req.path.startsWith('/internal/') || req.path === '/sms/webhook/inbound') return next();
+  if (req.path === '/scouts/apply' || req.path.startsWith('/scouts/dashboard/') || req.path.startsWith('/scouts/by-code/') || req.path.startsWith('/internal/') || req.path === '/sms/webhook/inbound' || req.path === '/voice/webhook') return next();
   const session = validateSession(getCookie(req, 'crm_session'));
   if (!session) return res.status(401).json({ error: 'Unauthorized' });
   req.user        = session.user;
@@ -935,6 +935,37 @@ app.post('/api/sms/webhook/inbound', (req, res) => {
   console.log(`[SMS INBOUND] From: ${normalizedFrom} → ${contactId ? `contact #${contactId}` : 'unknown'} | "${Body.substring(0, 60)}"`);
   res.setHeader('Content-Type', 'text/xml');
   res.send('<Response/>');
+});
+
+// ── Missed Call Text-Back (Twilio voice webhook, no auth) ─────────────────────
+app.post('/api/voice/webhook', async (req, res) => {
+  const callerNumber = req.body?.From || req.body?.Caller || '';
+  console.log(`[Voice] Missed call from: ${callerNumber}`);
+
+  // Fire auto-SMS in background
+  if (callerNumber) {
+    const sid   = process.env.TWILIO_ACCOUNT_SID;
+    const token = process.env.TWILIO_AUTH_TOKEN;
+    const from  = process.env.TWILIO_FROM_NUMBER;
+    if (sid && token && from) {
+      const name     = callerNumber;
+      const smsBody  = `Hey! I missed your call — this is Crown Media Group. We help Columbia SC businesses grow with AI-powered marketing. Text me back or book a call: crownmediagroup.co`;
+      const creds    = Buffer.from(`${sid}:${token}`).toString('base64');
+      fetch(`https://api.twilio.com/2010-04-01/Accounts/${sid}/Messages.json`, {
+        method:  'POST',
+        headers: { Authorization: `Basic ${creds}`, 'Content-Type': 'application/x-www-form-urlencoded' },
+        body:    new URLSearchParams({ From: from, To: callerNumber, Body: smsBody }).toString(),
+      }).then(r => r.json()).then(msg => {
+        db.prepare('INSERT INTO sms_inbox (contact_id, from_number, to_number, body, direction, twilio_sid, workspace_id, read_at) VALUES (?, ?, ?, ?, ?, ?, ?, datetime("now"))')
+          .run(null, from, callerNumber, smsBody, 'outbound', msg.sid || null, 1);
+        console.log(`[Voice] Missed call text-back sent to ${callerNumber}`);
+      }).catch(e => console.error('[Voice] SMS error:', e.message));
+    }
+  }
+
+  // TwiML response — don't leave caller hanging
+  res.setHeader('Content-Type', 'text/xml');
+  res.send(`<?xml version="1.0" encoding="UTF-8"?><Response><Say voice="alice">Thanks for calling Crown Media Group. We'll text you right back!</Say><Hangup/></Response>`);
 });
 
 // ── SMS Inbox API routes ───────────────────────────────────────────────────────
@@ -2129,6 +2160,65 @@ ${cta}
 </div>`;
 }
 
+// ── Review Request helper ─────────────────────────────────────────────────────
+const GOOGLE_REVIEW_LINK = 'https://g.page/r/CrownMediaGroup/review';
+
+async function triggerReviewRequest(contact, workspaceId) {
+  if (!contact) return;
+  const firstName = (contact.name || 'there').split(' ')[0];
+  const smsBody   = `Hey ${firstName}, we loved working with you! Mind leaving us a quick Google review? It means the world to us. ${GOOGLE_REVIEW_LINK}`;
+  const emailHtml = `<div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;padding:32px">
+<h2 style="color:#C9A84C">Thanks for working with us!</h2>
+<p>Hi ${firstName},</p>
+<p>We had an amazing time working with you and hope you're seeing real results. If you're happy with the work, would you mind taking 60 seconds to leave us a Google review?</p>
+<p><a href="${GOOGLE_REVIEW_LINK}" style="background:#C9A84C;color:#000;padding:12px 24px;border-radius:6px;text-decoration:none;font-weight:bold;display:inline-block;margin:16px 0">Leave a Google Review</a></p>
+<p style="color:#888;font-size:13px">It only takes a minute and helps other Columbia SC businesses find us.<br><br>With gratitude,<br>David King<br>Crown Media Group</p>
+</div>`;
+
+  let method = '';
+
+  // SMS
+  if (contact.phone) {
+    try {
+      const sid   = process.env.TWILIO_ACCOUNT_SID;
+      const token = process.env.TWILIO_AUTH_TOKEN;
+      const from  = process.env.TWILIO_FROM_NUMBER;
+      if (sid && token && from) {
+        const creds = Buffer.from(`${sid}:${token}`).toString('base64');
+        const r = await fetch(`https://api.twilio.com/2010-04-01/Accounts/${sid}/Messages.json`, {
+          method: 'POST',
+          headers: { Authorization: `Basic ${creds}`, 'Content-Type': 'application/x-www-form-urlencoded' },
+          body: new URLSearchParams({ From: from, To: normalizePhone(contact.phone), Body: smsBody }).toString(),
+        });
+        const msg = await r.json();
+        db.prepare('INSERT INTO sms_inbox (contact_id, from_number, to_number, body, direction, twilio_sid, workspace_id, read_at) VALUES (?, ?, ?, ?, ?, ?, ?, datetime("now"))')
+          .run(contact.id, from, normalizePhone(contact.phone), smsBody, 'outbound', msg.sid || null, workspaceId || 1);
+        method += 'sms';
+        console.log(`[ReviewReq] SMS sent to ${contact.phone}`);
+      }
+    } catch (e) { console.error('[ReviewReq] SMS error:', e.message); }
+  }
+
+  // Email
+  if (contact.email) {
+    try {
+      await sendEmail({
+        to: contact.email,
+        subject: `${firstName}, would you leave us a quick review?`,
+        html: emailHtml,
+        text: smsBody,
+      });
+      method += method ? '+email' : 'email';
+      console.log(`[ReviewReq] Email sent to ${contact.email}`);
+    } catch (e) { console.error('[ReviewReq] Email error:', e.message); }
+  }
+
+  if (method) {
+    db.prepare('INSERT INTO review_requests (contact_id, workspace_id, method) VALUES (?, ?, ?)')
+      .run(contact.id, workspaceId || 1, method);
+  }
+}
+
 app.put('/api/contacts/:id/stage', async (req, res) => {
   const { stage, tier = 'starter', notes = '' } = req.body;
   if (!stage) return res.status(400).json({ error: 'stage required' });
@@ -2149,23 +2239,28 @@ app.put('/api/contacts/:id/stage', async (req, res) => {
   db.prepare('UPDATE contacts SET status=? WHERE id=? AND workspace_id=?').run(status, req.params.id, req.workspaceId);
 
   // Auto-proposal when moving to "Proposal Sent" or "Interested" (Pitched)
+  const contactForTrigger = db.prepare('SELECT * FROM contacts WHERE id=?').get(req.params.id);
   if (PROPOSAL_TRIGGER_STAGES.includes(stage)) {
-    const contact = db.prepare('SELECT * FROM contacts WHERE id=?').get(req.params.id);
-    if (contact && contact.email) {
+    if (contactForTrigger && contactForTrigger.email) {
       try {
         const paymentUrl = await createStripePaymentLink(tier);
-        const html = buildProposalHtml(contact.business || contact.name, tier, notes, paymentUrl);
+        const html = buildProposalHtml(contactForTrigger.business || contactForTrigger.name, tier, notes, paymentUrl);
         await sendEmail({
-          to: contact.email,
-          subject: `Marketing Proposal for ${contact.business || contact.name} — Crown Media Group`,
+          to: contactForTrigger.email,
+          subject: `Marketing Proposal for ${contactForTrigger.business || contactForTrigger.name} — Crown Media Group`,
           html,
-          text: `Hi ${contact.name}, your proposal from Crown Media Group is ready. Visit crownmediagroup.co or reply to this email to get started.`,
+          text: `Hi ${contactForTrigger.name}, your proposal from Crown Media Group is ready. Visit crownmediagroup.co or reply to this email to get started.`,
         });
-        console.log(`[Proposal] Sent to ${contact.email} | tier=${tier} | paylink=${paymentUrl ? 'yes' : 'no'}`);
+        console.log(`[Proposal] Sent to ${contactForTrigger.email} | tier=${tier} | paylink=${paymentUrl ? 'yes' : 'no'}`);
       } catch (e) {
         console.error('[Proposal send error]', e.message);
       }
     }
+  }
+
+  // Auto review request when Closed Won
+  if (stage === 'Closed Won' && contactForTrigger) {
+    triggerReviewRequest(contactForTrigger, req.workspaceId).catch(e => console.error('[ReviewReq]', e.message));
   }
 
   res.json({ ok: true, status });

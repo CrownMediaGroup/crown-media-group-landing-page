@@ -169,6 +169,18 @@ db.exec(`
   CREATE INDEX IF NOT EXISTS idx_sms_inbox_unread  ON sms_inbox(workspace_id, direction, read_at);
 `);
 
+// ── Review Requests (auto-send after Closed Won) ─────────────────────────────
+db.exec(`
+  CREATE TABLE IF NOT EXISTS review_requests (
+    id           INTEGER PRIMARY KEY AUTOINCREMENT,
+    contact_id   INTEGER REFERENCES contacts(id),
+    workspace_id INTEGER DEFAULT 1,
+    sent_at      DATETIME DEFAULT CURRENT_TIMESTAMP,
+    method       TEXT,
+    status       TEXT DEFAULT 'sent'
+  );
+`);
+
 // ── Crown Scout Program ───────────────────────────────────────────────────────
 db.exec(`
   CREATE TABLE IF NOT EXISTS scouts (
