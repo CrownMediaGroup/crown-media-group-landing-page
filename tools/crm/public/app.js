@@ -1982,7 +1982,7 @@ function renderInboxThreads(threads, unknowns) {
     const time     = t.last_at ? new Date(t.last_at).toLocaleDateString('en-US', { month:'short', day:'numeric' }) : '';
     const preview  = (t.last_message || '').substring(0, 55) + (t.last_message?.length > 55 ? '…' : '');
     const isOut    = t.last_direction === 'outbound';
-    return `<div class="inbox-thread${isActive ? ' active' : ''}" onclick="openInboxThread(${t.contact_id ?? 'null'}, '${(t.phone||'').replace(/\\/g,'\\\\').replace(/'/g,"\\'")}')"
+    return `<div class="inbox-thread${isActive ? ' active' : ''}" onclick="openInboxThread(${JSON.stringify(t.contact_id)}, '${(t.phone||'').replace(/\\/g,'\\\\').replace(/'/g,"\\'")}')"
       style="padding:14px 16px;border-bottom:1px solid var(--border);cursor:pointer;background:${isActive ? 'rgba(201,168,76,.12)' : 'transparent'};transition:background .15s">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
         <span style="font-weight:${unread ? '700' : '500'};color:var(--text);font-size:.9rem">${esc(t.name || t.phone)}</span>
