@@ -61,14 +61,11 @@ code { font-family: 'Fira Mono', monospace; background: rgba(255,255,255,.06); p
   border-bottom: 1px solid var(--border);
 }
 .brand-logo { display: flex; align-items: center; gap: 10px; }
-.brand-icon {
+.brand-icon-img {
   width: 34px; height: 34px; flex-shrink: 0;
-  background: linear-gradient(135deg, var(--gold) 0%, #8B6414 100%);
   border-radius: 8px;
-  display: flex; align-items: center; justify-content: center;
-  box-shadow: 0 2px 12px var(--gold-glow);
+  object-fit: cover;
 }
-.brand-icon svg { width: 18px; height: 18px; fill: #fff; }
 .brand-name { font-family: 'Cormorant Garamond', serif; font-size: 1rem; font-weight: 700; color: var(--text); line-height: 1; }
 .brand-sub { font-size: .65rem; color: var(--muted); margin-top: 2px; letter-spacing: .06em; text-transform: uppercase; }
 
