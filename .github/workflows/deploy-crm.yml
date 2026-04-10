@@ -1,0 +1,25 @@
+name: Deploy CRM to Fly.io
+
+on:
+  push:
+    branches:
+      - master
+    paths:
+      - 'tools/crm/**'
+
+jobs:
+  deploy:
+    name: Deploy
+    runs-on: ubuntu-latest
+    concurrency: deploy-crm
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: superfly/flyctl-actions/setup-flyctl@master
+
+      - name: Deploy to Fly.io
+        run: flyctl deploy --remote-only --app crown-media-crm
+        working-directory: tools/crm
+        env:
+          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
