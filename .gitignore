@@ -125,6 +125,7 @@ CMG - Banner*.png
 !landing-page/assets/**
 !landing-page/logo.png
 !landing-page/icons/*.png
+!tools/crm/public/favicon.png
 
 # --- Screenshot captures ---
 tools/screen/*.png
