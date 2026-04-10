@@ -1042,6 +1042,14 @@ function bindEvents() {
   // Toggle archived
   document.getElementById('toggleArchived').addEventListener('click', toggleArchivedView);
 
+  // SMS reply — Enter to send (Shift+Enter = newline)
+  document.getElementById('inboxReplyText')?.addEventListener('keydown', e => {
+    if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendInboxReply(); }
+  });
+  document.getElementById('newSMSBody')?.addEventListener('keydown', e => {
+    if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendNewSMS(); }
+  });
+
   // Contact modal actions
   document.getElementById('saveContact').addEventListener('click', saveContact);
   document.getElementById('archiveContactBtn').addEventListener('click', archiveContact);
@@ -1923,7 +1931,9 @@ let inboxActivePhone      = null;  // for unknown senders
 
 async function loadInbox() {
   try {
-    const { threads, unknowns } = await get('/api/sms/inbox');
+    const data = await get('/api/sms/inbox');
+    if (!data) return;
+    const { threads, unknowns } = data;
     renderInboxThreads(threads, unknowns);
     refreshInboxBadge();
   } catch (e) {
@@ -1972,7 +1982,9 @@ async function openInboxThread(contactId, phone) {
 
   try {
     const url = contactId ? `/api/sms/thread/${contactId}` : `/api/sms/thread/unknown/${encodeURIComponent(phone)}`;
-    const { contact, messages } = await get(url);
+    const data = await get(url);
+    if (!data) return;
+    const { contact, messages } = data;
 
     document.getElementById('inboxConvName').textContent = contact.name || phone;
     document.getElementById('inboxConvSub').textContent  = contact.business ? `${contact.business} · ${contact.phone}` : contact.phone || '';
@@ -2061,6 +2073,7 @@ async function sendInboxReply() {
     btn.textContent = 'Send';
   }
 }
+window.sendInboxReply = sendInboxReply;
 
 async function refreshInboxBadge() {
   try {

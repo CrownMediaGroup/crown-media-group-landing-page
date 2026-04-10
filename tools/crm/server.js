@@ -1079,9 +1079,10 @@ app.get('/api/sms/thread/:contactId', (req, res) => {
 
 // GET /api/sms/thread/unknown/:fromNumber — thread for unmatched sender
 app.get('/api/sms/thread/unknown/:from', (req, res) => {
-  const from = decodeURIComponent(req.params.from);
-  const messages = db.prepare("SELECT * FROM sms_inbox WHERE from_number = ? AND contact_id IS NULL ORDER BY created_at ASC").all(from);
-  db.prepare("UPDATE sms_inbox SET read_at = datetime('now') WHERE from_number = ? AND direction = 'inbound' AND read_at IS NULL").run(from);
+  const from  = decodeURIComponent(req.params.from);
+  const wsId  = req.workspaceId;
+  const messages = db.prepare("SELECT * FROM sms_inbox WHERE from_number = ? AND contact_id IS NULL AND workspace_id = ? ORDER BY created_at ASC").all(from, wsId);
+  db.prepare("UPDATE sms_inbox SET read_at = datetime('now') WHERE from_number = ? AND direction = 'inbound' AND workspace_id = ? AND read_at IS NULL").run(from, wsId);
   res.json({ contact: { name: from, phone: from }, messages });
 });
 
