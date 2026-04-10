@@ -1945,6 +1945,13 @@ let inboxActiveContactId  = null;
 let inboxActivePhone      = null;  // for unknown senders
 
 async function loadInbox() {
+  // Disable reply bar when no thread is active
+  if (!inboxActiveContactId && !inboxActivePhone) {
+    const sendBtn = document.getElementById('inboxSendBtn');
+    const replyText = document.getElementById('inboxReplyText');
+    if (sendBtn) sendBtn.disabled = true;
+    if (replyText) replyText.placeholder = 'Select a conversation first';
+  }
   try {
     const data = await get('/api/sms/inbox');
     if (!data) return;
@@ -1956,6 +1963,7 @@ async function loadInbox() {
       `<div style="padding:20px;color:var(--muted);font-size:.85rem">Failed to load inbox: ${e.message}</div>`;
   }
 }
+window.loadInbox = loadInbox;
 
 function renderInboxThreads(threads, unknowns) {
   const container = document.getElementById('inboxThreads');
@@ -1967,12 +1975,14 @@ function renderInboxThreads(threads, unknowns) {
   }
 
   container.innerHTML = all.map(t => {
-    const isActive = t.contact_id && t.contact_id === inboxActiveContactId;
+    const isActive = t.contact_id
+      ? t.contact_id === inboxActiveContactId
+      : t.phone === inboxActivePhone;
     const unread   = t.unread > 0;
     const time     = t.last_at ? new Date(t.last_at).toLocaleDateString('en-US', { month:'short', day:'numeric' }) : '';
     const preview  = (t.last_message || '').substring(0, 55) + (t.last_message?.length > 55 ? '…' : '');
     const isOut    = t.last_direction === 'outbound';
-    return `<div class="inbox-thread${isActive ? ' active' : ''}" onclick="openInboxThread(${JSON.stringify(t.contact_id)}, ${JSON.stringify(t.phone)})"
+    return `<div class="inbox-thread${isActive ? ' active' : ''}" onclick="openInboxThread(${t.contact_id ?? 'null'}, '${(t.phone||'').replace(/\\/g,'\\\\').replace(/'/g,"\\'")}')"
       style="padding:14px 16px;border-bottom:1px solid var(--border);cursor:pointer;background:${isActive ? 'rgba(201,168,76,.12)' : 'transparent'};transition:background .15s">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
         <span style="font-weight:${unread ? '700' : '500'};color:var(--text);font-size:.9rem">${esc(t.name || t.phone)}</span>
@@ -1990,6 +2000,11 @@ async function openInboxThread(contactId, phone) {
   inboxActiveContactId = contactId || null;
   inboxActivePhone     = phone || null;
 
+  // Re-enable reply bar now that a thread is selected
+  const sendBtn  = document.getElementById('inboxSendBtn');
+  const replyTxt = document.getElementById('inboxReplyText');
+  if (sendBtn)  sendBtn.disabled = false;
+
   // Highlight active thread
   document.querySelectorAll('.inbox-thread').forEach((el, i) => {
     el.style.background = 'transparent';
@@ -1998,7 +2013,7 @@ async function openInboxThread(contactId, phone) {
   try {
     const url = contactId ? `/api/sms/thread/${contactId}` : `/api/sms/thread/unknown/${encodeURIComponent(phone)}`;
     const data = await get(url);
-    if (!data) return;
+    if (!data) { toast('Could not load messages — try refreshing', 'error'); return; }
     const { contact, messages } = data;
 
     document.getElementById('inboxConvName').textContent = contact.name || phone;
@@ -2019,6 +2034,14 @@ async function openInboxThread(contactId, phone) {
       box.scrollTop = box.scrollHeight;
     }
 
+    // Update reply bar placeholder to show who you're replying to
+    if (replyTxt) replyTxt.placeholder = `Reply to ${contact.name || phone}…`;
+
+    // On mobile, scroll conversation panel into view
+    if (window.innerWidth <= 640) {
+      document.getElementById('inboxConversation')?.scrollIntoView({ behavior: 'smooth' });
+    }
+
     refreshInboxBadge();
     // Re-render thread list to clear unread badges
     loadInbox();
@@ -2037,7 +2060,8 @@ function openNewSMSCompose() {
 window.openNewSMSCompose = openNewSMSCompose;
 
 async function sendNewSMS() {
-  const to = (document.getElementById('newSMSPhone').value || '').trim();
+  let to = (document.getElementById('newSMSPhone').value || '').trim();
+  if (to && !to.startsWith('+')) to = '+' + to.replace(/\D/g, '');
   const body = (document.getElementById('newSMSBody').value || '').trim();
   if (!to) { toast('Enter a phone number', 'error'); return; }
   if (!body) { toast('Enter a message', 'error'); return; }
