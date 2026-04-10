@@ -12,7 +12,7 @@
  *   node Agency/tools/content-queue.js list       ← show pending items
  *   node Agency/tools/content-queue.js clear      ← clear completed items
  *
- * Env vars needed: ANTHROPIC_API_KEY, SUPABASE_URL, SUPABASE_KEY
+ * Env vars needed: GEMINI_API_KEY, SUPABASE_URL, SUPABASE_KEY
  */
 
 import { createRequire } from 'module';
@@ -24,7 +24,7 @@ const require = createRequire(import.meta.url);
 require('dotenv').config({ path: path.join(path.dirname(fileURLToPath(import.meta.url)), '../../.env') });
 
 const QUEUE_FILE = path.join(path.dirname(fileURLToPath(import.meta.url)), '../../Agency/ops/content-queue.json');
-const ANTHROPIC_KEY = process.env.ANTHROPIC_API_KEY;
+const GEMINI_KEY = process.env.GEMINI_API_KEY;
 const SUPABASE_URL = process.env.SUPABASE_URL;
 const SUPABASE_KEY = process.env.SUPABASE_KEY;
 
@@ -72,23 +72,20 @@ async function generateCaption(topic, platform, client = null) {
 - Clear CTA at the end
 - Output ONLY the caption, nothing else`;
 
-  const response = await fetch('https://api.anthropic.com/v1/messages', {
-    method: 'POST',
-    headers: {
-      'x-api-key': ANTHROPIC_KEY,
-      'anthropic-version': '2023-06-01',
-      'content-type': 'application/json'
-    },
-    body: JSON.stringify({
-      model: 'claude-haiku-4-5-20251001',
-      max_tokens: 500,
-      system: systemPrompt,
-      messages: [{ role: 'user', content: userPrompt }]
-    })
-  });
+  const response = await fetch(
+    `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${GEMINI_KEY}`,
+    {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({
+        contents: [{ role: 'user', parts: [{ text: systemPrompt + '\n\n' + userPrompt }] }],
+        generationConfig: { maxOutputTokens: 500 },
+      }),
+    }
+  );
 
   const data = await response.json();
-  return data.content?.[0]?.text?.trim() || '';
+  return data.candidates?.[0]?.content?.parts?.[0]?.text?.trim() || '';
 }
 
 // ── Log to Supabase ──────────────────────────────────────────────────────────

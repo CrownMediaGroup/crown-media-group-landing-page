@@ -96,10 +96,7 @@ Options:
 
 // ── Step 1: Caption Generation via Claude API ─────────────────────────────────
 async function generateCaptions(topic, brand) {
-  const Anthropic = require('@anthropic-ai/sdk');
-  const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
-
-  console.log('[CREATOR] Generating platform-specific captions via Claude...');
+  console.log('[CREATOR] Generating platform-specific captions via Gemini...');
 
   const prompt = `You are a social media copywriter for a Christian-values marketing agency based in Columbia, SC.
 
@@ -123,13 +120,21 @@ Return exactly this JSON shape:
 {"instagram":"full caption with hashtags","facebook":"full caption","x":"tweet under 240 chars","tiktok":"trendy caption with hashtags","threads":"threads post under 500 chars"}`;
 
   try {
-    const resp = await client.messages.create({
-      model: 'claude-haiku-4-5',
-      max_tokens: 1200,
-      messages: [{ role: 'user', content: prompt }],
-    });
+    const geminiRes = await fetch(
+      `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${process.env.GEMINI_API_KEY}`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          contents: [{ role: 'user', parts: [{ text: prompt }] }],
+          generationConfig: { maxOutputTokens: 1200 },
+        }),
+      }
+    );
+    const geminiData = await geminiRes.json();
+    if (!geminiData.candidates?.[0]) throw new Error(geminiData.error?.message || 'Gemini returned no content');
 
-    const raw = resp.content[0].text.trim()
+    const raw = geminiData.candidates[0].content.parts[0].text.trim()
       .replace(/^```(?:json)?\n?/, '')
       .replace(/\n?```$/, '');
 

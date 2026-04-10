@@ -24,7 +24,7 @@ if (fs.existsSync(envPath)) {
   });
 }
 
-const ANTHROPIC_KEY = process.env.ANTHROPIC_API_KEY;
+const GEMINI_KEY = process.env.GEMINI_API_KEY;
 const EXA_KEY = process.env.EXA_API_KEY;
 
 // ─── Parse args ───────────────────────────────────────────────────────────────
@@ -42,39 +42,22 @@ const outputDir = path.join(__dirname, '../ops/topical-maps');
 
 if (!fs.existsSync(outputDir)) fs.mkdirSync(outputDir, { recursive: true });
 
-// ─── Claude API ───────────────────────────────────────────────────────────────
-function callClaude(prompt, maxTokens = 4000) {
-  return new Promise((resolve, reject) => {
-    const body = JSON.stringify({
-      model: 'claude-haiku-4-5-20251001',
-      max_tokens: maxTokens,
-      messages: [{ role: 'user', content: prompt }]
-    });
-
-    const req = https.request({
-      hostname: 'api.anthropic.com',
-      path: '/v1/messages',
+// ─── Gemini API ───────────────────────────────────────────────────────────────
+async function callClaude(prompt, maxTokens = 4000) {
+  const res = await fetch(
+    `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${GEMINI_KEY}`,
+    {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'x-api-key': ANTHROPIC_KEY,
-        'anthropic-version': '2023-06-01',
-        'Content-Length': Buffer.byteLength(body)
-      }
-    }, (res) => {
-      let data = '';
-      res.on('data', d => data += d);
-      res.on('end', () => {
-        try {
-          const json = JSON.parse(data);
-          resolve(json.content?.[0]?.text || '');
-        } catch (e) { reject(new Error('Parse error: ' + data.slice(0, 200))); }
-      });
-    });
-    req.on('error', reject);
-    req.write(body);
-    req.end();
-  });
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        contents: [{ role: 'user', parts: [{ text: prompt }] }],
+        generationConfig: { maxOutputTokens: maxTokens },
+      }),
+    }
+  );
+  const data = await res.json();
+  if (!data.candidates?.[0]) throw new Error(data.error?.message || 'Gemini returned no content');
+  return data.candidates[0].content.parts[0].text;
 }
 
 // ─── EXA research: find competitor keywords ───────────────────────────────────
@@ -113,7 +96,7 @@ function exaSearch(query) {
 // ─── Main ─────────────────────────────────────────────────────────────────────
 async function main() {
   console.log(`\n[Topical Map] Building authority map for: ${client} — "${topic}"`);
-  if (!ANTHROPIC_KEY) { console.error('  ERROR: ANTHROPIC_API_KEY missing from .env'); process.exit(1); }
+  if (!GEMINI_KEY) { console.error('  ERROR: GEMINI_API_KEY missing from .env'); process.exit(1); }
 
   let keywords = '';
 
