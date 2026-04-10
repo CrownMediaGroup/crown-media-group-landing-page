@@ -506,8 +506,8 @@ app.get('/api/branding', (req, res) => {
 app.use('/api', (req, res, next) => {
   const publicPaths = ['/login', '/logout', '/branding', '/register', '/auth/google', '/config/public'];
   if (publicPaths.includes(req.path)) return next();
-  // Public scout endpoints — no auth required
-  if (req.path === '/scouts/apply' || req.path.startsWith('/scouts/dashboard/') || req.path.startsWith('/scouts/by-code/') || req.path.startsWith('/internal/')) return next();
+  // Public scout + webhook endpoints — no auth required
+  if (req.path === '/scouts/apply' || req.path.startsWith('/scouts/dashboard/') || req.path.startsWith('/scouts/by-code/') || req.path.startsWith('/internal/') || req.path === '/sms/webhook/inbound') return next();
   const session = validateSession(getCookie(req, 'crm_session'));
   if (!session) return res.status(401).json({ error: 'Unauthorized' });
   req.user        = session.user;
@@ -893,16 +893,105 @@ app.post('/api/sms/send', async (req, res) => {
   if (!to || !body) return res.status(400).json({ error: 'to and body required' });
 
   try {
-    await twilioClient.messages.create({ from: process.env.TWILIO_FROM_NUMBER, to: normalizePhone(to), body });
+    const msg = await twilioClient.messages.create({ from: process.env.TWILIO_FROM_NUMBER, to: normalizePhone(to), body });
     if (contactId) {
       db.prepare('INSERT INTO messages_sent (contact_id, type, body) VALUES (?, ?, ?)').run(contactId, 'sms', body);
       db.prepare("UPDATE contacts SET last_contacted = datetime('now'), status = CASE WHEN status = 'Not Contacted' THEN 'Texted' ELSE status END WHERE id = ? AND workspace_id = ?").run(contactId, req.workspaceId);
+      // Log outbound to sms_inbox for 2-way thread view
+      db.prepare('INSERT INTO sms_inbox (contact_id, from_number, to_number, body, direction, twilio_sid, workspace_id, read_at) VALUES (?, ?, ?, ?, ?, ?, ?, datetime("now"))')
+        .run(contactId, process.env.TWILIO_FROM_NUMBER || '', normalizePhone(to), body, 'outbound', msg.sid, req.workspaceId);
     }
     res.json({ ok: true });
   } catch (err) {
     console.error('[SMS]', err.message);
     res.status(500).json({ error: err.message });
   }
+});
+
+// ── Inbound SMS webhook (Twilio → CRM, no auth) ───────────────────────────────
+app.post('/api/sms/webhook/inbound', (req, res) => {
+  const { From, To, Body, MessageSid } = req.body || {};
+  if (!From || !Body) { res.setHeader('Content-Type', 'text/xml'); return res.send('<Response/>'); }
+
+  const normalizedFrom = normalizePhone(From);
+
+  // Match sender to a contact by normalized phone across all workspaces
+  const allContacts = db.prepare('SELECT id, workspace_id, phone FROM contacts WHERE phone IS NOT NULL AND phone != ""').all();
+  let matched = null;
+  for (const c of allContacts) {
+    if (normalizePhone(c.phone) === normalizedFrom) { matched = c; break; }
+  }
+
+  const contactId   = matched?.id || null;
+  const workspaceId = matched?.workspace_id || 1;
+
+  db.prepare('INSERT INTO sms_inbox (contact_id, from_number, to_number, body, direction, twilio_sid, workspace_id) VALUES (?, ?, ?, ?, ?, ?, ?)')
+    .run(contactId, normalizedFrom, To || process.env.TWILIO_FROM_NUMBER || '', Body.trim(), 'inbound', MessageSid || null, workspaceId);
+
+  if (contactId) {
+    db.prepare("UPDATE contacts SET last_contacted = datetime('now') WHERE id = ?").run(contactId);
+  }
+
+  console.log(`[SMS INBOUND] From: ${normalizedFrom} → ${contactId ? `contact #${contactId}` : 'unknown'} | "${Body.substring(0, 60)}"`);
+  res.setHeader('Content-Type', 'text/xml');
+  res.send('<Response/>');
+});
+
+// ── SMS Inbox API routes ───────────────────────────────────────────────────────
+
+// GET /api/sms/inbox — all conversation threads with unread count
+app.get('/api/sms/inbox', (req, res) => {
+  const wsId = req.workspaceId;
+  const threads = db.prepare(`
+    SELECT
+      c.id AS contact_id, c.name, c.phone, c.business, c.status,
+      latest.body AS last_message, latest.direction AS last_direction, latest.created_at AS last_at,
+      (SELECT COUNT(*) FROM sms_inbox WHERE contact_id = c.id AND direction = 'inbound' AND read_at IS NULL) AS unread
+    FROM contacts c
+    INNER JOIN sms_inbox latest ON latest.contact_id = c.id
+    WHERE c.workspace_id = ? AND c.archived = 0
+      AND latest.id = (SELECT id FROM sms_inbox WHERE contact_id = c.id ORDER BY created_at DESC LIMIT 1)
+    ORDER BY latest.created_at DESC
+  `).all(wsId);
+
+  // Also include unknown-sender threads (contact_id IS NULL, workspace_id matches)
+  const unknowns = db.prepare(`
+    SELECT NULL AS contact_id, from_number AS name, from_number AS phone, '' AS business, '' AS status,
+           body AS last_message, direction AS last_direction, created_at AS last_at, 1 AS unread
+    FROM sms_inbox
+    WHERE contact_id IS NULL AND workspace_id = ?
+    GROUP BY from_number
+    ORDER BY MAX(created_at) DESC
+  `).all(wsId);
+
+  res.json({ threads, unknowns });
+});
+
+// GET /api/sms/thread/:contactId — full conversation thread for a contact
+app.get('/api/sms/thread/:contactId', (req, res) => {
+  const contact = db.prepare('SELECT id, name, phone, business, status FROM contacts WHERE id = ? AND workspace_id = ?').get(req.params.contactId, req.workspaceId);
+  if (!contact) return res.status(404).json({ error: 'Contact not found' });
+
+  const messages = db.prepare('SELECT * FROM sms_inbox WHERE contact_id = ? ORDER BY created_at ASC').all(req.params.contactId);
+
+  // Mark inbound as read
+  db.prepare("UPDATE sms_inbox SET read_at = datetime('now') WHERE contact_id = ? AND direction = 'inbound' AND read_at IS NULL").run(req.params.contactId);
+
+  res.json({ contact, messages });
+});
+
+// GET /api/sms/thread/unknown/:fromNumber — thread for unmatched sender
+app.get('/api/sms/thread/unknown/:from', (req, res) => {
+  const from = decodeURIComponent(req.params.from);
+  const messages = db.prepare("SELECT * FROM sms_inbox WHERE from_number = ? AND contact_id IS NULL ORDER BY created_at ASC").all(from);
+  db.prepare("UPDATE sms_inbox SET read_at = datetime('now') WHERE from_number = ? AND direction = 'inbound' AND read_at IS NULL").run(from);
+  res.json({ contact: { name: from, phone: from }, messages });
+});
+
+// GET /api/sms/unread-count — badge count for nav
+app.get('/api/sms/unread-count', (req, res) => {
+  const { count } = db.prepare("SELECT COUNT(*) as count FROM sms_inbox WHERE workspace_id = ? AND direction = 'inbound' AND read_at IS NULL").get(req.workspaceId);
+  res.json({ count });
 });
 
 // ── Mass SMS ──────────────────────────────────────────────────────────────────
@@ -920,9 +1009,11 @@ app.post('/api/sms/mass', massLimiter, async (req, res) => {
     const personalized = body.replace(/\{\{name\}\}/gi, contact.name.split(' ')[0]).replace(/\{\{business\}\}/gi, contact.business || '').replace(/\{\{myname\}\}/gi, ownerName);
 
     try {
-      await twilioClient.messages.create({ from: process.env.TWILIO_FROM_NUMBER, to: normalizePhone(contact.phone), body: personalized });
+      const massMsg = await twilioClient.messages.create({ from: process.env.TWILIO_FROM_NUMBER, to: normalizePhone(contact.phone), body: personalized });
       db.prepare('INSERT INTO messages_sent (contact_id, type, body) VALUES (?, ?, ?)').run(id, 'sms', personalized);
       db.prepare("UPDATE contacts SET last_contacted = datetime('now'), status = CASE WHEN status = 'Not Contacted' THEN 'Texted' ELSE status END WHERE id = ? AND workspace_id = ?").run(id, req.workspaceId);
+      db.prepare('INSERT INTO sms_inbox (contact_id, from_number, to_number, body, direction, twilio_sid, workspace_id, read_at) VALUES (?, ?, ?, ?, ?, ?, ?, datetime("now"))')
+        .run(id, process.env.TWILIO_FROM_NUMBER || '', normalizePhone(contact.phone), personalized, 'outbound', massMsg.sid, req.workspaceId);
       results.sent++;
       await new Promise(r => setTimeout(r, 300));
     } catch (err) {

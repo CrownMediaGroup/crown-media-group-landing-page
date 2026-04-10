@@ -150,6 +150,25 @@ db.exec(`
   );
 `);
 
+// ── SMS Conversation Inbox (2-way messaging) ──────────────────────────────────
+db.exec(`
+  CREATE TABLE IF NOT EXISTS sms_inbox (
+    id           INTEGER PRIMARY KEY AUTOINCREMENT,
+    contact_id   INTEGER REFERENCES contacts(id),
+    from_number  TEXT NOT NULL,
+    to_number    TEXT NOT NULL,
+    body         TEXT NOT NULL,
+    direction    TEXT NOT NULL DEFAULT 'inbound',
+    twilio_sid   TEXT,
+    read_at      DATETIME,
+    workspace_id INTEGER DEFAULT 1,
+    created_at   DATETIME DEFAULT CURRENT_TIMESTAMP
+  );
+  CREATE INDEX IF NOT EXISTS idx_sms_inbox_contact ON sms_inbox(contact_id, created_at);
+  CREATE INDEX IF NOT EXISTS idx_sms_inbox_from    ON sms_inbox(from_number);
+  CREATE INDEX IF NOT EXISTS idx_sms_inbox_unread  ON sms_inbox(workspace_id, direction, read_at);
+`);
+
 // ── Crown Scout Program ───────────────────────────────────────────────────────
 db.exec(`
   CREATE TABLE IF NOT EXISTS scouts (

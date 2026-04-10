@@ -180,6 +180,7 @@ function switchTab(tab) {
   if (tab === 'pipeline')  loadPipeline();
   if (tab === 'reports')   loadReports();
   if (tab === 'leads')     loadLeadGen();
+  if (tab === 'inbox')     loadInbox();
 }
 
 // ── Load contacts ─────────────────────────────────────────────────────────────
@@ -1890,4 +1891,142 @@ async function handleOCRFiles(fileList) {
 }
 window.handleOCRFiles = handleOCRFiles;
 window.handleOCRFile = f => handleOCRFiles([f]); // backward compat
+
+// ══════════════════════════════════════════════════════════════════════════════
+// SMS INBOX — 2-way conversations
+// ══════════════════════════════════════════════════════════════════════════════
+
+let inboxActiveContactId  = null;
+let inboxActivePhone      = null;  // for unknown senders
+
+async function loadInbox() {
+  try {
+    const { threads, unknowns } = await get('/api/sms/inbox');
+    renderInboxThreads(threads, unknowns);
+    refreshInboxBadge();
+  } catch (e) {
+    document.getElementById('inboxThreads').innerHTML =
+      `<div style="padding:20px;color:var(--muted);font-size:.85rem">Failed to load inbox: ${e.message}</div>`;
+  }
+}
+
+function renderInboxThreads(threads, unknowns) {
+  const container = document.getElementById('inboxThreads');
+  const all = [...(threads || []), ...(unknowns || [])];
+
+  if (!all.length) {
+    container.innerHTML = `<div style="padding:32px;text-align:center;color:var(--muted);font-size:.85rem">No SMS conversations yet.<br>When someone texts your Twilio number they'll appear here.</div>`;
+    return;
+  }
+
+  container.innerHTML = all.map(t => {
+    const isActive = t.contact_id && t.contact_id === inboxActiveContactId;
+    const unread   = t.unread > 0;
+    const time     = t.last_at ? new Date(t.last_at).toLocaleDateString('en-US', { month:'short', day:'numeric' }) : '';
+    const preview  = (t.last_message || '').substring(0, 55) + (t.last_message?.length > 55 ? '…' : '');
+    const isOut    = t.last_direction === 'outbound';
+    return `<div class="inbox-thread${isActive ? ' active' : ''}" onclick="openInboxThread(${JSON.stringify(t.contact_id)}, ${JSON.stringify(t.phone)})"
+      style="padding:14px 16px;border-bottom:1px solid var(--border);cursor:pointer;background:${isActive ? 'rgba(201,168,76,.12)' : 'transparent'};transition:background .15s">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
+        <span style="font-weight:${unread ? '700' : '500'};color:var(--text);font-size:.9rem">${esc(t.name || t.phone)}</span>
+        <span style="font-size:.72rem;color:var(--muted)">${time}</span>
+      </div>
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <span style="font-size:.8rem;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:220px">${isOut ? 'You: ' : ''}${esc(preview)}</span>
+        ${unread ? `<span style="background:var(--gold,#C9A84C);color:#000;border-radius:9px;font-size:.65rem;font-weight:700;padding:1px 6px;margin-left:6px;flex-shrink:0">${t.unread}</span>` : ''}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+async function openInboxThread(contactId, phone) {
+  inboxActiveContactId = contactId;
+  inboxActivePhone     = phone;
+
+  // Highlight active thread
+  document.querySelectorAll('.inbox-thread').forEach((el, i) => {
+    el.style.background = 'transparent';
+  });
+
+  try {
+    const url = contactId ? `/api/sms/thread/${contactId}` : `/api/sms/thread/unknown/${encodeURIComponent(phone)}`;
+    const { contact, messages } = await get(url);
+
+    document.getElementById('inboxConvName').textContent = contact.name || phone;
+    document.getElementById('inboxConvSub').textContent  = contact.business ? `${contact.business} · ${contact.phone}` : contact.phone || '';
+
+    const box = document.getElementById('inboxMessages');
+    if (!messages.length) {
+      box.innerHTML = `<div style="text-align:center;color:var(--muted);font-size:.85rem;margin:auto">No messages yet. Send the first one.</div>`;
+    } else {
+      box.innerHTML = messages.map(m => {
+        const out  = m.direction === 'outbound';
+        const time = new Date(m.created_at).toLocaleString('en-US', { month:'short', day:'numeric', hour:'numeric', minute:'2-digit' });
+        return `<div style="display:flex;flex-direction:column;align-items:${out ? 'flex-end' : 'flex-start'}">
+          <div style="max-width:72%;background:${out ? 'var(--gold,#C9A84C)' : 'var(--card)'};color:${out ? '#000' : 'var(--text)'};padding:10px 14px;border-radius:${out ? '16px 16px 4px 16px' : '16px 16px 16px 4px'};font-size:.88rem;line-height:1.5;word-break:break-word">${esc(m.body)}</div>
+          <span style="font-size:.7rem;color:var(--muted);margin-top:3px">${time}</span>
+        </div>`;
+      }).join('');
+      box.scrollTop = box.scrollHeight;
+    }
+
+    refreshInboxBadge();
+    // Re-render thread list to clear unread badges
+    loadInbox();
+  } catch (e) {
+    toast('Failed to load thread: ' + e.message, 'error');
+  }
+}
+
+async function sendInboxReply() {
+  if (!inboxActiveContactId && !inboxActivePhone) { toast('Select a conversation first', 'error'); return; }
+  const body = (document.getElementById('inboxReplyText').value || '').trim();
+  if (!body) return;
+
+  const btn = document.getElementById('inboxSendBtn');
+  btn.disabled = true;
+  btn.textContent = '...';
+
+  try {
+    const contact = inboxActiveContactId
+      ? allContacts.find(c => c.id === inboxActiveContactId)
+      : null;
+    const to = contact?.phone || inboxActivePhone;
+
+    await post('/api/sms/send', { contactId: inboxActiveContactId || undefined, to, body });
+    document.getElementById('inboxReplyText').value = '';
+    toast('Sent');
+    // Reload thread
+    await openInboxThread(inboxActiveContactId, inboxActivePhone);
+  } catch (e) {
+    toast('Send failed: ' + e.message, 'error');
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Send';
+  }
+}
+
+async function refreshInboxBadge() {
+  try {
+    const { count } = await get('/api/sms/unread-count');
+    const badge = document.getElementById('inboxBadge');
+    if (badge) {
+      if (count > 0) { badge.textContent = count; badge.style.display = 'inline'; }
+      else { badge.style.display = 'none'; }
+    }
+  } catch (_) {}
+}
+
+// Poll for new inbound messages every 30s when inbox tab is active
+setInterval(() => {
+  if (document.getElementById('tab-inbox') && !document.getElementById('tab-inbox').classList.contains('hidden')) {
+    loadInbox();
+    if (inboxActiveContactId) openInboxThread(inboxActiveContactId, inboxActivePhone);
+  } else {
+    refreshInboxBadge(); // always keep badge count fresh
+  }
+}, 30000);
+
+// Kick off badge on load
+document.addEventListener('DOMContentLoaded', () => setTimeout(refreshInboxBadge, 2000));
 

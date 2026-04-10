@@ -1,0 +1,43 @@
+name: Daily Research — Crown Media Group
+
+# Runs 6AM EST every weekday
+# Searches for AI marketing news → Gemini summary → writes to Agency/ops/daily-research/
+# Sends SMS to King via Twilio with bullet-point summary
+
+on:
+  schedule:
+    - cron: '0 11 * * 1,2,3,4,5'  # 6:00 AM EST = 11:00 UTC, Mon–Fri
+  workflow_dispatch:               # run manually any time
+
+jobs:
+  research:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Run daily research
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          EXA_API_KEY:    ${{ secrets.EXA_API_KEY }}
+          TWILIO_ACCOUNT_SID:  ${{ secrets.TWILIO_ACCOUNT_SID }}
+          TWILIO_AUTH_TOKEN:   ${{ secrets.TWILIO_AUTH_TOKEN }}
+          TWILIO_FROM_NUMBER:  ${{ secrets.TWILIO_FROM_NUMBER }}
+          KING_PHONE:          ${{ secrets.KING_PHONE }}
+        run: node Agency/ops/scripts/daily-research.js
+
+      - name: Commit research file
+        run: |
+          git config user.name  "crown-media-bot"
+          git config user.email "bot@crownmediagroup.co"
+          git add Agency/ops/daily-research/ || true
+          git diff --cached --quiet || git commit -m "research: $(date '+%Y-%m-%d') daily intel"
+          git push || true
