@@ -245,7 +245,10 @@ Structure (follow this exactly):
    A: [Direct, definitive, self-contained answer — 2–3 sentences max. Perfect for AI citation.]
 6. Contextual service plugs — after EVERY major problem identified, link to the Crown Media Group service that solves it (see service link map in system prompt). 3–5 hyperlinked plugs minimum. Lead with pain, follow with solution link.
 7. Closing CTA — strong, direct. Book a free strategy session at [calendly.com/crownmediagroupco](https://calendly.com/crownmediagroupco)
-7. End with a single brief italicized Scripture quote that fits the topic naturally.
+8. REFERRAL SECTION — After the closing CTA, add this section naturally (do not skip):
+   ## Know a Business Owner Who Needs This?
+   Crown Media Group's Scout Program pays $50 for every Columbia SC business owner you refer who signs up. No pitch required — just connect them. [Apply as a Scout → crownmediagroup.co/scout](https://crownmediagroup.co/scout)
+9. End with a single brief italicized Scripture quote that fits the topic naturally.
 
 Rules:
 - 1,500–2,000 words total
