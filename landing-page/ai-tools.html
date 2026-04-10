@@ -56,6 +56,12 @@ nav.scrolled{box-shadow:0 4px 30px rgba(201,152,26,.08)}
 .btn-gold-large:hover{transform:translateY(-3px);box-shadow:0 12px 36px rgba(201,152,26,.55),inset 0 1px 0 rgba(255,255,255,0.25);filter:brightness(1.06)}
 .btn-custom-pkg{background:transparent;color:var(--gold);border:2px dashed rgba(201,152,26,0.5);padding:13px 28px;border-radius:8px;font-size:.82rem;font-weight:700;letter-spacing:.07em;text-transform:uppercase;text-decoration:none;display:inline-flex;align-items:center;gap:8px;transition:all .25s;cursor:pointer}
 .btn-custom-pkg:hover{background:rgba(201,152,26,0.07);border-color:var(--gold);border-style:solid;transform:translateY(-3px);box-shadow:0 8px 24px rgba(201,152,26,.15)}
+@keyframes cpkg-glow{0%,100%{box-shadow:0 0 18px rgba(201,152,26,.4),0 0 36px rgba(201,152,26,.15)}50%{box-shadow:0 0 32px rgba(201,152,26,.7),0 0 64px rgba(201,152,26,.3),0 0 90px rgba(201,152,26,.1)}}
+@keyframes cpkg-shimmer{0%{background-position:200% center}100%{background-position:-200% center}}
+@keyframes cpkg-star-spin{0%,100%{transform:rotate(0deg) scale(1)}50%{transform:rotate(180deg) scale(1.3)}}
+.btn-custom-pkg-hero{background:linear-gradient(270deg,#7A5500,#C9981A,#F0CC55,#C9981A,#7A5500);background-size:300% auto;color:#0F0F28;border:none;padding:14px 32px;border-radius:8px;font-size:.85rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase;display:inline-flex;align-items:center;gap:10px;cursor:pointer;animation:cpkg-shimmer 3s linear infinite,cpkg-glow 2.5s ease-in-out infinite;transition:transform .25s,filter .25s;position:relative;overflow:hidden;white-space:nowrap}
+.btn-custom-pkg-hero:hover{transform:translateY(-3px) scale(1.03);filter:brightness(1.1)}
+.cpkg-star{display:inline-block;animation:cpkg-star-spin 2.5s ease-in-out infinite;line-height:1}
 .btn-full{width:100%;text-align:center;display:block}
 .hamburger{display:none;flex-direction:column;gap:5px;cursor:pointer;background:none;border:none;padding:4px}
 .hamburger span{width:24px;height:2px;background:var(--text);border-radius:2px}
@@ -67,7 +73,7 @@ nav.scrolled{box-shadow:0 4px 30px rgba(201,152,26,.08)}
 .hero h1{font-family:'Cormorant Garamond',serif;font-size:clamp(3rem,6vw,5.5rem);font-weight:700;line-height:1.05;color:var(--text);margin-bottom:24px;letter-spacing:-.02em}
 .hero h1 em{font-style:italic;color:var(--gold)}
 .hero-sub{font-size:clamp(.95rem,1.5vw,1.1rem);color:var(--text-mid);line-height:1.75;max-width:560px;margin:0 auto 48px}
-.hero-ctas{display:flex;gap:16px;justify-content:center;flex-wrap:wrap}
+.hero-ctas{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;align-items:center}
 .divider{width:80px;height:2px;background:linear-gradient(90deg,transparent,var(--gold),transparent);margin:0 auto 40px}
 .label{font-size:.7rem;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:var(--gold);display:block;margin-bottom:16px}
 
@@ -287,12 +293,12 @@ nav.scrolled{box-shadow:0 4px 30px rgba(201,152,26,.08)}
   <h1>Your <em>Logo</em>, <span style="color:var(--text)">Website</span><br>&amp; <em>Business Tools.</em> Done Fast.</h1>
   <p class="hero-sub">Everything your business needs to look professional and stay organized &mdash; without hiring a designer, developer, or extra staff. We do it for you.</p>
   <div class="hero-ctas">
-    <button type="button" class="btn-royal" onclick="switchTab('logos');document.getElementById('products-section').scrollIntoView({behavior:'smooth'})">Get My Logo &mdash; $97</button>
+    <button type="button" class="btn-royal" onclick="switchTab('logos');document.getElementById('products-section').scrollIntoView({behavior:'smooth'})">Get My Logo</button>
     <button type="button" class="btn-outline" onclick="switchTab('social');document.getElementById('products-section').scrollIntoView({behavior:'smooth'})">Social Media Management</button>
-    <button type="button" class="btn-gold-large" onclick="switchTab('websites');document.getElementById('products-section').scrollIntoView({behavior:'smooth'})">Get My Website &mdash; $197</button>
-    <button type="button" class="btn-outline" onclick="switchTab('crm');document.getElementById('products-section').scrollIntoView({behavior:'smooth'})">Manage My Leads &mdash; $33/mo</button>
-    <a href="https://crownmediagroup.co/scout" target="_blank" rel="noopener" class="btn-royal">Refer a Business &mdash; Earn $50</a>
-    <button type="button" class="btn-custom-pkg" onclick="switchTab('custom');document.getElementById('products-section').scrollIntoView({behavior:'smooth'})">&#10022; Build My Custom Package</button>
+    <button type="button" class="btn-gold-large" onclick="switchTab('websites');document.getElementById('products-section').scrollIntoView({behavior:'smooth'})">Get My Website</button>
+    <button type="button" class="btn-outline" onclick="switchTab('crm');document.getElementById('products-section').scrollIntoView({behavior:'smooth'})">Manage My Leads</button>
+    <a href="https://crownmediagroup.co/scout" target="_blank" rel="noopener" class="btn-royal">Refer a Business</a>
+    <button type="button" class="btn-custom-pkg-hero" onclick="switchTab('custom');document.getElementById('products-section').scrollIntoView({behavior:'smooth'})"><span class="cpkg-star">&#10022;</span> Build My Custom Package <span class="cpkg-star">&#10022;</span></button>
   </div>
 </div>
 
@@ -844,59 +850,67 @@ nav.scrolled{box-shadow:0 4px 30px rgba(201,152,26,.08)}
 
     <!-- CUSTOM PACKAGE PANEL -->
     <div id="panel-custom" class="panel" style="display:none">
-      <div class="section-header reveal" style="text-align:center;max-width:700px;margin:0 auto 64px">
+      <style>
+        @keyframes shimmer{0%,100%{opacity:.6;transform:scale(1)}50%{opacity:1;transform:scale(1.018)}}
+        @keyframes sparkle-float{0%{transform:translateY(0) rotate(0deg);opacity:0}20%{opacity:1}80%{opacity:.8}100%{transform:translateY(-80px) rotate(360deg);opacity:0}}
+        @keyframes glow-pulse{0%,100%{box-shadow:0 0 40px rgba(201,152,26,.25),0 0 80px rgba(201,152,26,.1),inset 0 1px 0 rgba(255,255,255,.08)}50%{box-shadow:0 0 70px rgba(201,152,26,.5),0 0 120px rgba(201,152,26,.22),0 0 200px rgba(201,152,26,.08),inset 0 1px 0 rgba(255,255,255,.12)}}
+        .custom-pkg-card{animation:glow-pulse 3s ease-in-out infinite}
+        .sparkle-wrap{position:relative;overflow:visible}
+        .sparkle{position:absolute;pointer-events:none;font-size:1rem;animation:sparkle-float 2.8s ease-in-out infinite}
+        .spark-btn{position:relative;overflow:hidden}
+        .spark-btn::after{content:'';position:absolute;inset:-2px;border-radius:10px;background:linear-gradient(90deg,transparent 0%,rgba(255,255,255,.18) 50%,transparent 100%);transform:translateX(-100%);transition:transform .5s}
+        .spark-btn:hover::after{transform:translateX(100%)}
+      </style>
+
+      <div class="section-header reveal" style="text-align:center;max-width:640px;margin:0 auto 56px">
         <span class="label">Personally Tailored By King</span>
         <div class="divider"></div>
-        <h2>You Tell Me What You Need.<br><em style="font-style:italic;color:var(--gold)">I'll Build It Around Your Budget.</em></h2>
-        <p style="color:var(--text-mid);line-height:1.75;margin-top:20px;">No package fits every business perfectly. Tell me what you're working with — your goals, your budget, your business — and I'll personally put together a plan that makes sense for you. No upselling. No fluff. Just what you actually need.</p>
+        <h2>No Package Fits Every Business.<br><em style="font-style:italic;color:var(--gold)">So We Build Yours from Scratch.</em></h2>
+        <p style="color:var(--text-mid);line-height:1.75;margin-top:16px">Tell King your goals, your budget, your business — and he personally builds a plan that makes sense for <em>you</em>. No upselling. No fluff. Just what you actually need.</p>
       </div>
-      <div class="reveal" style="max-width:900px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:32px;align-items:start">
-        <!-- Left: What you get -->
-        <div style="background:var(--warm);border:1px solid rgba(201,152,26,.15);border-radius:12px;padding:40px 36px">
-          <div style="font-size:.7rem;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--gold);margin-bottom:20px">What You Get</div>
-          <ul style="list-style:none;padding:0;display:flex;flex-direction:column;gap:16px">
-            <li style="display:flex;gap:12px;align-items:flex-start"><span style="color:var(--gold);font-size:1.1rem;flex-shrink:0;margin-top:1px">&#10022;</span><div><strong style="display:block;font-size:.92rem;margin-bottom:4px">A real conversation with King</strong><span style="font-size:.84rem;color:var(--text-mid)">15 minutes on a call or via text — you explain your business and your goals.</span></div></li>
-            <li style="display:flex;gap:12px;align-items:flex-start"><span style="color:var(--gold);font-size:1.1rem;flex-shrink:0;margin-top:1px">&#10022;</span><div><strong style="display:block;font-size:.92rem;margin-bottom:4px">A custom scope built for your budget</strong><span style="font-size:.84rem;color:var(--text-mid)">We meet you where you are. $50 budgets and $5,000 budgets both get a real plan.</span></div></li>
-            <li style="display:flex;gap:12px;align-items:flex-start"><span style="color:var(--gold);font-size:1.1rem;flex-shrink:0;margin-top:1px">&#10022;</span><div><strong style="display:block;font-size:.92rem;margin-bottom:4px">A written proposal within 24 hours</strong><span style="font-size:.84rem;color:var(--text-mid)">Exact deliverables, exact price, exact timeline — in writing before anything starts.</span></div></li>
-            <li style="display:flex;gap:12px;align-items:flex-start"><span style="color:var(--gold);font-size:1.1rem;flex-shrink:0;margin-top:1px">&#10022;</span><div><strong style="display:block;font-size:.92rem;margin-bottom:4px">No obligation to move forward</strong><span style="font-size:.84rem;color:var(--text-mid)">The call is free. The proposal is free. You decide if it's right for you.</span></div></li>
-          </ul>
-        </div>
-        <!-- Right: Form -->
-        <div style="background:var(--royal);border:1px solid rgba(201,152,26,.2);border-radius:12px;padding:40px 36px">
-          <div style="font-size:.7rem;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--gold);margin-bottom:20px">Tell Me About Your Business</div>
-          <form id="custom-pkg-form" style="display:flex;flex-direction:column;gap:16px" onsubmit="submitCustomPkg(event)">
-            <div style="display:flex;flex-direction:column;gap:6px">
-              <label style="font-size:.76rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:rgba(255,255,255,.5)">Your Name</label>
-              <input type="text" name="name" required placeholder="David King" style="background:rgba(255,255,255,.06);border:1px solid rgba(201,152,26,.25);border-radius:6px;color:var(--white);font-family:'Inter',sans-serif;font-size:.9rem;padding:10px 14px;outline:none;transition:border-color .2s" onfocus="this.style.borderColor='#C9981A'" onblur="this.style.borderColor='rgba(201,152,26,.25)'">
-            </div>
-            <div style="display:flex;flex-direction:column;gap:6px">
-              <label style="font-size:.76rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:rgba(255,255,255,.5)">Business Name</label>
-              <input type="text" name="business" required placeholder="Crown Media Group" style="background:rgba(255,255,255,.06);border:1px solid rgba(201,152,26,.25);border-radius:6px;color:var(--white);font-family:'Inter',sans-serif;font-size:.9rem;padding:10px 14px;outline:none;transition:border-color .2s" onfocus="this.style.borderColor='#C9981A'" onblur="this.style.borderColor='rgba(201,152,26,.25)'">
-            </div>
-            <div style="display:flex;flex-direction:column;gap:6px">
-              <label style="font-size:.76rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:rgba(255,255,255,.5)">Monthly Budget</label>
-              <select name="budget" required style="background:rgba(255,255,255,.06);border:1px solid rgba(201,152,26,.25);border-radius:6px;color:var(--white);font-family:'Inter',sans-serif;font-size:.9rem;padding:10px 14px;outline:none;appearance:none;cursor:pointer">
-                <option value="" disabled selected style="color:#888">Select a range...</option>
-                <option value="under-100" style="background:#1A1A3E">Under $100</option>
-                <option value="100-250" style="background:#1A1A3E">$100 – $250</option>
-                <option value="250-500" style="background:#1A1A3E">$250 – $500</option>
-                <option value="500-1000" style="background:#1A1A3E">$500 – $1,000</option>
-                <option value="1000-plus" style="background:#1A1A3E">$1,000+</option>
-              </select>
-            </div>
-            <div style="display:flex;flex-direction:column;gap:6px">
-              <label style="font-size:.76rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:rgba(255,255,255,.5)">What Do You Need Most?</label>
-              <textarea name="needs" rows="3" required placeholder="e.g. I need a logo and someone to run my Instagram. I'm a caterer in Columbia SC." style="background:rgba(255,255,255,.06);border:1px solid rgba(201,152,26,.25);border-radius:6px;color:var(--white);font-family:'Inter',sans-serif;font-size:.9rem;padding:10px 14px;outline:none;resize:vertical;transition:border-color .2s" onfocus="this.style.borderColor='#C9981A'" onblur="this.style.borderColor='rgba(201,152,26,.25)'"></textarea>
-            </div>
-            <div style="display:flex;flex-direction:column;gap:6px">
-              <label style="font-size:.76rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:rgba(255,255,255,.5)">Best Way to Reach You</label>
-              <input type="text" name="contact" required placeholder="Email or phone number" style="background:rgba(255,255,255,.06);border:1px solid rgba(201,152,26,.25);border-radius:6px;color:var(--white);font-family:'Inter',sans-serif;font-size:.9rem;padding:10px 14px;outline:none;transition:border-color .2s" onfocus="this.style.borderColor='#C9981A'" onblur="this.style.borderColor='rgba(201,152,26,.25)'">
-            </div>
-            <button type="submit" class="btn-gold-large btn-full" style="margin-top:8px" id="custom-pkg-submit">Send My Request to King</button>
-            <p id="custom-pkg-msg" style="display:none;text-align:center;font-size:.85rem;color:var(--gold);margin-top:8px"></p>
-          </form>
+
+      <!-- Single glowing card -->
+      <div class="reveal sparkle-wrap" style="max-width:620px;margin:0 auto;position:relative">
+        <!-- floating sparkles -->
+        <span class="sparkle" style="left:6%;top:10%;animation-delay:0s">&#10022;</span>
+        <span class="sparkle" style="left:88%;top:18%;animation-delay:.7s;font-size:.7rem">&#10022;</span>
+        <span class="sparkle" style="left:14%;top:72%;animation-delay:1.4s;font-size:.6rem">&#10022;</span>
+        <span class="sparkle" style="left:82%;top:65%;animation-delay:.35s">&#10022;</span>
+        <span class="sparkle" style="left:50%;top:5%;animation-delay:1.9s;font-size:.55rem">&#10022;</span>
+        <span class="sparkle" style="left:72%;top:88%;animation-delay:1.1s;font-size:.65rem">&#10022;</span>
+
+        <div class="custom-pkg-card" style="background:linear-gradient(145deg,#1A1A3E 0%,#24244e 60%,#1e1e42 100%);border:1px solid rgba(201,152,26,.45);border-radius:16px;padding:56px 52px;text-align:center;position:relative">
+          <!-- top accent line -->
+          <div style="position:absolute;top:0;left:0;right:0;height:3px;border-radius:16px 16px 0 0;background:linear-gradient(90deg,transparent,#C9981A,#F0CC55,#C9981A,transparent)"></div>
+
+          <!-- crown icon -->
+          <div style="width:72px;height:72px;border-radius:50%;background:linear-gradient(135deg,#7A5500,#C9981A,#F0CC55);margin:0 auto 28px;display:flex;align-items:center;justify-content:center;box-shadow:0 0 32px rgba(201,152,26,.5);font-size:1.8rem">&#9813;</div>
+
+          <div style="font-size:.7rem;font-weight:700;letter-spacing:.22em;text-transform:uppercase;color:var(--gold);margin-bottom:14px">Free 15-Minute Strategy Call</div>
+
+          <h3 style="font-family:'Cormorant Garamond',serif;font-size:clamp(1.8rem,3.5vw,2.6rem);font-weight:700;color:var(--white);line-height:1.15;margin-bottom:20px">King Builds Your Package<br><span style="color:var(--gold-light);font-style:italic">Live on the Call.</span></h3>
+
+          <p style="color:rgba(255,255,255,.65);font-size:.95rem;line-height:1.8;max-width:440px;margin:0 auto 32px">You talk. King listens. Before you hang up, you'll have a written proposal — exact services, exact price, exact timeline. All built around your budget.</p>
+
+          <!-- what you get pills -->
+          <div style="display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin-bottom:36px">
+            <span style="background:rgba(201,152,26,.1);border:1px solid rgba(201,152,26,.3);color:var(--gold-light);border-radius:20px;padding:6px 16px;font-size:.78rem;font-weight:600">&#10022; Logo &amp; Branding</span>
+            <span style="background:rgba(201,152,26,.1);border:1px solid rgba(201,152,26,.3);color:var(--gold-light);border-radius:20px;padding:6px 16px;font-size:.78rem;font-weight:600">&#10022; Website Build</span>
+            <span style="background:rgba(201,152,26,.1);border:1px solid rgba(201,152,26,.3);color:var(--gold-light);border-radius:20px;padding:6px 16px;font-size:.78rem;font-weight:600">&#10022; Social Media</span>
+            <span style="background:rgba(201,152,26,.1);border:1px solid rgba(201,152,26,.3);color:var(--gold-light);border-radius:20px;padding:6px 16px;font-size:.78rem;font-weight:600">&#10022; Ads &amp; Lead Gen</span>
+            <span style="background:rgba(201,152,26,.1);border:1px solid rgba(201,152,26,.3);color:var(--gold-light);border-radius:20px;padding:6px 16px;font-size:.78rem;font-weight:600">&#10022; CRM &amp; Automation</span>
+            <span style="background:rgba(201,152,26,.1);border:1px solid rgba(201,152,26,.3);color:var(--gold-light);border-radius:20px;padding:6px 16px;font-size:.78rem;font-weight:600">&#10022; Any Budget Welcome</span>
+          </div>
+
+          <a href="https://calendly.com/crownmediagroupco" target="_blank" rel="noopener" class="btn-gold-large spark-btn" style="display:inline-block;font-size:.95rem;padding:18px 52px;animation:shimmer 3s ease-in-out infinite">Book My Free Call with King</a>
+
+          <p style="color:rgba(255,255,255,.3);font-size:.78rem;margin-top:20px;margin-bottom:0">No obligation &middot; Free proposal included &middot; All Glory to Jesus</p>
+
+          <!-- bottom accent -->
+          <div style="position:absolute;bottom:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(201,152,26,.4),transparent)"></div>
         </div>
       </div>
+
       <p style="text-align:center;font-size:.82rem;color:var(--text-mid);margin-top:48px;font-style:italic">"Whatever you do, work at it with all your heart, as working for the Lord." &mdash; Colossians 3:23</p>
     </div><!-- end panel-custom -->
 
