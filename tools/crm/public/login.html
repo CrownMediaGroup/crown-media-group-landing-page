@@ -340,7 +340,7 @@
     <div class="form-group">
       <label for="email">Email</label>
       <input type="email" id="email" name="email" placeholder="you@example.com"
-             autocomplete="username" required>
+             autocomplete="off" required>
     </div>
     <div class="form-group">
       <label for="password">Password</label>
@@ -540,16 +540,8 @@ async function handleGoogleCredential(response) {
   }
 }
 
-// ── Pre-fill saved email ──────────────────────────────────────────────────────
-const savedEmail = localStorage.getItem('crm_saved_email');
-if (savedEmail) {
-  document.getElementById('email').value = savedEmail;
-  document.getElementById('rememberMe').checked = true;
-  // If email is pre-filled, jump straight to password field
-  document.getElementById('password').focus();
-} else {
-  document.getElementById('email').focus();
-}
+// Always start with blank email field
+document.getElementById('email').focus();
 
 // ── Show / hide password toggle ───────────────────────────────────────────────
 const pwInput  = document.getElementById('password');
@@ -600,12 +592,7 @@ document.getElementById('loginForm').addEventListener('submit', async (e) => {
     });
 
     if (res.ok) {
-      // Save or clear email based on checkbox — password is NEVER saved
-      if (remember) {
-        localStorage.setItem('crm_saved_email', email);
-      } else {
-        localStorage.removeItem('crm_saved_email');
-      }
+      localStorage.removeItem('crm_saved_email');
       window.location.replace('/');
     } else {
       const data           = await res.json().catch(() => ({}));

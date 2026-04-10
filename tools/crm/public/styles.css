@@ -381,6 +381,13 @@ input[type="checkbox"] { width: 20px; height: 20px; cursor: pointer; accent-colo
 .import-table th { padding: 8px; text-align: left; background: var(--bg2); font-size: 11px; color: var(--muted); text-transform: uppercase; }
 .import-table td { padding: 6px 8px; border-top: 1px solid var(--border); }
 .import-more { padding: 8px; color: var(--muted); text-align: center; }
+@media (max-width: 640px) {
+  .import-drop-zone { padding: 28px 16px; font-size: 14px; min-height: 140px; }
+  .import-icon { font-size: 40px; }
+  .import-table { font-size: 11px; }
+  .import-table th, .import-table td { padding: 6px 4px; }
+  .import-table-wrap { max-height: 160px; }
+}
 
 /* ── Empty state ── */
 .empty { text-align: center; padding: 48px 24px; color: var(--muted); }

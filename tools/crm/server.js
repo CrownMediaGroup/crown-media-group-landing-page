@@ -1045,13 +1045,21 @@ app.get('/api/sms/inbox', (req, res) => {
 
   // Also include unknown-sender threads (contact_id IS NULL, workspace_id matches)
   const unknowns = db.prepare(`
-    SELECT NULL AS contact_id, from_number AS name, from_number AS phone, '' AS business, '' AS status,
-           body AS last_message, direction AS last_direction, created_at AS last_at, 1 AS unread
-    FROM sms_inbox
-    WHERE contact_id IS NULL AND workspace_id = ?
-    GROUP BY from_number
-    ORDER BY MAX(created_at) DESC
-  `).all(wsId);
+    SELECT
+      NULL AS contact_id,
+      s.from_number AS name,
+      s.from_number AS phone,
+      '' AS business,
+      '' AS status,
+      (SELECT body FROM sms_inbox WHERE from_number = s.from_number AND contact_id IS NULL AND workspace_id = ? ORDER BY created_at DESC LIMIT 1) AS last_message,
+      (SELECT direction FROM sms_inbox WHERE from_number = s.from_number AND contact_id IS NULL AND workspace_id = ? ORDER BY created_at DESC LIMIT 1) AS last_direction,
+      MAX(s.created_at) AS last_at,
+      COUNT(*) AS unread
+    FROM sms_inbox s
+    WHERE s.contact_id IS NULL AND s.workspace_id = ?
+    GROUP BY s.from_number
+    ORDER BY MAX(s.created_at) DESC
+  `).all(wsId, wsId, wsId);
 
   res.json({ threads, unknowns });
 });
@@ -2474,7 +2482,8 @@ app.post('/api/scouts/apply', async (req, res) => {
 
 // GET /api/scouts/dashboard/:code — public — scout sees their own stats
 app.get('/api/scouts/dashboard/:code', (req, res) => {
-  const scout = db.prepare('SELECT id, name, email, referral_code, status, tier, total_referrals, total_earned, joined_at, payment_method, payment_handle FROM scouts WHERE referral_code = ?').get(req.params.code);
+  const code = (req.params.code || '').trim().toUpperCase();
+  const scout = db.prepare('SELECT id, name, email, referral_code, status, tier, total_referrals, total_earned, joined_at, payment_method, payment_handle FROM scouts WHERE UPPER(referral_code) = ?').get(code);
   if (!scout) return res.status(404).json({ ok: false, error: 'Scout code not found. Double-check your welcome email.' });
 
   const refs = db.prepare('SELECT referred_business, referred_email, status, commission_amount, paid_out, created_at, payout_hold, payout_eligible_at, refund_status FROM referrals WHERE scout_id = ? ORDER BY created_at DESC').all(scout.id);

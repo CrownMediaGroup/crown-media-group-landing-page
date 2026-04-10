@@ -120,6 +120,7 @@ async function loadBranding() {
     const me = await get('/api/me');
     if (me?.user?.role === 'superadmin') {
       document.getElementById('btnAdmin')?.classList.remove('hidden');
+      document.querySelector('[data-tab="hub"]')?.classList.remove('hidden');
     }
     if (me?.trialDaysLeft !== null && me?.trialDaysLeft !== undefined) {
       showTrialBanner(me.trialDaysLeft, me.workspace?.subscription_status);
@@ -1210,21 +1211,42 @@ function openImportModal() {
   document.getElementById('importModal').classList.remove('hidden');
 }
 
+function parseCSVLine(line) {
+  const result = [];
+  let cur = '';
+  let inQuote = false;
+  for (let i = 0; i < line.length; i++) {
+    const ch = line[i];
+    if (ch === '"') {
+      if (inQuote && line[i + 1] === '"') { cur += '"'; i++; }
+      else inQuote = !inQuote;
+    } else if (ch === ',' && !inQuote) {
+      result.push(cur.trim());
+      cur = '';
+    } else {
+      cur += ch;
+    }
+  }
+  result.push(cur.trim());
+  return result;
+}
+
 function parseCSV(text) {
-  const lines = text.trim().split('\n').map(l => l.trim()).filter(Boolean);
+  // Normalize line endings
+  const lines = text.replace(/\r\n/g, '\n').replace(/\r/g, '\n').trim().split('\n').filter(Boolean);
   if (lines.length < 2) return [];
 
-  const headers = lines[0].toLowerCase().split(',').map(h => h.trim().replace(/^"|"$/g, ''));
+  const headers = parseCSVLine(lines[0]).map(h => h.toLowerCase().replace(/^"|"$/g, ''));
   const idx = {
     name:  headers.findIndex(h => h.includes('name')),
-    biz:   headers.findIndex(h => h.includes('busi') || h.includes('company')),
-    phone: headers.findIndex(h => h.includes('phone') || h.includes('tel')),
-    email: headers.findIndex(h => h.includes('email')),
+    biz:   headers.findIndex(h => h.includes('busi') || h.includes('company') || h.includes('org')),
+    phone: headers.findIndex(h => h.includes('phone') || h.includes('tel') || h.includes('mobile')),
+    email: headers.findIndex(h => h.includes('email') || h.includes('e-mail')),
     notes: headers.findIndex(h => h.includes('note')),
   };
 
   return lines.slice(1).map(line => {
-    const vals = line.split(',').map(v => v.trim().replace(/^"|"$/g, ''));
+    const vals = parseCSVLine(line);
     return {
       name:     idx.name  >= 0 ? (vals[idx.name]  || '') : '',
       business: idx.biz   >= 0 ? (vals[idx.biz]   || '') : '',
