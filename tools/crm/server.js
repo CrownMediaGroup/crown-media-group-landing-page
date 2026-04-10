@@ -805,6 +805,7 @@ app.post('/api/contacts/:id/unarchive', (req, res) => {
 app.post('/api/contacts/import', (req, res) => {
   const { contacts } = req.body;
   if (!contacts?.length) return res.status(400).json({ error: 'contacts array required' });
+  if (contacts.length > 1000) return res.status(413).json({ error: 'Max 1000 contacts per import' });
   const checkPhone = db.prepare('SELECT id FROM contacts WHERE phone = ? AND workspace_id = ? AND length(trim(phone)) > 0');
   const checkEmail = db.prepare('SELECT id FROM contacts WHERE email = ? AND workspace_id = ? AND length(trim(email)) > 0');
   const insert     = db.prepare('INSERT INTO contacts (name, business, phone, email, source, notes, workspace_id) VALUES (?, ?, ?, ?, ?, ?, ?)');
@@ -1069,10 +1070,10 @@ app.get('/api/sms/thread/:contactId', (req, res) => {
   const contact = db.prepare('SELECT id, name, phone, business, status FROM contacts WHERE id = ? AND workspace_id = ?').get(req.params.contactId, req.workspaceId);
   if (!contact) return res.status(404).json({ error: 'Contact not found' });
 
-  const messages = db.prepare('SELECT * FROM sms_inbox WHERE contact_id = ? ORDER BY created_at ASC').all(req.params.contactId);
+  const messages = db.prepare('SELECT * FROM sms_inbox WHERE contact_id = ? AND workspace_id = ? ORDER BY created_at ASC').all(req.params.contactId, req.workspaceId);
 
   // Mark inbound as read
-  db.prepare("UPDATE sms_inbox SET read_at = datetime('now') WHERE contact_id = ? AND direction = 'inbound' AND read_at IS NULL").run(req.params.contactId);
+  db.prepare("UPDATE sms_inbox SET read_at = datetime('now') WHERE contact_id = ? AND workspace_id = ? AND direction = 'inbound' AND read_at IS NULL").run(req.params.contactId, req.workspaceId);
 
   res.json({ contact, messages });
 });
@@ -1651,12 +1652,13 @@ app.get('/api/dashboard/stats', async (req, res) => {
   if (!session) return res.status(401).json({ error: 'Unauthorized' });
 
   const stats = {};
+  const wsId = session.workspaceId;
 
   // CRM stats (local SQLite)
-  stats.contacts_total  = db.prepare('SELECT COUNT(*) as c FROM contacts WHERE workspace_id=1 AND archived=0').get().c;
-  stats.clients_active  = db.prepare("SELECT COUNT(*) as c FROM contacts WHERE workspace_id=1 AND status='Active Client'").get().c;
-  stats.contacts_hot    = db.prepare("SELECT COUNT(*) as c FROM contacts WHERE workspace_id=1 AND priority='Hot' AND archived=0").get().c;
-  stats.followups_due   = db.prepare("SELECT COUNT(*) as c FROM contacts WHERE workspace_id=1 AND next_followup <= date('now') AND archived=0").get().c;
+  stats.contacts_total  = db.prepare('SELECT COUNT(*) as c FROM contacts WHERE workspace_id=? AND archived=0').get(wsId).c;
+  stats.clients_active  = db.prepare("SELECT COUNT(*) as c FROM contacts WHERE workspace_id=? AND status='Active Client'").get(wsId).c;
+  stats.contacts_hot    = db.prepare("SELECT COUNT(*) as c FROM contacts WHERE workspace_id=? AND priority='Hot' AND archived=0").get(wsId).c;
+  stats.followups_due   = db.prepare("SELECT COUNT(*) as c FROM contacts WHERE workspace_id=? AND next_followup <= date('now') AND archived=0").get(wsId).c;
 
   // Maintenance stats
   stats.maint_open  = db.prepare("SELECT COUNT(*) as c FROM maintenance_requests WHERE status='open'").get().c;

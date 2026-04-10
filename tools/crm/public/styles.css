@@ -646,6 +646,14 @@ input[type="checkbox"] { width: 20px; height: 20px; cursor: pointer; accent-colo
   /* Pipeline board scrolls horizontally */
   .pipeline-board { scroll-snap-type: x mandatory; }
   .pipeline-col { scroll-snap-align: start; min-width: 280px; }
+
+  /* SMS Inbox — stack thread list above conversation */
+  #inboxLayout { grid-template-columns: 1fr; grid-template-rows: auto 1fr; }
+  #inboxThreadList { max-height: 200px; border-right: none; border-bottom: 1px solid var(--border); }
+
+  /* New SMS compose bar — full width inputs */
+  #newSMSBar .sms-compose-row { flex-direction: column; }
+  #newSMSPhone, #newSMSBody { width: 100%; flex: none; }
 }
 
 /* ══════════════════════════════════════════════════════

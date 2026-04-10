@@ -188,7 +188,9 @@ function switchTab(tab) {
 
 async function loadContacts() {
   try {
-    allContacts = await get(`/api/contacts${showArchived ? '?showArchived=true' : ''}`);
+    const data = await get(`/api/contacts${showArchived ? '?showArchived=true' : ''}`);
+    if (!data) return;
+    allContacts = data;
     applyFilters();
   } catch (e) {
     document.getElementById('contactsBody').innerHTML =
@@ -201,6 +203,7 @@ async function loadContacts() {
 async function loadStats() {
   try {
     const s = await get('/api/stats');
+    if (!s) return;
     document.getElementById('stat-total').textContent        = s.total        ?? 0;
     document.getElementById('stat-notcontacted').textContent = s.notContacted ?? 0;
     document.getElementById('stat-pipeline').textContent     = s.inPipeline   ?? 0;
@@ -463,6 +466,7 @@ async function openModal(id) {
 
   document.getElementById('contactModal').classList.remove('hidden');
 }
+window.openModal = openModal;
 
 function attachSwipeToClose(overlayId, closeFn) {
   const overlay = document.getElementById(overlayId);
@@ -1046,6 +1050,14 @@ function bindEvents() {
   document.getElementById('inboxReplyText')?.addEventListener('keydown', e => {
     if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendInboxReply(); }
   });
+  document.getElementById('inboxReplyText')?.addEventListener('input', e => {
+    const len = e.target.value.length;
+    const el = document.getElementById('inboxCharCount');
+    if (el) {
+      el.textContent = `${len}/160${len > 160 ? ` (${Math.ceil(len/160)} msgs)` : ''}`;
+      el.style.color = len > 320 ? 'var(--red)' : len > 160 ? 'var(--gold)' : 'var(--muted)';
+    }
+  });
   document.getElementById('newSMSBody')?.addEventListener('keydown', e => {
     if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendNewSMS(); }
   });
@@ -1183,7 +1195,7 @@ async function archiveContact() {
     if (isArchived) {
       await post(`/api/contacts/${currentContactId}/unarchive`, {});
     } else {
-      await fetch(`/api/contacts/${currentContactId}`, { method: 'DELETE' });
+      await api(`/api/contacts/${currentContactId}`, { method: 'DELETE' });
     }
     const idx = allContacts.findIndex(x => x.id === currentContactId);
     if (idx !== -1) allContacts[idx].archived = isArchived ? 0 : 1;
@@ -1373,6 +1385,7 @@ async function loadPipeline() {
   if (!board) return;
   try {
     const data = await get('/api/pipeline');
+    if (!data) return;
     board.innerHTML = '';
     for (const [stage, info] of Object.entries(data)) {
       const extraClass = PIPELINE_COL_CLASS[stage] || '';
@@ -1579,6 +1592,7 @@ async function removeTag(contactId, tag) {
     loadContactTags(contactId);
   } catch (e) { toast(e.message, 'error'); }
 }
+window.removeTag = removeTag;
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // TIER 2 — TASKS / REMINDERS
@@ -1666,6 +1680,7 @@ async function deleteTask(id) {
     loadTodayTasks();
   } catch (e) { toast(e.message, 'error'); }
 }
+window.deleteTask = deleteTask;
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // TIER 2 — QUICK FILTERS
