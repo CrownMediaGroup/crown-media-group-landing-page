@@ -326,6 +326,64 @@ app.post('/api/login', loginLimiter, (req, res) => {
   res.json({ ok: true, role: user.role, workspaceId: user.workspace_id });
 });
 
+// ── Forgot Password ───────────────────────────────────────────────────────────
+app.post('/api/forgot-password', loginLimiter, async (req, res) => {
+  const { email } = req.body || {};
+  // Always return the same response — never reveal whether email exists
+  const ok = { ok: true, message: 'If that email is registered, a reset link is on its way.' };
+
+  if (!email || email.length > 254) return res.json(ok);
+
+  const user = db.prepare('SELECT id, email, name FROM users WHERE email = ?').get(email.toLowerCase().trim());
+  if (!user) return res.json(ok); // Silent — don't reveal account existence
+
+  // Invalidate old tokens for this user
+  db.prepare("UPDATE password_resets SET used=1 WHERE user_id=? AND used=0").run(user.id);
+
+  // Create new token (valid 1 hour)
+  const token   = randomBytes(32).toString('hex');
+  const expires = new Date(Date.now() + 60 * 60 * 1000).toISOString();
+  db.prepare('INSERT INTO password_resets (user_id, token, expires_at) VALUES (?, ?, ?)').run(user.id, token, expires);
+
+  const resetUrl = `https://crm.crownmediagroup.co/login.html?reset=${token}`;
+  const html = `<div style="font-family:Arial,sans-serif;max-width:560px;margin:0 auto;padding:32px;background:#0f0f0f;color:#fff">
+<h2 style="color:#C9A84C;margin-bottom:8px">Password Reset</h2>
+<p style="color:#aaa;margin-bottom:24px">Hi ${user.name || user.email},</p>
+<p style="color:#ccc;margin-bottom:24px">Someone requested a password reset for your Crown Media Group CRM account. If this was you, click the button below. This link expires in 1 hour.</p>
+<a href="${resetUrl}" style="background:#C9A84C;color:#000;padding:14px 28px;border-radius:6px;text-decoration:none;font-weight:bold;display:inline-block;margin-bottom:24px">Reset My Password</a>
+<p style="color:#666;font-size:13px">If you didn't request this, ignore this email. Your password won't change.<br><br>Link expires: ${new Date(expires).toLocaleString('en-US', { timeZone: 'America/New_York' })} EST</p>
+<hr style="border:none;border-top:1px solid #222;margin:24px 0">
+<p style="color:#444;font-size:12px">Crown Media Group CRM &middot; crm.crownmediagroup.co</p>
+</div>`;
+
+  try {
+    await sendEmail({ to: user.email, subject: 'Reset your CRM password — Crown Media Group', html, text: `Reset your password: ${resetUrl}\n\nExpires in 1 hour. If you didn't request this, ignore this email.` });
+    console.log(`[ForgotPW] Reset email sent to ${user.email}`);
+  } catch (e) {
+    console.error('[ForgotPW] Email error:', e.message);
+  }
+
+  res.json(ok);
+});
+
+// ── Reset Password (token validation + update) ────────────────────────────────
+app.post('/api/reset-password', loginLimiter, (req, res) => {
+  const { token, password } = req.body || {};
+  if (!token || !password) return res.status(400).json({ error: 'Token and password required' });
+  if (password.length < 8)  return res.status(400).json({ error: 'Password must be at least 8 characters' });
+  if (password.length > 128) return res.status(400).json({ error: 'Password too long' });
+
+  const row = db.prepare("SELECT * FROM password_resets WHERE token=? AND used=0 AND expires_at > datetime('now')").get(token);
+  if (!row) return res.status(400).json({ error: 'Reset link is invalid or expired. Please request a new one.' });
+
+  // Mark token used + update password
+  db.prepare('UPDATE password_resets SET used=1 WHERE id=?').run(row.id);
+  db.prepare('UPDATE users SET password_hash=? WHERE id=?').run(hashPassword(password), row.user_id);
+
+  console.log(`[ResetPW] Password updated for user_id=${row.user_id}`);
+  res.json({ ok: true, message: 'Password updated. You can now sign in.' });
+});
+
 // ── Logout ────────────────────────────────────────────────────────────────────
 app.post('/api/logout', (req, res) => {
   const token = getCookie(req, 'crm_session');
@@ -505,7 +563,7 @@ app.get('/api/branding', (req, res) => {
 
 app.use('/api', (req, res, next) => {
   const publicPaths = ['/login', '/logout', '/branding', '/register', '/auth/google', '/config/public'];
-  if (publicPaths.includes(req.path)) return next();
+  if (publicPaths.includes(req.path) || req.path === '/forgot-password' || req.path === '/reset-password') return next();
   // Public scout + webhook endpoints — no auth required
   if (req.path === '/scouts/apply' || req.path.startsWith('/scouts/dashboard/') || req.path.startsWith('/scouts/by-code/') || req.path.startsWith('/internal/') || req.path === '/sms/webhook/inbound' || req.path === '/voice/webhook') return next();
   const session = validateSession(getCookie(req, 'crm_session'));

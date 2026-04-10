@@ -3,7 +3,9 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Sign In — CRM</title>
+<title>Sign In — Crown Media Group CRM</title>
+<link rel="icon" type="image/png" href="/favicon.png">
+<link rel="apple-touch-icon" href="/favicon.png">
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -296,6 +298,15 @@
     border-radius: var(--radius);
   }
 
+  .forgot-link-wrap { text-align:center; margin-top:14px; }
+  .forgot-link, .back-link {
+    background:none; border:none; font-size:0.8rem; cursor:pointer; text-decoration:underline;
+  }
+  .forgot-link { color:var(--gold); opacity:0.8; }
+  .back-link   { color:var(--muted); }
+  .forgot-hint { color:var(--muted); font-size:0.85rem; margin-bottom:18px; line-height:1.5; }
+  .reset-hint  { color:var(--muted); font-size:0.85rem; margin-bottom:18px; line-height:1.5; }
+
   .trial-badge span {
     font-size: 0.78rem;
     color: var(--gold);
@@ -351,7 +362,40 @@
       <label for="rememberMe">Remember my email on this device</label>
     </div>
     <button type="submit" class="btn-login" id="loginBtn">Sign In</button>
+    <div class="forgot-link-wrap">
+      <button type="button" id="forgotLink" class="forgot-link">Forgot password?</button>
+    </div>
   </form>
+
+  <!-- ── FORGOT PASSWORD PANEL ── -->
+  <div id="forgotPanel" class="hidden">
+    <p class="forgot-hint">Enter your email and we'll send a reset link. Check your inbox in 1–2 minutes.</p>
+    <div class="form-group">
+      <label for="forgotEmail">Email</label>
+      <input type="email" id="forgotEmail" placeholder="you@example.com" autocomplete="email">
+    </div>
+    <button type="button" class="btn-login" id="forgotBtn">Send Reset Link</button>
+    <div class="forgot-link-wrap">
+      <button type="button" id="backToLogin" class="back-link">Back to Sign In</button>
+    </div>
+  </div>
+
+  <!-- ── RESET PASSWORD PANEL ── -->
+  <div id="resetPanel" class="hidden">
+    <p class="reset-hint">Choose a new password for your account.</p>
+    <div class="form-group">
+      <label for="newPassword">New Password</label>
+      <div class="pw-wrap">
+        <input type="password" id="newPassword" placeholder="Min 8 characters" class="pw-input" autocomplete="new-password">
+        <button type="button" class="pw-toggle" id="newPwToggle">&#128065;</button>
+      </div>
+    </div>
+    <div class="form-group">
+      <label for="confirmPassword">Confirm Password</label>
+      <input type="password" id="confirmPassword" placeholder="Repeat password" autocomplete="new-password">
+    </div>
+    <button type="button" class="btn-login" id="resetBtn">Set New Password</button>
+  </div>
 
   <!-- ── SIGNUP FORM ── -->
   <form id="signupForm" autocomplete="on">
@@ -640,6 +684,107 @@ regPwToggle.addEventListener('click', () => {
   regPwInput.type    = regPwVisible ? 'text' : 'password';
   regEyeIcon.innerHTML = regPwVisible ? eyeOffSVG : eyeOnSVG;
   regPwInput.focus();
+});
+
+// ── Forgot / Reset Password flow ──────────────────────────────────────────────
+const loginForm   = document.getElementById('loginForm');
+const forgotPanel = document.getElementById('forgotPanel');
+const resetPanel  = document.getElementById('resetPanel');
+const authTabs    = document.querySelector('.auth-tabs');
+const googleSec   = document.getElementById('googleSection');
+
+function showPanel(panel) {
+  loginForm.classList.add('hidden');
+  document.getElementById('signupForm').classList.add('hidden');
+  forgotPanel.classList.add('hidden');
+  resetPanel.classList.add('hidden');
+  authTabs.classList.add('hidden');
+  if (googleSec) googleSec.classList.add('hidden');
+  errorMsg.textContent = '';
+  panel.classList.remove('hidden');
+}
+
+function showLogin() {
+  forgotPanel.classList.add('hidden');
+  resetPanel.classList.add('hidden');
+  loginForm.classList.remove('hidden');
+  authTabs.classList.remove('hidden');
+  errorMsg.textContent = '';
+  document.getElementById('brandSub').textContent = 'Sign in to your workspace';
+}
+
+document.getElementById('forgotLink').addEventListener('click', () => {
+  showPanel(forgotPanel);
+  document.getElementById('brandSub').textContent = 'Reset your password';
+  document.getElementById('forgotEmail').value = document.getElementById('email').value || '';
+  document.getElementById('forgotEmail').focus();
+});
+
+document.getElementById('backToLogin').addEventListener('click', showLogin);
+
+document.getElementById('forgotBtn').addEventListener('click', async () => {
+  const email = document.getElementById('forgotEmail').value.trim();
+  const btn   = document.getElementById('forgotBtn');
+  if (!email) { errorMsg.textContent = 'Enter your email address.'; return; }
+  btn.disabled = true; btn.textContent = 'Sending...';
+  errorMsg.textContent = '';
+  try {
+    const r = await fetch('/api/forgot-password', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email }),
+    });
+    const d = await r.json();
+    errorMsg.style.color = 'var(--green)';
+    errorMsg.textContent = d.message || 'Reset link sent. Check your inbox.';
+    btn.textContent = 'Link Sent';
+  } catch {
+    errorMsg.style.color = 'var(--red)';
+    errorMsg.textContent = 'Connection error. Try again.';
+    btn.disabled = false; btn.textContent = 'Send Reset Link';
+  }
+});
+
+// ── Check URL for ?reset=TOKEN on page load ───────────────────────────────────
+const resetToken = new URLSearchParams(window.location.search).get('reset');
+if (resetToken) {
+  showPanel(resetPanel);
+  document.getElementById('brandSub').textContent = 'Set a new password';
+  document.getElementById('newPassword').focus();
+}
+
+document.getElementById('newPwToggle').addEventListener('click', () => {
+  const i = document.getElementById('newPassword');
+  i.type = i.type === 'password' ? 'text' : 'password';
+});
+
+document.getElementById('resetBtn').addEventListener('click', async () => {
+  const newPw  = document.getElementById('newPassword').value;
+  const confPw = document.getElementById('confirmPassword').value;
+  const btn    = document.getElementById('resetBtn');
+  errorMsg.style.color = 'var(--red)';
+  if (newPw.length < 8) { errorMsg.textContent = 'Password must be at least 8 characters.'; return; }
+  if (newPw !== confPw)  { errorMsg.textContent = 'Passwords do not match.'; return; }
+  btn.disabled = true; btn.textContent = 'Saving...';
+  errorMsg.textContent = '';
+  try {
+    const r = await fetch('/api/reset-password', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ token: resetToken, password: newPw }),
+    });
+    const d = await r.json();
+    if (!r.ok) { errorMsg.textContent = d.error || 'Reset failed.'; btn.disabled = false; btn.textContent = 'Set New Password'; return; }
+    errorMsg.style.color = 'var(--green)';
+    errorMsg.textContent = 'Password updated! Signing you in...';
+    // Auto-login after reset
+    setTimeout(async () => {
+      const email = (await fetch('/api/me').then(r => r.json()).catch(() => ({}))).email || '';
+      window.location.href = '/login.html';
+    }, 1500);
+  } catch {
+    errorMsg.style.color = 'var(--red)';
+    errorMsg.textContent = 'Connection error. Try again.';
+    btn.disabled = false; btn.textContent = 'Set New Password';
+  }
 });
 </script>
 </body>

@@ -169,6 +169,18 @@ db.exec(`
   CREATE INDEX IF NOT EXISTS idx_sms_inbox_unread  ON sms_inbox(workspace_id, direction, read_at);
 `);
 
+// ── Password Reset Tokens ─────────────────────────────────────────────────────
+db.exec(`
+  CREATE TABLE IF NOT EXISTS password_resets (
+    id         INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id    INTEGER NOT NULL REFERENCES users(id),
+    token      TEXT UNIQUE NOT NULL,
+    expires_at DATETIME NOT NULL,
+    used       INTEGER DEFAULT 0,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+  );
+`);
+
 // ── Review Requests (auto-send after Closed Won) ─────────────────────────────
 db.exec(`
   CREATE TABLE IF NOT EXISTS review_requests (
