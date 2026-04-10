@@ -157,6 +157,36 @@ export default async (req) => {
     }
   }
 
+  // ── Subscription created → log active client ─────────────────────────────────
+  if (event.type === 'customer.subscription.created') {
+    const sub   = event.data.object;
+    const email = sub.metadata?.customerEmail || sub.customer_email || '';
+    const productId = sub.metadata?.productId || sub.items?.data?.[0]?.price?.metadata?.productId || '';
+    await supabase.from('upkeep_clients').upsert({
+      email,
+      product_id:              productId,
+      stripe_subscription_id:  sub.id,
+      status:                  'active',
+    }, { onConflict: 'stripe_subscription_id' });
+  }
+
+  // ── Subscription updated (past_due, cancelled, etc.) ─────────────────────────
+  if (event.type === 'customer.subscription.updated') {
+    const sub    = event.data.object;
+    const status = sub.status === 'active' ? 'active' : sub.status === 'past_due' ? 'past_due' : sub.status;
+    await supabase.from('upkeep_clients')
+      .update({ status, updated_at: new Date().toISOString() })
+      .eq('stripe_subscription_id', sub.id);
+  }
+
+  // ── Subscription deleted ───────────────────────────────────────────────────────
+  if (event.type === 'customer.subscription.deleted') {
+    const sub = event.data.object;
+    await supabase.from('upkeep_clients')
+      .update({ status: 'cancelled', updated_at: new Date().toISOString() })
+      .eq('stripe_subscription_id', sub.id);
+  }
+
   // ── Refund → freeze scout commission / clawback if already paid ──────────────
   if (event.type === 'charge.refunded') {
     const charge = event.data.object;

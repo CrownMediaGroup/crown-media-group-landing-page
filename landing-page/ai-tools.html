@@ -290,7 +290,7 @@ nav.scrolled{box-shadow:0 4px 30px rgba(201,152,26,.08)}
     <button type="button" class="btn-royal" onclick="switchTab('logos');document.getElementById('products-section').scrollIntoView({behavior:'smooth'})">Get My Logo &mdash; $97</button>
     <button type="button" class="btn-outline" onclick="switchTab('social');document.getElementById('products-section').scrollIntoView({behavior:'smooth'})">Social Media Management</button>
     <button type="button" class="btn-gold-large" onclick="switchTab('websites');document.getElementById('products-section').scrollIntoView({behavior:'smooth'})">Get My Website &mdash; $197</button>
-    <button type="button" class="btn-outline" onclick="switchTab('crm');document.getElementById('products-section').scrollIntoView({behavior:'smooth'})">Manage My Leads &mdash; $97/mo</button>
+    <button type="button" class="btn-outline" onclick="switchTab('crm');document.getElementById('products-section').scrollIntoView({behavior:'smooth'})">Manage My Leads &mdash; $33/mo</button>
     <a href="https://crownmediagroup.co/scout" target="_blank" rel="noopener" class="btn-royal">Refer a Business &mdash; Earn $50</a>
     <button type="button" class="btn-custom-pkg" onclick="switchTab('custom');document.getElementById('products-section').scrollIntoView({behavior:'smooth'})">&#10022; Build My Custom Package</button>
   </div>
@@ -432,6 +432,7 @@ nav.scrolled{box-shadow:0 4px 30px rgba(201,152,26,.08)}
               <li>Priority 24-hour support response</li>
             </ul>
             <p style="margin:10px 0 0;font-size:.78rem;color:var(--text-light);font-style:italic;">Websites break, get hacked, go slow, and get outdated. $35/mo keeps yours clean, secure, and current &mdash; forever.</p>
+            <button type="button" onclick="openContractModal('upkeep-35','',()=>startSubscription('upkeep-35',''))" style="width:100%;margin-top:14px;padding:10px;background:transparent;border:1px solid rgba(201,152,26,.4);color:var(--gold);border-radius:6px;font-family:'Inter',sans-serif;font-size:.8rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;cursor:pointer;transition:all .2s" onmouseover="this.style.background='rgba(201,152,26,0.08)'" onmouseout="this.style.background='transparent'">Add Upkeep — $35/mo</button>
           </div>
           <button type="button" class="btn-gold-large btn-full" onclick="openModal('website-basic')">Get My Website</button>
         </div>
@@ -546,7 +547,7 @@ nav.scrolled{box-shadow:0 4px 30px rgba(201,152,26,.08)}
             <li>Hashtag strategy &amp; caption copywriting included</li>
             <li>Monthly performance report</li>
           </ul>
-          <a href="https://calendly.com/crownmediagroupco" target="_blank" rel="noopener" class="btn-royal btn-full">Get Started</a>
+          <button type="button" class="btn-royal btn-full" onclick="openContractModal('social-197','',()=>startSubscription('social-197',''))">Get Started</button>
         </div>
         <div class="product-card featured">
           <div class="card-tier">Growth &mdash; Most Popular</div>
@@ -564,7 +565,7 @@ nav.scrolled{box-shadow:0 4px 30px rgba(201,152,26,.08)}
             <li>Bi-weekly check-in call with King</li>
             <li>Monthly analytics report with growth insights</li>
           </ul>
-          <a href="https://calendly.com/crownmediagroupco" target="_blank" rel="noopener" class="btn-gold-large btn-full">Get Started</a>
+          <button type="button" class="btn-gold-large btn-full" onclick="openContractModal('social-297','',()=>startSubscription('social-297',''))">Get Started</button>
         </div>
         <div class="product-card premium">
           <div class="card-tier">Premium</div>
@@ -660,7 +661,7 @@ nav.scrolled{box-shadow:0 4px 30px rgba(201,152,26,.08)}
           <div class="card-tier">SaaS Platform &mdash; 2026 Updated</div>
           <div class="card-name">Crown Media CRM</div>
           <div class="card-desc">Your private dashboard to track every lead, follow up fast, and let AI find new prospects for you &mdash; all in one place. Now with AI Lead Generator and photo scan built in.</div>
-          <div class="card-price"><sup>$</sup>97</div>
+          <div class="card-price"><sup>$</sup>33</div>
           <div class="card-price-note">Per month after your 33-day free trial &mdash; no setup fee &middot; cancel anytime</div>
           <div class="card-divider"></div>
           <ul class="card-features">
@@ -1298,6 +1299,104 @@ async function loadDelivery(orderId) {
 
 const sleep = ms => new Promise(r => setTimeout(r, ms));
 
+// ── Custom Package Form ───────────────────────────────────────────────────────
+async function submitCustomPkg(e) {
+  e.preventDefault();
+  const form   = document.getElementById('custom-pkg-form');
+  const btn    = document.getElementById('custom-pkg-submit');
+  const msgEl  = document.getElementById('custom-pkg-msg');
+  const data   = Object.fromEntries(new FormData(form));
+
+  btn.textContent = 'Sending...';
+  btn.disabled    = true;
+  msgEl.style.display = 'none';
+
+  try {
+    const res = await fetch('/api/custom-pkg', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        name:         data.name,
+        businessName: data.business,
+        budget:       data.budget,
+        needs:        data.needs,
+        contact:      data.contact,
+      }),
+    });
+    if (!res.ok) throw new Error('Server error');
+    msgEl.style.color   = '#C9981A';
+    msgEl.textContent   = 'Request sent! King will reach out within 24 hours.';
+    msgEl.style.display = 'block';
+    form.reset();
+  } catch {
+    msgEl.style.color   = '#dc2626';
+    msgEl.textContent   = 'Something went wrong. Text King directly at crownmediagroup.co';
+    msgEl.style.display = 'block';
+  } finally {
+    btn.textContent = 'Send My Request to King';
+    btn.disabled    = false;
+  }
+}
+
+// ── Contract Modal ────────────────────────────────────────────────────────────
+let _contractPendingFn = null;
+let _contractProductId = null;
+let _contractEmail     = null;
+
+function openContractModal(productId, email, onConfirm) {
+  _contractPendingFn = onConfirm;
+  _contractProductId = productId;
+  _contractEmail     = email || '';
+  document.getElementById('contract-modal').style.display = 'flex';
+  document.getElementById('contract-agree').checked = false;
+  document.getElementById('contract-sig').value     = '';
+  document.getElementById('contract-modal-err').textContent = '';
+}
+
+function closeContractModal() {
+  document.getElementById('contract-modal').style.display = 'none';
+  _contractPendingFn = null;
+}
+
+async function confirmContract() {
+  const agreed = document.getElementById('contract-agree').checked;
+  const sig    = document.getElementById('contract-sig').value.trim();
+  const errEl  = document.getElementById('contract-modal-err');
+
+  if (!agreed) { errEl.textContent = 'Please check the agreement box to continue.'; return; }
+  if (sig.length < 2) { errEl.textContent = 'Please type your full name to sign.'; return; }
+
+  const confirmBtn = document.getElementById('contract-confirm-btn');
+  confirmBtn.textContent = 'Processing...';
+  confirmBtn.disabled    = true;
+
+  // Log the acceptance (fire-and-forget — don't block checkout)
+  fetch('/api/log-contract', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ name: sig, productId: _contractProductId, email: _contractEmail }),
+  }).catch(console.error);
+
+  closeContractModal();
+  if (_contractPendingFn) _contractPendingFn();
+}
+
+// ── Stripe Subscription Checkout ─────────────────────────────────────────────
+async function startSubscription(productId, email) {
+  try {
+    const res = await fetch('/api/create-subscription', {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body:    JSON.stringify({ productId, customerEmail: email || '' }),
+    });
+    if (!res.ok) throw new Error('Server error');
+    const data = await res.json();
+    if (data.url) window.location.href = data.url;
+  } catch {
+    alert('Something went wrong. Please email king@crownmediagroup.co or try again.');
+  }
+}
+
 </script>
 <style>
 #music-bar{position:fixed;bottom:32px;right:32px;z-index:9000;display:flex;flex-direction:column;align-items:center;padding:10px 10px 0;background:rgba(26,26,62,0.82);border:1px solid rgba(201,152,26,0.35);border-radius:40px;-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);box-shadow:0 4px 24px rgba(0,0,0,.32)}
@@ -1418,5 +1517,37 @@ if ('serviceWorker' in navigator) {
   if(copyBtn){copyBtn.addEventListener('click',function(e){e.stopPropagation();var addr='king@crownmediagroup.co';function fb(){var ta=document.createElement('textarea');ta.value=addr;ta.style.position='fixed';ta.style.opacity='0';document.body.appendChild(ta);ta.select();try{document.execCommand('copy');copyBtn.textContent='Copied!';}catch(ex){copyBtn.textContent='Failed';}document.body.removeChild(ta);setTimeout(function(){copyBtn.textContent='Copy Address';},2000);}if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(addr).then(function(){copyBtn.textContent='Copied!';setTimeout(function(){copyBtn.textContent='Copy Address';},2000);}).catch(fb);}else{fb();}});}
 })();
 </script>
+
+<!-- CONTRACT MODAL -->
+<div id="contract-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.82);z-index:99999;align-items:center;justify-content:center;padding:20px">
+  <div style="background:#1A1A3E;border:1px solid rgba(201,152,26,.35);border-radius:12px;max-width:560px;width:100%;max-height:90vh;overflow-y:auto;padding:40px 36px;position:relative">
+    <div style="font-size:.7rem;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--gold);margin-bottom:12px">Service Agreement</div>
+    <h2 style="font-family:'Cormorant Garamond',serif;font-size:1.8rem;font-weight:700;color:var(--white);margin-bottom:20px;line-height:1.2">Crown Media Group<br><em style="color:var(--gold-light);font-style:italic">Client Agreement</em></h2>
+    <div style="background:rgba(255,255,255,.04);border:1px solid rgba(201,152,26,.15);border-radius:8px;padding:20px 24px;max-height:220px;overflow-y:auto;font-size:.84rem;color:rgba(255,255,255,.65);line-height:1.8;margin-bottom:24px">
+      <p style="margin:0 0 12px"><strong style="color:var(--white)">1. Delivery.</strong> Crown Media Group agrees to deliver the selected service within the timeframe stated at the time of purchase. Logos and websites are typically delivered within 24–48 hours of receiving your completed brief.</p>
+      <p style="margin:0 0 12px"><strong style="color:var(--white)">2. Ownership.</strong> Upon full payment, the client owns all deliverables — logos, website files, graphics, and content produced for their business.</p>
+      <p style="margin:0 0 12px"><strong style="color:var(--white)">3. Monthly Services.</strong> Social media management, CRM access, and website upkeep are billed monthly and auto-renew until cancelled. Cancel anytime with 30 days written notice to king@crownmediagroup.co.</p>
+      <p style="margin:0 0 12px"><strong style="color:var(--white)">4. Revisions.</strong> King will revise your deliverable up to 2 times at no charge. If after 2 revisions the work still does not meet expectations, a full refund will be issued — no questions asked.</p>
+      <p style="margin:0 0 12px"><strong style="color:var(--white)">5. Refunds.</strong> One-time purchases are refundable before delivery begins. After delivery, refunds are handled on a case-by-case basis — King will make it right.</p>
+      <p style="margin:0"><strong style="color:var(--white)">6. Governing Law.</strong> This agreement is governed by the laws of the State of South Carolina. By signing below, you agree to these terms electronically, which is legally binding under the U.S. Electronic Signatures in Global and National Commerce Act (E-SIGN).</p>
+    </div>
+    <div style="margin-bottom:16px">
+      <label style="display:flex;align-items:flex-start;gap:12px;cursor:pointer;font-size:.88rem;color:rgba(255,255,255,.75);line-height:1.6">
+        <input type="checkbox" id="contract-agree" style="width:18px;height:18px;flex-shrink:0;margin-top:2px;accent-color:#C9981A;cursor:pointer">
+        I have read and agree to the Crown Media Group Service Agreement above.
+      </label>
+    </div>
+    <div style="margin-bottom:20px">
+      <label style="font-size:.76rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:rgba(255,255,255,.4);display:block;margin-bottom:8px">Type Your Full Name to Sign</label>
+      <input type="text" id="contract-sig" placeholder="e.g. David King" style="width:100%;background:rgba(255,255,255,.06);border:1px solid rgba(201,152,26,.3);border-radius:6px;color:var(--white);font-family:'Inter',sans-serif;font-size:.95rem;padding:12px 16px;outline:none" onfocus="this.style.borderColor='#C9981A'" onblur="this.style.borderColor='rgba(201,152,26,.3)'">
+    </div>
+    <div id="contract-modal-err" style="font-size:.83rem;color:#ef4444;margin-bottom:14px;min-height:18px"></div>
+    <div style="display:flex;gap:12px">
+      <button type="button" id="contract-confirm-btn" class="btn-gold-large" style="flex:1;padding:14px" onclick="confirmContract()">Confirm &amp; Continue to Payment</button>
+      <button type="button" onclick="closeContractModal()" style="padding:14px 20px;background:transparent;border:1px solid rgba(255,255,255,.15);color:rgba(255,255,255,.5);border-radius:8px;cursor:pointer;font-family:'Inter',sans-serif;font-size:.85rem;transition:all .2s" onmouseover="this.style.borderColor='rgba(255,255,255,.4)'" onmouseout="this.style.borderColor='rgba(255,255,255,.15)'">Cancel</button>
+    </div>
+    <p style="text-align:center;font-size:.75rem;color:rgba(255,255,255,.25);margin-top:16px;margin-bottom:0">All Glory to Jesus &middot; Governed by South Carolina law</p>
+  </div>
+</div>
 </body>
 </html>
