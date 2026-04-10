@@ -74,6 +74,7 @@ nav.scrolled{box-shadow:0 4px 30px rgba(201,152,26,.08)}
 .hero h1 em{font-style:italic;color:var(--gold)}
 .hero-sub{font-size:clamp(.95rem,1.5vw,1.1rem);color:var(--text-mid);line-height:1.75;max-width:560px;margin:0 auto 48px}
 .hero-ctas{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;align-items:center}
+.hero-ctas-custom{display:flex;justify-content:center;margin-top:14px}
 .divider{width:80px;height:2px;background:linear-gradient(90deg,transparent,var(--gold),transparent);margin:0 auto 40px}
 .label{font-size:.7rem;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:var(--gold);display:block;margin-bottom:16px}
 
@@ -298,6 +299,8 @@ nav.scrolled{box-shadow:0 4px 30px rgba(201,152,26,.08)}
     <button type="button" class="btn-gold-large" onclick="switchTab('websites');document.getElementById('products-section').scrollIntoView({behavior:'smooth'})">Get My Website</button>
     <button type="button" class="btn-outline" onclick="switchTab('crm');document.getElementById('products-section').scrollIntoView({behavior:'smooth'})">Manage My Leads</button>
     <a href="https://crownmediagroup.co/scout" target="_blank" rel="noopener" class="btn-royal">Refer a Business</a>
+  </div>
+  <div class="hero-ctas-custom">
     <button type="button" class="btn-custom-pkg-hero" onclick="switchTab('custom');document.getElementById('products-section').scrollIntoView({behavior:'smooth'})"><span class="cpkg-star">&#10022;</span> Build My Custom Package <span class="cpkg-star">&#10022;</span></button>
   </div>
 </div>
