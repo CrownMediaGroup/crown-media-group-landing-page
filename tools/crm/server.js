@@ -90,12 +90,15 @@ if (!db.prepare('SELECT id FROM users WHERE email = ?').get(KING_EMAIL)) {
 app.use(helmet({
   contentSecurityPolicy: {
     directives: {
-      defaultSrc: ["'self'"],
-      styleSrc:   ["'self'", "'unsafe-inline'"],
-      scriptSrc:  ["'self'", "'unsafe-inline'", 'https://accounts.google.com'],
-      imgSrc:     ["'self'", 'data:', 'https://lh3.googleusercontent.com'],
-      connectSrc: ["'self'", 'https://accounts.google.com', 'https://oauth2.googleapis.com'],
-      frameSrc:   ["'self'", 'https://accounts.google.com'],
+      defaultSrc:    ["'self'"],
+      styleSrc:      ["'self'", "'unsafe-inline'", 'https://fonts.googleapis.com'],
+      styleSrcElem:  ["'self'", "'unsafe-inline'", 'https://fonts.googleapis.com'],
+      fontSrc:       ["'self'", 'https://fonts.gstatic.com'],
+      scriptSrc:     ["'self'", "'unsafe-inline'", 'https://accounts.google.com'],
+      scriptSrcAttr: ["'unsafe-inline'"],
+      imgSrc:        ["'self'", 'data:', 'https://lh3.googleusercontent.com'],
+      connectSrc:    ["'self'", 'https://accounts.google.com', 'https://oauth2.googleapis.com'],
+      frameSrc:      ["'self'", 'https://accounts.google.com'],
       frameAncestors: ["'none'"],
     },
   },
