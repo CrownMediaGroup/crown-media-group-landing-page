@@ -447,13 +447,17 @@ input[type="checkbox"] { width: 20px; height: 20px; cursor: pointer; accent-colo
 
 /* ── Pipeline Board ── */
 .pipeline-header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 20px; }
-.pipeline-board { display: flex; gap: 12px; overflow-x: auto; align-items: flex-start; min-height: 400px; padding-bottom: 12px; }
+.pipeline-filters { display:flex; gap:10px; margin-bottom:14px; align-items:center; flex-wrap:wrap; }
+.pipeline-filters input { background:var(--card2); border:1px solid var(--border); border-radius:6px; color:var(--text); padding:7px 12px; font-size:13px; flex:1; min-width:160px; }
+.pipeline-filters input::placeholder { color:var(--muted); }
+.pipeline-filters select { background:var(--card2); border:1px solid var(--border); border-radius:6px; color:var(--text); padding:7px 10px; font-size:13px; cursor:pointer; }
+.pipeline-board { display: flex; gap: 12px; overflow-x: auto; align-items: stretch; min-height: calc(100vh - 240px); padding-bottom: 12px; }
 .pipeline-col { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-lg); min-width: 220px; width: 220px; flex-shrink: 0; display: flex; flex-direction: column; }
 .pipeline-col-header { padding: 12px 14px; border-bottom: 1px solid var(--border); }
 .pipeline-col-title { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .07em; color: var(--muted); }
 .pipeline-col-meta { font-size: 11px; color: var(--muted); margin-top: 2px; }
 .pipeline-col-meta span { color: var(--green); font-weight: 600; }
-.pipeline-col-body { padding: 10px; flex: 1; min-height: 80px; transition: background .15s; }
+.pipeline-col-body { padding: 10px; flex: 1; min-height: 200px; transition: background .15s; }
 .pipeline-col-body.drag-over { background: var(--gold-dim); border-radius: 6px; }
 .pipeline-card { background: var(--card2); border: 1px solid var(--border); border-radius: 8px; padding: 10px 12px; margin-bottom: 8px; cursor: grab; transition: box-shadow .15s, transform .1s; -webkit-user-select: none; -moz-user-select: none; user-select: none; }
 .pipeline-card:active { cursor: grabbing; }

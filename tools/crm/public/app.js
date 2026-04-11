@@ -1380,15 +1380,48 @@ const PIPELINE_COL_CLASS = {
   'Closed Lost': 'col-lost',
 };
 
+let _pipelineSearch = '', _pipelinePriority = '';
+
 async function loadPipeline() {
   const board = document.getElementById('pipelineBoard');
   if (!board) return;
+
+  // Build filter bar once
+  let filterBar = document.getElementById('pipelineFilters');
+  if (!filterBar) {
+    filterBar = document.createElement('div');
+    filterBar.id = 'pipelineFilters';
+    filterBar.className = 'pipeline-filters';
+    filterBar.innerHTML = `
+      <input id="pipelineSearchInput" type="text" placeholder="Search name or business..." value="${esc(_pipelineSearch)}">
+      <select id="pipelinePrioritySelect">
+        <option value="">All Priorities</option>
+        <option value="Hot" ${_pipelinePriority==='Hot'?'selected':''}>Hot</option>
+        <option value="Warm" ${_pipelinePriority==='Warm'?'selected':''}>Warm</option>
+        <option value="Normal" ${_pipelinePriority==='Normal'?'selected':''}>Normal</option>
+      </select>`;
+    board.parentNode.insertBefore(filterBar, board);
+    document.getElementById('pipelineSearchInput').addEventListener('input', e => {
+      _pipelineSearch = e.target.value.toLowerCase().trim();
+      loadPipeline();
+    });
+    document.getElementById('pipelinePrioritySelect').addEventListener('change', e => {
+      _pipelinePriority = e.target.value;
+      loadPipeline();
+    });
+  }
+
   try {
     const data = await get('/api/pipeline');
     if (!data) return;
     board.innerHTML = '';
     for (const [stage, info] of Object.entries(data)) {
       const extraClass = PIPELINE_COL_CLASS[stage] || '';
+      let contacts = info.contacts;
+      if (_pipelineSearch) contacts = contacts.filter(c =>
+        c.name.toLowerCase().includes(_pipelineSearch) ||
+        (c.business || '').toLowerCase().includes(_pipelineSearch));
+      if (_pipelinePriority) contacts = contacts.filter(c => c.priority === _pipelinePriority);
       const total = info.total > 0 ? `<span>$${info.total.toLocaleString()}</span>` : '';
       const col = document.createElement('div');
       col.className = `pipeline-col ${extraClass}`;
@@ -1396,12 +1429,12 @@ async function loadPipeline() {
       col.innerHTML = `
         <div class="pipeline-col-header">
           <div class="pipeline-col-title">${esc(stage)}</div>
-          <div class="pipeline-col-meta">${info.contacts.length} contact${info.contacts.length !== 1 ? 's' : ''} ${total}</div>
+          <div class="pipeline-col-meta">${contacts.length} contact${contacts.length !== 1 ? 's' : ''} ${total}</div>
         </div>
         <div class="pipeline-col-body" data-stage="${esc(stage)}">
-          ${info.contacts.length === 0
+          ${contacts.length === 0
             ? '<div class="pipeline-empty">Drop here</div>'
-            : info.contacts.map(c => pipelineCard(c)).join('')}
+            : contacts.map(c => pipelineCard(c)).join('')}
         </div>`;
       board.appendChild(col);
     }
@@ -1462,7 +1495,8 @@ function bindPipelineDrag() {
     if (pageScrollRAF) return;
     function loop() {
       if (!dragId || pageScrollSpeed === 0) { pageScrollRAF = null; return; }
-      window.scrollBy(0, pageScrollSpeed);
+      const crmEl = document.querySelector('.crm-content');
+      if (crmEl) crmEl.scrollTop += pageScrollSpeed;
       pageScrollRAF = requestAnimationFrame(loop);
     }
     pageScrollRAF = requestAnimationFrame(loop);
@@ -1494,7 +1528,8 @@ function bindPipelineDrag() {
     function loop() {
       if (!touchDragId || (scrollDir === 0 && scrollDirY === 0)) { scrollRAF = null; return; }
       board.scrollLeft += scrollDir * SCROLL_SPEED;
-      window.scrollBy(0, scrollDirY * SCROLL_SPEED);
+      const crmEl = document.querySelector('.crm-content');
+      if (crmEl) crmEl.scrollTop += scrollDirY * SCROLL_SPEED;
       scrollRAF = requestAnimationFrame(loop);
     }
     scrollRAF = requestAnimationFrame(loop);
