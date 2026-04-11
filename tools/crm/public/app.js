@@ -1455,17 +1455,46 @@ function bindPipelineDrag() {
     });
   });
 
+  // ── Desktop: auto-scroll page when dragging near top/bottom edge ─────────
+  let pageScrollRAF = null, pageScrollSpeed = 0;
+  function startPageScroll(speed) {
+    pageScrollSpeed = speed;
+    if (pageScrollRAF) return;
+    function loop() {
+      if (!dragId || pageScrollSpeed === 0) { pageScrollRAF = null; return; }
+      window.scrollBy(0, pageScrollSpeed);
+      pageScrollRAF = requestAnimationFrame(loop);
+    }
+    pageScrollRAF = requestAnimationFrame(loop);
+  }
+  function stopPageScroll() {
+    if (pageScrollRAF) { cancelAnimationFrame(pageScrollRAF); pageScrollRAF = null; }
+    pageScrollSpeed = 0;
+  }
+  document.addEventListener('dragover', e => {
+    if (!dragId) return;
+    const ZONE = 80, SPEED = 12;
+    if (e.clientY < ZONE) startPageScroll(-SPEED);
+    else if (e.clientY > window.innerHeight - ZONE) startPageScroll(SPEED);
+    else stopPageScroll();
+  });
+  // Extend dragend on each card to also stop page scroll
+  document.querySelectorAll('.pipeline-card').forEach(card => {
+    card.addEventListener('dragend', stopPageScroll);
+  });
+
   // ── Touch drag for mobile ────────────────────────────────────────────────
   let touchDragId = null, touchGhost = null, touchOffsetX = 0, touchOffsetY = 0, lastTouchedCol = null;
-  let scrollRAF = null, scrollDir = 0, currentTouchX = 0;
+  let scrollRAF = null, scrollDir = 0, scrollDirY = 0, currentTouchX = 0;
   const EDGE_ZONE = 72, SCROLL_SPEED = 14;
 
-  // Continuous RAF scroll loop — smooth edge-scroll while dragging
+  // Continuous RAF scroll loop — smooth edge-scroll while dragging (horizontal + vertical)
   function startScrollLoop(board) {
     if (scrollRAF) return;
     function loop() {
-      if (!touchDragId || scrollDir === 0) { scrollRAF = null; return; }
+      if (!touchDragId || (scrollDir === 0 && scrollDirY === 0)) { scrollRAF = null; return; }
       board.scrollLeft += scrollDir * SCROLL_SPEED;
+      window.scrollBy(0, scrollDirY * SCROLL_SPEED);
       scrollRAF = requestAnimationFrame(loop);
     }
     scrollRAF = requestAnimationFrame(loop);
@@ -1473,6 +1502,7 @@ function bindPipelineDrag() {
   function stopScrollLoop() {
     if (scrollRAF) { cancelAnimationFrame(scrollRAF); scrollRAF = null; }
     scrollDir = 0;
+    scrollDirY = 0;
   }
 
   document.querySelectorAll('.pipeline-card').forEach(card => {
@@ -1499,19 +1529,21 @@ function bindPipelineDrag() {
       touchGhost.style.left = `${t.clientX - touchOffsetX}px`;
       touchGhost.style.top  = `${t.clientY - touchOffsetY}px`;
 
-      // Edge-scroll detection — set direction, RAF loop does the actual scrolling
+      // Edge-scroll detection — horizontal (board) + vertical (window)
       const board = document.querySelector('.pipeline-board');
       if (board) {
         const boardRect = board.getBoundingClientRect();
-        if (t.clientX < boardRect.left + EDGE_ZONE) {
-          scrollDir = -1;
-          startScrollLoop(board);
-        } else if (t.clientX > boardRect.right - EDGE_ZONE) {
-          scrollDir = 1;
-          startScrollLoop(board);
-        } else {
-          stopScrollLoop();
-        }
+        if (t.clientX < boardRect.left + EDGE_ZONE) scrollDir = -1;
+        else if (t.clientX > boardRect.right - EDGE_ZONE) scrollDir = 1;
+        else scrollDir = 0;
+
+        const VH = window.innerHeight;
+        if (t.clientY < 80) scrollDirY = -1;
+        else if (t.clientY > VH - 80) scrollDirY = 1;
+        else scrollDirY = 0;
+
+        if (scrollDir !== 0 || scrollDirY !== 0) startScrollLoop(board);
+        else stopScrollLoop();
       }
 
       touchGhost.style.display = 'none';
