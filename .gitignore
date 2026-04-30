@@ -140,3 +140,8 @@ tools/screen/*.png
 # --- Stale build artifacts ---
 landing-page/landing-page/
 .claude/scheduled_tasks.lock
+
+# --- Runtime / MCP / agent state ---
+.agents/
+.amplify-last-run
+.playwright-mcp/
