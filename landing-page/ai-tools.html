@@ -1082,6 +1082,56 @@ function switchTab(tab, doScroll) {
   }
 }
 
+// ── Tab bar auto-scroll (mobile only) ────────────────────────────────────────
+(function() {
+  const TABS = ['logos','banners','websites','apps','social','ads','crm','blog','amplify','custom'];
+  let current = 0;
+  let autoTimer = null;
+  let resumeTimer = null;
+  const INTERVAL = 3000;   // advance every 3s
+  const RESUME_AFTER = 15000; // resume after 15s idle
+
+  function isMobile() { return window.innerWidth <= 900; }
+
+  function advance() {
+    if (!isMobile()) return;
+    current = (current + 1) % TABS.length;
+    const bar = document.getElementById('main-tabs');
+    const btn = document.getElementById('tab-' + TABS[current]);
+    if (bar && btn) {
+      // Scroll the tab into view inside the bar — don't switch the panel
+      btn.scrollIntoView({ block: 'nearest', inline: 'center' });
+    }
+    autoTimer = setTimeout(advance, INTERVAL);
+  }
+
+  function pause() {
+    clearTimeout(autoTimer);
+    clearTimeout(resumeTimer);
+    autoTimer = null;
+    resumeTimer = setTimeout(startAuto, RESUME_AFTER);
+  }
+
+  function startAuto() {
+    clearTimeout(autoTimer);
+    autoTimer = setTimeout(advance, INTERVAL);
+  }
+
+  // Start on mobile
+  if (isMobile()) startAuto();
+  window.addEventListener('resize', () => {
+    if (isMobile()) { if (!autoTimer) startAuto(); }
+    else { clearTimeout(autoTimer); clearTimeout(resumeTimer); }
+  });
+
+  // Pause on any user touch/mouse interaction with the tab bar
+  const bar = document.getElementById('main-tabs');
+  if (bar) {
+    bar.addEventListener('touchstart', pause, { passive: true });
+    bar.addEventListener('mousedown', pause);
+  }
+})();
+
 // Deep link support: ai-tools.html#social, #ads, #logos, #websites, #crm, #blog, #banners
 (function() {
   const TABS = ['logos','banners','websites','apps','social','ads','crm','blog','amplify'];
