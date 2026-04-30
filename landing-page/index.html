@@ -115,7 +115,7 @@
 <script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
 <style>
 :root{--white:#FFFFFF;--cream:#FDFBF7;--warm:#F9F5EE;--deep:#0E0E28;--gold:#C9981A;--gold-light:#E8B832;--gold-deep:#9A720D;--gold-pale:#F5E6B8;--royal:#1A1A3E;--royal-mid:#2D2D5A;--text:#1A1A2E;--text-mid:#4A4A6A;--text-light:#8A8AAA;--border:rgba(201,152,26,0.2);--border-soft:rgba(201,152,26,0.1)}
-*{margin:0;padding:0;box-sizing:border-box}html{scroll-behavior:smooth}
+*{margin:0;padding:0;box-sizing:border-box}html{scroll-behavior:smooth;overflow-x:hidden}
 body{background:var(--cream);color:var(--text);font-family:'Inter',sans-serif;overflow-x:hidden}
 .display{font-family:'Cormorant Garamond',serif;font-weight:700;letter-spacing:-.02em;line-height:1.05}
 .grad-gold{background:linear-gradient(135deg,var(--gold-deep) 0%,var(--gold-light) 50%,var(--gold-deep) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
@@ -298,7 +298,7 @@ footer{background:#0F0F28;padding:56px 64px;display:flex;align-items:center;just
 .footer-copy{color:rgba(255,255,255,.25);font-size:.78rem}
 @media(max-width:1024px){.services-grid{grid-template-columns:repeat(2,1fr)}.steps{grid-template-columns:repeat(2,1fr)}.pricing-grid{grid-template-columns:1fr;border:none}.price-card{border-right:none;border-bottom:1px solid rgba(201,152,26,.15)}.price-card:last-child{border-bottom:none}}
 @media(max-width:900px){nav{padding:16px 24px}.nav-links,.nav-cta{display:none}.hamburger{display:flex}#about,#services,#portfolio,#proof,#ai,#process,#pricing,#serve,#cta-final{padding:80px 24px}#proof-bar{padding:24px}.proof-inner{gap:24px;justify-content:flex-start}.about-grid,.ai-grid,.serve-grid{grid-template-columns:1fr;gap:60px}.about-visual{height:280px}.crown-orb{width:220px;height:220px}.orb-crown{font-size:3.5rem}.orb-crown img{width:180px;height:180px}.services-header{grid-template-columns:1fr;gap:24px}.services-grid,.steps{grid-template-columns:1fr}.service-card{padding:32px 24px}.step{padding:36px 24px}.price-card{padding:40px 24px}.city-name{font-size:4rem}.hero-light{display:none}.cta-glow{display:none}footer{flex-direction:column;text-align:center;padding:48px 24px}.footer-links{justify-content:center}.case-card{padding:40px 24px}}
-@media(max-width:480px){.hero-headline{font-size:2.8rem}.sh{font-size:2rem}.city-name{font-size:3rem}.proof-inner{flex-direction:column;gap:16px}.footer-links{flex-direction:column;gap:16px;align-items:center}}
+@media(max-width:480px){.hero-headline{font-size:2.8rem}.sh{font-size:2rem}.city-name{font-size:3rem}.proof-inner{flex-direction:column;gap:16px}.footer-links{flex-direction:column;gap:16px;align-items:center}.case-metrics{grid-template-columns:1fr}}
 /* ââ CRM trial hero button ââ */
 .btn-crm-trial{background:transparent;border:1px solid rgba(201,168,76,0.4);color:var(--gold);font-size:.85rem;font-weight:600;letter-spacing:.06em;padding:14px 28px;text-decoration:none;display:inline-block;transition:border-color .2s,color .2s;text-transform:uppercase}
 .btn-crm-trial:hover{border-color:var(--gold);color:var(--gold-light)}
@@ -767,7 +767,7 @@ footer{background:#0F0F28;padding:56px 64px;display:flex;align-items:center;just
   </div>
 </div>
 
-<div id="scouts" style="background:#0d0d1a;padding:120px 64px;text-align:center">
+<div id="scouts" style="background:#0d0d1a;padding:120px max(24px, 5vw);text-align:center">
   <div style="max-width:960px;margin:0 auto">
     <div class="reveal">
       <span class="label" style="color:#C9A84C;font-size:.75rem;letter-spacing:.12em;text-transform:uppercase;font-weight:600">We're Hiring</span>
@@ -793,14 +793,14 @@ footer{background:#0F0F28;padding:56px 64px;display:flex;align-items:center;just
       </div>
     </div>
 
-    <div class="reveal" style="background:#161628;border:1px solid rgba(201,168,76,.2);border-radius:16px;padding:40px;max-width:520px;margin:0 auto 32px">
+    <div class="reveal" style="background:#161628;border:1px solid rgba(201,168,76,.2);border-radius:16px;padding:32px max(16px, 4vw);max-width:520px;margin:0 auto 32px">
       <h3 style="color:#C9A84C;font-size:1.1rem;font-weight:700;margin:0 0 24px">Become a Crown Scout</h3>
       <form id="scout-form" onsubmit="submitScout(event)">
         <input type="text" id="scout-name" placeholder="Your Name" required style="width:100%;box-sizing:border-box;background:#0d0d1a;border:1px solid #333;color:#fff;padding:12px 16px;border-radius:8px;font-size:.95rem;margin-bottom:12px;outline:none">
         <input type="email" id="scout-email" placeholder="Your Email" required style="width:100%;box-sizing:border-box;background:#0d0d1a;border:1px solid #333;color:#fff;padding:12px 16px;border-radius:8px;font-size:.95rem;margin-bottom:12px;outline:none">
         <input type="tel" id="scout-phone" placeholder="Your Phone (optional)" style="width:100%;box-sizing:border-box;background:#0d0d1a;border:1px solid #333;color:#fff;padding:12px 16px;border-radius:8px;font-size:.95rem;margin-bottom:12px;outline:none">
         <input type="text" id="scout-how" placeholder="How do you know business owners?" style="width:100%;box-sizing:border-box;background:#0d0d1a;border:1px solid #333;color:#fff;padding:12px 16px;border-radius:8px;font-size:.95rem;margin-bottom:12px;outline:none">
-        <div style="display:flex;gap:10px;margin-bottom:20px">
+        <div style="display:flex;flex-wrap:wrap;gap:10px;margin-bottom:20px">
           <select id="scout-pay-method" style="flex:0 0 130px;background:#0d0d1a;border:1px solid #333;color:#fff;padding:12px 10px;border-radius:8px;font-size:.95rem;outline:none">
             <option value="">Pay via...</option>
             <option value="CashApp">CashApp</option>
@@ -808,7 +808,7 @@ footer{background:#0F0F28;padding:56px 64px;display:flex;align-items:center;just
             <option value="Zelle">Zelle</option>
             <option value="PayPal">PayPal</option>
           </select>
-          <input type="text" id="scout-pay-handle" placeholder="Your handle or phone/email" style="flex:1;background:#0d0d1a;border:1px solid #333;color:#fff;padding:12px 16px;border-radius:8px;font-size:.95rem;outline:none">
+          <input type="text" id="scout-pay-handle" placeholder="Your handle or phone/email" style="flex:1;min-width:0;background:#0d0d1a;border:1px solid #333;color:#fff;padding:12px 16px;border-radius:8px;font-size:.95rem;outline:none">
         </div>
         <button type="submit" id="scout-btn" style="width:100%;background:#C9A84C;color:#0d0d1a;font-weight:700;font-size:1rem;padding:14px;border:none;border-radius:8px;cursor:pointer;letter-spacing:.02em">Join the Scout Program — Free</button>
         <div id="scout-msg" style="margin-top:14px;font-size:.9rem;display:none"></div>
