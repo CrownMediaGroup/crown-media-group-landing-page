@@ -257,6 +257,12 @@ nav.scrolled{box-shadow:0 4px 30px rgba(201,152,26,.08)}
 .vol-wrap{display:none;position:absolute;bottom:60px;right:0;background:rgba(26,26,62,.9);border:1px solid rgba(201,152,26,.3);border-radius:8px;padding:12px 10px;-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px)}
 #ambient-toggle:hover .vol-wrap{display:block}
 #vol-slider{writing-mode:vertical-lr;direction:rtl;width:4px;height:80px;cursor:pointer;accent-color:var(--gold)}
+@keyframes tabscroll{0%{transform:translateX(0)}100%{transform:translateX(-100%)}}
+@media(max-width:768px){
+  .tab-bar{overflow:hidden;display:flex}
+  .tab-track{display:flex;flex-shrink:0;gap:8px;padding-right:8px;animation:tabscroll 20s linear infinite}
+  .tab-bar-paused .tab-track{animation-play-state:paused}
+}
 </style>
 </head>
 <body>
@@ -320,16 +326,30 @@ nav.scrolled{box-shadow:0 4px 30px rgba(201,152,26,.08)}
 
 <!-- TABS -->
 <div class="tab-bar" id="main-tabs">
-  <button type="button" class="tab-btn active" id="tab-logos" onclick="switchTab('logos')">Logos</button>
-  <button type="button" class="tab-btn" id="tab-banners" onclick="switchTab('banners')">Banners</button>
-  <button type="button" class="tab-btn" id="tab-websites" onclick="switchTab('websites')">Websites</button>
-  <button type="button" class="tab-btn" id="tab-apps" onclick="switchTab('apps')">App Development</button>
-  <button type="button" class="tab-btn" id="tab-social" onclick="switchTab('social')">Social Media</button>
-  <button type="button" class="tab-btn" id="tab-ads" onclick="switchTab('ads')">Social Ads</button>
-  <button type="button" class="tab-btn" id="tab-crm" onclick="switchTab('crm')">CRM</button>
-  <button type="button" class="tab-btn" id="tab-blog" onclick="switchTab('blog')">Auto-Blogger</button>
-  <button type="button" class="tab-btn" id="tab-amplify" onclick="switchTab('amplify')">Amplify</button>
-  <button type="button" class="tab-btn" id="tab-custom" onclick="switchTab('custom')" style="color:var(--gold);border-bottom-color:transparent">&#10022; Custom Package</button>
+  <div class="tab-track">
+    <button type="button" class="tab-btn active" id="tab-logos" onclick="switchTab('logos')">Logos</button>
+    <button type="button" class="tab-btn" id="tab-banners" onclick="switchTab('banners')">Banners</button>
+    <button type="button" class="tab-btn" id="tab-websites" onclick="switchTab('websites')">Websites</button>
+    <button type="button" class="tab-btn" id="tab-apps" onclick="switchTab('apps')">App Development</button>
+    <button type="button" class="tab-btn" id="tab-social" onclick="switchTab('social')">Social Media</button>
+    <button type="button" class="tab-btn" id="tab-ads" onclick="switchTab('ads')">Social Ads</button>
+    <button type="button" class="tab-btn" id="tab-crm" onclick="switchTab('crm')">CRM</button>
+    <button type="button" class="tab-btn" id="tab-blog" onclick="switchTab('blog')">Auto-Blogger</button>
+    <button type="button" class="tab-btn" id="tab-amplify" onclick="switchTab('amplify')">Amplify</button>
+    <button type="button" class="tab-btn" id="tab-custom" onclick="switchTab('custom')" style="color:var(--gold);border-bottom-color:transparent">&#10022; Custom Package</button>
+  </div>
+  <div class="tab-track" aria-hidden="true">
+    <button type="button" class="tab-btn" tabindex="-1">Logos</button>
+    <button type="button" class="tab-btn" tabindex="-1">Banners</button>
+    <button type="button" class="tab-btn" tabindex="-1">Websites</button>
+    <button type="button" class="tab-btn" tabindex="-1">App Development</button>
+    <button type="button" class="tab-btn" tabindex="-1">Social Media</button>
+    <button type="button" class="tab-btn" tabindex="-1">Social Ads</button>
+    <button type="button" class="tab-btn" tabindex="-1">CRM</button>
+    <button type="button" class="tab-btn" tabindex="-1">Auto-Blogger</button>
+    <button type="button" class="tab-btn" tabindex="-1">Amplify</button>
+    <button type="button" class="tab-btn" tabindex="-1" style="color:var(--gold)">&#10022; Custom Package</button>
+  </div>
 </div>
 
 <!-- GUARANTEE -->
@@ -1082,75 +1102,17 @@ function switchTab(tab, doScroll) {
   }
 }
 
-// ── Tab bar infinite butter-smooth scroll (mobile only) ──────────────────────
-(function() {
-  var SPEED = 0.6;
-  var RESUME_AFTER = 15000;
-  var rafId = null;
-  var resumeTimer = null;
-  var running = false;
-  var halfWidth = 0;
-  var bar = null;
-
-  function init() {
-    bar = document.getElementById('main-tabs');
-    if (!bar) return;
-
-    // Clone tabs for infinite loop
-    var origBtns = Array.from(bar.querySelectorAll('.tab-btn'));
-    origBtns.forEach(function(btn) {
-      var clone = btn.cloneNode(true);
-      clone.setAttribute('aria-hidden', 'true');
-      clone.classList.remove('active');
-      clone.removeAttribute('onclick');
-      clone.style.pointerEvents = 'none';
-      bar.appendChild(clone);
-    });
-
-    // Wait two frames so browser paints the clones before measuring
-    requestAnimationFrame(function() {
-      requestAnimationFrame(function() {
-        halfWidth = bar.scrollWidth / 2;
-        // Only auto-scroll if bar actually overflows (mobile) and has touch
-        if (bar.scrollWidth > bar.clientWidth + 10) {
-          startAuto();
-        }
-      });
-    });
-
-    bar.addEventListener('touchstart', pause, { passive: true });
-    bar.addEventListener('touchend', function() {
-      clearTimeout(resumeTimer);
-      resumeTimer = setTimeout(startAuto, RESUME_AFTER);
-    }, { passive: true });
-  }
-
-  function tick() {
-    bar.scrollLeft += SPEED;
-    if (bar.scrollLeft >= halfWidth) {
-      bar.scrollLeft -= halfWidth;
-    }
-    rafId = requestAnimationFrame(tick);
-  }
-
-  function startAuto() {
-    if (running) return;
-    running = true;
-    rafId = requestAnimationFrame(tick);
-  }
-
+(function(){
+  var bar = document.getElementById('main-tabs');
+  if (!bar) return;
+  var timer = null;
   function pause() {
-    running = false;
-    if (rafId) { cancelAnimationFrame(rafId); rafId = null; }
-    clearTimeout(resumeTimer);
-    resumeTimer = setTimeout(startAuto, RESUME_AFTER);
+    bar.classList.add('tab-bar-paused');
+    clearTimeout(timer);
+    timer = setTimeout(resume, 15000);
   }
-
-  if (document.readyState === 'complete') {
-    init();
-  } else {
-    window.addEventListener('load', init);
-  }
+  function resume() { bar.classList.remove('tab-bar-paused'); }
+  bar.addEventListener('touchstart', pause, { passive: true });
 })();
 
 // Deep link support: ai-tools.html#social, #ads, #logos, #websites, #crm, #blog, #banners
