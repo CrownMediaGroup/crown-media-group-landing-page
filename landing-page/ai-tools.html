@@ -1082,29 +1082,50 @@ function switchTab(tab, doScroll) {
   }
 }
 
-// ── Tab bar butter-smooth auto-scroll (mobile only) ──────────────────────────
+// ── Tab bar infinite butter-smooth scroll (mobile only) ──────────────────────
+// Clones the tab list so the loop is seamless — no snap, no jump, ever.
 (function() {
-  const SPEED = 0.6;          // px per frame (~36px/s at 60fps) — silky slow
-  const RESUME_AFTER = 15000; // ms idle before resuming
+  const SPEED = 0.6;          // px per frame at 60fps — silky slow
+  const RESUME_AFTER = 15000; // ms before auto-scroll resumes after user touch
   let rafId = null;
   let resumeTimer = null;
   let running = false;
 
   function isMobile() { return window.innerWidth <= 900; }
 
+  function setupInfinite() {
+    const bar = document.getElementById('main-tabs');
+    if (!bar || bar.dataset.cloned) return;
+    // Clone all real tab buttons and append them — creates seamless loop
+    const origBtns = Array.from(bar.querySelectorAll('.tab-btn'));
+    origBtns.forEach(btn => {
+      const clone = btn.cloneNode(true);
+      clone.setAttribute('aria-hidden', 'true');
+      clone.classList.remove('active');
+      // Remove onclick so clones don't switch panels
+      clone.removeAttribute('onclick');
+      clone.style.pointerEvents = 'none';
+      bar.appendChild(clone);
+    });
+    bar.dataset.cloned = '1';
+  }
+
   function tick() {
     const bar = document.getElementById('main-tabs');
     if (!bar) return;
     bar.scrollLeft += SPEED;
-    // When we reach the end, snap back to start invisibly
-    if (bar.scrollLeft >= bar.scrollWidth - bar.clientWidth - 1) {
-      bar.scrollLeft = 0;
+    // Half of scrollWidth = the original set of tabs.
+    // When we've scrolled past it, jump back by exactly that amount — invisible seam.
+    const half = bar.scrollWidth / 2;
+    if (bar.scrollLeft >= half) {
+      bar.scrollLeft -= half;
     }
     rafId = requestAnimationFrame(tick);
   }
 
   function startAuto() {
     if (!isMobile() || running) return;
+    setupInfinite();
     running = true;
     rafId = requestAnimationFrame(tick);
   }
@@ -1116,19 +1137,24 @@ function switchTab(tab, doScroll) {
     resumeTimer = setTimeout(startAuto, RESUME_AFTER);
   }
 
-  // Start on load if mobile
   if (isMobile()) startAuto();
 
   window.addEventListener('resize', () => {
     if (isMobile()) { startAuto(); }
-    else { running = false; if (rafId) { cancelAnimationFrame(rafId); rafId = null; } clearTimeout(resumeTimer); }
+    else {
+      running = false;
+      if (rafId) { cancelAnimationFrame(rafId); rafId = null; }
+      clearTimeout(resumeTimer);
+    }
   });
 
-  // Pause on touch — resume after 15s idle
   const bar = document.getElementById('main-tabs');
   if (bar) {
     bar.addEventListener('touchstart', pause, { passive: true });
-    bar.addEventListener('touchend',   () => { clearTimeout(resumeTimer); resumeTimer = setTimeout(startAuto, RESUME_AFTER); }, { passive: true });
+    bar.addEventListener('touchend', () => {
+      clearTimeout(resumeTimer);
+      resumeTimer = setTimeout(startAuto, RESUME_AFTER);
+    }, { passive: true });
   }
 })();
 
