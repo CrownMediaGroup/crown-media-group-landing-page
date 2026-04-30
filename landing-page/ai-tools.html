@@ -1083,42 +1083,52 @@ function switchTab(tab, doScroll) {
 }
 
 // ── Tab bar infinite butter-smooth scroll (mobile only) ──────────────────────
-window.addEventListener('load', function() {
-  var bar = document.getElementById('main-tabs');
-  if (!bar) return;
-
-  // Mobile only — desktop has room to show all tabs
-  if (window.innerWidth > 900) return;
-
-  var SPEED = 0.6;          // px per frame — silky slow
-  var RESUME_AFTER = 15000; // ms idle before resuming
+(function() {
+  var SPEED = 0.6;
+  var RESUME_AFTER = 15000;
   var rafId = null;
   var resumeTimer = null;
   var running = false;
   var halfWidth = 0;
+  var bar = null;
 
-  // Clone all original tabs and append — creates the seamless infinite loop
-  var origBtns = Array.from(bar.querySelectorAll('.tab-btn'));
-  origBtns.forEach(function(btn) {
-    var clone = btn.cloneNode(true);
-    clone.setAttribute('aria-hidden', 'true');
-    clone.classList.remove('active');
-    clone.removeAttribute('onclick');
-    clone.style.pointerEvents = 'none';
-    clone.style.userSelect = 'none';
-    bar.appendChild(clone);
-  });
+  function init() {
+    bar = document.getElementById('main-tabs');
+    if (!bar) return;
 
-  // Measure after clones are rendered
-  requestAnimationFrame(function() {
-    halfWidth = bar.scrollWidth / 2;
-    startAuto();
-  });
+    // Clone tabs for infinite loop
+    var origBtns = Array.from(bar.querySelectorAll('.tab-btn'));
+    origBtns.forEach(function(btn) {
+      var clone = btn.cloneNode(true);
+      clone.setAttribute('aria-hidden', 'true');
+      clone.classList.remove('active');
+      clone.removeAttribute('onclick');
+      clone.style.pointerEvents = 'none';
+      bar.appendChild(clone);
+    });
+
+    // Wait two frames so browser paints the clones before measuring
+    requestAnimationFrame(function() {
+      requestAnimationFrame(function() {
+        halfWidth = bar.scrollWidth / 2;
+        // Only auto-scroll if bar actually overflows (mobile) and has touch
+        if (bar.scrollWidth > bar.clientWidth + 10) {
+          startAuto();
+        }
+      });
+    });
+
+    bar.addEventListener('touchstart', pause, { passive: true });
+    bar.addEventListener('touchend', function() {
+      clearTimeout(resumeTimer);
+      resumeTimer = setTimeout(startAuto, RESUME_AFTER);
+    }, { passive: true });
+  }
 
   function tick() {
     bar.scrollLeft += SPEED;
     if (bar.scrollLeft >= halfWidth) {
-      bar.scrollLeft -= halfWidth; // invisible seam — teleport back exactly one set
+      bar.scrollLeft -= halfWidth;
     }
     rafId = requestAnimationFrame(tick);
   }
@@ -1136,12 +1146,12 @@ window.addEventListener('load', function() {
     resumeTimer = setTimeout(startAuto, RESUME_AFTER);
   }
 
-  bar.addEventListener('touchstart', pause, { passive: true });
-  bar.addEventListener('touchend', function() {
-    clearTimeout(resumeTimer);
-    resumeTimer = setTimeout(startAuto, RESUME_AFTER);
-  }, { passive: true });
-});
+  if (document.readyState === 'complete') {
+    init();
+  } else {
+    window.addEventListener('load', init);
+  }
+})();
 
 // Deep link support: ai-tools.html#social, #ads, #logos, #websites, #crm, #blog, #banners
 (function() {
