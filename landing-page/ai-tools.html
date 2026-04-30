@@ -1082,53 +1082,53 @@ function switchTab(tab, doScroll) {
   }
 }
 
-// ── Tab bar auto-scroll (mobile only) ────────────────────────────────────────
+// ── Tab bar butter-smooth auto-scroll (mobile only) ──────────────────────────
 (function() {
-  const TABS = ['logos','banners','websites','apps','social','ads','crm','blog','amplify','custom'];
-  let current = 0;
-  let autoTimer = null;
+  const SPEED = 0.6;          // px per frame (~36px/s at 60fps) — silky slow
+  const RESUME_AFTER = 15000; // ms idle before resuming
+  let rafId = null;
   let resumeTimer = null;
-  const INTERVAL = 3000;   // advance every 3s
-  const RESUME_AFTER = 15000; // resume after 15s idle
+  let running = false;
 
   function isMobile() { return window.innerWidth <= 900; }
 
-  function advance() {
-    if (!isMobile()) return;
-    current = (current + 1) % TABS.length;
+  function tick() {
     const bar = document.getElementById('main-tabs');
-    const btn = document.getElementById('tab-' + TABS[current]);
-    if (bar && btn) {
-      // Scroll the tab into view inside the bar — don't switch the panel
-      btn.scrollIntoView({ block: 'nearest', inline: 'center' });
+    if (!bar) return;
+    bar.scrollLeft += SPEED;
+    // When we reach the end, snap back to start invisibly
+    if (bar.scrollLeft >= bar.scrollWidth - bar.clientWidth - 1) {
+      bar.scrollLeft = 0;
     }
-    autoTimer = setTimeout(advance, INTERVAL);
-  }
-
-  function pause() {
-    clearTimeout(autoTimer);
-    clearTimeout(resumeTimer);
-    autoTimer = null;
-    resumeTimer = setTimeout(startAuto, RESUME_AFTER);
+    rafId = requestAnimationFrame(tick);
   }
 
   function startAuto() {
-    clearTimeout(autoTimer);
-    autoTimer = setTimeout(advance, INTERVAL);
+    if (!isMobile() || running) return;
+    running = true;
+    rafId = requestAnimationFrame(tick);
   }
 
-  // Start on mobile
+  function pause() {
+    running = false;
+    if (rafId) { cancelAnimationFrame(rafId); rafId = null; }
+    clearTimeout(resumeTimer);
+    resumeTimer = setTimeout(startAuto, RESUME_AFTER);
+  }
+
+  // Start on load if mobile
   if (isMobile()) startAuto();
+
   window.addEventListener('resize', () => {
-    if (isMobile()) { if (!autoTimer) startAuto(); }
-    else { clearTimeout(autoTimer); clearTimeout(resumeTimer); }
+    if (isMobile()) { startAuto(); }
+    else { running = false; if (rafId) { cancelAnimationFrame(rafId); rafId = null; } clearTimeout(resumeTimer); }
   });
 
-  // Pause on any user touch/mouse interaction with the tab bar
+  // Pause on touch — resume after 15s idle
   const bar = document.getElementById('main-tabs');
   if (bar) {
     bar.addEventListener('touchstart', pause, { passive: true });
-    bar.addEventListener('mousedown', pause);
+    bar.addEventListener('touchend',   () => { clearTimeout(resumeTimer); resumeTimer = setTimeout(startAuto, RESUME_AFTER); }, { passive: true });
   }
 })();
 
