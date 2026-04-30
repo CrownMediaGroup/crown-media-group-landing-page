@@ -21654,3 +21654,9 @@
 [2026-04-29T11:47:50.104Z] [Iron Man] Content file not ready yet — skipping social post (will retry)
 [2026-04-29T11:51:50.358Z] [Iron Man] Content file not ready yet — skipping social post (will retry)
 [2026-04-29T11:55:50.630Z] [Iron Man] Content file not ready yet — skipping social post (will retry)
+[2026-04-30T04:00:02.059Z] [Black Widow] Nightly lead gen starting — hunting Columbia SC targets...
+[2026-04-30T04:00:02.063Z] [Black Widow] Intel mission deployed.
+[2026-04-30T13:00:38.335Z] [Hawkeye] Cold outreach sequencer — taking aim at today's targets...
+[2026-04-30T13:00:38.340Z] [Hawkeye] Shots fired.
+[2026-04-30T15:00:39.280Z] [Vision] Generating King's LinkedIn post for today...
+[2026-04-30T15:00:39.563Z] [Vision] Generation failed: Your credit balance is too low to access the Anthropic API. Please go to Plans & Billing to upgrade or purchase credits.
