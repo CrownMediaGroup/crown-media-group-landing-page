@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Shatiea — Canva Design Picks | April 10 2026</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: Arial, sans-serif; background: #0f0f0f; color: #fff; padding: 32px 24px; }
+  h1 { color: #C9A84C; font-size: 24px; margin-bottom: 4px; }
+  .subtitle { color: #888; font-size: 14px; margin-bottom: 40px; }
+  .section { margin-bottom: 48px; }
+  .section-title { font-size: 18px; font-weight: bold; color: #C9A84C; border-left: 4px solid #C9A84C; padding-left: 12px; margin-bottom: 8px; }
+  .section-desc { color: #aaa; font-size: 13px; margin-bottom: 16px; padding-left: 16px; }
+  .grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+  .card { background: #1a1a1a; border-radius: 10px; overflow: hidden; border: 2px solid #333; cursor: pointer; transition: border-color 0.2s, transform 0.1s; }
+  .card:hover { border-color: #C9A84C; transform: translateY(-2px); }
+  .card.selected { border-color: #C9A84C; box-shadow: 0 0 0 3px rgba(201,168,76,0.3); }
+  .card img { width: 100%; aspect-ratio: 1; object-fit: cover; background: #222; display: block; }
+  .card img.error { filter: grayscale(1) opacity(0.3); }
+  .card-label { padding: 10px 12px; }
+  .card-label .option { font-weight: bold; color: #C9A84C; font-size: 15px; }
+  .card-label .candidate { font-size: 10px; color: #555; word-break: break-all; margin-top: 2px; }
+  .select-btn { width: 100%; background: #222; border: none; color: #aaa; padding: 8px; font-size: 12px; cursor: pointer; transition: background 0.2s; }
+  .select-btn:hover { background: #C9A84C; color: #000; font-weight: bold; }
+  .select-btn.active { background: #C9A84C; color: #000; font-weight: bold; }
+  .summary { background: #1a1a1a; border: 1px solid #333; border-radius: 10px; padding: 20px 24px; margin-bottom: 40px; }
+  .summary h2 { color: #C9A84C; font-size: 16px; margin-bottom: 12px; }
+  .summary-row { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid #222; font-size: 14px; }
+  .summary-row:last-child { border-bottom: none; }
+  .summary-row .post-name { color: #ccc; }
+  .summary-row .pick { color: #C9A84C; font-weight: bold; min-width: 80px; text-align: right; }
+  .next-steps { background: #111; border: 1px solid #C9A84C33; border-radius: 10px; padding: 20px 24px; }
+  .next-steps h2 { color: #C9A84C; font-size: 16px; margin-bottom: 12px; }
+  .step { display: flex; gap: 12px; margin-bottom: 12px; align-items: flex-start; }
+  .step-num { background: #C9A84C; color: #000; border-radius: 50%; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 12px; flex-shrink: 0; margin-top: 1px; }
+  .step-text { color: #bbb; font-size: 14px; line-height: 1.5; }
+  .step-text strong { color: #fff; }
+  .placeholder-img { width: 100%; aspect-ratio: 1; background: linear-gradient(135deg, #1a2a1a, #2a1a2a); display: flex; align-items: center; justify-content: center; font-size: 12px; color: #555; text-align: center; padding: 16px; }
+</style>
+</head>
+<body>
+
+<h1>Shatiea — Canva Design Picks</h1>
+<p class="subtitle">April 10, 2026 &nbsp;|&nbsp; Pick one option (A/B/C/D) per post. Tell King or Claude which you want — they'll be saved to Canva.</p>
+
+<div class="summary" id="summary">
+  <h2>Your Picks</h2>
+  <div class="summary-row"><span class="post-name">Post 1 — Faith/Scripture</span><span class="pick" id="pick1">Not selected</span></div>
+  <div class="summary-row"><span class="post-name">Post 2 — Juice of the Day</span><span class="pick" id="pick2">Not selected</span></div>
+  <div class="summary-row"><span class="post-name">Post 3 — Quote Card</span><span class="pick" id="pick3">Not selected</span></div>
+  <div class="summary-row"><span class="post-name">Post 4 — Behind the Scenes</span><span class="pick" id="pick4">Not selected</span></div>
+  <div class="summary-row"><span class="post-name">Post 5 — Promo/CTA</span><span class="pick" id="pick5">Not selected</span></div>
+</div>
+
+<!-- POST 1 -->
+<div class="section">
+  <div class="section-title">Post 1 — Faith / Scripture</div>
+  <div class="section-desc">"Drink in the Fruit of the Spirit" — Galatians 5:22-23 | Fresh juice glass, earth tones, greens + gold</div>
+  <div class="grid">
+    <div class="card" onclick="pick(1,'A','dg-49ea7225-4c60-4731-9509-02e60b98c441',this)">
+      <img src="https://design.canva.ai/9gXWuCYe3z08yRT" alt="Post 1 Option A" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+      <div class="placeholder-img" style="display:none">Preview loading...<br>Option A</div>
+      <div class="card-label"><div class="option">Option A</div><div class="candidate">dg-49ea7225...</div></div>
+      <button class="select-btn" id="btn-1-A">Select A</button>
+    </div>
+    <div class="card" onclick="pick(1,'B','dg-849eb8a8-0691-44dc-b952-166f93d9ef8d',this)">
+      <img src="https://design.canva.ai/bUwmdspNrRmTn24" alt="Post 1 Option B" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+      <div class="placeholder-img" style="display:none">Preview loading...<br>Option B</div>
+      <div class="card-label"><div class="option">Option B</div><div class="candidate">dg-849eb8a8...</div></div>
+      <button class="select-btn" id="btn-1-B">Select B</button>
+    </div>
+    <div class="card" onclick="pick(1,'C','dg-a930016c-fa21-44b8-a973-b0b0b3ede1ea',this)">
+      <img src="https://design.canva.ai/2c5I1pJsSSfUf8q" alt="Post 1 Option C" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+      <div class="placeholder-img" style="display:none">Preview loading...<br>Option C</div>
+      <div class="card-label"><div class="option">Option C</div><div class="candidate">dg-a930016c...</div></div>
+      <button class="select-btn" id="btn-1-C">Select C</button>
+    </div>
+    <div class="card" onclick="pick(1,'D','dg-dee0c6aa-6ac1-46b2-8210-87d8dd0e0651',this)">
+      <img src="https://design.canva.ai/ZD4PMMjgGQkoEAI" alt="Post 1 Option D" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+      <div class="placeholder-img" style="display:none">Preview loading...<br>Option D</div>
+      <div class="card-label"><div class="option">Option D</div><div class="candidate">dg-dee0c6aa...</div></div>
+      <button class="select-btn" id="btn-1-D">Select D</button>
+    </div>
+  </div>
+</div>
+
+<!-- POST 2 -->
+<div class="section">
+  <div class="section-title">Post 2 — Juice of the Day</div>
+  <div class="section-desc">"TODAY'S BLEND — Mango Pineapple Ginger — Joy in Every Sip" | Bright tropical, yellow/orange/green</div>
+  <div class="grid">
+    <div class="card" onclick="pick(2,'A','dg-553fe666-2612-4aa2-82da-5c5452ca2067',this)">
+      <img src="https://design.canva.ai/mpD9OUmbMGMiZgF" alt="Post 2 Option A" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+      <div class="placeholder-img" style="display:none">Preview loading...<br>Option A</div>
+      <div class="card-label"><div class="option">Option A</div><div class="candidate">dg-553fe666...</div></div>
+      <button class="select-btn" id="btn-2-A">Select A</button>
+    </div>
+    <div class="card" onclick="pick(2,'B','dg-b40ec553-d7f5-4b13-8c3b-529a76e034c1',this)">
+      <img src="https://design.canva.ai/fxd3oNpzSqEH3xB" alt="Post 2 Option B" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+      <div class="placeholder-img" style="display:none">Preview loading...<br>Option B</div>
+      <div class="card-label"><div class="option">Option B</div><div class="candidate">dg-b40ec553...</div></div>
+      <button class="select-btn" id="btn-2-B">Select B</button>
+    </div>
+    <div class="card" onclick="pick(2,'C','dg-bbb0bf92-8973-4428-928d-bf58caeb7dce',this)">
+      <img src="https://design.canva.ai/UG11dNU7W-oMFre" alt="Post 2 Option C" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+      <div class="placeholder-img" style="display:none">Preview loading...<br>Option C</div>
+      <div class="card-label"><div class="option">Option C</div><div class="candidate">dg-bbb0bf92...</div></div>
+      <button class="select-btn" id="btn-2-C">Select C</button>
+    </div>
+    <div class="card" onclick="pick(2,'D','dg-eec4f54f-e50f-461f-8c9c-18f181007912',this)">
+      <img src="https://design.canva.ai/rZa6RrOP9GWYljx" alt="Post 2 Option D" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+      <div class="placeholder-img" style="display:none">Preview loading...<br>Option D</div>
+      <div class="card-label"><div class="option">Option D</div><div class="candidate">dg-eec4f54f...</div></div>
+      <button class="select-btn" id="btn-2-D">Select D</button>
+    </div>
+  </div>
+</div>
+
+<!-- POST 3 -->
+<div class="section">
+  <div class="section-title">Post 3 — Quote Card</div>
+  <div class="section-desc">"Your body is a temple. Honor it with what you put in." | Deep forest green, white + gold text</div>
+  <div class="grid">
+    <div class="card" onclick="pick(3,'A','dg-432fc75e-4e43-41e1-9cff-e276fb9d2fa7',this)">
+      <img src="https://design.canva.ai/BRz7y3F_JDKDIE3" alt="Post 3 Option A" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+      <div class="placeholder-img" style="display:none">Preview loading...<br>Option A</div>
+      <div class="card-label"><div class="option">Option A</div><div class="candidate">dg-432fc75e...</div></div>
+      <button class="select-btn" id="btn-3-A">Select A</button>
+    </div>
+    <div class="card" onclick="pick(3,'B','dg-9a07e4ad-7017-4d90-ac54-6a3a563ead17',this)">
+      <img src="https://design.canva.ai/JhVa6iU5S9hSDl8" alt="Post 3 Option B" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+      <div class="placeholder-img" style="display:none">Preview loading...<br>Option B</div>
+      <div class="card-label"><div class="option">Option B</div><div class="candidate">dg-9a07e4ad...</div></div>
+      <button class="select-btn" id="btn-3-B">Select B</button>
+    </div>
+    <div class="card" onclick="pick(3,'C','dg-9a3bed28-49f9-41d0-8add-aeabc2e3f765',this)">
+      <img src="https://design.canva.ai/6mjs8zwUCw8S3uM" alt="Post 3 Option C" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+      <div class="placeholder-img" style="display:none">Preview loading...<br>Option C</div>
+      <div class="card-label"><div class="option">Option C</div><div class="candidate">dg-9a3bed28...</div></div>
+      <button class="select-btn" id="btn-3-C">Select C</button>
+    </div>
+    <div class="card" onclick="pick(3,'D','dg-f9f1f87c-e7c5-4bb4-95e8-2f72692a8f5d',this)">
+      <img src="https://design.canva.ai/jlOLImoVf65T3Ls" alt="Post 3 Option D" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+      <div class="placeholder-img" style="display:none">Preview loading...<br>Option D</div>
+      <div class="card-label"><div class="option">Option D</div><div class="candidate">dg-f9f1f87c...</div></div>
+      <button class="select-btn" id="btn-3-D">Select D</button>
+    </div>
+  </div>
+</div>
+
+<!-- POST 4 -->
+<div class="section">
+  <div class="section-title">Post 4 — Behind the Scenes</div>
+  <div class="section-desc">"Made with intention. Crafted with love." | Warm kitchen, earthy tones (cream, terracotta, green)</div>
+  <div class="grid">
+    <div class="card" onclick="pick(4,'A','dg-27492192-5adb-44d1-8d9a-5ac48ca409a7',this)">
+      <img src="https://design.canva.ai/2urRsPJ1TptegwY" alt="Post 4 Option A" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+      <div class="placeholder-img" style="display:none">Preview loading...<br>Option A</div>
+      <div class="card-label"><div class="option">Option A</div><div class="candidate">dg-27492192...</div></div>
+      <button class="select-btn" id="btn-4-A">Select A</button>
+    </div>
+    <div class="card" onclick="pick(4,'B','dg-515d3ac2-d071-415d-bb3b-1fb8dc60e2d7',this)">
+      <img src="https://design.canva.ai/xaTL96McTAqXFYU" alt="Post 4 Option B" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+      <div class="placeholder-img" style="display:none">Preview loading...<br>Option B</div>
+      <div class="card-label"><div class="option">Option B</div><div class="candidate">dg-515d3ac2...</div></div>
+      <button class="select-btn" id="btn-4-B">Select B</button>
+    </div>
+    <div class="card" onclick="pick(4,'C','dg-8dcf0dcc-1fbb-4113-bfdc-59659740e423',this)">
+      <img src="https://design.canva.ai/gKzFmJBn00voC-_" alt="Post 4 Option C" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+      <div class="placeholder-img" style="display:none">Preview loading...<br>Option C</div>
+      <div class="card-label"><div class="option">Option C</div><div class="candidate">dg-8dcf0dcc...</div></div>
+      <button class="select-btn" id="btn-4-C">Select C</button>
+    </div>
+    <div class="card" onclick="pick(4,'D','dg-f22f21f3-afc8-4f31-b125-c7a6271d9065',this)">
+      <img src="https://design.canva.ai/BlO-uJ3sFcAVvU0" alt="Post 4 Option D" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+      <div class="placeholder-img" style="display:none">Preview loading...<br>Option D</div>
+      <div class="card-label"><div class="option">Option D</div><div class="candidate">dg-f22f21f3...</div></div>
+      <button class="select-btn" id="btn-4-D">Select D</button>
+    </div>
+  </div>
+</div>
+
+<!-- POST 5 -->
+<div class="section">
+  <div class="section-title">Post 5 — Promo / CTA</div>
+  <div class="section-desc">"Ready to Feel ALIVE? 3-Day Juice Cleanse" | Vivid rainbow juice bottles, bold energy</div>
+  <div class="grid">
+    <div class="card" onclick="pick(5,'A','dg-38930013-1825-4339-a5b4-560e27758f71',this)">
+      <img src="https://design.canva.ai/S4rcvQENjbsNnIW" alt="Post 5 Option A" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+      <div class="placeholder-img" style="display:none">Preview loading...<br>Option A</div>
+      <div class="card-label"><div class="option">Option A</div><div class="candidate">dg-38930013...</div></div>
+      <button class="select-btn" id="btn-5-A">Select A</button>
+    </div>
+    <div class="card" onclick="pick(5,'B','dg-5b870f55-c680-4964-a1d0-2ad9e02fcb9b',this)">
+      <img src="https://design.canva.ai/TszTygRx7B7bV97" alt="Post 5 Option B" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+      <div class="placeholder-img" style="display:none">Preview loading...<br>Option B</div>
+      <div class="card-label"><div class="option">Option B</div><div class="candidate">dg-5b870f55...</div></div>
+      <button class="select-btn" id="btn-5-B">Select B</button>
+    </div>
+    <div class="card" onclick="pick(5,'C','dg-791f4975-9e0f-4103-a38e-530bc6544536',this)">
+      <img src="https://design.canva.ai/GVILwHp8TxIbFuk" alt="Post 5 Option C" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+      <div class="placeholder-img" style="display:none">Preview loading...<br>Option C</div>
+      <div class="card-label"><div class="option">Option C</div><div class="candidate">dg-791f4975...</div></div>
+      <button class="select-btn" id="btn-5-C">Select C</button>
+    </div>
+    <div class="card" onclick="pick(5,'D','dg-99407176-2aab-41b5-b8ae-7d544fef4fc4',this)">
+      <img src="https://design.canva.ai/pAOdpiY7HfM2zVD" alt="Post 5 Option D" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+      <div class="placeholder-img" style="display:none">Preview loading...<br>Option D</div>
+      <div class="card-label"><div class="option">Option D</div><div class="candidate">dg-99407176...</div></div>
+      <button class="select-btn" id="btn-5-D">Select D</button>
+    </div>
+  </div>
+</div>
+
+<div class="next-steps">
+  <h2>What Happens Next</h2>
+  <div class="step">
+    <div class="step-num">1</div>
+    <div class="step-text"><strong>Pick A/B/C/D for each post</strong> — click above or tell Claude "Post 1 = B, Post 2 = A..." etc.</div>
+  </div>
+  <div class="step">
+    <div class="step-num">2</div>
+    <div class="step-text"><strong>Claude saves them to your Canva account</strong> — each selected design becomes a permanent editable Canva file.</div>
+  </div>
+  <div class="step">
+    <div class="step-num">3</div>
+    <div class="step-text"><strong>Open in Canva</strong> — edit text, swap colors, add Shatiea's logo. Takes 2 min per post.</div>
+  </div>
+  <div class="step">
+    <div class="step-num">4</div>
+    <div class="step-text"><strong>Download as PNG</strong> → post to Instagram. Done.</div>
+  </div>
+  <div class="step">
+    <div class="step-num">5</div>
+    <div class="step-text"><strong>Send Shatiea's invoice</strong> — open Gmail drafts, add her email + your Stripe link, hit send.</div>
+  </div>
+</div>
+
+<script>
+const picks = {};
+function pick(postNum, option, candidateId, cardEl) {
+  // Clear previous selection for this post
+  document.querySelectorAll(`[id^="btn-${postNum}-"]`).forEach(btn => btn.classList.remove('active'));
+  document.querySelectorAll(`.section:nth-child(${postNum + 2}) .card`).forEach(c => c.classList.remove('selected'));
+
+  // Set new selection
+  cardEl.classList.add('selected');
+  document.getElementById(`btn-${postNum}-${option}`).classList.add('active');
+  picks[postNum] = { option, candidateId };
+
+  // Update summary
+  document.getElementById(`pick${postNum}`).textContent = `Option ${option}`;
+
+  // Log for easy copy-paste
+  console.log(`Post ${postNum} = Option ${option} | candidate_id: ${candidateId}`);
+  console.log('Current picks:', JSON.stringify(picks, null, 2));
+}
+</script>
+</body>
+</html>

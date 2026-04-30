@@ -258,8 +258,13 @@ nav.scrolled{box-shadow:0 4px 30px rgba(201,152,26,.08)}
 #ambient-toggle:hover .vol-wrap{display:block}
 #vol-slider{writing-mode:vertical-lr;direction:rtl;width:4px;height:80px;cursor:pointer;accent-color:var(--gold)}
 @keyframes tabscroll{0%{transform:translateX(0)}100%{transform:translateX(-100%)}}
+@keyframes tabpulse{0%,100%{box-shadow:none}50%{box-shadow:0 0 12px var(--gold)}}
+.tab-btn-pulse{animation:tabpulse 1s ease 1s 1 forwards}
 @media(max-width:768px){
-  .tab-bar{overflow:hidden;display:flex}
+  .tab-bar{overflow:hidden;display:flex;position:relative}
+  .tab-bar::before,.tab-bar::after{content:'';position:absolute;top:0;bottom:0;width:28px;pointer-events:none;z-index:2}
+  .tab-bar::before{left:0;background:linear-gradient(to right,#0a0a0a,transparent)}
+  .tab-bar::after{right:0;background:linear-gradient(to left,#0a0a0a,transparent)}
   .tab-track{display:flex;flex-shrink:0;gap:8px;padding-right:8px;animation:tabscroll 20s linear infinite}
   .tab-bar-paused .tab-track{animation-play-state:paused}
 }
@@ -1104,15 +1109,45 @@ function switchTab(tab, doScroll) {
 
 (function(){
   var bar = document.getElementById('main-tabs');
-  if (!bar) return;
-  var timer = null;
-  function pause() {
-    bar.classList.add('tab-bar-paused');
-    clearTimeout(timer);
-    timer = setTimeout(resume, 15000);
+  if(!bar) return;
+  var tracks = bar.querySelectorAll('.tab-track');
+  var startX=0, offset=0, dragging=false, timer=null;
+
+  function pause(){ bar.classList.add('tab-bar-paused'); clearTimeout(timer); }
+  function resume(){
+    tracks.forEach(function(t){ t.style.transition=''; t.style.transform=''; });
+    bar.classList.remove('tab-bar-paused');
+    offset=0;
   }
-  function resume() { bar.classList.remove('tab-bar-paused'); }
-  bar.addEventListener('touchstart', pause, { passive: true });
+
+  bar.addEventListener('touchstart',function(e){
+    pause();
+    startX=e.touches[0].clientX;
+    dragging=true;
+  },{passive:true});
+
+  bar.addEventListener('touchmove',function(e){
+    if(!dragging) return;
+    var dx=e.touches[0].clientX-startX;
+    offset+=dx;
+    startX=e.touches[0].clientX;
+    tracks.forEach(function(t){ t.style.transform='translateX('+offset+'px)'; });
+  },{passive:true});
+
+  bar.addEventListener('touchend',function(){
+    dragging=false;
+    timer=setTimeout(function(){
+      tracks.forEach(function(t){ t.style.transition='transform 0.4s ease'; t.style.transform=''; });
+      setTimeout(resume, 400);
+    },3000);
+  });
+
+  // gold pulse on first load to signal interactivity
+  window.addEventListener('load',function(){
+    var btns=bar.querySelectorAll('.tab-track:first-child .tab-btn');
+    btns.forEach(function(b){ b.classList.add('tab-btn-pulse'); });
+    setTimeout(function(){ btns.forEach(function(b){ b.classList.remove('tab-btn-pulse'); }); },2500);
+  });
 })();
 
 // Deep link support: ai-tools.html#social, #ads, #logos, #websites, #crm, #blog, #banners

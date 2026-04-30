@@ -8,6 +8,13 @@
 !.env.example
 *.env
 secrets/
+*client_secret*.json
+*Google Secret*.json
+github-recovery-codes.txt
+*.apps.googleusercontent.com*.json
+
+# --- Client project repos (standalone git repos, not submodules) ---
+clients/
 security/
 credentials/
 *_credentials.json
