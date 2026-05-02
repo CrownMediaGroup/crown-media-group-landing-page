@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kingdom Reach · Church Dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  *,*::before,*::after { box-sizing:border-box; margin:0; padding:0; }
+  :root { --royal:#1a3a8e; --deep:#0f2452; --gold:#d4a73c; --ink:#0a1628; --soft:#f4f6fb; --line:#e5e9f2; --ok:#16a34a; --warn:#d97706; --err:#dc2626; --info:#0284c7; }
+  html,body { font-family:'Inter',-apple-system,Segoe UI,Roboto,sans-serif; background:var(--soft); color:var(--ink); }
+  .header { background:linear-gradient(135deg,var(--royal),var(--deep)); color:#fff; padding:24px 28px; }
+  .brand { font-family:'Playfair Display',serif; font-weight:800; font-size:12px; letter-spacing:2px; color:var(--gold); text-transform:uppercase; }
+  .title { font-family:'Playfair Display',serif; font-size:30px; font-weight:800; margin-top:4px; }
+  .header-actions { display:flex; gap:12px; margin-top:12px; flex-wrap:wrap; }
+  .btn { padding:10px 18px; border-radius:8px; text-decoration:none; font-weight:600; font-size:14px; transition:transform .1s; }
+  .btn:hover { transform:translateY(-1px); }
+  .btn-gold { background:var(--gold); color:var(--ink); }
+  .btn-out  { background:transparent; color:#fff; border:2px solid #fff; }
+
+  .stats { display:grid; grid-template-columns:repeat(auto-fit,minmax(170px,1fr)); gap:14px; padding:20px 28px; background:#fff; border-bottom:1px solid var(--line); }
+  .stat { padding:16px; border:1px solid var(--line); border-radius:10px; }
+  .stat-label { font-size:11px; color:#5a6a87; font-weight:600; text-transform:uppercase; letter-spacing:1px; }
+  .stat-value { font-family:'Playfair Display',serif; font-size:28px; font-weight:800; color:var(--royal); margin-top:6px; }
+  .stat.priority .stat-value { color:var(--err); }
+  .stat.client   .stat-value { color:var(--ok); }
+
+  .filters { display:flex; gap:8px; padding:16px 28px; flex-wrap:wrap; align-items:center; background:#fff; border-bottom:1px solid var(--line); }
+  .filters input,.filters select { padding:8px 12px; border:1.5px solid var(--line); border-radius:8px; font-family:inherit; font-size:14px; }
+  .filters input { flex:1; min-width:200px; }
+  .pill { padding:6px 14px; border-radius:20px; font-size:13px; cursor:pointer; background:#f4f6fb; border:1.5px solid var(--line); user-select:none; }
+  .pill.active { background:var(--royal); color:#fff; border-color:var(--royal); }
+
+  .table-wrap { padding:20px 28px 60px; }
+  table { width:100%; border-collapse:collapse; background:#fff; border-radius:12px; overflow:hidden; box-shadow:0 1px 4px rgba(15,36,82,.04); }
+  th { background:var(--deep); color:#fff; padding:14px 16px; text-align:left; font-weight:600; font-size:12px; text-transform:uppercase; letter-spacing:.5px; }
+  td { padding:14px 16px; border-bottom:1px solid var(--line); font-size:14px; vertical-align:middle; }
+  tr:last-child td { border-bottom:none; }
+  tr.priority td { background:linear-gradient(90deg, rgba(220,38,38,.06), transparent 40%); }
+  tr.client   td { background:linear-gradient(90deg, rgba(22,163,74,.08), transparent 40%); }
+  tr.proposal td { background:linear-gradient(90deg, rgba(217,119,6,.07), transparent 40%); }
+  tr.contacted td { background:linear-gradient(90deg, rgba(2,132,199,.06), transparent 40%); }
+
+  .name { font-weight:600; color:var(--deep); }
+  .meta { font-size:12px; color:#5a6a87; margin-top:2px; }
+  .badge { display:inline-block; padding:4px 10px; border-radius:14px; font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.4px; }
+  .badge-A    { background:#fef9c3; color:#854d0e; }
+  .badge-B    { background:#dbeafe; color:#1e40af; }
+  .badge-C,.badge-D { background:#f3f4f6; color:#374151; }
+  .has-no  { color:var(--err); font-weight:700; }
+  .has-yes { color:#5a6a87; }
+
+  select.status-sel { padding:6px 8px; font-size:12px; border:1.5px solid var(--line); border-radius:6px; background:#fff; font-family:inherit; }
+  .actions a { color:var(--royal); text-decoration:none; font-size:13px; font-weight:600; margin-right:10px; }
+
+  .empty { text-align:center; padding:60px 20px; color:#5a6a87; }
+  @media (max-width:760px) {
+    .header { padding:18px 16px; }
+    .table-wrap { padding:14px 14px 60px; }
+    table { font-size:12px; }
+    th,td { padding:10px 8px; }
+    th.hide-sm,td.hide-sm { display:none; }
+  }
+</style>
+</head>
+<body>
+  <div class="header">
+    <div class="brand">CROWN MEDIA GROUP</div>
+    <h1 class="title">Kingdom Reach · Church Dashboard</h1>
+    <div class="header-actions">
+      <a class="btn btn-gold" href="/kingdom-reach">+ Dispatch a Meeting</a>
+      <a class="btn btn-out"  href="/">Back to CRM</a>
+    </div>
+  </div>
+
+  <div class="stats" id="stats"><div class="stat"><div class="stat-label">Loading...</div></div></div>
+
+  <div class="filters">
+    <input type="search" id="searchInput" placeholder="Search church, pastor, city...">
+    <span class="pill" data-filter="all">All</span>
+    <span class="pill active" data-filter="priority">No Website (Priority)</span>
+    <span class="pill" data-filter="contacted">Contacted</span>
+    <span class="pill" data-filter="proposal">Proposal Sent</span>
+    <span class="pill" data-filter="client">Clients</span>
+    <select id="tierSel">
+      <option value="">All Tiers</option><option>A</option><option>B</option><option>C</option><option>D</option>
+    </select>
+  </div>
+
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Church</th>
+          <th class="hide-sm">Tier</th>
+          <th class="hide-sm">Pastor</th>
+          <th>Website?</th>
+          <th>Status</th>
+          <th class="hide-sm">Recommended</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody id="rows"><tr><td colspan="7" class="empty">Loading...</td></tr></tbody>
+    </table>
+  </div>
+
+<script>
+let allChurches = [];
+let activeFilter = 'priority';
+
+async function load() {
+  const r = await fetch('/api/kingdom-reach/churches', { credentials:'include' });
+  const { churches, totals } = await r.json();
+  allChurches = churches || [];
+  renderStats(totals);
+  render();
+}
+
+function renderStats(t) {
+  document.getElementById('stats').innerHTML = `
+    <div class="stat priority"><div class="stat-label">No-Website Targets</div><div class="stat-value">${t?.no_website||0}</div></div>
+    <div class="stat"><div class="stat-label">Contacted</div><div class="stat-value">${t?.contacted||0}</div></div>
+    <div class="stat"><div class="stat-label">Proposals Sent</div><div class="stat-value">${t?.proposals||0}</div></div>
+    <div class="stat client"><div class="stat-label">Clients</div><div class="stat-value">${t?.clients||0}</div></div>
+    <div class="stat"><div class="stat-label">Pipeline Value</div><div class="stat-value">$${Math.round(t?.pipeline_total||0).toLocaleString()}</div></div>
+    <div class="stat"><div class="stat-label">Total Churches</div><div class="stat-value">${t?.total||0}</div></div>
+  `;
+}
+
+function render() {
+  const q     = document.getElementById('searchInput').value.toLowerCase();
+  const tier  = document.getElementById('tierSel').value;
+  const tbody = document.getElementById('rows');
+
+  let rows = allChurches;
+  if (activeFilter === 'priority')  rows = rows.filter(c => !c.has_website);
+  if (activeFilter === 'contacted') rows = rows.filter(c => c.status === 'Contacted');
+  if (activeFilter === 'proposal')  rows = rows.filter(c => c.status === 'Proposal Sent');
+  if (activeFilter === 'client')    rows = rows.filter(c => c.status === 'Client');
+  if (tier) rows = rows.filter(c => c.tier === tier);
+  if (q)    rows = rows.filter(c => (c.name+' '+(c.pastor||'')+' '+(c.city||'')).toLowerCase().includes(q));
+
+  if (!rows.length) {
+    tbody.innerHTML = '<tr><td colspan="7" class="empty">No churches match these filters.</td></tr>';
+    return;
+  }
+
+  tbody.innerHTML = rows.map(c => {
+    const cls = c.status === 'Client' ? 'client'
+              : c.status === 'Proposal Sent' ? 'proposal'
+              : c.status === 'Contacted' ? 'contacted'
+              : (!c.has_website ? 'priority' : '');
+    return `<tr class="${cls}">
+      <td>
+        <div class="name">${esc(c.name)}</div>
+        <div class="meta">${esc(c.city||'')} ${c.state ? '· '+esc(c.state) : ''} ${c.phone ? '· '+esc(c.phone) : ''}</div>
+      </td>
+      <td class="hide-sm"><span class="badge badge-${esc(c.tier||'C')}">${esc(c.tier||'—')}</span></td>
+      <td class="hide-sm">${esc(c.pastor||'—')}</td>
+      <td class="${c.has_website ? 'has-yes' : 'has-no'}">${c.has_website ? 'Yes' : 'NO'}</td>
+      <td>
+        <select class="status-sel" data-id="${c.id}">
+          ${['Not Contacted','Contacted','Proposal Sent','Client','Not Interested'].map(s =>
+            `<option ${s===c.status?'selected':''}>${s}</option>`).join('')}
+        </select>
+      </td>
+      <td class="hide-sm">${esc(c.recommended_tier||'—')}</td>
+      <td class="actions">
+        ${c.email ? `<a href="mailto:${esc(c.email)}">Email</a>` : ''}
+        ${c.website ? `<a href="https://${esc(stripProto(c.website))}" target="_blank">Site</a>` : ''}
+        ${c.phone ? `<a href="tel:${esc(c.phone.replace(/[^0-9+]/g,''))}">Call</a>` : ''}
+      </td>
+    </tr>`;
+  }).join('');
+
+  tbody.querySelectorAll('.status-sel').forEach(sel => {
+    sel.addEventListener('change', async () => {
+      await fetch('/api/kingdom-reach/churches/' + sel.dataset.id, {
+        method:'PATCH', headers:{'Content-Type':'application/json'}, credentials:'include',
+        body: JSON.stringify({ status: sel.value }),
+      });
+      const c = allChurches.find(x => x.id == sel.dataset.id);
+      if (c) c.status = sel.value;
+      load();
+    });
+  });
+}
+
+function esc(s){return String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));}
+function stripProto(u){return String(u||'').replace(/^https?:\/\//,'');}
+
+document.querySelectorAll('.pill').forEach(p => p.addEventListener('click', () => {
+  document.querySelectorAll('.pill').forEach(x => x.classList.remove('active'));
+  p.classList.add('active');
+  activeFilter = p.dataset.filter;
+  render();
+}));
+document.getElementById('searchInput').addEventListener('input', render);
+document.getElementById('tierSel').addEventListener('change', render);
+
+load();
+setInterval(load, 30000);
+</script>
+</body>
+</html>

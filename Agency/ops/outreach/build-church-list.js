@@ -375,3 +375,6 @@ console.log(`  Tier A: ${churches.filter(c=>c.tier==='A').length}`);
 console.log(`  Tier B: ${churches.filter(c=>c.tier==='B').length}`);
 console.log(`  Tier C: ${churches.filter(c=>c.tier==='C').length}`);
 console.log(`  Tabs: Master List | Tier A Priority | Call Log | Call Script | Email Templates`);
+
+// ─── EXPORT (consumed by tools/kingdom-reach/seed.js) ───────────────────────
+module.exports = { churches };

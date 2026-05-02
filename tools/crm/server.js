@@ -28,6 +28,7 @@ for (const p of [rootEnv, localEnv]) {
 }
 
 import db from './database.js';
+import { mountKingdomReach } from '../kingdom-reach/index.js';
 
 const app   = express();
 const PORT  = process.env.PORT || process.env.CRM_PORT || 3001;
@@ -2739,6 +2740,9 @@ app.post('/api/internal/referral-refunded', (req, res) => {
   }
   res.json({ ok: true, matched: true });
 });
+
+// ── Kingdom Reach (church outreach automation) ───────────────────────────────
+mountKingdomReach(app, db, { validateSession, getCookie });
 
 // ── Fallback → serve index.html (requires auth) ───────────────────────────────
 app.get('*', (req, res) => {
