@@ -6,6 +6,7 @@ on:
       - master
     paths:
       - 'tools/crm/**'
+      - 'tools/kingdom-reach/**'
 
 jobs:
   deploy:
@@ -19,7 +20,7 @@ jobs:
       - uses: superfly/flyctl-actions/setup-flyctl@master
 
       - name: Deploy to Fly.io
-        run: flyctl deploy --remote-only --app crown-media-crm
-        working-directory: tools/crm
+        run: flyctl deploy --remote-only --app crown-media-crm --config crm/fly.toml --dockerfile crm/Dockerfile
+        working-directory: tools
         env:
           FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}

@@ -1,8 +1,9 @@
 FROM node:22-alpine
 WORKDIR /app
-COPY package*.json ./
+COPY crm/package*.json ./
 RUN npm ci --only=production
-COPY . .
+COPY crm/ .
+COPY kingdom-reach/ /kingdom-reach/
 EXPOSE 3001
 ENV DATA_DIR=/data
 ENV NODE_ENV=production

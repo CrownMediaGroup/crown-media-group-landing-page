@@ -1,0 +1,11 @@
+**/.git
+**/node_modules
+**/*.log
+crm/.env
+crm/crm.db
+crm/output/
+crm/inbox/
+crm/logs/
+kingdom-reach/output/
+kingdom-reach/inbox/
+kingdom-reach/logs/
