@@ -569,7 +569,7 @@ app.use('/api', (req, res, next) => {
   const publicPaths = ['/login', '/logout', '/branding', '/register', '/auth/google', '/config/public'];
   if (publicPaths.includes(req.path) || req.path === '/forgot-password' || req.path === '/reset-password') return next();
   // Public scout + webhook endpoints — no auth required
-  if (req.path === '/scouts/apply' || req.path.startsWith('/scouts/dashboard/') || req.path.startsWith('/scouts/by-code/') || req.path.startsWith('/internal/') || req.path === '/sms/webhook/inbound' || req.path === '/voice/webhook') return next();
+  if (req.path === '/scouts/apply' || req.path.startsWith('/scouts/dashboard/') || req.path.startsWith('/scouts/by-code/') || req.path.startsWith('/internal/') || req.path === '/sms/webhook/inbound' || req.path === '/voice/webhook' || req.path === '/kingdom-reach/health') return next();
   const session = validateSession(getCookie(req, 'crm_session'));
   if (!session) return res.status(401).json({ error: 'Unauthorized' });
   req.user        = session.user;
