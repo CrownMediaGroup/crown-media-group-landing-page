@@ -25,6 +25,21 @@ function ensureDirs() {
   }
 }
 
+async function sendAlertEmail(churchName, errorMsg, dispatchId) {
+  const { sendViaResend } = await import('./generators/email.js');
+  const subject = `[Kingdom Reach] Pipeline failed — ${churchName}`;
+  const html = `<div style="font-family:sans-serif;max-width:600px;margin:0 auto;padding:20px">
+    <h2 style="color:#dc2626">Pipeline Failed</h2>
+    <p><strong>Church:</strong> ${churchName}</p>
+    <p><strong>Dispatch ID:</strong> ${dispatchId}</p>
+    <p><strong>Error:</strong> <code style="background:#f3f4f6;padding:4px 8px;border-radius:4px">${errorMsg.slice(0,500)}</code></p>
+    <p><strong>Time:</strong> ${new Date().toLocaleString('en-US', { timeZone: 'America/New_York' })}</p>
+    <hr>
+    <a href="https://crm.crownmediagroup.co/kingdom-reach/dashboard" style="color:#1a3a8e">View Dashboard →</a>
+  </div>`;
+  await sendViaResend({ to: 'king@crownmediagroup.co', subject, html, text: `Pipeline failed for ${churchName}: ${errorMsg}` });
+}
+
 export function mountKingdomReach(app, db, { validateSession, getCookie } = {}) {
   ensureDirs();
   ensureSchema(db);
@@ -70,6 +85,8 @@ export function mountKingdomReach(app, db, { validateSession, getCookie } = {}) 
         console.error('[Kingdom Reach] Pipeline error:', err);
         db.prepare("UPDATE kingdom_dispatches SET status='error', error=?, updated_at=datetime('now') WHERE id=?")
           .run(String(err.message || err).slice(0, 500), dispatchId);
+        // Alert King about the failure
+        sendAlertEmail(churchHint.name || 'Unknown Church', err.message || String(err), dispatchId).catch(() => {});
       });
 
     res.json({ ok: true, jobId: dispatchId, slug });
@@ -119,8 +136,15 @@ export function mountKingdomReach(app, db, { validateSession, getCookie } = {}) 
     res.json({ ok:true, churches, totals });
   });
 
+  // ── SINGLE CHURCH DETAIL ─────────────────────────────────────────────────
+  app.get('/api/kingdom-reach/churches/:id', requireAuth, (req, res) => {
+    const church = db.prepare('SELECT * FROM churches WHERE id = ?').get(req.params.id);
+    if (!church) return res.status(404).json({ error: 'Not found' });
+    res.json({ ok: true, church });
+  });
+
   app.patch('/api/kingdom-reach/churches/:id', requireAuth, (req, res) => {
-    const allowed = ['status','recommended_tier','follow_up_date','notes','phone','email','pastor','website','has_website'];
+    const allowed = ['status','recommended_tier','follow_up_date','notes','phone','email','pastor','website','has_website','pipeline_value','name','address'];
     const fields  = Object.keys(req.body || {}).filter(k => allowed.includes(k));
     if (!fields.length) return res.status(400).json({ error: 'No valid fields' });
     const sets = fields.map(f => `${f} = ?`).join(', ');
@@ -132,10 +156,17 @@ export function mountKingdomReach(app, db, { validateSession, getCookie } = {}) 
 
   // ── DISPATCH LIST ─────────────────────────────────────────────────────────
   app.get('/api/kingdom-reach/dispatches', requireAuth, (req, res) => {
-    const rows = db.prepare(`SELECT d.*, c.name as church_name, c.pastor, c.email
+    const churchId = req.query.church_id ? parseInt(req.query.church_id, 10) : null;
+    let sql = `SELECT d.*, c.name as church_name, c.pastor, c.email
       FROM kingdom_dispatches d
-      LEFT JOIN churches c ON c.id = d.church_id
-      ORDER BY d.created_at DESC LIMIT 50`).all();
+      LEFT JOIN churches c ON c.id = d.church_id`;
+    const args = [];
+    if (churchId) {
+      sql += ' WHERE d.church_id = ?';
+      args.push(churchId);
+    }
+    sql += ' ORDER BY d.created_at DESC LIMIT 50';
+    const rows = db.prepare(sql).all(...args);
     res.json({ ok:true, dispatches: rows });
   });
 
@@ -193,6 +224,48 @@ export function mountKingdomReach(app, db, { validateSession, getCookie } = {}) 
     res.json({ ok:true, messageId: result.id });
   });
 
+  // ── SEND FOLLOW-UP ────────────────────────────────────────────────────────
+  app.post('/api/kingdom-reach/dispatches/:id/send-followup', requireAuth, async (req, res) => {
+    const followup = parseInt(req.body?.followup, 10);
+    if (followup !== 1 && followup !== 2) {
+      return res.status(400).json({ error: 'followup must be 1 or 2' });
+    }
+
+    const job = db.prepare('SELECT * FROM kingdom_dispatches WHERE id = ? AND workspace_id = 1').get(req.params.id);
+    if (!job) return res.status(404).json({ error: 'Not found' });
+
+    const sentField = followup === 1 ? 'followup_1_sent' : 'followup_2_sent';
+    if (job[sentField]) return res.status(400).json({ error: `Follow-up ${followup} already sent` });
+
+    const church = job.church_id
+      ? db.prepare('SELECT * FROM churches WHERE id = ?').get(job.church_id)
+      : null;
+    const to = church?.email || null;
+    if (!to) return res.status(400).json({ error: 'No recipient email for this church' });
+
+    const data = safeJSON(job.extracted_json) || {};
+    // Populate church name/pastor from church record if extraction data is sparse
+    if (!data.church_name && church) data.church_name = church.name;
+    if (!data.pastor_name  && church) data.pastor_name  = church.pastor;
+
+    const emailMod = await import('./generators/email.js');
+    const draftFn  = followup === 1 ? emailMod.writeFollowup1Draft : emailMod.writeFollowup2Draft;
+    const draft    = draftFn(data, join(OUTPUT_DIR, 'emails'));
+
+    // Build minimal HTML from plain text (follow-up drafts don't include HTML)
+    const htmlBody = `<!DOCTYPE html><html><body style="font-family:-apple-system,Segoe UI,Roboto,sans-serif;color:#0a1628;max-width:600px;margin:0 auto;padding:24px">
+<pre style="white-space:pre-wrap;font-family:inherit;line-height:1.6">${draft.text.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}</pre>
+</body></html>`;
+
+    const result = await sendViaResend({ to, subject: draft.subject, html: htmlBody, text: draft.text });
+    if (!result.ok) return res.status(502).json({ error: `Send failed: ${result.error}` });
+
+    db.prepare(`UPDATE kingdom_dispatches SET ${sentField}=1, updated_at=datetime('now') WHERE id=?`)
+      .run(req.params.id);
+
+    res.json({ ok: true, sent_to: to });
+  });
+
   // ── HEALTH ────────────────────────────────────────────────────────────────
   app.get('/api/kingdom-reach/health', (req, res) => {
     res.json({
@@ -203,6 +276,9 @@ export function mountKingdomReach(app, db, { validateSession, getCookie } = {}) 
       anthropic: !!process.env.ANTHROPIC_API_KEY,
       inbox: INBOX_DIR,
       output: OUTPUT_DIR,
+      last_dispatch_at: db.prepare('SELECT MAX(created_at) as t FROM kingdom_dispatches').get().t || null,
+      failed_today: db.prepare("SELECT COUNT(*) as c FROM kingdom_dispatches WHERE status='error' AND date(created_at)=date('now')").get().c,
+      followups_pending: db.prepare("SELECT COUNT(*) as c FROM kingdom_dispatches WHERE email_sent=1 AND followup_1_sent=0 AND created_at < datetime('now', '-2 days')").get().c,
     });
   });
 
@@ -269,7 +345,8 @@ async function runPipeline(db, dispatchId, churchHint, { sendNow = false } = {})
   if (sendNow) {
     const to = churchHint.email || db.prepare('SELECT email FROM churches WHERE id = ?').get(church.id)?.email;
     if (to) {
-      const draft  = (await import('./generators/email.js')).buildEmail(data, { siteUrl: '' });
+      const proposalUrl = `https://crm.crownmediagroup.co/kingdom-reach/output/${slug}/proposal`;
+      const draft  = (await import('./generators/email.js')).buildEmail(data, church, proposalUrl);
       const result = await sendViaResend({ to, subject: draft.subject, html: draft.html, text: draft.text,
         attachmentPath: propPath, attachmentName: `${slug}_proposal.pdf` });
       if (result.ok) {

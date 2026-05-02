@@ -95,7 +95,7 @@
   <form id="dispatchForm" autocomplete="off">
     <div class="field">
       <label for="church_name">Church Name</label>
-      <input type="text" id="church_name" name="church_name" required placeholder="e.g. GraceLife Church">
+      <input type="text" id="church_name" name="church_name" required placeholder="e.g. GraceLife Church" inputmode="text" autocorrect="off" autocapitalize="words">
     </div>
     <div class="row">
       <div class="field">
@@ -123,6 +123,7 @@
       <textarea id="transcript" name="transcript" required placeholder="Paste the full transcript from Otter.ai here. Don't worry about cleanup — Claude extracts what matters."></textarea>
       <input type="file" id="transcriptFile" accept=".txt" style="display:none">
       <label for="transcriptFile" class="upload-label">or upload .txt file</label>
+      <div id="charCount" style="font-size:11px;color:#5a6a87;text-align:right;margin-top:4px">0 characters &mdash; minimum 500 for best results</div>
       <p class="help" style="margin-top:4px">Tip: in Otter, tap Share → Copy Transcript → paste here.</p>
     </div>
     <div class="field">
@@ -150,10 +151,55 @@ document.getElementById('transcriptFile').addEventListener('change', function() 
   if (!file) return;
   const reader = new FileReader();
   reader.onload = function(e) {
-    document.getElementById('transcript').value = e.target.result;
+    const ta = document.getElementById('transcript');
+    ta.value = e.target.result;
+    updateCharCount(ta.value);
   };
   reader.readAsText(file);
   this.value = '';
+});
+
+// Character counter
+function updateCharCount(text) {
+  const el = document.getElementById('charCount');
+  const len = text.length;
+  if (len >= 500) {
+    el.style.color = '#16a34a';
+    el.textContent = len.toLocaleString() + ' characters';
+  } else {
+    el.style.color = '#5a6a87';
+    el.textContent = len.toLocaleString() + ' characters — minimum 500 for best results';
+  }
+}
+
+document.getElementById('transcript').addEventListener('input', function(e) {
+  updateCharCount(e.target.value);
+});
+
+// Auto-detect church name from transcript on blur
+document.getElementById('transcript').addEventListener('blur', function() {
+  const churchInput = document.getElementById('church_name');
+  if (churchInput.value.trim()) return; // don't overwrite user's entry
+  const text = this.value;
+  const pattern = /(?:at|with|from)\s+([A-Z][A-Za-z\s]{3,40}(?:Church|Baptist|Assembly|Fellowship|Ministry|Community|Worship|Chapel|Cathedral))/;
+  const match = text.match(pattern);
+  if (match && match[1]) {
+    const detected = match[1].trim();
+    churchInput.value = detected;
+    const hint = document.createElement('p');
+    hint.id = 'churchHint';
+    hint.className = 'help';
+    hint.style.color = '#16a34a';
+    hint.textContent = 'Auto-detected — tap to edit';
+    const existing = document.getElementById('churchHint');
+    if (existing) existing.remove();
+    churchInput.parentNode.appendChild(hint);
+    churchInput.addEventListener('focus', function onFocus() {
+      const h = document.getElementById('churchHint');
+      if (h) h.remove();
+      churchInput.removeEventListener('focus', onFocus);
+    }, { once: true });
+  }
 });
 
 // Toast helper
@@ -295,6 +341,7 @@ function renderReady(job) {
       `<div class="send-row">
         <input type="email" id="sendTo" placeholder="recipient@church.org" value="${escapeAttr(job.church?.email || '')}">
         <button id="sendBtn" onclick="sendNow(${job.id}, this)">Send</button>
+        <button id="copyEmailBtn" onclick="copyEmail(${job.id}, this)" style="padding:14px 18px;background:#fff;color:var(--royal);border:2px solid var(--royal);border-radius:10px;font-weight:700;cursor:pointer;white-space:nowrap;">Copy</button>
       </div>
       <p class="help" style="margin-top:8px">Sends from king@crownmediagroup.co with the proposal attached.</p>`
     }
@@ -344,6 +391,21 @@ async function sendNow(jobId, buttonEl) {
   } catch (err) {
     if (buttonEl) { buttonEl.disabled = false; buttonEl.textContent = 'Send'; }
     showToast('Send error: ' + (err.message || err), '#ef4444');
+  }
+}
+
+async function copyEmail(jobId, buttonEl) {
+  try {
+    // Fetch email draft content from job endpoint to get subject + body
+    const r = await fetch('/api/kingdom-reach/job/' + jobId, { credentials: 'include' });
+    const { job } = await r.json();
+    const subject = job.emailSubject || ('Follow-up for ' + (job.extracted?.church_name || job.slug));
+    const body    = job.emailBody    || ('See attached proposal for ' + (job.extracted?.church_name || job.slug) + '.');
+    await navigator.clipboard.writeText(subject + '\n\n' + body);
+    showToast('Email copied to clipboard', '#16a34a');
+    if (buttonEl) { buttonEl.textContent = 'Copied!'; setTimeout(() => { buttonEl.textContent = 'Copy'; }, 2500); }
+  } catch (err) {
+    showToast('Copy failed: ' + (err.message || err), '#ef4444');
   }
 }
 

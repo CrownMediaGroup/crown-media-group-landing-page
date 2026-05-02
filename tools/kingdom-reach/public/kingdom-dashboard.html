@@ -22,6 +22,7 @@
   .btn-outline { background:transparent; color:var(--royal); border:1.5px solid var(--royal); }
   .btn-sm { padding:7px 14px; font-size:13px; }
   .btn-dark-toggle { font-size:18px; padding:8px 14px; line-height:1; }
+  .health-badge { display:none; background:#f59e0b; color:#000; padding:6px 12px; border-radius:20px; font-size:12px; font-weight:700; align-self:center; }
 
   .stats { display:grid; grid-template-columns:repeat(auto-fit,minmax(170px,1fr)); gap:14px; padding:20px 28px; background:var(--card); border-bottom:1px solid var(--line); }
   .stat { padding:16px; border:1px solid var(--line); border-radius:10px; background:var(--card); }
@@ -39,7 +40,7 @@
   .table-wrap { padding:20px 28px 60px; }
   table { width:100%; border-collapse:collapse; background:var(--card); border-radius:12px; overflow:hidden; box-shadow:0 1px 4px rgba(15,36,82,.04); }
   th { background:var(--deep); color:#fff; padding:14px 16px; text-align:left; font-weight:600; font-size:12px; text-transform:uppercase; letter-spacing:.5px; white-space:nowrap; }
-  th.sortable { cursor:pointer; user-select:none; }
+  th.sortable { cursor:pointer; -webkit-user-select:none; user-select:none; }
   th.sortable:hover { background:#1a3565; }
   th .sort-ind { display:inline-block; margin-left:4px; opacity:.5; font-size:10px; }
   th.sorted-asc .sort-ind::after { content:'▲'; opacity:1; }
@@ -111,6 +112,26 @@
   .sent-negative { background:#fee2e2; color:#991b1b; }
   .panel-loading { text-align:center; padding:40px 20px; color:#5a6a87; }
 
+  /* ── Conversion funnel ── */
+  #funnel { display:flex; align-items:center; gap:0; padding:14px 28px; background:var(--card); border-bottom:1px solid var(--line); flex-wrap:nowrap; overflow-x:auto; }
+  .funnel-step { background:var(--card); border:1px solid var(--line); border-radius:10px; padding:12px 20px; text-align:center; min-width:120px; flex-shrink:0; }
+  .funnel-step.gold .funnel-count { color:var(--gold); }
+  .funnel-step.gold .funnel-label { color:var(--gold); }
+  .funnel-count { font-family:'Playfair Display',serif; font-size:24px; font-weight:800; color:var(--royal); line-height:1; }
+  .funnel-label { font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.8px; color:var(--muted); margin-top:4px; }
+  .funnel-pct { font-size:11px; color:var(--muted); margin-top:2px; }
+  .funnel-arrow { font-size:20px; color:var(--muted); padding:0 8px; flex-shrink:0; }
+  .funnel-win { background:var(--gold); color:var(--ink); border-radius:20px; padding:6px 16px; font-size:13px; font-weight:700; margin-left:8px; flex-shrink:0; white-space:nowrap; }
+
+  /* ── Bulk action bar ── */
+  #bulkBar { display:none; gap:10px; padding:10px 28px; background:#1a3a8e11; border-bottom:1px solid var(--line); align-items:center; flex-wrap:wrap; }
+  #bulkCount { font-size:13px; font-weight:600; color:var(--royal); }
+  #bulkStatus { padding:7px 10px; border:1.5px solid var(--line); border-radius:7px; font-size:13px; background:var(--card); color:var(--ink); font-family:inherit; }
+
+  /* ── Checkbox column ── */
+  td.cb-col, th.cb-col { width:36px; padding-left:14px; padding-right:4px; }
+  input[type=checkbox].row-cb, input[type=checkbox]#selectAll { cursor:pointer; width:15px; height:15px; accent-color:var(--royal); }
+
   @media (max-width:760px) {
     .header { padding:18px 16px; }
     .table-wrap { padding:14px 14px 60px; }
@@ -118,6 +139,7 @@
     th,td { padding:10px 8px; }
     th.hide-sm,td.hide-sm { display:none; }
     #detailPanel { width:100vw; }
+    #funnel { display:none; }
   }
 </style>
 </head>
@@ -129,10 +151,27 @@
       <a class="btn btn-gold" href="/kingdom-reach">+ Dispatch a Meeting</a>
       <a class="btn btn-out"  href="/">Back to CRM</a>
       <button id="btnDark" type="button" class="btn btn-out btn-dark-toggle" onclick="toggleDark()" title="Toggle dark mode">☀</button>
+      <span id="healthBadge" class="health-badge"></span>
     </div>
   </div>
 
   <div class="stats" id="stats"><div class="stat"><div class="stat-label">Loading...</div></div></div>
+
+  <div id="funnel"></div>
+
+  <div id="bulkBar">
+    <span id="bulkCount">0 selected</span>
+    <select id="bulkStatus">
+      <option value="">Change status to...</option>
+      <option>Not Contacted</option>
+      <option>Contacted</option>
+      <option>Proposal Sent</option>
+      <option>Client</option>
+      <option>Not Interested</option>
+    </select>
+    <button type="button" onclick="applyBulk()" class="btn btn-gold btn-sm">Apply</button>
+    <button type="button" onclick="clearBulk()" class="btn btn-outline btn-sm">Clear</button>
+  </div>
 
   <div class="filters">
     <input type="search" id="searchInput" placeholder="Search church, pastor, city...">
@@ -141,9 +180,12 @@
     <span class="pill" data-filter="contacted">Contacted</span>
     <span class="pill" data-filter="proposal">Proposal Sent</span>
     <span class="pill" data-filter="client">Clients</span>
-    <select id="tierSel">
+    <select id="tierSel" title="Filter by tier">
       <option value="">All Tiers</option><option>A</option><option>B</option><option>C</option><option>D</option>
     </select>
+    <span class="pill" data-sentiment="warm" onclick="setSentiment('warm')">Warm</span>
+    <span class="pill" data-sentiment="neutral" onclick="setSentiment('neutral')">Neutral</span>
+    <span class="pill" data-sentiment="cold" onclick="setSentiment('cold')">Cold</span>
     <button id="btnExportCSV" type="button" class="btn btn-outline btn-sm">Export CSV</button>
   </div>
 
@@ -151,6 +193,7 @@
     <table>
       <thead>
         <tr>
+          <th class="cb-col"><input type="checkbox" id="selectAll" title="Select all"></th>
           <th class="sortable" data-col="name">Church<span class="sort-ind"></span></th>
           <th class="sortable hide-sm" data-col="tier">Tier<span class="sort-ind"></span></th>
           <th class="hide-sm">Pastor</th>
@@ -162,7 +205,7 @@
           <th>Actions</th>
         </tr>
       </thead>
-      <tbody id="rows"><tr><td colspan="9" class="empty">Loading...</td></tr></tbody>
+      <tbody id="rows"><tr><td colspan="10" class="empty">Loading...</td></tr></tbody>
     </table>
   </div>
 
@@ -185,6 +228,7 @@
 <script>
 let allChurches = [];
 let activeFilter = 'priority';
+let activeSentiment = '';
 let sortCol = 'dist';
 let sortDir = 'asc';
 const FOLLOWUP_DAYS = 14;
@@ -274,7 +318,7 @@ async function load() {
     render();
   } catch(e) {
     document.getElementById('rows').innerHTML =
-      `<tr><td colspan="9" class="empty" style="color:var(--err)">
+      `<tr><td colspan="10" class="empty" style="color:var(--err)">
         Failed to load churches: ${esc(e.message)}.
         <a href="javascript:load()" style="color:var(--royal);font-weight:700">Retry</a>
       </td></tr>`;
@@ -290,6 +334,58 @@ function renderStats(t) {
     <div class="stat"><div class="stat-label">Pipeline Value</div><div class="stat-value">$${Math.round(t?.pipeline_total||0).toLocaleString()}</div></div>
     <div class="stat"><div class="stat-label">Total Churches</div><div class="stat-value">${t?.total||0}</div></div>
   `;
+  renderFunnel(t);
+}
+
+function renderFunnel(t) {
+  const total     = t?.total      || 0;
+  const contacted = t?.contacted  || 0;
+  const proposals = t?.proposals  || 0;
+  const clients   = t?.clients    || 0;
+  const pctOf = (n, base) => base > 0 ? (n / base * 100).toFixed(1) + '%' : '0%';
+  document.getElementById('funnel').innerHTML = `
+    <div class="funnel-step">
+      <div class="funnel-count">${total}</div>
+      <div class="funnel-label">Total</div>
+    </div>
+    <div class="funnel-arrow">&#8594;</div>
+    <div class="funnel-step">
+      <div class="funnel-count">${contacted}</div>
+      <div class="funnel-label">Contacted</div>
+      <div class="funnel-pct">${pctOf(contacted, total)} of total</div>
+    </div>
+    <div class="funnel-arrow">&#8594;</div>
+    <div class="funnel-step">
+      <div class="funnel-count">${proposals}</div>
+      <div class="funnel-label">Proposal Sent</div>
+      <div class="funnel-pct">${pctOf(proposals, contacted)} of contacted</div>
+    </div>
+    <div class="funnel-arrow">&#8594;</div>
+    <div class="funnel-step gold">
+      <div class="funnel-count">${clients}</div>
+      <div class="funnel-label">Client</div>
+      <div class="funnel-pct">${pctOf(clients, proposals)} of proposals</div>
+    </div>
+    <div class="funnel-win">Win Rate: ${pctOf(clients, total)}</div>
+  `;
+}
+
+// ── Sentiment helpers ─────────────────────────────────────────────────────
+function sentimentMatch(sentiment, filter) {
+  const s = (sentiment || '').toLowerCase();
+  if (filter === 'warm')    return s.includes('positive') || s.includes('interested') || s.includes('warm');
+  if (filter === 'cold')    return s.includes('negative') || s.includes('cold') || s.includes('not interested');
+  if (filter === 'neutral') return !s.includes('positive') && !s.includes('interested') && !s.includes('warm') &&
+                                    !s.includes('negative') && !s.includes('cold') && !s.includes('not interested');
+  return true;
+}
+
+function setSentiment(s) {
+  activeSentiment = activeSentiment === s ? '' : s;
+  document.querySelectorAll('.pill[data-sentiment]').forEach(p => {
+    p.classList.toggle('active', p.dataset.sentiment === activeSentiment);
+  });
+  render();
 }
 
 // ── Filtering & Sorting ───────────────────────────────────────────────────
@@ -302,6 +398,7 @@ function getFiltered() {
   if (activeFilter === 'proposal')  rows = rows.filter(c => c.status === 'Proposal Sent');
   if (activeFilter === 'client')    rows = rows.filter(c => c.status === 'Client');
   if (tier) rows = rows.filter(c => c.tier === tier);
+  if (activeSentiment) rows = rows.filter(c => sentimentMatch(c.sentiment, activeSentiment));
   if (q)    rows = rows.filter(c => (c.name+' '+(c.pastor||'')+' '+(c.city||'')).toLowerCase().includes(q));
   if (sortCol) {
     const numericCols = new Set(['date_added','dist','pipeline_value']);
@@ -331,7 +428,7 @@ function render() {
   });
 
   if (!rows.length) {
-    tbody.innerHTML = `<tr><td colspan="9" class="empty">No churches match these filters. <a id="clearFiltersLink">Clear filters</a></td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="10" class="empty">No churches match these filters. <a id="clearFiltersLink">Clear filters</a></td></tr>`;
     const link = document.getElementById('clearFiltersLink');
     if (link) link.addEventListener('click', clearFilters);
     return;
@@ -349,6 +446,9 @@ function render() {
     const addrLine  = addrParts.length ? esc(addrParts.join(', ')) : '';
     const distLabel = c.dist >= 990 ? '—' : c.dist === 0 ? '< 1 mi' : '~' + c.dist + ' mi';
     return `<tr class="${cls}" data-church-id="${c.id}">
+      <td class="cb-col" onclick="event.stopPropagation()">
+        <input type="checkbox" class="row-cb" data-church-id="${c.id}">
+      </td>
       <td>
         <div class="name">${esc(c.name)}${followUpBadge}</div>
         <div class="meta">${addrLine}${c.phone ? ' · '+esc(c.phone) : ''}</div>
@@ -392,6 +492,61 @@ function render() {
   tbody.querySelectorAll('tr[data-church-id]').forEach(tr => {
     tr.addEventListener('click', () => openPanel(tr.dataset.churchId));
   });
+
+  // Checkboxes — show/hide bulk bar on change
+  function updateBulkBar() {
+    const checked = tbody.querySelectorAll('.row-cb:checked');
+    const bulkBar = document.getElementById('bulkBar');
+    const bulkCount = document.getElementById('bulkCount');
+    bulkBar.style.display = checked.length > 0 ? 'flex' : 'none';
+    bulkCount.textContent = checked.length + ' selected';
+    const sa = document.getElementById('selectAll');
+    if (sa) {
+      const all = tbody.querySelectorAll('.row-cb');
+      sa.indeterminate = checked.length > 0 && checked.length < all.length;
+      sa.checked = all.length > 0 && checked.length === all.length;
+    }
+  }
+  tbody.querySelectorAll('.row-cb').forEach(cb => cb.addEventListener('change', updateBulkBar));
+
+  // Select all
+  const selectAll = document.getElementById('selectAll');
+  if (selectAll) {
+    selectAll.addEventListener('change', () => {
+      tbody.querySelectorAll('.row-cb').forEach(cb => { cb.checked = selectAll.checked; });
+      updateBulkBar();
+    });
+  }
+}
+
+// ── Bulk actions ──────────────────────────────────────────────────────────
+async function applyBulk() {
+  const status = document.getElementById('bulkStatus').value;
+  if (!status) { showToast('Pick a status first', true); return; }
+  const checked = document.querySelectorAll('#rows .row-cb:checked');
+  if (!checked.length) return;
+  const ids = Array.from(checked).map(cb => cb.dataset.churchId);
+  await Promise.all(ids.map(id =>
+    fetch('/api/kingdom-reach/churches/' + id, {
+      method: 'PATCH', headers: { 'Content-Type': 'application/json' }, credentials: 'include',
+      body: JSON.stringify({ status }),
+    })
+  ));
+  document.getElementById('bulkStatus').value = '';
+  document.getElementById('bulkBar').style.display = 'none';
+  const sa = document.getElementById('selectAll');
+  if (sa) { sa.checked = false; sa.indeterminate = false; }
+  showToast(ids.length + ' churches updated to "' + status + '"');
+  load();
+}
+
+function clearBulk() {
+  document.querySelectorAll('#rows .row-cb').forEach(cb => { cb.checked = false; });
+  const sa = document.getElementById('selectAll');
+  if (sa) { sa.checked = false; sa.indeterminate = false; }
+  document.getElementById('bulkBar').style.display = 'none';
+  document.getElementById('bulkCount').textContent = '0 selected';
+  document.getElementById('bulkStatus').value = '';
 }
 
 // ── Clear filters ─────────────────────────────────────────────────────────
@@ -401,7 +556,9 @@ function clearFilters() {
   document.querySelectorAll('.pill').forEach(p => p.classList.remove('active'));
   document.querySelector('.pill[data-filter="all"]').classList.add('active');
   activeFilter = 'all';
+  activeSentiment = '';
   sortCol = 'dist'; sortDir = 'asc';
+  clearBulk();
   render();
 }
 
@@ -466,13 +623,40 @@ function renderPanel(c) {
       <blockquote style="border-left:3px solid var(--gold);padding-left:12px;font-size:13px;color:#374151;font-style:italic;line-height:1.6">"${esc(c.key_quote)}"</blockquote>
     </div>` : '';
 
+  const addrFull = [c.address, c.city, c.state].filter(Boolean).join(', ');
+
+  function editableRow(label, field, value, inputType) {
+    if (!value && field !== 'notes') return '';
+    const copyBtn = (field === 'phone' || field === 'email' || field === 'address') && value
+      ? `<span onclick="copyField('${esc(String(value).replace(/'/g,"\\\'"))}',this)" style="margin-left:6px;cursor:pointer;color:var(--muted);font-size:11px;font-weight:600;text-decoration:underline;text-underline-offset:2px" title="Copy">[copy]</span>`
+      : '';
+    const editIcon = `<span onclick="startEdit(this,'${field}',${c.id})" style="margin-left:6px;cursor:pointer;color:var(--muted);font-size:11px" title="Edit">&#9999;</span>`;
+    return `<div class="panel-row" data-field="${field}">
+      <span class="lbl">${esc(label)}</span>
+      <span class="val">
+        <span class="editable-val" data-field="${field}">${esc(String(value||''))}</span>${editIcon}${copyBtn}
+      </span>
+    </div>`;
+  }
+
+  const pvOptions = [297,597,997].map(v =>
+    `<option value="${v}" ${Number(c.pipeline_value)===v?'selected':''}>\$${v}</option>`
+  ).join('');
+
   body.innerHTML = `
     <div class="panel-section">
       <div class="panel-section-title">Contact</div>
-      ${row('Pastor', c.pastor)}
-      ${row('Phone', c.phone)}
-      ${row('Email', c.email)}
-      ${row('Address', [c.address, c.city, c.state].filter(Boolean).join(', '))}
+      ${editableRow('Pastor', 'pastor', c.pastor, 'text')}
+      ${editableRow('Phone', 'phone', c.phone, 'tel')}
+      ${editableRow('Email', 'email', c.email, 'email')}
+      <div class="panel-row" data-field="address">
+        <span class="lbl">Address</span>
+        <span class="val">
+          <span class="editable-val" data-field="address">${esc(addrFull)}</span>
+          <span onclick="startEdit(this,'address',${c.id})" style="margin-left:6px;cursor:pointer;color:var(--muted);font-size:11px" title="Edit">&#9999;</span>
+          ${addrFull ? `<span onclick="copyField('${esc(addrFull.replace(/'/g,"\\\'"))}',this)" style="margin-left:6px;cursor:pointer;color:var(--muted);font-size:11px;font-weight:600;text-decoration:underline;text-underline-offset:2px" title="Copy">[copy]</span>` : ''}
+        </span>
+      </div>
     </div>
     <div class="panel-section">
       <div class="panel-section-title">Pipeline</div>
@@ -480,13 +664,78 @@ function renderPanel(c) {
       ${row('Tier', c.tier)}
       ${row('Recommended', c.recommended_tier)}
       ${row('Has Website', c.has_website ? 'Yes' : 'NO — Priority Target')}
-      ${row('Pipeline Value', pipelineVal)}
+      <div class="panel-row">
+        <span class="lbl">Pipeline Value</span>
+        <span class="val">
+          <span id="pv-display-${c.id}" style="font-weight:600;color:var(--ok)">${pipelineVal}</span>
+          <select id="pv-sel-${c.id}" onchange="handlePVChange(${c.id},this)" style="margin-left:8px;padding:3px 6px;font-size:12px;border:1.5px solid var(--line);border-radius:6px;background:var(--card);color:var(--ink);font-family:inherit">
+            <option value="">Change...</option>
+            ${pvOptions}
+            <option value="custom">Custom...</option>
+          </select>
+          <input type="number" id="pv-custom-${c.id}" min="0" step="1" placeholder="Enter amount"
+            style="display:none;margin-left:6px;width:110px;padding:3px 6px;font-size:12px;border:1.5px solid var(--line);border-radius:6px;background:var(--card);color:var(--ink);font-family:inherit"
+            onblur="savePipelineValue(${c.id},this.value)">
+        </span>
+      </div>
       ${row('Date Added', formatDate(c.date_added))}
       ${c.sentiment ? `<div class="panel-row"><span class="lbl">Sentiment</span><span class="val"><span class="sentiment ${sentCls}">${esc(c.sentiment)}</span></span></div>` : ''}
     </div>
+    <div class="panel-section">
+      <div class="panel-section-title">Notes</div>
+      <div style="font-size:13px;color:var(--ink);line-height:1.6">
+        <span class="editable-val" data-field="notes" style="white-space:pre-wrap">${esc(c.notes||'')}</span>
+        <span onclick="startEdit(this,'notes',${c.id})" style="margin-left:6px;cursor:pointer;color:var(--muted);font-size:11px" title="Edit">&#9999;</span>
+      </div>
+    </div>
     ${painPoints}
     ${keyQuote}
+    <div class="panel-section" id="dispatch-history-${c.id}">
+      <div class="panel-section-title" style="cursor:pointer;display:flex;align-items:center;gap:6px" onclick="toggleDispatchHistory(${c.id})">
+        Recent Dispatches
+        <span id="dispatch-toggle-${c.id}" style="font-size:10px;color:var(--muted)">&#9660;</span>
+      </div>
+      <div id="dispatch-history-body-${c.id}">
+        <div style="font-size:12px;color:var(--muted);padding:8px 0">Loading dispatches...</div>
+      </div>
+      <div style="margin-top:10px">
+        <a href="/kingdom-reach/dispatch?church=${encodeURIComponent(c.name||'')}" style="display:inline-block;padding:7px 14px;border-radius:8px;font-size:13px;font-weight:600;background:var(--royal);color:#fff;text-decoration:none">Run Pipeline</a>
+      </div>
+    </div>
   `;
+
+  // Load dispatch history
+  if (c.id) {
+    fetch('/api/kingdom-reach/dispatches?church_id=' + c.id, { credentials:'include' })
+      .then(r => r.json())
+      .then(data => {
+        const histEl = document.getElementById('dispatch-history-body-' + c.id);
+        if (!histEl) return;
+        const dispatches = (data.dispatches || []).slice(0, 3);
+        if (!dispatches.length) {
+          histEl.innerHTML = '<div style="font-size:12px;color:var(--muted);padding:6px 0">No dispatches yet.</div>';
+          return;
+        }
+        histEl.innerHTML = dispatches.map(d => {
+          const statusColor = d.status === 'sent' ? 'var(--ok)' : d.status === 'error' ? 'var(--err)' : 'var(--warn)';
+          return `<div style="padding:8px 0;border-bottom:1px solid var(--line);font-size:12px">
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
+              <span style="font-weight:600;color:var(--ink)">${esc(formatDate(d.created_at))}</span>
+              <span style="padding:2px 8px;border-radius:10px;font-size:10px;font-weight:700;background:${statusColor}22;color:${statusColor}">${esc(d.status||'unknown')}</span>
+            </div>
+            <div style="color:var(--muted);display:flex;gap:12px">
+              <span>Email: ${d.email_sent ? '<span style="color:var(--ok)">&#10003; Sent</span>' : '<span>No</span>'}</span>
+              <span>FU1: ${d.followup_1_sent ? '<span style="color:var(--ok)">&#10003;</span>' : '<span>No</span>'}</span>
+              <span>FU2: ${d.followup_2_sent ? '<span style="color:var(--ok)">&#10003;</span>' : '<span>No</span>'}</span>
+            </div>
+          </div>`;
+        }).join('');
+      })
+      .catch(() => {
+        const histEl = document.getElementById('dispatch-history-body-' + c.id);
+        if (histEl) histEl.innerHTML = '<div style="font-size:12px;color:var(--muted)">Could not load dispatches.</div>';
+      });
+  }
 
   // Action buttons
   const btns = [];
@@ -495,11 +744,201 @@ function renderPanel(c) {
   if (c.website) btns.push(`<a href="https://${esc(stripProto(c.website))}" target="_blank">View Site</a>`);
   if (c.proposal_url) btns.push(`<a href="${esc(c.proposal_url)}" target="_blank">View Proposal</a>`);
   actions.innerHTML = btns.join('');
+
+  // Follow-up buttons — only shown if the initial email was sent on a dispatch
+  if (!c.id) return;
+  fetch('/api/kingdom-reach/dispatches?church_id=' + c.id, { credentials:'include' })
+    .then(r => r.json())
+    .then(data => {
+      const dispatch = (data.dispatches || []).find(d => d.email_sent);
+      if (!dispatch) return;
+
+      const fu1Sent = !!dispatch.followup_1_sent;
+      const fu2Sent = !!dispatch.followup_2_sent;
+
+      const fu1Label = fu1Sent ? '&#10003; Follow-Up 1 Sent' : 'Send Follow-Up 1';
+      const fu2Label = fu2Sent ? '&#10003; Follow-Up 2 Sent' : 'Send Follow-Up 2';
+
+      const fu1Style = fu1Sent
+        ? 'border:1.5px solid var(--ok);color:var(--ok);background:#f0fdf4;cursor:default'
+        : 'border:1.5px solid #f97316;color:#f97316;background:#fff';
+      const fu2Style = fu2Sent
+        ? 'border:1.5px solid var(--ok);color:var(--ok);background:#f0fdf4;cursor:default'
+        : 'border:1.5px solid var(--err);color:var(--err);background:#fff';
+
+      const fu1Btn = `<button type="button" id="fu1btn-${dispatch.id}" ${fu1Sent ? 'disabled' : ''}
+        style="flex:1;min-width:100px;padding:9px 12px;border-radius:8px;font-size:13px;font-weight:600;${fu1Style};cursor:${fu1Sent?'default':'pointer'}"
+        onclick="sendFollowup(${dispatch.id},1,this)">${fu1Label}</button>`;
+      const fu2Btn = `<button type="button" id="fu2btn-${dispatch.id}" ${fu2Sent ? 'disabled' : ''}
+        style="flex:1;min-width:100px;padding:9px 12px;border-radius:8px;font-size:13px;font-weight:600;${fu2Style};cursor:${fu2Sent?'default':'pointer'}"
+        onclick="sendFollowup(${dispatch.id},2,this)">${fu2Label}</button>`;
+
+      actions.innerHTML += fu1Btn + fu2Btn;
+    })
+    .catch(() => { /* silently skip if dispatch fetch fails */ });
+}
+
+async function sendFollowup(dispatchId, num, btn) {
+  btn.disabled = true;
+  btn.textContent = 'Sending...';
+  try {
+    const r = await fetch(`/api/kingdom-reach/dispatches/${dispatchId}/send-followup`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
+      body: JSON.stringify({ followup: num }),
+    });
+    const data = await r.json();
+    if (!r.ok) {
+      btn.textContent = data.error || 'Error';
+      btn.disabled = false;
+      showToast('Error: ' + (data.error || 'Send failed'), true);
+      return;
+    }
+    btn.textContent = '✓ Follow-Up ' + num + ' Sent';
+    btn.style.borderColor = 'var(--ok)';
+    btn.style.color = 'var(--ok)';
+    btn.style.background = '#f0fdf4';
+    showToast('Follow-up ' + num + ' sent to ' + data.sent_to);
+  } catch (e) {
+    btn.textContent = 'Error';
+    btn.disabled = false;
+    showToast('Network error', true);
+  }
+}
+
+function showToast(msg, isError) {
+  let toast = document.getElementById('kr-toast');
+  if (!toast) {
+    toast = document.createElement('div');
+    toast.id = 'kr-toast';
+    toast.style.cssText = 'position:fixed;bottom:24px;left:50%;transform:translateX(-50%);padding:12px 22px;border-radius:10px;font-size:14px;font-weight:600;z-index:9999;transition:opacity .3s;white-space:nowrap;box-shadow:0 4px 16px rgba(0,0,0,.18)';
+    document.body.appendChild(toast);
+  }
+  toast.textContent = msg;
+  toast.style.background = isError ? '#dc2626' : '#16a34a';
+  toast.style.color = '#fff';
+  toast.style.opacity = '1';
+  clearTimeout(toast._timer);
+  toast._timer = setTimeout(() => { toast.style.opacity = '0'; }, 3500);
 }
 
 function row(label, val) {
   if (!val) return '';
   return `<div class="panel-row"><span class="lbl">${esc(label)}</span><span class="val">${esc(String(val))}</span></div>`;
+}
+
+// ── Inline edit helpers ───────────────────────────────────────────────────
+function startEdit(editIcon, field, churchId) {
+  // Find the parent panel-row or the editable-val span
+  const container = editIcon.closest('[data-field]') || editIcon.parentElement;
+  const valSpan = container.querySelector('.editable-val[data-field="' + field + '"]');
+  if (!valSpan) return;
+  const originalVal = valSpan.textContent;
+
+  const isNotes = field === 'notes';
+  let input;
+  if (isNotes) {
+    input = document.createElement('textarea');
+    input.rows = 4;
+    input.style.cssText = 'width:100%;padding:5px 8px;font-size:13px;border:1.5px solid var(--royal);border-radius:6px;font-family:inherit;resize:vertical;background:var(--card);color:var(--ink)';
+  } else {
+    input = document.createElement('input');
+    input.type = field === 'phone' ? 'tel' : field === 'email' ? 'email' : 'text';
+    input.style.cssText = 'width:100%;padding:5px 8px;font-size:13px;border:1.5px solid var(--royal);border-radius:6px;font-family:inherit;background:var(--card);color:var(--ink)';
+  }
+  input.value = originalVal;
+
+  // Replace the val span contents with the input
+  const valParent = valSpan.parentElement;
+  valSpan.style.display = 'none';
+  // Hide all sibling icons/copy buttons temporarily
+  Array.from(valParent.children).forEach(ch => { if (ch !== valSpan) ch.style.display = 'none'; });
+  valParent.appendChild(input);
+  input.focus();
+  if (input.select) input.select();
+
+  async function saveEdit() {
+    const newVal = input.value.trim();
+    input.remove();
+    Array.from(valParent.children).forEach(ch => { ch.style.display = ''; });
+    valSpan.style.display = '';
+    if (newVal === originalVal) return;
+    try {
+      const r = await fetch('/api/kingdom-reach/churches/' + churchId, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ [field]: newVal }),
+      });
+      if (!r.ok) throw new Error('Save failed');
+      valSpan.textContent = newVal;
+      // Update in-memory record
+      const c = allChurches.find(x => x.id == churchId);
+      if (c) c[field] = newVal;
+      showToast('Saved');
+    } catch (e) {
+      valSpan.textContent = originalVal;
+      showToast('Error saving — changes reverted', true);
+    }
+  }
+
+  input.addEventListener('blur', saveEdit);
+  input.addEventListener('keydown', e => {
+    if (!isNotes && e.key === 'Enter') { e.preventDefault(); input.blur(); }
+    if (e.key === 'Escape') { input.value = originalVal; input.blur(); }
+  });
+}
+
+function copyField(value, btn) {
+  navigator.clipboard.writeText(value).then(() => {
+    showToast('Copied!');
+  }).catch(() => {
+    showToast('Copy failed', true);
+  });
+}
+
+function handlePVChange(churchId, sel) {
+  if (sel.value === 'custom') {
+    const customInput = document.getElementById('pv-custom-' + churchId);
+    if (customInput) customInput.style.display = 'inline-block';
+    return;
+  }
+  if (!sel.value) return;
+  savePipelineValue(churchId, sel.value);
+  sel.value = '';
+}
+
+async function savePipelineValue(churchId, val) {
+  const num = parseInt(val, 10);
+  if (isNaN(num) || num < 0) { showToast('Invalid value', true); return; }
+  try {
+    const r = await fetch('/api/kingdom-reach/churches/' + churchId, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
+      body: JSON.stringify({ pipeline_value: num }),
+    });
+    if (!r.ok) throw new Error('Save failed');
+    const display = document.getElementById('pv-display-' + churchId);
+    if (display) display.textContent = '$' + num.toLocaleString();
+    const customInput = document.getElementById('pv-custom-' + churchId);
+    if (customInput) { customInput.style.display = 'none'; customInput.value = ''; }
+    const c = allChurches.find(x => x.id == churchId);
+    if (c) c.pipeline_value = num;
+    showToast('Pipeline value updated');
+  } catch (e) {
+    showToast('Error saving pipeline value', true);
+  }
+}
+
+function toggleDispatchHistory(churchId) {
+  const body = document.getElementById('dispatch-history-body-' + churchId);
+  const arrow = document.getElementById('dispatch-toggle-' + churchId);
+  if (!body) return;
+  const isHidden = body.style.display === 'none';
+  body.style.display = isHidden ? '' : 'none';
+  if (arrow) arrow.innerHTML = isHidden ? '&#9660;' : '&#9654;';
 }
 
 function closePanel() {
@@ -564,6 +1003,22 @@ document.querySelectorAll('.pill').forEach(p => p.addEventListener('click', () =
 }));
 document.getElementById('searchInput').addEventListener('input', render);
 document.getElementById('tierSel').addEventListener('change', render);
+
+async function checkHealth() {
+  try {
+    const r = await fetch('/api/kingdom-reach/health');
+    const d = await r.json();
+    const badge = document.getElementById('healthBadge');
+    if (d.followups_pending > 0) {
+      badge.textContent = d.followups_pending + ' follow-up' + (d.followups_pending === 1 ? '' : 's') + ' pending';
+      badge.style.display = 'inline-block';
+    } else {
+      badge.style.display = 'none';
+    }
+  } catch {}
+}
+checkHealth();
+setInterval(checkHealth, 60000);
 
 load();
 setInterval(load, 30000);
