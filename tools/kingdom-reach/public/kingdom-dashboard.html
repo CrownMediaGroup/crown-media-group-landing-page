@@ -14,10 +14,12 @@
   .brand { font-family:'Playfair Display',serif; font-weight:800; font-size:12px; letter-spacing:2px; color:var(--gold); text-transform:uppercase; }
   .title { font-family:'Playfair Display',serif; font-size:30px; font-weight:800; margin-top:4px; }
   .header-actions { display:flex; gap:12px; margin-top:12px; flex-wrap:wrap; }
-  .btn { padding:10px 18px; border-radius:8px; text-decoration:none; font-weight:600; font-size:14px; transition:transform .1s; }
+  .btn { padding:10px 18px; border-radius:8px; text-decoration:none; font-weight:600; font-size:14px; transition:transform .1s; cursor:pointer; }
   .btn:hover { transform:translateY(-1px); }
-  .btn-gold { background:var(--gold); color:var(--ink); }
+  .btn-gold { background:var(--gold); color:var(--ink); border:none; }
   .btn-out  { background:transparent; color:#fff; border:2px solid #fff; }
+  .btn-outline { background:transparent; color:var(--royal); border:1.5px solid var(--royal); }
+  .btn-sm { padding:7px 14px; font-size:13px; }
 
   .stats { display:grid; grid-template-columns:repeat(auto-fit,minmax(170px,1fr)); gap:14px; padding:20px 28px; background:#fff; border-bottom:1px solid var(--line); }
   .stat { padding:16px; border:1px solid var(--line); border-radius:10px; }
@@ -29,18 +31,26 @@
   .filters { display:flex; gap:8px; padding:16px 28px; flex-wrap:wrap; align-items:center; background:#fff; border-bottom:1px solid var(--line); }
   .filters input,.filters select { padding:8px 12px; border:1.5px solid var(--line); border-radius:8px; font-family:inherit; font-size:14px; }
   .filters input { flex:1; min-width:200px; }
-  .pill { padding:6px 14px; border-radius:20px; font-size:13px; cursor:pointer; background:#f4f6fb; border:1.5px solid var(--line); user-select:none; }
+  .pill { padding:6px 14px; border-radius:20px; font-size:13px; cursor:pointer; background:#f4f6fb; border:1.5px solid var(--line); -webkit-user-select:none; user-select:none; }
   .pill.active { background:var(--royal); color:#fff; border-color:var(--royal); }
 
   .table-wrap { padding:20px 28px 60px; }
   table { width:100%; border-collapse:collapse; background:#fff; border-radius:12px; overflow:hidden; box-shadow:0 1px 4px rgba(15,36,82,.04); }
-  th { background:var(--deep); color:#fff; padding:14px 16px; text-align:left; font-weight:600; font-size:12px; text-transform:uppercase; letter-spacing:.5px; }
+  th { background:var(--deep); color:#fff; padding:14px 16px; text-align:left; font-weight:600; font-size:12px; text-transform:uppercase; letter-spacing:.5px; white-space:nowrap; }
+  th.sortable { cursor:pointer; user-select:none; }
+  th.sortable:hover { background:#1a3565; }
+  th .sort-ind { display:inline-block; margin-left:4px; opacity:.5; font-size:10px; }
+  th.sorted-asc .sort-ind::after { content:'▲'; opacity:1; }
+  th.sorted-desc .sort-ind::after { content:'▼'; opacity:1; }
+  th:not(.sorted-asc):not(.sorted-desc) .sort-ind::after { content:'⇅'; }
   td { padding:14px 16px; border-bottom:1px solid var(--line); font-size:14px; vertical-align:middle; }
   tr:last-child td { border-bottom:none; }
   tr.priority td { background:linear-gradient(90deg, rgba(220,38,38,.06), transparent 40%); }
   tr.client   td { background:linear-gradient(90deg, rgba(22,163,74,.08), transparent 40%); }
   tr.proposal td { background:linear-gradient(90deg, rgba(217,119,6,.07), transparent 40%); }
   tr.contacted td { background:linear-gradient(90deg, rgba(2,132,199,.06), transparent 40%); }
+  tr[data-church-id] { cursor:pointer; }
+  tr[data-church-id]:hover td { background:rgba(26,58,142,.04); }
 
   .name { font-weight:600; color:var(--deep); }
   .meta { font-size:12px; color:#5a6a87; margin-top:2px; }
@@ -50,17 +60,62 @@
   .badge-C,.badge-D { background:#f3f4f6; color:#374151; }
   .has-no  { color:var(--err); font-weight:700; }
   .has-yes { color:#5a6a87; }
+  .followup-badge { background:#f59e0b; color:#000; font-size:0.65rem; padding:2px 6px; border-radius:9px; margin-left:6px; font-weight:700; }
 
   select.status-sel { padding:6px 8px; font-size:12px; border:1.5px solid var(--line); border-radius:6px; background:#fff; font-family:inherit; }
   .actions a { color:var(--royal); text-decoration:none; font-size:13px; font-weight:600; margin-right:10px; }
 
   .empty { text-align:center; padding:60px 20px; color:#5a6a87; }
+  .empty a { color:var(--royal); font-weight:600; text-decoration:underline; cursor:pointer; }
+
+  /* ── Detail slide panel ── */
+  #detailOverlay { display:none; position:fixed; inset:0; background:rgba(10,22,40,.35); z-index:900; }
+  #detailOverlay.open { display:block; }
+  #detailPanel {
+    position:fixed; top:0; right:0; height:100%; width:360px; max-width:100vw;
+    background:#fff; box-shadow:-4px 0 24px rgba(10,22,40,.15);
+    transform:translateX(100%); transition:transform .28s cubic-bezier(.4,0,.2,1);
+    z-index:901; overflow-y:auto; display:flex; flex-direction:column;
+  }
+  #detailPanel.open { transform:translateX(0); }
+  .panel-head {
+    background:linear-gradient(135deg,var(--royal),var(--deep)); color:#fff;
+    padding:20px 20px 16px; position:sticky; top:0; z-index:10;
+    display:flex; align-items:flex-start; justify-content:space-between; gap:12px;
+  }
+  .panel-head h2 { font-family:'Playfair Display',serif; font-size:18px; font-weight:800; line-height:1.25; }
+  .panel-head .brand-sm { font-size:10px; color:var(--gold); letter-spacing:1.5px; font-weight:700; text-transform:uppercase; margin-bottom:4px; }
+  #btnClosePanel { background:rgba(255,255,255,.15); border:none; color:#fff; font-size:20px; line-height:1; width:32px; height:32px; border-radius:6px; cursor:pointer; flex-shrink:0; display:flex; align-items:center; justify-content:center; }
+  #btnClosePanel:hover { background:rgba(255,255,255,.28); }
+  .panel-body { padding:20px; flex:1; }
+  .panel-section { margin-bottom:20px; }
+  .panel-section-title { font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:1.2px; color:#8a9ab8; margin-bottom:10px; }
+  .panel-row { display:flex; gap:8px; margin-bottom:8px; font-size:13px; }
+  .panel-row .lbl { color:#5a6a87; min-width:96px; font-weight:600; flex-shrink:0; }
+  .panel-row .val { color:var(--ink); flex:1; word-break:break-word; }
+  .panel-actions { display:flex; flex-wrap:wrap; gap:8px; padding:16px 20px; border-top:1px solid var(--line); position:sticky; bottom:0; background:#fff; }
+  .panel-actions a,.panel-actions button {
+    flex:1; min-width:100px; text-align:center;
+    padding:9px 12px; border-radius:8px; font-size:13px; font-weight:600;
+    text-decoration:none; border:1.5px solid var(--royal); color:var(--royal);
+    background:#fff; cursor:pointer; transition:background .12s,color .12s;
+  }
+  .panel-actions a:hover,.panel-actions button:hover { background:var(--royal); color:#fff; }
+  .panel-actions a.primary,.panel-actions button.primary { background:var(--royal); color:#fff; }
+  .panel-actions a.primary:hover { background:var(--deep); border-color:var(--deep); }
+  .sentiment { display:inline-block; padding:3px 10px; border-radius:12px; font-size:11px; font-weight:700; }
+  .sent-positive { background:#dcfce7; color:#166534; }
+  .sent-neutral  { background:#f3f4f6; color:#374151; }
+  .sent-negative { background:#fee2e2; color:#991b1b; }
+  .panel-loading { text-align:center; padding:40px 20px; color:#5a6a87; }
+
   @media (max-width:760px) {
     .header { padding:18px 16px; }
     .table-wrap { padding:14px 14px 60px; }
     table { font-size:12px; }
     th,td { padding:10px 8px; }
     th.hide-sm,td.hide-sm { display:none; }
+    #detailPanel { width:100vw; }
   }
 </style>
 </head>
@@ -86,29 +141,83 @@
     <select id="tierSel">
       <option value="">All Tiers</option><option>A</option><option>B</option><option>C</option><option>D</option>
     </select>
+    <button id="btnExportCSV" type="button" class="btn btn-outline btn-sm">Export CSV</button>
   </div>
 
   <div class="table-wrap">
     <table>
       <thead>
         <tr>
-          <th>Church</th>
-          <th class="hide-sm">Tier</th>
+          <th class="sortable" data-col="name">Church<span class="sort-ind"></span></th>
+          <th class="sortable hide-sm" data-col="tier">Tier<span class="sort-ind"></span></th>
           <th class="hide-sm">Pastor</th>
           <th>Website?</th>
-          <th>Status</th>
+          <th class="sortable" data-col="status">Status<span class="sort-ind"></span></th>
+          <th class="sortable hide-sm" data-col="date_added">Date Added<span class="sort-ind"></span></th>
           <th class="hide-sm">Recommended</th>
           <th>Actions</th>
         </tr>
       </thead>
-      <tbody id="rows"><tr><td colspan="7" class="empty">Loading...</td></tr></tbody>
+      <tbody id="rows"><tr><td colspan="8" class="empty">Loading...</td></tr></tbody>
     </table>
+  </div>
+
+  <!-- Detail slide panel -->
+  <div id="detailOverlay"></div>
+  <div id="detailPanel">
+    <div class="panel-head">
+      <div>
+        <div class="brand-sm">Kingdom Reach</div>
+        <h2 id="panelTitle">Church Detail</h2>
+      </div>
+      <button id="btnClosePanel" type="button" aria-label="Close">×</button>
+    </div>
+    <div class="panel-body" id="panelBody">
+      <div class="panel-loading">Loading church data...</div>
+    </div>
+    <div class="panel-actions" id="panelActions"></div>
   </div>
 
 <script>
 let allChurches = [];
 let activeFilter = 'priority';
+let sortCol = null;
+let sortDir = 'asc';
+const FOLLOWUP_DAYS = 14;
 
+// ── Helpers ──────────────────────────────────────────────────────────────
+function esc(s){return String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));}
+function stripProto(u){return String(u||'').replace(/^https?:\/\//,'');}
+
+function daysSince(dateStr) {
+  if (!dateStr) return 0;
+  const d = new Date(dateStr);
+  if (isNaN(d)) return 0;
+  return Math.floor((Date.now() - d.getTime()) / 86400000);
+}
+
+function needsFollowUp(c) {
+  if (c.status !== 'Contacted' && c.status !== 'Proposal Sent') return false;
+  const ref = c.updated_at || c.date_added;
+  return daysSince(ref) > FOLLOWUP_DAYS;
+}
+
+function formatDate(dateStr) {
+  if (!dateStr) return '—';
+  const d = new Date(dateStr);
+  if (isNaN(d)) return dateStr;
+  return d.toLocaleDateString('en-US', { month:'short', day:'numeric', year:'numeric' });
+}
+
+function sentimentClass(s) {
+  if (!s) return 'sent-neutral';
+  const l = s.toLowerCase();
+  if (l.includes('positive') || l.includes('interested') || l.includes('warm')) return 'sent-positive';
+  if (l.includes('negative') || l.includes('cold') || l.includes('not')) return 'sent-negative';
+  return 'sent-neutral';
+}
+
+// ── Load & Stats ──────────────────────────────────────────────────────────
 async function load() {
   const r = await fetch('/api/kingdom-reach/churches', { credentials:'include' });
   const { churches, totals } = await r.json();
@@ -128,11 +237,10 @@ function renderStats(t) {
   `;
 }
 
-function render() {
-  const q     = document.getElementById('searchInput').value.toLowerCase();
-  const tier  = document.getElementById('tierSel').value;
-  const tbody = document.getElementById('rows');
-
+// ── Filtering & Sorting ───────────────────────────────────────────────────
+function getFiltered() {
+  const q    = document.getElementById('searchInput').value.toLowerCase();
+  const tier = document.getElementById('tierSel').value;
   let rows = allChurches;
   if (activeFilter === 'priority')  rows = rows.filter(c => !c.has_website);
   if (activeFilter === 'contacted') rows = rows.filter(c => c.status === 'Contacted');
@@ -140,9 +248,35 @@ function render() {
   if (activeFilter === 'client')    rows = rows.filter(c => c.status === 'Client');
   if (tier) rows = rows.filter(c => c.tier === tier);
   if (q)    rows = rows.filter(c => (c.name+' '+(c.pastor||'')+' '+(c.city||'')).toLowerCase().includes(q));
+  if (sortCol) {
+    rows = [...rows].sort((a, b) => {
+      let av = a[sortCol] ?? '';
+      let bv = b[sortCol] ?? '';
+      if (sortCol === 'date_added') { av = new Date(av||0).getTime(); bv = new Date(bv||0).getTime(); }
+      else { av = String(av).toLowerCase(); bv = String(bv).toLowerCase(); }
+      if (av < bv) return sortDir === 'asc' ? -1 : 1;
+      if (av > bv) return sortDir === 'asc' ? 1 : -1;
+      return 0;
+    });
+  }
+  return rows;
+}
+
+// ── Render table ──────────────────────────────────────────────────────────
+function render() {
+  const rows  = getFiltered();
+  const tbody = document.getElementById('rows');
+
+  // Update sort indicators
+  document.querySelectorAll('th.sortable').forEach(th => {
+    th.classList.remove('sorted-asc','sorted-desc');
+    if (th.dataset.col === sortCol) th.classList.add(sortDir === 'asc' ? 'sorted-asc' : 'sorted-desc');
+  });
 
   if (!rows.length) {
-    tbody.innerHTML = '<tr><td colspan="7" class="empty">No churches match these filters.</td></tr>';
+    tbody.innerHTML = `<tr><td colspan="8" class="empty">No churches match these filters. <a id="clearFiltersLink">Clear filters</a></td></tr>`;
+    const link = document.getElementById('clearFiltersLink');
+    if (link) link.addEventListener('click', clearFilters);
     return;
   }
 
@@ -151,9 +285,12 @@ function render() {
               : c.status === 'Proposal Sent' ? 'proposal'
               : c.status === 'Contacted' ? 'contacted'
               : (!c.has_website ? 'priority' : '');
-    return `<tr class="${cls}">
+    const followUpBadge = needsFollowUp(c)
+      ? '<span class="followup-badge">Follow Up</span>'
+      : '';
+    return `<tr class="${cls}" data-church-id="${c.id}">
       <td>
-        <div class="name">${esc(c.name)}</div>
+        <div class="name">${esc(c.name)}${followUpBadge}</div>
         <div class="meta">${esc(c.city||'')} ${c.state ? '· '+esc(c.state) : ''} ${c.phone ? '· '+esc(c.phone) : ''}</div>
       </td>
       <td class="hide-sm"><span class="badge badge-${esc(c.tier||'C')}">${esc(c.tier||'—')}</span></td>
@@ -165,17 +302,21 @@ function render() {
             `<option ${s===c.status?'selected':''}>${s}</option>`).join('')}
         </select>
       </td>
+      <td class="hide-sm">${esc(formatDate(c.date_added))}</td>
       <td class="hide-sm">${esc(c.recommended_tier||'—')}</td>
-      <td class="actions">
-        ${c.email ? `<a href="mailto:${esc(c.email)}">Email</a>` : ''}
-        ${c.website ? `<a href="https://${esc(stripProto(c.website))}" target="_blank">Site</a>` : ''}
-        ${c.phone ? `<a href="tel:${esc(c.phone.replace(/[^0-9+]/g,''))}">Call</a>` : ''}
+      <td class="actions" style="white-space:nowrap">
+        ${c.email ? `<a href="mailto:${esc(c.email)}" onclick="event.stopPropagation()">Email</a>` : ''}
+        ${c.website ? `<a href="https://${esc(stripProto(c.website))}" target="_blank" onclick="event.stopPropagation()">Site</a>` : ''}
+        ${c.phone ? `<a href="tel:${esc(c.phone.replace(/[^0-9+]/g,''))}" onclick="event.stopPropagation()">Call</a>` : ''}
       </td>
     </tr>`;
   }).join('');
 
+  // Status selects — stop propagation so row click doesn't fire
   tbody.querySelectorAll('.status-sel').forEach(sel => {
-    sel.addEventListener('change', async () => {
+    sel.addEventListener('click', e => e.stopPropagation());
+    sel.addEventListener('change', async e => {
+      e.stopPropagation();
       await fetch('/api/kingdom-reach/churches/' + sel.dataset.id, {
         method:'PATCH', headers:{'Content-Type':'application/json'}, credentials:'include',
         body: JSON.stringify({ status: sel.value }),
@@ -185,11 +326,175 @@ function render() {
       load();
     });
   });
+
+  // Row click → open panel
+  tbody.querySelectorAll('tr[data-church-id]').forEach(tr => {
+    tr.addEventListener('click', () => openPanel(tr.dataset.churchId));
+  });
 }
 
-function esc(s){return String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));}
-function stripProto(u){return String(u||'').replace(/^https?:\/\//,'');}
+// ── Clear filters ─────────────────────────────────────────────────────────
+function clearFilters() {
+  document.getElementById('searchInput').value = '';
+  document.getElementById('tierSel').value = '';
+  document.querySelectorAll('.pill').forEach(p => p.classList.remove('active'));
+  document.querySelector('.pill[data-filter="all"]').classList.add('active');
+  activeFilter = 'all';
+  sortCol = null; sortDir = 'asc';
+  render();
+}
 
+// ── Detail panel ──────────────────────────────────────────────────────────
+function openPanel(id) {
+  const overlay = document.getElementById('detailOverlay');
+  const panel   = document.getElementById('detailPanel');
+  const body    = document.getElementById('panelBody');
+  const actions = document.getElementById('panelActions');
+  const title   = document.getElementById('panelTitle');
+
+  // Show immediately with loading state
+  overlay.classList.add('open');
+  panel.classList.add('open');
+  body.innerHTML = '<div class="panel-loading">Loading...</div>';
+  actions.innerHTML = '';
+  title.textContent = 'Church Detail';
+
+  // Try local data first for instant display
+  const local = allChurches.find(x => String(x.id) === String(id));
+  if (local) renderPanel(local);
+
+  // Fetch fresh detail from API
+  fetch('/api/kingdom-reach/churches/' + id, { credentials:'include' })
+    .then(r => r.json())
+    .then(data => {
+      const church = data.church || data;
+      renderPanel(church);
+    })
+    .catch(() => {
+      if (local) renderPanel(local); // fallback to local
+    });
+}
+
+function renderPanel(c) {
+  const title   = document.getElementById('panelTitle');
+  const body    = document.getElementById('panelBody');
+  const actions = document.getElementById('panelActions');
+
+  title.textContent = c.name || 'Church Detail';
+
+  const pipelineVal = c.pipeline_value ? '$' + Number(c.pipeline_value).toLocaleString() : '—';
+  const sentCls = sentimentClass(c.sentiment || '');
+
+  let painPoints = '';
+  if (c.pain_points) {
+    const pts = Array.isArray(c.pain_points) ? c.pain_points : String(c.pain_points).split(/[;,\n]+/).filter(Boolean);
+    if (pts.length) {
+      painPoints = `
+        <div class="panel-section">
+          <div class="panel-section-title">Pain Points</div>
+          <ul style="padding-left:16px;font-size:13px;color:var(--ink);line-height:1.7">
+            ${pts.map(p => `<li>${esc(p.trim())}</li>`).join('')}
+          </ul>
+        </div>`;
+    }
+  }
+
+  const keyQuote = c.key_quote ? `
+    <div class="panel-section">
+      <div class="panel-section-title">Key Quote</div>
+      <blockquote style="border-left:3px solid var(--gold);padding-left:12px;font-size:13px;color:#374151;font-style:italic;line-height:1.6">"${esc(c.key_quote)}"</blockquote>
+    </div>` : '';
+
+  body.innerHTML = `
+    <div class="panel-section">
+      <div class="panel-section-title">Contact</div>
+      ${row('Pastor', c.pastor)}
+      ${row('Phone', c.phone)}
+      ${row('Email', c.email)}
+      ${row('Address', [c.address, c.city, c.state].filter(Boolean).join(', '))}
+    </div>
+    <div class="panel-section">
+      <div class="panel-section-title">Pipeline</div>
+      ${row('Status', c.status)}
+      ${row('Tier', c.tier)}
+      ${row('Recommended', c.recommended_tier)}
+      ${row('Has Website', c.has_website ? 'Yes' : 'NO — Priority Target')}
+      ${row('Pipeline Value', pipelineVal)}
+      ${row('Date Added', formatDate(c.date_added))}
+      ${c.sentiment ? `<div class="panel-row"><span class="lbl">Sentiment</span><span class="val"><span class="sentiment ${sentCls}">${esc(c.sentiment)}</span></span></div>` : ''}
+    </div>
+    ${painPoints}
+    ${keyQuote}
+  `;
+
+  // Action buttons
+  const btns = [];
+  if (c.phone) btns.push(`<a href="tel:${esc(String(c.phone).replace(/[^0-9+]/g,''))}" class="primary">Call ${esc(c.phone)}</a>`);
+  if (c.email) btns.push(`<a href="mailto:${esc(c.email)}">Email</a>`);
+  if (c.website) btns.push(`<a href="https://${esc(stripProto(c.website))}" target="_blank">View Site</a>`);
+  if (c.proposal_url) btns.push(`<a href="${esc(c.proposal_url)}" target="_blank">View Proposal</a>`);
+  actions.innerHTML = btns.join('');
+}
+
+function row(label, val) {
+  if (!val) return '';
+  return `<div class="panel-row"><span class="lbl">${esc(label)}</span><span class="val">${esc(String(val))}</span></div>`;
+}
+
+function closePanel() {
+  document.getElementById('detailOverlay').classList.remove('open');
+  document.getElementById('detailPanel').classList.remove('open');
+}
+
+document.getElementById('btnClosePanel').addEventListener('click', closePanel);
+document.getElementById('detailOverlay').addEventListener('click', closePanel);
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closePanel(); });
+
+// ── Column sorting ────────────────────────────────────────────────────────
+document.querySelectorAll('th.sortable').forEach(th => {
+  th.addEventListener('click', () => {
+    const col = th.dataset.col;
+    if (sortCol === col) {
+      sortDir = sortDir === 'asc' ? 'desc' : 'asc';
+    } else {
+      sortCol = col;
+      sortDir = 'asc';
+    }
+    render();
+  });
+});
+
+// ── Export CSV ────────────────────────────────────────────────────────────
+document.getElementById('btnExportCSV').addEventListener('click', () => {
+  const rows = getFiltered();
+  const headers = ['Name','Pastor','Phone','Address','Status','Tier','Has Website','Pipeline Value','Date Added'];
+  const csvRows = [headers.join(',')];
+  rows.forEach(c => {
+    const vals = [
+      c.name || '',
+      c.pastor || '',
+      c.phone || '',
+      [c.address, c.city, c.state].filter(Boolean).join(' '),
+      c.status || '',
+      c.tier || '',
+      c.has_website ? 'Yes' : 'No',
+      c.pipeline_value || '',
+      c.date_added ? formatDate(c.date_added) : '',
+    ].map(v => '"' + String(v).replace(/"/g, '""') + '"');
+    csvRows.push(vals.join(','));
+  });
+  const blob = new Blob([csvRows.join('\n')], { type:'text/csv' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'kingdom-reach-churches.csv';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+});
+
+// ── Filter pills & inputs ─────────────────────────────────────────────────
 document.querySelectorAll('.pill').forEach(p => p.addEventListener('click', () => {
   document.querySelectorAll('.pill').forEach(x => x.classList.remove('active'));
   p.classList.add('active');

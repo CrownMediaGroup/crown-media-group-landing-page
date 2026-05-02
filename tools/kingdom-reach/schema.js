@@ -48,6 +48,11 @@ export function ensureSchema(db) {
     CREATE INDEX IF NOT EXISTS idx_dispatches_status     ON kingdom_dispatches(status, created_at);
     CREATE INDEX IF NOT EXISTS idx_dispatches_slug       ON kingdom_dispatches(church_slug);
   `);
+
+  // Additive columns — safe against existing production table
+  const cols = db.prepare('PRAGMA table_info(kingdom_dispatches)').all().map(c => c.name);
+  if (!cols.includes('followup_1_sent')) db.exec('ALTER TABLE kingdom_dispatches ADD COLUMN followup_1_sent INTEGER DEFAULT 0');
+  if (!cols.includes('followup_2_sent')) db.exec('ALTER TABLE kingdom_dispatches ADD COLUMN followup_2_sent INTEGER DEFAULT 0');
 }
 
 export function slugify(name = '') {

@@ -32,7 +32,7 @@
   .btn-primary:hover { transform:translateY(-1px); box-shadow:0 10px 28px rgba(26,58,142,.35); }
   .btn-primary:disabled { opacity:.6; cursor:not-allowed; transform:none; }
   .help { color:#5a6a87; font-size:13px; line-height:1.5; margin-top:6px; }
-  .status { margin-top:16px; padding:18px; border-radius:12px; font-size:15px; line-height:1.5; }
+  .status { margin-top:16px; padding:18px; border-radius:12px; font-size:15px; line-height:1.5; max-width:560px; margin-left:auto; margin-right:auto; }
   .status.processing { background:#fef9e7; border-left:4px solid var(--gold); color:#7a5e00; }
   .status.ready      { background:#e8f5ed; border-left:4px solid var(--ok);   color:#0d4a23; }
   .status.error      { background:#fdecec; border-left:4px solid var(--err);  color:#7a1f1f; }
@@ -41,9 +41,43 @@
   .deliverables a:hover { border-color:var(--royal); }
   .send-row { display:flex; gap:8px; margin-top:12px; }
   .send-row input { flex:1; }
-  .send-row button { padding:14px 18px; background:var(--gold); color:var(--ink); border:none; border-radius:10px; font-weight:700; cursor:pointer; }
+  .send-row button { padding:14px 18px; background:var(--gold); color:var(--ink); border:none; border-radius:10px; font-weight:700; cursor:pointer; white-space:nowrap; }
+  .send-row button:disabled { opacity:.6; cursor:not-allowed; }
   .pulse { display:inline-block; width:10px; height:10px; border-radius:50%; background:var(--gold); animation:pulse 1.4s infinite; margin-right:6px; vertical-align:middle; }
   @keyframes pulse { 0%,100% { opacity:.3; transform:scale(.85); } 50% { opacity:1; transform:scale(1.1); } }
+
+  /* 4-stage progress bar */
+  .progress-bar { display:flex; align-items:center; gap:0; margin:14px 0 4px; }
+  .stage { display:flex; flex-direction:column; align-items:center; flex:1; position:relative; }
+  .stage-circle { width:32px; height:32px; border-radius:50%; border:3px solid #c9b97a; background:#fff; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:13px; color:#c9b97a; transition:all .3s; position:relative; z-index:1; }
+  .stage-circle.active { border-color:var(--gold); color:var(--gold); box-shadow:0 0 0 3px rgba(212,167,60,.2); }
+  .stage-circle.done { border-color:var(--ok); background:var(--ok); color:#fff; }
+  .stage-label { font-size:10px; font-weight:600; color:#c9b97a; margin-top:5px; text-align:center; line-height:1.2; max-width:64px; transition:color .3s; }
+  .stage-label.active { color:#7a5e00; }
+  .stage-label.done { color:var(--ok); }
+  .stage-connector { flex:1; height:3px; background:#e5e9f2; margin-top:-20px; margin-bottom:20px; transition:background .3s; }
+  .stage-connector.done { background:var(--ok); }
+
+  /* Extracted data preview card */
+  .extracted-card { background:#1a1f2e; border-left:4px solid var(--gold); border-radius:10px; padding:16px 18px; margin-bottom:14px; color:#e8e4d0; font-size:14px; line-height:1.6; }
+  .extracted-card strong { display:block; color:var(--gold); font-size:13px; letter-spacing:1px; text-transform:uppercase; margin-bottom:10px; }
+  .extracted-card .ext-row { display:flex; gap:8px; margin-bottom:4px; }
+  .extracted-card .ext-label { color:#8891a8; font-size:12px; min-width:70px; }
+  .extracted-card .ext-val { color:#e8e4d0; font-weight:600; }
+  .extracted-card blockquote { border-left:2px solid var(--gold); margin:10px 0 0; padding-left:10px; font-style:italic; color:#b0aa96; font-size:13px; }
+
+  /* Toast notification */
+  .toast { position:fixed; bottom:28px; left:50%; transform:translateX(-50%) translateY(80px); background:#16a34a; color:#fff; padding:12px 22px; border-radius:10px; font-weight:600; font-size:14px; box-shadow:0 4px 16px rgba(0,0,0,.25); opacity:0; transition:opacity .3s, transform .3s; z-index:9999; pointer-events:none; white-space:nowrap; }
+  .toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
+
+  /* File upload label */
+  .upload-label { cursor:pointer; color:var(--gold); font-size:0.85rem; font-weight:600; display:inline-block; margin-top:6px; text-decoration:underline; text-underline-offset:2px; }
+  .upload-label:hover { opacity:.8; }
+
+  /* Retry button */
+  .btn-retry { display:inline-block; margin-top:12px; padding:12px 24px; background:var(--royal); color:#fff; border:none; border-radius:10px; font-weight:700; font-size:15px; cursor:pointer; }
+  .btn-retry:hover { opacity:.88; }
+
   @media (min-width:600px) { .header { padding:32px 28px 36px; } .title { font-size:36px; } }
 </style>
 </head>
@@ -87,7 +121,9 @@
     <div class="field">
       <label for="transcript">Otter.ai Transcript</label>
       <textarea id="transcript" name="transcript" required placeholder="Paste the full transcript from Otter.ai here. Don't worry about cleanup — Claude extracts what matters."></textarea>
-      <p class="help">Tip: in Otter, tap Share → Copy Transcript → paste here.</p>
+      <input type="file" id="transcriptFile" accept=".txt" style="display:none">
+      <label for="transcriptFile" class="upload-label">or upload .txt file</label>
+      <p class="help" style="margin-top:4px">Tip: in Otter, tap Share → Copy Transcript → paste here.</p>
     </div>
     <div class="field">
       <label class="toggle">
@@ -96,15 +132,72 @@
       </label>
       <p class="help">Off by default — King reviews first, then taps Send.</p>
     </div>
-    <button type="submit" class="btn-primary" id="dispatchBtn">DISPATCH 🛡</button>
+    <button type="submit" class="btn-primary" id="dispatchBtn">DISPATCH</button>
   </form>
 
   <div id="status"></div>
+  <div class="toast" id="toast"></div>
 
 <script>
 const form     = document.getElementById('dispatchForm');
 const btn      = document.getElementById('dispatchBtn');
 const statusEl = document.getElementById('status');
+const toastEl  = document.getElementById('toast');
+
+// File upload → populate textarea
+document.getElementById('transcriptFile').addEventListener('change', function() {
+  const file = this.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    document.getElementById('transcript').value = e.target.result;
+  };
+  reader.readAsText(file);
+  this.value = '';
+});
+
+// Toast helper
+function showToast(msg, color) {
+  toastEl.textContent = msg;
+  toastEl.style.background = color || '#16a34a';
+  toastEl.classList.add('show');
+  setTimeout(() => toastEl.classList.remove('show'), 3000);
+}
+
+// 4-stage progress bar renderer
+const STAGES = [
+  'Reading transcript...',
+  'Building website...',
+  'Writing proposal...',
+  'Drafting email...',
+];
+
+function renderProgressBar(activeIndex, allDone) {
+  let html = '<div class="progress-bar">';
+  for (let i = 0; i < STAGES.length; i++) {
+    const isDone  = allDone || i < activeIndex;
+    const isActive = !allDone && i === activeIndex;
+    const circleClass = isDone ? 'done' : (isActive ? 'active' : '');
+    const labelClass  = isDone ? 'done'  : (isActive ? 'active' : '');
+    const circleContent = isDone ? '&#10003;' : (i + 1);
+    html += `<div class="stage">
+      <div class="stage-circle ${circleClass}">${circleContent}</div>
+      <div class="stage-label ${labelClass}">${allDone && i === STAGES.length - 1 ? 'Complete' : STAGES[i]}</div>
+    </div>`;
+    if (i < STAGES.length - 1) {
+      html += `<div class="stage-connector ${isDone ? 'done' : ''}"></div>`;
+    }
+  }
+  html += '</div>';
+  return html;
+}
+
+function stageIndexFromElapsed(elapsed) {
+  if (elapsed < 8000)  return 0;
+  if (elapsed < 16000) return 1;
+  if (elapsed < 24000) return 2;
+  return 3;
+}
 
 form.addEventListener('submit', async (e) => {
   e.preventDefault();
@@ -121,7 +214,8 @@ form.addEventListener('submit', async (e) => {
 
   btn.disabled = true; btn.textContent = 'DISPATCHING...';
   statusEl.className = 'status processing';
-  statusEl.innerHTML = '<span class="pulse"></span><strong>Processing transcript...</strong> Claude is extracting intel and forging deliverables. This typically takes 25–45 seconds.';
+  statusEl.innerHTML = renderProgressBar(0, false) +
+    '<p style="margin-top:10px"><span class="pulse"></span><strong>Processing transcript...</strong> Claude is extracting intel and forging deliverables. This typically takes 25–45 seconds.</p>';
 
   try {
     const r = await fetch('/api/kingdom-reach/dispatch', {
@@ -136,20 +230,31 @@ form.addEventListener('submit', async (e) => {
   } catch (err) {
     statusEl.className = 'status error';
     statusEl.innerHTML = '<strong>Dispatch error:</strong> ' + (err.message || err);
-    btn.disabled = false; btn.textContent = 'DISPATCH 🛡';
+    btn.disabled = false; btn.textContent = 'DISPATCH';
   }
 });
 
-async function pollJob(id) {
+function pollJob(id, startTime) {
+  if (!startTime) startTime = Date.now();
   let attempts = 0;
+
   const tick = async () => {
     attempts++;
+    const elapsed = Date.now() - startTime;
+    const stageIdx = stageIndexFromElapsed(elapsed);
+
+    // Update progress bar each tick while processing
+    if (statusEl.className.includes('processing')) {
+      statusEl.innerHTML = renderProgressBar(stageIdx, false) +
+        '<p style="margin-top:10px"><span class="pulse"></span><strong>' + STAGES[stageIdx] + '</strong> Claude is forging your deliverables...</p>';
+    }
+
     try {
       const r = await fetch('/api/kingdom-reach/job/' + id, { credentials: 'include' });
       const { job } = await r.json();
       if (job.status === 'ready' || job.status === 'sent') return renderReady(job);
       if (job.status === 'error') return renderError(job);
-      if (attempts > 60) return renderError({ error: 'Timeout — check the dashboard.' });
+      if (attempts > 60) return renderTimeout(id);
       setTimeout(tick, 3000);
     } catch (e) {
       setTimeout(tick, 5000);
@@ -158,12 +263,29 @@ async function pollJob(id) {
   tick();
 }
 
+function renderExtractedCard(ex) {
+  if (!ex) return '';
+  const sentiment  = escapeHtml(ex.overall_sentiment || '');
+  const tier       = escapeHtml(ex.recommended_tier  || '');
+  const pains      = Array.isArray(ex.pain_points) ? ex.pain_points.slice(0,2).map(escapeHtml).join(' · ') : '';
+  const quotes     = Array.isArray(ex.key_quotes) && ex.key_quotes[0] ? escapeHtml(ex.key_quotes[0]) : '';
+  const confidence = ex.sentiment_confidence ? Math.round(ex.sentiment_confidence * 100) + '% confidence' : '';
+  return `<div class="extracted-card">
+    <strong>What Claude Extracted</strong>
+    ${sentiment ? `<div class="ext-row"><span class="ext-label">Sentiment</span><span class="ext-val">${sentiment}${confidence ? ' (' + confidence + ')' : ''}</span></div>` : ''}
+    ${tier       ? `<div class="ext-row"><span class="ext-label">Tier</span><span class="ext-val">${tier}</span></div>` : ''}
+    ${pains      ? `<div class="ext-row"><span class="ext-label">Pain</span><span class="ext-val">${pains}</span></div>` : ''}
+    ${quotes     ? `<blockquote>"${quotes}"</blockquote>` : ''}
+  </div>`;
+}
+
 function renderReady(job) {
   const sent = job.emailSent ? '✓ Email already sent' : '';
   statusEl.className = 'status ready';
-  statusEl.innerHTML = `
-    <strong>✓ Deliverables ready for ${escapeHtml(job.extracted?.church_name || job.slug)}</strong><br>
-    <span style="font-size:13px;color:#1c5630">Recommended tier: <strong>${escapeHtml(job.extracted?.recommended_tier || 'Starter')}</strong> · Sentiment: ${escapeHtml(job.extracted?.overall_sentiment || '—')}</span>
+  statusEl.innerHTML =
+    renderProgressBar(0, true) +
+    renderExtractedCard(job.extracted) +
+    `<strong>Deliverables ready for ${escapeHtml(job.extracted?.church_name || job.slug)}</strong><br>
     <div class="deliverables">
       ${job.websiteUrl  ? `<a href="${job.websiteUrl}"  target="_blank">→ Preview starter website</a>` : ''}
       ${job.proposalUrl ? `<a href="${job.proposalUrl}" target="_blank">→ View proposal PDF</a>` : ''}
@@ -172,32 +294,57 @@ function renderReady(job) {
     ${sent ? `<p style="margin-top:12px;color:#0d4a23;font-weight:600">${sent}</p>` :
       `<div class="send-row">
         <input type="email" id="sendTo" placeholder="recipient@church.org" value="${escapeAttr(job.church?.email || '')}">
-        <button onclick="sendNow(${job.id})">Send</button>
+        <button id="sendBtn" onclick="sendNow(${job.id}, this)">Send</button>
       </div>
       <p class="help" style="margin-top:8px">Sends from king@crownmediagroup.co with the proposal attached.</p>`
     }
-    <p style="margin-top:14px"><a href="/kingdom-reach/dashboard" style="color:#1a3a8e;font-weight:600">View full church dashboard →</a></p>
-  `;
+    <p style="margin-top:14px"><a href="/kingdom-reach/dashboard" style="color:#1a3a8e;font-weight:600">View full church dashboard →</a></p>`;
   btn.disabled = false; btn.textContent = 'DISPATCH ANOTHER';
 }
 
 function renderError(job) {
   statusEl.className = 'status error';
   statusEl.innerHTML = '<strong>Pipeline error:</strong> ' + escapeHtml(job.error || 'Unknown') + '<br><span class="help">Check the server log or try again.</span>';
-  btn.disabled = false; btn.textContent = 'DISPATCH 🛡';
+  btn.disabled = false; btn.textContent = 'DISPATCH';
 }
 
-async function sendNow(jobId) {
+function renderTimeout(jobId) {
+  statusEl.className = 'status error';
+  statusEl.innerHTML = `<strong>Taking longer than expected.</strong><br>
+    <span class="help">The pipeline may still be running.</span>
+    <br><button class="btn-retry" onclick="retryPoll('${jobId}')">Retry</button>
+    <p style="margin-top:10px"><a href="/kingdom-reach/dashboard" style="color:#7a1f1f;font-weight:600">Or check the dashboard →</a></p>`;
+  btn.disabled = false; btn.textContent = 'DISPATCH';
+}
+
+function retryPoll(jobId) {
+  statusEl.className = 'status processing';
+  statusEl.innerHTML = renderProgressBar(0, false) +
+    '<p style="margin-top:10px"><span class="pulse"></span><strong>Retrying...</strong> Checking job status again.</p>';
+  btn.disabled = true; btn.textContent = 'DISPATCHING...';
+  pollJob(jobId, Date.now());
+}
+
+async function sendNow(jobId, buttonEl) {
   const to = document.getElementById('sendTo').value.trim();
   if (!to) return alert('Email required');
-  const r = await fetch('/api/kingdom-reach/dispatches/' + jobId + '/send', {
-    method:'POST', headers:{'Content-Type':'application/json'}, credentials:'include',
-    body: JSON.stringify({ to })
-  });
-  const j = await r.json();
-  if (!r.ok) return alert('Send failed: ' + j.error);
-  alert('Sent ✓');
-  location.reload();
+  if (buttonEl) { buttonEl.disabled = true; buttonEl.textContent = 'Sending...'; }
+  try {
+    const r = await fetch('/api/kingdom-reach/dispatches/' + jobId + '/send', {
+      method:'POST', headers:{'Content-Type':'application/json'}, credentials:'include',
+      body: JSON.stringify({ to })
+    });
+    const j = await r.json();
+    if (!r.ok) {
+      if (buttonEl) { buttonEl.disabled = false; buttonEl.textContent = 'Send'; }
+      return showToast('Send failed: ' + (j.error || 'Unknown error'), '#ef4444');
+    }
+    if (buttonEl) { buttonEl.textContent = 'Sent'; buttonEl.disabled = true; }
+    showToast('Email sent to ' + to, '#16a34a');
+  } catch (err) {
+    if (buttonEl) { buttonEl.disabled = false; buttonEl.textContent = 'Send'; }
+    showToast('Send error: ' + (err.message || err), '#ef4444');
+  }
 }
 
 function escapeHtml(s) { return String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }

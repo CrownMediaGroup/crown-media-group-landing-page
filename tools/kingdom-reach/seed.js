@@ -1,23 +1,36 @@
-// seed.js — Idempotent church seeder pulling from Agency/ops/outreach/build-church-list.js
+// seed.js — Idempotent church seeder
+// Tries bundled ./data/churches.json first (Docker), falls back to JS source (local dev)
 import { createRequire } from 'module';
-import { join, dirname } from 'path';
+import { join, dirname, extname } from 'path';
 import { fileURLToPath } from 'url';
-import { existsSync } from 'fs';
+import { existsSync, readFileSync } from 'fs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const require   = createRequire(import.meta.url);
 
 export function seedChurches(db) {
-  const seedPath = join(__dirname, '..', '..', 'Agency', 'ops', 'outreach', 'build-church-list.js');
-  if (!existsSync(seedPath)) {
-    console.warn('[Kingdom Reach] Church seed file missing:', seedPath);
+  // Resolve seed source: bundled JSON preferred, JS fallback for local dev
+  const jsonPath = join(__dirname, 'data', 'churches.json');
+  const jsPath   = join(__dirname, '..', '..', 'Agency', 'ops', 'outreach', 'build-church-list.js');
+
+  let seedPath;
+  if (existsSync(jsonPath)) {
+    seedPath = jsonPath;
+  } else if (existsSync(jsPath)) {
+    seedPath = jsPath;
+  } else {
+    console.warn('[Kingdom Reach] Church seed file missing — checked:', jsonPath, 'and', jsPath);
     return;
   }
 
   let churches;
   try {
-    const mod = require(seedPath);
-    churches = Array.isArray(mod) ? mod : (mod.churches || mod.default || []);
+    if (extname(seedPath) === '.json') {
+      churches = JSON.parse(readFileSync(seedPath, 'utf8'));
+    } else {
+      const mod = require(seedPath);
+      churches = Array.isArray(mod) ? mod : (mod.churches || mod.default || []);
+    }
   } catch (e) {
     console.warn('[Kingdom Reach] Failed to load church seed:', e.message);
     return;
@@ -29,6 +42,7 @@ export function seedChurches(db) {
   }
 
   const existing = db.prepare('SELECT COUNT(*) as c FROM churches').get();
+  // Re-seed if count has grown (new entries added to source)
   if (existing.c >= churches.length) {
     console.log(`[Kingdom Reach] Churches already seeded — ${existing.c} loaded`);
     return;
