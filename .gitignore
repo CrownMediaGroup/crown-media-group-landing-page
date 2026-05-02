@@ -145,3 +145,8 @@ landing-page/landing-page/
 .agents/
 .amplify-last-run
 .playwright-mcp/
+
+# --- Kingdom Reach runtime artifacts (generated per dispatch) ---
+tools/kingdom-reach/output/
+tools/kingdom-reach/inbox/
+tools/kingdom-reach/logs/
