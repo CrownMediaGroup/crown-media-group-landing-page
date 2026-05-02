@@ -105,7 +105,7 @@ export function mountKingdomReach(app, db, { validateSession, getCookie } = {}) 
     if (onlyNoWebsite) sql += ' AND has_website = 0';
     if (status) { sql += ' AND status = ?'; args.push(status); }
     if (tier)   { sql += ' AND tier   = ?'; args.push(tier);   }
-    sql += ' ORDER BY (status = "Client") DESC, has_website ASC, tier ASC, name ASC';
+    sql += " ORDER BY (status = 'Client') DESC, has_website ASC, tier ASC, name ASC";
 
     const churches = db.prepare(sql).all(...args);
     const totals   = db.prepare(`SELECT
