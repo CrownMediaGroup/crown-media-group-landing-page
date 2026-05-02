@@ -154,11 +154,12 @@
           <th>Website?</th>
           <th class="sortable" data-col="status">Status<span class="sort-ind"></span></th>
           <th class="sortable hide-sm" data-col="date_added">Date Added<span class="sort-ind"></span></th>
+          <th class="sortable hide-sm" data-col="dist">Distance<span class="sort-ind"></span></th>
           <th class="hide-sm">Recommended</th>
           <th>Actions</th>
         </tr>
       </thead>
-      <tbody id="rows"><tr><td colspan="8" class="empty">Loading...</td></tr></tbody>
+      <tbody id="rows"><tr><td colspan="9" class="empty">Loading...</td></tr></tbody>
     </table>
   </div>
 
@@ -181,9 +182,34 @@
 <script>
 let allChurches = [];
 let activeFilter = 'priority';
-let sortCol = null;
+let sortCol = 'dist';
 let sortDir = 'asc';
 const FOLLOWUP_DAYS = 14;
+
+// ── Distance from King's house (112 Avington Ln, Columbia SC 29229) ──────
+const KING_LAT = 34.1023, KING_LNG = -80.8462;
+const ZIP_COORDS = {
+  '29201':[34.0007,-81.0348],'29202':[34.0007,-81.0348],'29203':[34.0694,-80.9984],
+  '29204':[34.0274,-80.9898],'29205':[33.9934,-80.9932],'29206':[34.0190,-81.0088],
+  '29207':[34.0139,-80.9787],'29208':[34.0007,-81.0348],'29209':[33.9674,-80.9614],
+  '29210':[34.0566,-81.0740],'29211':[34.0007,-81.0348],'29212':[34.0893,-81.1320],
+  '29220':[34.0007,-81.0348],'29221':[34.0007,-81.0348],'29223':[34.0964,-80.9580],
+  '29229':[34.1023,-80.8462],'29063':[34.1615,-81.1062],'29072':[33.9839,-81.2252],
+  '29073':[33.9810,-81.1930],'29169':[33.9612,-81.0920],'29170':[33.9274,-81.1146],
+  '29036':[34.1664,-81.3509],'29045':[34.1665,-80.7971],'29016':[34.2166,-80.9918],
+  '29053':[33.8204,-81.1010],'29061':[33.9243,-80.9067],'29078':[34.2265,-80.6920],
+  '29020':[34.2462,-80.6073],'29044':[33.8804,-80.6982],'29150':[33.9204,-80.3412],
+  '29054':[33.9163,-81.3932],'29172':[33.7368,-81.1028],'29160':[33.7368,-81.1028],
+};
+function haversine(lat1,lng1,lat2,lng2){
+  const R=3958.8,dLat=(lat2-lat1)*Math.PI/180,dLng=(lng2-lng1)*Math.PI/180;
+  const a=Math.sin(dLat/2)**2+Math.cos(lat1*Math.PI/180)*Math.cos(lat2*Math.PI/180)*Math.sin(dLng/2)**2;
+  return R*2*Math.asin(Math.sqrt(a));
+}
+function distMiles(zip){
+  const c=ZIP_COORDS[String(zip||'').trim()];
+  return c ? Math.round(haversine(KING_LAT,KING_LNG,c[0],c[1])*10)/10 : 999;
+}
 
 // ── Helpers ──────────────────────────────────────────────────────────────
 function esc(s){return String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));}
@@ -219,11 +245,21 @@ function sentimentClass(s) {
 
 // ── Load & Stats ──────────────────────────────────────────────────────────
 async function load() {
-  const r = await fetch('/api/kingdom-reach/churches', { credentials:'include' });
-  const { churches, totals } = await r.json();
-  allChurches = churches || [];
-  renderStats(totals);
-  render();
+  try {
+    const r = await fetch('/api/kingdom-reach/churches', { credentials:'include' });
+    if (!r.ok) throw new Error('HTTP ' + r.status + ' — ' + r.statusText);
+    const data = await r.json();
+    if (!data.ok) throw new Error(data.error || 'API returned ok:false');
+    allChurches = (data.churches || []).map(c => ({ ...c, dist: distMiles(c.zip) }));
+    renderStats(data.totals);
+    render();
+  } catch(e) {
+    document.getElementById('rows').innerHTML =
+      `<tr><td colspan="9" class="empty" style="color:var(--err)">
+        Failed to load churches: ${esc(e.message)}.
+        <a href="javascript:load()" style="color:var(--royal);font-weight:700">Retry</a>
+      </td></tr>`;
+  }
 }
 
 function renderStats(t) {
@@ -249,10 +285,12 @@ function getFiltered() {
   if (tier) rows = rows.filter(c => c.tier === tier);
   if (q)    rows = rows.filter(c => (c.name+' '+(c.pastor||'')+' '+(c.city||'')).toLowerCase().includes(q));
   if (sortCol) {
+    const numericCols = new Set(['date_added','dist','pipeline_value']);
     rows = [...rows].sort((a, b) => {
       let av = a[sortCol] ?? '';
       let bv = b[sortCol] ?? '';
       if (sortCol === 'date_added') { av = new Date(av||0).getTime(); bv = new Date(bv||0).getTime(); }
+      else if (numericCols.has(sortCol)) { av = Number(av)||0; bv = Number(bv)||0; }
       else { av = String(av).toLowerCase(); bv = String(bv).toLowerCase(); }
       if (av < bv) return sortDir === 'asc' ? -1 : 1;
       if (av > bv) return sortDir === 'asc' ? 1 : -1;
@@ -274,7 +312,7 @@ function render() {
   });
 
   if (!rows.length) {
-    tbody.innerHTML = `<tr><td colspan="8" class="empty">No churches match these filters. <a id="clearFiltersLink">Clear filters</a></td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="9" class="empty">No churches match these filters. <a id="clearFiltersLink">Clear filters</a></td></tr>`;
     const link = document.getElementById('clearFiltersLink');
     if (link) link.addEventListener('click', clearFilters);
     return;
@@ -288,10 +326,13 @@ function render() {
     const followUpBadge = needsFollowUp(c)
       ? '<span class="followup-badge">Follow Up</span>'
       : '';
+    const addrParts = [c.address, c.city, c.state, c.zip].filter(Boolean);
+    const addrLine  = addrParts.length ? esc(addrParts.join(', ')) : '';
+    const distLabel = c.dist < 990 ? c.dist + ' mi' : '—';
     return `<tr class="${cls}" data-church-id="${c.id}">
       <td>
         <div class="name">${esc(c.name)}${followUpBadge}</div>
-        <div class="meta">${esc(c.city||'')} ${c.state ? '· '+esc(c.state) : ''} ${c.phone ? '· '+esc(c.phone) : ''}</div>
+        <div class="meta">${addrLine}${c.phone ? ' · '+esc(c.phone) : ''}</div>
       </td>
       <td class="hide-sm"><span class="badge badge-${esc(c.tier||'C')}">${esc(c.tier||'—')}</span></td>
       <td class="hide-sm">${esc(c.pastor||'—')}</td>
@@ -303,6 +344,7 @@ function render() {
         </select>
       </td>
       <td class="hide-sm">${esc(formatDate(c.date_added))}</td>
+      <td class="hide-sm" style="white-space:nowrap;font-size:13px;color:#5a6a87">${distLabel}</td>
       <td class="hide-sm">${esc(c.recommended_tier||'—')}</td>
       <td class="actions" style="white-space:nowrap">
         ${c.email ? `<a href="mailto:${esc(c.email)}" onclick="event.stopPropagation()">Email</a>` : ''}
@@ -340,7 +382,7 @@ function clearFilters() {
   document.querySelectorAll('.pill').forEach(p => p.classList.remove('active'));
   document.querySelector('.pill[data-filter="all"]').classList.add('active');
   activeFilter = 'all';
-  sortCol = null; sortDir = 'asc';
+  sortCol = 'dist'; sortDir = 'asc';
   render();
 }
 
