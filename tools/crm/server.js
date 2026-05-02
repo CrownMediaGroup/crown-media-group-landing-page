@@ -28,7 +28,7 @@ for (const p of [rootEnv, localEnv]) {
 }
 
 import db from './database.js';
-import { mountKingdomReach } from '../kingdom-reach/index.js';
+import { mountKingdomReach } from './kingdom-reach/index.js';
 
 const app   = express();
 const PORT  = process.env.PORT || process.env.CRM_PORT || 3001;
