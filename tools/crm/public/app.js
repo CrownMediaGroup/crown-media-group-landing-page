@@ -245,6 +245,10 @@ function applyFilters() {
     if (activeQuickFilter === 'clients'  && c.status   !== 'Client') return false;
     if (activeQuickFilter === 'followup' && c.next_followup !== new Date().toISOString().split('T')[0]) return false;
     if (activeQuickFilter === 'notouch'  && c.last_contacted && new Date(c.last_contacted) >= now7) return false;
+    if (activeQuickFilter === 'today') {
+      const today = new Date().toISOString().split('T')[0];
+      if (!c.last_contacted || !c.last_contacted.startsWith(today)) return false;
+    }
 
     if (search) {
       const haystack = `${c.name} ${c.business} ${c.phone} ${c.email}`.toLowerCase();
@@ -857,18 +861,28 @@ async function testSMS() {
 function handleStatClick(card) {
   const filterVal = card.dataset.filter;
   const priVal    = card.dataset.filterPriority;
+  const todayVal  = card.dataset.filterToday;
 
   document.querySelectorAll('.stat-card').forEach(c => c.classList.remove('active'));
   card.classList.add('active');
 
-  if (priVal) {
+  if (todayVal) {
+    activeStatusFilter   = '';
+    activePriorityFilter = '';
+    activeQuickFilter    = 'today';
+    document.getElementById('filterStatus').value   = '';
+    document.getElementById('filterPriority').value = '';
+    document.querySelectorAll('.qf-btn').forEach(b => b.classList.remove('active'));
+  } else if (priVal) {
     activePriorityFilter = priVal;
     activeStatusFilter   = '';
+    activeQuickFilter    = '';
     document.getElementById('filterPriority').value = priVal;
     document.getElementById('filterStatus').value   = '';
   } else {
     activeStatusFilter   = filterVal || '';
     activePriorityFilter = '';
+    activeQuickFilter    = '';
     document.getElementById('filterStatus').value   = filterVal || '';
     document.getElementById('filterPriority').value = '';
   }
@@ -2194,10 +2208,37 @@ async function refreshInboxBadge() {
 }
 
 // ── Outreach Tracker ─────────────────────────────────────────────────────────
+function _outreachCard(c, type) {
+  const escaped = c.name.replace(/'/g, "\\'");
+  const actions = type === 'awaiting'
+    ? `<button onclick="markReplied('${c.email}','${escaped}',this)" style="font-size:.72rem;padding:4px 10px;background:rgba(201,168,76,.15);color:#C9A84C;border:1px solid rgba(201,168,76,.3);border-radius:4px;cursor:pointer">Mark Replied</button>`
+    : type === 'replied'
+    ? `<a href="https://calendly.com/crownmediagroup" target="_blank" style="font-size:.72rem;padding:4px 10px;background:rgba(74,222,128,.15);color:#4ade80;border:1px solid rgba(74,222,128,.3);border-radius:4px;text-decoration:none">Book Call</a>`
+    : '';
+  const statusBadge = type === 'bounced'
+    ? ' <span style="background:#7f1d1d;color:#f87171;border-radius:4px;padding:1px 5px;font-size:.7rem">Bounced</span>'
+    : type === 'replied'
+    ? ' <span style="background:#166534;color:#4ade80;border-radius:4px;padding:1px 5px;font-size:.7rem">Replied</span>'
+    : '';
+  return `<div style="padding:10px 12px;border-bottom:1px solid var(--border)">
+    <div style="display:flex;justify-content:space-between;align-items:center;gap:8px">
+      <div style="min-width:0">
+        <div style="font-weight:600;font-size:.88rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${c.name}${statusBadge}</div>
+        <div style="color:var(--muted);font-size:.76rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${c.email}</div>
+      </div>
+      <div style="flex-shrink:0">${actions}</div>
+    </div>
+  </div>`;
+}
+
 async function loadOutreach() {
-  const body = document.getElementById('outreachTableBody');
-  if (!body) return;
-  body.innerHTML = '<tr><td colspan="3" style="padding:24px;text-align:center;color:var(--muted)">Loading…</td></tr>';
+  const notEl = document.getElementById('oNotContacted');
+  const awEl  = document.getElementById('oAwaiting');
+  const repEl = document.getElementById('oReplied');
+  if (!notEl) return;
+
+  const loading = '<div style="padding:20px;text-align:center;color:var(--muted);font-size:.85rem">Loading…</div>';
+  notEl.innerHTML = awEl.innerHTML = repEl.innerHTML = loading;
 
   try {
     const d = await get('/api/outreach/summary');
@@ -2208,25 +2249,42 @@ async function loadOutreach() {
     document.getElementById('oBouncedVal').textContent = d.bounced;
     document.getElementById('oPendingVal').textContent = d.pending;
 
-    if (!d.contacts.length) {
-      body.innerHTML = '<tr><td colspan="3" style="padding:24px;text-align:center;color:var(--muted)">No outreach data yet.</td></tr>';
-      return;
-    }
+    const awaiting = d.contacts.filter(c => !c.replied && !c.bounced);
+    const replied  = d.contacts.filter(c => c.replied);
+    const bounced  = d.contacts.filter(c => c.bounced);
 
-    body.innerHTML = d.contacts.map(c => {
-      const badge = c.replied
-        ? '<span style="background:#166534;color:#4ade80;border-radius:4px;padding:2px 8px;font-size:.75rem;font-weight:600">Replied</span>'
-        : c.bounced
-          ? '<span style="background:#7f1d1d;color:#f87171;border-radius:4px;padding:2px 8px;font-size:.75rem;font-weight:600">Bounced</span>'
-          : '<span style="background:rgba(255,255,255,.07);color:var(--muted);border-radius:4px;padding:2px 8px;font-size:.75rem">Waiting</span>';
-      return `<tr style="border-bottom:1px solid var(--border)">
-        <td style="padding:10px 12px">${c.name}</td>
-        <td style="padding:10px 12px;color:var(--muted);font-size:.82rem">${c.email}</td>
-        <td style="padding:10px 12px;text-align:center">${badge}</td>
-      </tr>`;
-    }).join('');
-  } catch (e) {
-    body.innerHTML = '<tr><td colspan="3" style="padding:24px;text-align:center;color:#f87171">Failed to load outreach data.</td></tr>';
+    document.getElementById('oNotContactedCount').textContent = '—';
+    document.getElementById('oAwaitingCount').textContent     = awaiting.length + bounced.length;
+    document.getElementById('oRepliedCount').textContent      = replied.length;
+
+    notEl.innerHTML = '<div style="padding:16px;text-align:center;color:var(--muted);font-size:.84rem">No-website church call list lives in Kingdom Reach. Use that tab to track calls.</div>';
+
+    awEl.innerHTML = (awaiting.length || bounced.length)
+      ? [...awaiting.map(c => _outreachCard(c, 'awaiting')), ...bounced.map(c => _outreachCard(c, 'bounced'))].join('')
+      : '<div style="padding:20px;text-align:center;color:var(--muted);font-size:.84rem">No emails sent yet — run your outreach campaign first.</div>';
+
+    repEl.innerHTML = replied.length
+      ? replied.map(c => _outreachCard(c, 'replied')).join('')
+      : '<div style="padding:20px;text-align:center;color:var(--muted);font-size:.84rem">No replies yet — keep following up.</div>';
+
+  } catch (_) {
+    const err = '<div style="padding:16px;color:#f87171;font-size:.84rem">Failed to load outreach data.</div>';
+    notEl.innerHTML = awEl.innerHTML = repEl.innerHTML = err;
+  }
+}
+
+async function markReplied(email, name, btn) {
+  btn.textContent = 'Saving…';
+  btn.disabled = true;
+  try {
+    await api('/api/outreach/mark-replied', {
+      method: 'POST',
+      body: JSON.stringify({ email, name }),
+    });
+    loadOutreach();
+  } catch (_) {
+    btn.textContent = 'Error';
+    btn.disabled = false;
   }
 }
 

@@ -266,6 +266,65 @@ export function mountKingdomReach(app, db, { validateSession, getCookie } = {}) 
     res.json({ ok: true, sent_to: to });
   });
 
+  // ── ENRICH CHURCHES (Overpass/OSM — free, no API key) ────────────────────
+  app.post('/api/kingdom-reach/enrich', requireAuth, async (req, res) => {
+    const OVERPASS = 'https://overpass-api.de/api/interpreter';
+    const QUERY = `[out:json][timeout:60];(node["amenity"="place_of_worship"](33.8,-81.2,34.2,-80.7);way["amenity"="place_of_worship"](33.8,-81.2,34.2,-80.7););out body center;`;
+    let osmData;
+    try {
+      const r = await fetch(OVERPASS, { method:'POST', headers:{'Content-Type':'application/x-www-form-urlencoded'}, body:`data=${encodeURIComponent(QUERY)}` });
+      osmData = await r.json();
+    } catch (e) { return res.status(502).json({ error: 'Overpass API unreachable: ' + e.message }); }
+
+    const elements = (osmData.elements || []).filter(el => el.tags && el.tags.name);
+    const churches = db.prepare("SELECT id, name, address, phone, city, zip FROM churches").all();
+
+    function norm(s) {
+      return s.toLowerCase().replace(/\b(church|baptist|methodist|presbyterian|lutheran|apostolic|assembly|cogic|ame|cog|umc|of|the|first|second|third|greater|new|holy|mount|mt|saint|st|and)\b/g,'').replace(/[^a-z0-9]/g,'').trim();
+    }
+    function score(a, b) {
+      const na = norm(a), nb = norm(b);
+      if (!na || !nb) return 0;
+      if (na === nb) return 1;
+      if (na.includes(nb) || nb.includes(na)) return 0.85;
+      const bgs = s => { const g=new Set(); for(let i=0;i<s.length-1;i++) g.add(s.slice(i,i+2)); return g; };
+      const ba=bgs(na), bb=bgs(nb);
+      const inter=[...ba].filter(g=>bb.has(g)).length;
+      const uni=new Set([...ba,...bb]).size;
+      return uni>0 ? inter/uni : 0;
+    }
+
+    let updated = 0;
+    for (const el of elements) {
+      const t = el.tags;
+      const phone   = t.phone || t['contact:phone'] || t['contact:mobile'];
+      const street  = t['addr:street'] ? `${t['addr:housenumber']||''} ${t['addr:street']}`.trim() : null;
+      const city    = t['addr:city'];
+      const zip     = t['addr:postcode'];
+      if (!phone && !street) continue;
+
+      let best = null, bestS = 0;
+      for (const c of churches) {
+        const s = score(t.name, c.name);
+        if (s > bestS) { bestS = s; best = c; }
+      }
+      if (!best || bestS < 0.5) continue;
+
+      const sets = [], vals = [];
+      if (!best.address && street) { sets.push('address=?'); vals.push(street); }
+      if (!best.city && city)      { sets.push('city=?');    vals.push(city); }
+      if (!best.zip && zip)        { sets.push('zip=?');     vals.push(zip); }
+      if (!best.phone && phone)    { sets.push('phone=?');   vals.push(phone); }
+      if (!sets.length) continue;
+      vals.push(best.id);
+      db.prepare(`UPDATE churches SET ${sets.join(',')} WHERE id=?`).run(...vals);
+      updated++;
+    }
+
+    const missing = db.prepare("SELECT COUNT(*) as c FROM churches WHERE (address IS NULL OR address='') AND (phone IS NULL OR phone='')").get().c;
+    res.json({ ok:true, osm_found: elements.length, updated, still_missing: missing });
+  });
+
   // ── HEALTH ────────────────────────────────────────────────────────────────
   app.get('/api/kingdom-reach/health', (req, res) => {
     res.json({

@@ -163,6 +163,7 @@ body{background:var(--cream);color:var(--text);font-family:'Inter',sans-serif;mi
             <th>Status</th>
             <th>Stripe Session</th>
             <th>Live Site</th>
+            <th></th>
           </tr>
         </thead>
         <tbody id="orders-body">
@@ -279,6 +280,7 @@ function renderTable(orders) {
       <td><span class="badge ${badge}">${o.status}</span></td>
       <td class="date-cell">${session}</td>
       <td>${liveUrl}</td>
+      <td><button onclick="deleteOrder('${o.id}')" style="background:#dc2626;color:#fff;border:none;padding:4px 10px;border-radius:3px;font-size:.72rem;font-weight:600;cursor:pointer;letter-spacing:.04em" title="Permanently delete this order">Delete</button></td>
     </tr>`;
   }).join('');
 }
@@ -307,6 +309,19 @@ function renderMonthly(orders) {
       <div class="month-count">${d.count} order${d.count !== 1 ? 's' : ''}</div>
     </div>`
   ).join('');
+}
+
+// ── Delete order ─────────────────────────────────────────────────────────────
+async function deleteOrder(id) {
+  if (!confirm('Delete this order permanently? Cannot be undone.')) return;
+  const res = await fetch('/api/admin-delete-order?id=' + encodeURIComponent(id), {
+    method: 'DELETE',
+    headers: { 'x-admin-token': adminToken },
+  }).catch(() => null);
+  if (!res || !res.ok) { alert('Delete failed — try again.'); return; }
+  allOrders = allOrders.filter(o => o.id !== id);
+  renderTable(allOrders);
+  renderMonthly(allOrders);
 }
 
 // ── CSV Export ────────────────────────────────────────────────────────────────

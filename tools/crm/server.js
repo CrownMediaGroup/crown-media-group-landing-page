@@ -2788,6 +2788,36 @@ app.get('/api/outreach/summary', (req, res) => {
   });
 });
 
+// ── Outreach: mark a church as replied ───────────────────────────────────────
+app.post('/api/outreach/mark-replied', (req, res) => {
+  const { email, name } = req.body || {};
+  if (!email) return res.status(400).json({ error: 'email required' });
+
+  const reportPath = join(__dirname, '../../Agency/ops/notes/REPLY-REPORT.md');
+  try {
+    let content = existsSync(reportPath) ? readFileSync(reportPath, 'utf8') : '# Reply Report\n\n## Human Replies\n*(none yet)*\n';
+    const line = `- [REPLIED] ${name || email} → ${email}`;
+    if (!content.includes(line)) {
+      content = content.replace('*(none yet)*', '').replace(
+        '## Human Replies\n',
+        `## Human Replies\n${line}\n`
+      );
+      writeFileSync(reportPath, content, 'utf8');
+    }
+  } catch (_) {}
+
+  try {
+    const existing = db.prepare('SELECT id FROM contacts WHERE email = ?').get(email);
+    if (existing) {
+      db.prepare("UPDATE contacts SET status='Emailed', priority='Hot', notes = COALESCE(NULLIF(notes,''),'') || ' [Replied to outreach]' WHERE email = ?").run(email);
+    } else {
+      db.prepare("INSERT INTO contacts (name, email, status, priority, source) VALUES (?,?,?,?,?)").run(name || email, email, 'Emailed', 'Hot', 'Church Outreach');
+    }
+  } catch (_) {}
+
+  res.json({ ok: true });
+});
+
 // ── Kingdom Reach (church outreach automation) ───────────────────────────────
 mountKingdomReach(app, db, { validateSession, getCookie });
 

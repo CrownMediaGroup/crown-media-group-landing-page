@@ -187,6 +187,7 @@
     <span class="pill" data-sentiment="neutral" onclick="setSentiment('neutral')">Neutral</span>
     <span class="pill" data-sentiment="cold" onclick="setSentiment('cold')">Cold</span>
     <button id="btnExportCSV" type="button" class="btn btn-outline btn-sm">Export CSV</button>
+    <button id="btnEnrich" type="button" class="btn btn-outline btn-sm" title="Fill missing phone numbers and addresses from OpenStreetMap — free, no API key" onclick="enrichChurches()">Enrich Data</button>
   </div>
 
   <div class="table-wrap">
@@ -1022,6 +1023,27 @@ setInterval(checkHealth, 60000);
 
 load();
 setInterval(load, 30000);
+
+// ── Enrich church data from OpenStreetMap (free) ─────────────────────────────
+async function enrichChurches() {
+  const btn = document.getElementById('btnEnrich');
+  btn.textContent = 'Enriching…';
+  btn.disabled = true;
+  try {
+    const r = await fetch('/api/kingdom-reach/enrich', { method: 'POST', headers: { 'Content-Type': 'application/json' } });
+    const d = await r.json();
+    if (d.ok) {
+      alert(`Enrichment complete.\nOSM churches found: ${d.osm_found}\nRecords updated: ${d.updated}\nStill missing data: ${d.still_missing}`);
+      load();
+    } else {
+      alert('Enrichment failed: ' + (d.error || 'unknown error'));
+    }
+  } catch (e) {
+    alert('Error: ' + e.message);
+  }
+  btn.textContent = 'Enrich Data';
+  btn.disabled = false;
+}
 </script>
 </body>
 </html>
