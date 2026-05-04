@@ -11,9 +11,8 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT = join(__dirname, '../../..');
 
 // ── Config ────────────────────────────────────────────────────────────────────
-const CRM_URL  = process.env.CRM_URL  || 'https://crm.crownmediagroup.co';
-const CRM_PASS = process.env.CRM_PASS || 'AllGlory2026!';
-const CRM_EMAIL = process.env.CRM_EMAIL || 'king@crownmediagroup.co';
+const CRM_URL    = process.env.CRM_URL    || 'https://crm.crownmediagroup.co';
+const SEED_TOKEN = process.env.SEED_TOKEN || 'KingdomSeed2026';
 
 // ── Collect all sent emails from multiple sources ─────────────────────────────
 const sends = new Map(); // email → name
@@ -47,29 +46,12 @@ console.log(`Total unique sends to import: ${sends.size}`);
 
 const payload = [...sends.entries()].map(([email, name]) => ({ name, email }));
 
-// ── Login to get session cookie ───────────────────────────────────────────────
-console.log(`\nLogging in to ${CRM_URL}…`);
-const loginRes = await fetch(`${CRM_URL}/api/auth/login`, {
+// ── POST via token-authenticated seed endpoint ────────────────────────────────
+console.log(`\nSeeding ${payload.length} sends to ${CRM_URL}…`);
+const importRes = await fetch(`${CRM_URL}/api/admin/seed-outreach`, {
   method: 'POST',
   headers: { 'Content-Type': 'application/json' },
-  body: JSON.stringify({ email: CRM_EMAIL, password: CRM_PASS }),
-});
-
-if (!loginRes.ok) {
-  console.error('Login failed:', await loginRes.text());
-  process.exit(1);
-}
-
-const cookies = loginRes.headers.get('set-cookie') || '';
-const sessionCookie = cookies.split(';')[0];
-console.log('Logged in. Session:', sessionCookie ? 'OK' : 'MISSING');
-
-// ── POST the sends ────────────────────────────────────────────────────────────
-console.log(`\nImporting ${payload.length} sends…`);
-const importRes = await fetch(`${CRM_URL}/api/outreach/import-sends`, {
-  method: 'POST',
-  headers: { 'Content-Type': 'application/json', Cookie: sessionCookie },
-  body: JSON.stringify({ sends: payload }),
+  body: JSON.stringify({ token: SEED_TOKEN, sends: payload }),
 });
 
 const result = await importRes.json();

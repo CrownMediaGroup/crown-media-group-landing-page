@@ -63,6 +63,10 @@
       <svg viewBox="0 0 24 24" fill="currentColor"><path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg>
       Outreach
     </button>
+    <button class="nav-item nav-tab" data-tab="avengers" style="background:linear-gradient(135deg,rgba(212,168,75,.08),rgba(96,165,250,.08));border-color:rgba(212,168,75,.25)">
+      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 14.5v-9l6 4.5-6 4.5z"/></svg>
+      Avengers
+    </button>
     <button class="nav-item nav-tab hidden" data-tab="hub">
       <svg viewBox="0 0 24 24" fill="currentColor"><path d="M4 8h4V4H4v4zm6 12h4v-4h-4v4zm-6 0h4v-4H4v4zm0-6h4v-4H4v4zm6 0h4v-4h-4v4zm6-10v4h4V4h-4zm-6 4h4V4h-4v4zm6 6h4v-4h-4v4zm0 6h4v-4h-4v4z"/></svg>
       Admin Hub
@@ -716,6 +720,162 @@
 
 </div><!-- /.crm-content -->
 </div><!-- /#app -->
+
+<!-- ══════════════════════ AVENGERS ECOSYSTEM TAB ══════════════════════ -->
+<main class="main hidden" id="tab-avengers">
+
+  <!-- Mission Brief Bar -->
+  <div class="av-mission-bar">
+    <div class="av-mission-left">
+      <div class="av-mission-label">ACTIVE MISSION</div>
+      <div class="av-mission-text">Client Acquisition — Columbia SC Church Outreach</div>
+    </div>
+    <div class="av-mission-stats">
+      <div class="av-stat"><span id="avActiveCount" class="av-stat-num">0</span><span class="av-stat-label">AGENTS ACTIVE</span></div>
+      <div class="av-stat"><span id="avEventCount" class="av-stat-num">0</span><span class="av-stat-label">EVENTS TODAY</span></div>
+      <div class="av-stat"><span id="avLastAgent" class="av-stat-num av-last-agent">—</span><span class="av-stat-label">LAST FIRED</span></div>
+    </div>
+  </div>
+
+  <!-- Main Split Layout -->
+  <div class="av-layout">
+
+    <!-- Left: Body System Network -->
+    <div class="av-graph">
+      <div class="av-graph-bg">
+        <!-- Human body silhouette SVG overlay -->
+        <svg class="av-body-silhouette" viewBox="0 0 300 600" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <ellipse cx="150" cy="55" rx="38" ry="48" stroke="rgba(212,168,75,.12)" stroke-width="1.5"/>
+          <rect x="112" y="100" width="76" height="160" rx="8" stroke="rgba(212,168,75,.08)" stroke-width="1.5"/>
+          <line x1="112" y1="110" x2="68" y2="240" stroke="rgba(212,168,75,.07)" stroke-width="1.5"/>
+          <line x1="188" y1="110" x2="232" y2="240" stroke="rgba(212,168,75,.07)" stroke-width="1.5"/>
+          <rect x="120" y="260" width="60" height="200" rx="6" stroke="rgba(212,168,75,.08)" stroke-width="1.5"/>
+          <line x1="135" y1="455" x2="125" y2="590" stroke="rgba(212,168,75,.07)" stroke-width="1.5"/>
+          <line x1="165" y1="455" x2="175" y2="590" stroke="rgba(212,168,75,.07)" stroke-width="1.5"/>
+        </svg>
+      </div>
+
+      <!-- 12 Body System Cluster Nodes — positioned anatomically -->
+
+      <!-- NERVOUS (Brain) — top center -->
+      <div class="av-cluster av-nervous" id="avClusterNervous" style="top:2%;left:50%;transform:translateX(-50%)" onclick="expandCluster('nervous')">
+        <div class="av-cluster-pulse"></div>
+        <div class="av-cluster-icon">🧠</div>
+        <div class="av-cluster-name">NERVOUS</div>
+        <div class="av-cluster-agents">COMMANDER · WARDEN · GUARDIAN · PROPHET · ORACLE PRIME</div>
+      </div>
+
+      <!-- SENSORY (Eyes/Ears) — upper sides -->
+      <div class="av-cluster av-sensory" id="avClusterSensory" style="top:6%;left:4%" onclick="expandCluster('sensory')">
+        <div class="av-cluster-pulse"></div>
+        <div class="av-cluster-icon">👁️</div>
+        <div class="av-cluster-name">SENSORY</div>
+        <div class="av-cluster-agents">EYES</div>
+      </div>
+
+      <!-- ENDOCRINE (Signals) — upper right -->
+      <div class="av-cluster av-endocrine" id="avClusterEndocrine" style="top:6%;right:4%" onclick="expandCluster('endocrine')">
+        <div class="av-cluster-pulse"></div>
+        <div class="av-cluster-icon">⚡</div>
+        <div class="av-cluster-name">ENDOCRINE</div>
+        <div class="av-cluster-agents">PULSE</div>
+      </div>
+
+      <!-- RESPIRATORY (Lungs) — mid left -->
+      <div class="av-cluster av-respiratory" id="avClusterRespiratory" style="top:28%;left:2%" onclick="expandCluster('respiratory')">
+        <div class="av-cluster-pulse"></div>
+        <div class="av-cluster-icon">🫁</div>
+        <div class="av-cluster-name">RESPIRATORY</div>
+        <div class="av-cluster-agents">BREATH</div>
+      </div>
+
+      <!-- CIRCULATORY (Heart/Blood) — mid center -->
+      <div class="av-cluster av-circulatory" id="avClusterCirculatory" style="top:25%;left:50%;transform:translateX(-50%)" onclick="expandCluster('circulatory')">
+        <div class="av-cluster-pulse"></div>
+        <div class="av-cluster-icon">❤️</div>
+        <div class="av-cluster-name">CIRCULATORY</div>
+        <div class="av-cluster-agents">FALCON · WORDSMITH · RADAR · ECHO · CLOSER · BLUEPRINT</div>
+      </div>
+
+      <!-- IMMUNE (Defense) — mid right -->
+      <div class="av-cluster av-immune" id="avClusterImmune" style="top:28%;right:2%" onclick="expandCluster('immune')">
+        <div class="av-cluster-pulse"></div>
+        <div class="av-cluster-icon">🛡️</div>
+        <div class="av-cluster-name">IMMUNE</div>
+        <div class="av-cluster-agents">SENTINEL · MOBILE · SHIELD · LAUNCH · ARMOR</div>
+      </div>
+
+      <!-- DIGESTIVE (Intake) — center-left -->
+      <div class="av-cluster av-digestive" id="avClusterDigestive" style="top:50%;left:4%" onclick="expandCluster('digestive')">
+        <div class="av-cluster-pulse"></div>
+        <div class="av-cluster-icon">⚙️</div>
+        <div class="av-cluster-name">DIGESTIVE</div>
+        <div class="av-cluster-agents">INTAKE</div>
+      </div>
+
+      <!-- GROWTH (Content/Traffic) — center-right -->
+      <div class="av-cluster av-growth" id="avClusterGrowth" style="top:50%;right:4%" onclick="expandCluster('growth')">
+        <div class="av-cluster-pulse"></div>
+        <div class="av-cluster-icon">🌱</div>
+        <div class="av-cluster-name">GROWTH</div>
+        <div class="av-cluster-agents">SPARK · SIGNAL · STRIKE · DIRECTOR · SIGNAL BOOST</div>
+      </div>
+
+      <!-- EXCRETORY (Filter) — lower-left -->
+      <div class="av-cluster av-excretory" id="avClusterExcretory" style="top:68%;left:2%" onclick="expandCluster('excretory')">
+        <div class="av-cluster-pulse"></div>
+        <div class="av-cluster-icon">🔬</div>
+        <div class="av-cluster-name">EXCRETORY</div>
+        <div class="av-cluster-agents">FILTER</div>
+      </div>
+
+      <!-- METABOLIC (Revenue) — lower-center -->
+      <div class="av-cluster av-metabolic" id="avClusterMetabolic" style="top:65%;left:50%;transform:translateX(-50%)" onclick="expandCluster('metabolic')">
+        <div class="av-cluster-pulse"></div>
+        <div class="av-cluster-icon">💰</div>
+        <div class="av-cluster-name">METABOLIC</div>
+        <div class="av-cluster-agents">LEDGER · VISION · CALENDAR · WELCOME · DELIVER</div>
+      </div>
+
+      <!-- INTEGUMENTARY (Armor/Skin) — lower-right -->
+      <div class="av-cluster av-integumentary" id="avClusterIntegumentary" style="top:68%;right:2%" onclick="expandCluster('integumentary')">
+        <div class="av-cluster-pulse"></div>
+        <div class="av-cluster-icon">🪬</div>
+        <div class="av-cluster-name">INTEGUMENTARY</div>
+        <div class="av-cluster-agents">ARMOR · REPUTATION</div>
+      </div>
+
+      <!-- SOUL (Foundation) — bottom center -->
+      <div class="av-cluster av-soul" id="avClusterSoul" style="bottom:2%;left:50%;transform:translateX(-50%)" onclick="expandCluster('soul')">
+        <div class="av-cluster-pulse"></div>
+        <div class="av-cluster-icon">✝️</div>
+        <div class="av-cluster-name">SOUL</div>
+        <div class="av-cluster-agents">ANCHOR · KINGDOM · ORACLE</div>
+      </div>
+
+      <!-- Agent Detail Panel (shown on cluster click) -->
+      <div class="av-detail hidden" id="avDetail">
+        <button class="av-detail-close" onclick="document.getElementById('avDetail').classList.add('hidden')">✕</button>
+        <div id="avDetailContent"></div>
+      </div>
+    </div>
+
+    <!-- Right: Live Activity Feed -->
+    <div class="av-feed">
+      <div class="av-feed-header">
+        <span class="av-feed-dot"></span>
+        LIVE ACTIVITY FEED
+      </div>
+      <div id="avFeedList" class="av-feed-list">
+        <div class="av-feed-empty">Waiting for agent activity…<br><span style="font-size:.75rem;opacity:.5">Actions in the CRM will appear here in real time</span></div>
+      </div>
+      <div class="av-feed-footer">
+        <span id="avConnStatus" class="av-conn-status">● CONNECTING</span>
+        <button class="btn btn-outline btn-sm" onclick="loadAvengers()" style="font-size:.7rem;padding:4px 10px">Reconnect</button>
+      </div>
+    </div>
+  </div>
+</main>
 
 <!-- ══════════════════════ CONTACT MODAL ══════════════════════ -->
 <div class="modal-overlay hidden" id="contactModal">
