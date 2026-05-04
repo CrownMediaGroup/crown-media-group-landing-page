@@ -583,7 +583,7 @@ app.use('/api', (req, res, next) => {
   const publicPaths = ['/login', '/logout', '/branding', '/register', '/auth/google', '/config/public'];
   if (publicPaths.includes(req.path) || req.path === '/forgot-password' || req.path === '/reset-password') return next();
   // Public scout + webhook + token-seeded endpoints — no auth required
-  if (req.path === '/scouts/apply' || req.path.startsWith('/scouts/dashboard/') || req.path.startsWith('/scouts/by-code/') || req.path.startsWith('/internal/') || req.path === '/sms/webhook/inbound' || req.path === '/voice/webhook' || req.path === '/kingdom-reach/health' || req.path === '/admin/seed-outreach') return next();
+  if (req.path === '/scouts/apply' || req.path.startsWith('/scouts/dashboard/') || req.path.startsWith('/scouts/by-code/') || req.path.startsWith('/internal/') || req.path === '/sms/webhook/inbound' || req.path === '/voice/webhook' || req.path === '/kingdom-reach/health' || req.path === '/admin/seed-outreach' || req.path === '/outreach/mark-replied') return next();
   const session = validateSession(getCookie(req, 'crm_session'));
   if (!session) return res.status(401).json({ error: 'Unauthorized' });
   req.user        = session.user;
@@ -2798,7 +2798,9 @@ app.post('/api/outreach/import-sends', (req, res) => {
 
 // ── Outreach: mark a church as replied ───────────────────────────────────────
 app.post('/api/outreach/mark-replied', (req, res) => {
-  const { email, name, type = 'replied' } = req.body || {};
+  const { email, name, type = 'replied', token } = req.body || {};
+  const SEED_TOKEN = process.env.SEED_TOKEN || 'KingdomSeed2026';
+  if (!req.user && token !== SEED_TOKEN) return res.status(403).json({ error: 'auth required' });
   if (!email) return res.status(400).json({ error: 'email required' });
   emitAgentEvent('RADAR', `Reply logged — ${name || email} (${type})`);
 
