@@ -182,6 +182,7 @@ function switchTab(tab) {
   if (tab === 'reports')   loadReports();
   if (tab === 'leads')     loadLeadGen();
   if (tab === 'inbox')     loadInbox();
+  if (tab === 'outreach')  loadOutreach();
 }
 
 // ── Load contacts ─────────────────────────────────────────────────────────────
@@ -2190,6 +2191,43 @@ async function refreshInboxBadge() {
       else { badge.style.display = 'none'; }
     }
   } catch (_) {}
+}
+
+// ── Outreach Tracker ─────────────────────────────────────────────────────────
+async function loadOutreach() {
+  const body = document.getElementById('outreachTableBody');
+  if (!body) return;
+  body.innerHTML = '<tr><td colspan="3" style="padding:24px;text-align:center;color:var(--muted)">Loading…</td></tr>';
+
+  try {
+    const d = await get('/api/outreach/summary');
+    if (!d) return;
+
+    document.getElementById('oSentVal').textContent    = d.sent;
+    document.getElementById('oRepliedVal').textContent = d.replied;
+    document.getElementById('oBouncedVal').textContent = d.bounced;
+    document.getElementById('oPendingVal').textContent = d.pending;
+
+    if (!d.contacts.length) {
+      body.innerHTML = '<tr><td colspan="3" style="padding:24px;text-align:center;color:var(--muted)">No outreach data yet.</td></tr>';
+      return;
+    }
+
+    body.innerHTML = d.contacts.map(c => {
+      const badge = c.replied
+        ? '<span style="background:#166534;color:#4ade80;border-radius:4px;padding:2px 8px;font-size:.75rem;font-weight:600">Replied</span>'
+        : c.bounced
+          ? '<span style="background:#7f1d1d;color:#f87171;border-radius:4px;padding:2px 8px;font-size:.75rem;font-weight:600">Bounced</span>'
+          : '<span style="background:rgba(255,255,255,.07);color:var(--muted);border-radius:4px;padding:2px 8px;font-size:.75rem">Waiting</span>';
+      return `<tr style="border-bottom:1px solid var(--border)">
+        <td style="padding:10px 12px">${c.name}</td>
+        <td style="padding:10px 12px;color:var(--muted);font-size:.82rem">${c.email}</td>
+        <td style="padding:10px 12px;text-align:center">${badge}</td>
+      </tr>`;
+    }).join('');
+  } catch (e) {
+    body.innerHTML = '<tr><td colspan="3" style="padding:24px;text-align:center;color:#f87171">Failed to load outreach data.</td></tr>';
+  }
 }
 
 // Poll for new inbound messages every 30s when inbox tab is active
