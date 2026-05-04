@@ -191,7 +191,8 @@ export function mountKingdomReach(app, db, { validateSession, getCookie } = {}) 
       `);
 
       let imported = 0;
-      const importMany = db.transaction(() => {
+      db.prepare('BEGIN').run();
+      try {
         for (const c of rows) {
           const n    = String(c.name || '').trim();
           if (!n) continue;
@@ -217,8 +218,11 @@ export function mountKingdomReach(app, db, { validateSession, getCookie } = {}) 
           updateStmt.run(tier, den, addr, city, st, zip, ph, web, pas, em, ig, fb, hw, n);
           imported++;
         }
-      });
-      importMany();
+        db.prepare('COMMIT').run();
+      } catch (txErr) {
+        db.prepare('ROLLBACK').run();
+        throw txErr;
+      }
 
       // Apply tracking markers by name (case-insensitive)
       for (const name of sent_names) {
