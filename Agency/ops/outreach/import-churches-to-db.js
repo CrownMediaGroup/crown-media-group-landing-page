@@ -145,31 +145,42 @@ console.log(`Email sent markers:    ${sentNames.length}`);
 console.log(`Email opened markers:  ${KNOWN_OPENED.length}`);
 console.log(`Replied markers:       ${KNOWN_REPLIED.length}`);
 
-// ── POST to CRM ───────────────────────────────────────────────────────────────
+// ── POST to CRM in batches of 50 ─────────────────────────────────────────────
 const ENDPOINT = `${CRM_URL}/api/kingdom-reach/churches/import`;
-console.log(`\nImporting to: ${ENDPOINT}`);
+const BATCH_SIZE = 50;
+console.log(`\nImporting to: ${ENDPOINT} (batches of ${BATCH_SIZE})`);
 
-const res = await fetch(ENDPOINT, {
-  method: 'POST',
-  headers: { 'Content-Type': 'application/json' },
-  body: JSON.stringify({
+let totalImported = 0;
+for (let i = 0; i < churches.length; i += BATCH_SIZE) {
+  const batch = churches.slice(i, i + BATCH_SIZE);
+  const isFirst = i === 0;
+  const body = {
     token: SEED_TOKEN,
-    churches,
-    sent_names:   sentNames,
-    opened_names: KNOWN_OPENED,
-    replied_names: KNOWN_REPLIED,
-  }),
-});
-
-const result = await res.json();
-if (result.ok) {
-  console.log(`\nSUCCESS`);
-  console.log(`  Imported/updated: ${result.imported}`);
-  console.log(`  Marked sent:      ${result.sent}`);
-  console.log(`  Marked opened:    ${result.opened}`);
-  console.log(`  Marked replied:   ${result.replied}`);
-  console.log('\nKingdom Reach dashboard will now show full church data with email tracking.');
-} else {
-  console.error('\nImport failed:', result);
-  process.exit(1);
+    churches: batch,
+    // Only send tracking markers with the last batch to avoid double-applying
+    sent_names:    i + BATCH_SIZE >= churches.length ? sentNames   : [],
+    opened_names:  i + BATCH_SIZE >= churches.length ? KNOWN_OPENED  : [],
+    replied_names: i + BATCH_SIZE >= churches.length ? KNOWN_REPLIED : [],
+  };
+  const res = await fetch(ENDPOINT, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body),
+  });
+  const text = await res.text();
+  let result;
+  try { result = JSON.parse(text); } catch { result = { error: 'Bad JSON: ' + text.slice(0, 100) }; }
+  if (!result.ok) {
+    console.error(`Batch ${Math.floor(i/BATCH_SIZE)+1} failed:`, result);
+    process.exit(1);
+  }
+  totalImported += result.imported || 0;
+  process.stdout.write(`  Batch ${Math.floor(i/BATCH_SIZE)+1}/${Math.ceil(churches.length/BATCH_SIZE)}: ${result.imported} records\n`);
 }
+
+console.log(`\nSUCCESS`);
+console.log(`  Total imported/updated: ${totalImported}`);
+console.log(`  Email sent markers:     ${sentNames.length}`);
+console.log(`  Email opened markers:   ${KNOWN_OPENED.length}`);
+console.log(`  Replied markers:        ${KNOWN_REPLIED.length}`);
+console.log('\nKingdom Reach dashboard will now show full church data with email tracking.');

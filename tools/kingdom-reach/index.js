@@ -160,58 +160,84 @@ export function mountKingdomReach(app, db, { validateSession, getCookie } = {}) 
 
   // ── BULK IMPORT (token bypass — called from import-churches-to-db.js) ───
   app.post('/api/kingdom-reach/churches/import', async (req, res) => {
-    const { token, churches: rows, sent_names = [], opened_names = [], replied_names = [] } = req.body || {};
-    const SEED_TOKEN = process.env.SEED_TOKEN || 'KingdomSeed2026';
-    if (token !== SEED_TOKEN && !req.kingdomUser) return res.status(403).json({ error: 'auth required' });
-    if (!rows?.length) return res.status(400).json({ error: 'churches array required' });
+    try {
+      const { token, churches: rows, sent_names = [], opened_names = [], replied_names = [] } = req.body || {};
+      const SEED_TOKEN = process.env.SEED_TOKEN || 'KingdomSeed2026';
+      if (token !== SEED_TOKEN && !req.kingdomUser) return res.status(403).json({ error: 'auth required' });
+      if (!rows?.length) return res.status(400).json({ error: 'churches array required' });
 
-    const upsert = db.prepare(`
-      INSERT INTO churches
-        (name,tier,denomination,address,city,state,zip,phone,website,pastor,email,
-         instagram,facebook,size,social,fit,has_website,status,notes,workspace_id)
-      VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,1)
-      ON CONFLICT(name) DO UPDATE SET
-        tier          = COALESCE(excluded.tier, tier),
-        denomination  = COALESCE(NULLIF(excluded.denomination,''), denomination),
-        address       = COALESCE(NULLIF(excluded.address,''),      address),
-        city          = COALESCE(NULLIF(excluded.city,''),         city),
-        state         = COALESCE(NULLIF(excluded.state,''),        state),
-        zip           = COALESCE(NULLIF(excluded.zip,''),          zip),
-        phone         = COALESCE(NULLIF(excluded.phone,''),        phone),
-        website       = COALESCE(NULLIF(excluded.website,''),      website),
-        pastor        = COALESCE(NULLIF(excluded.pastor,''),       pastor),
-        email         = COALESCE(NULLIF(excluded.email,''),        email),
-        instagram     = COALESCE(NULLIF(excluded.instagram,''),    instagram),
-        facebook      = COALESCE(NULLIF(excluded.facebook,''),     facebook),
-        has_website   = excluded.has_website
-    `);
+      const insertStmt = db.prepare(`
+        INSERT OR IGNORE INTO churches
+          (name,tier,denomination,address,city,state,zip,phone,website,pastor,email,
+           instagram,facebook,size,social,fit,has_website,status,notes,workspace_id)
+        VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,1)
+      `);
+      const updateStmt = db.prepare(`
+        UPDATE churches SET
+          tier          = COALESCE(NULLIF(?,  ''), tier),
+          denomination  = COALESCE(NULLIF(?,  ''), denomination),
+          address       = COALESCE(NULLIF(?,  ''), address),
+          city          = COALESCE(NULLIF(?,  ''), city),
+          state         = COALESCE(NULLIF(?,  ''), state),
+          zip           = COALESCE(NULLIF(?,  ''), zip),
+          phone         = COALESCE(NULLIF(?,  ''), phone),
+          website       = COALESCE(NULLIF(?,  ''), website),
+          pastor        = COALESCE(NULLIF(?,  ''), pastor),
+          email         = COALESCE(NULLIF(?,  ''), email),
+          instagram     = COALESCE(NULLIF(?,  ''), instagram),
+          facebook      = COALESCE(NULLIF(?,  ''), facebook),
+          has_website   = CASE WHEN ? = 1 THEN 1 ELSE has_website END
+        WHERE name = ? COLLATE NOCASE
+      `);
 
-    let imported = 0;
-    const importMany = db.transaction(() => {
-      for (const c of rows) {
-        upsert.run(c.name,c.tier||'C',c.denomination||'',c.address||'',c.city||'Columbia',c.state||'SC',
-          c.zip||'',c.phone||'',c.website||'',c.pastor||'',c.email||'',
-          c.instagram||'',c.facebook||'',c.size||'',c.social||'',c.fit||'',
-          c.has_website?1:0, c.status||'Not Contacted', c.notes||'');
-        imported++;
+      let imported = 0;
+      const importMany = db.transaction(() => {
+        for (const c of rows) {
+          const n    = String(c.name || '').trim();
+          if (!n) continue;
+          const tier = c.tier || 'C';
+          const den  = c.denomination || '';
+          const addr = c.address || '';
+          const city = c.city || 'Columbia';
+          const st   = c.state || 'SC';
+          const zip  = c.zip || '';
+          const ph   = c.phone || '';
+          const web  = c.website || '';
+          const pas  = c.pastor || '';
+          const em   = c.email || '';
+          const ig   = c.instagram || '';
+          const fb   = c.facebook || '';
+          const sz   = c.size || '';
+          const soc  = c.social || '';
+          const fit  = c.fit || '';
+          const hw   = c.has_website ? 1 : 0;
+          const stat = c.status || 'Not Contacted';
+          const nt   = c.notes || '';
+          insertStmt.run(n, tier, den, addr, city, st, zip, ph, web, pas, em, ig, fb, sz, soc, fit, hw, stat, nt);
+          updateStmt.run(tier, den, addr, city, st, zip, ph, web, pas, em, ig, fb, hw, n);
+          imported++;
+        }
+      });
+      importMany();
+
+      // Apply tracking markers by name (case-insensitive)
+      for (const name of sent_names) {
+        db.prepare(`UPDATE churches SET email_sent=1, email_sent_at=COALESCE(email_sent_at,datetime('now')) WHERE name=? COLLATE NOCASE`).run(name);
       }
-    });
-    importMany();
+      for (const name of opened_names) {
+        db.prepare(`UPDATE churches SET email_opened=1, email_opened_at=COALESCE(email_opened_at,datetime('now')) WHERE name=? COLLATE NOCASE`).run(name);
+      }
+      for (const name of replied_names) {
+        db.prepare(`UPDATE churches SET replied=1, replied_at=COALESCE(replied_at,datetime('now')),
+          status=CASE WHEN status IN ('Client','Not Interested') THEN status ELSE 'Contacted' END
+          WHERE name=? COLLATE NOCASE`).run(name);
+      }
 
-    // Apply tracking markers by name (case-insensitive)
-    for (const name of sent_names) {
-      db.prepare(`UPDATE churches SET email_sent=1, email_sent_at=COALESCE(email_sent_at,datetime('now')) WHERE name=? COLLATE NOCASE`).run(name);
+      res.json({ ok: true, imported, sent: sent_names.length, opened: opened_names.length, replied: replied_names.length });
+    } catch (err) {
+      console.error('[KR import] Error:', err);
+      res.status(500).json({ error: err.message || String(err) });
     }
-    for (const name of opened_names) {
-      db.prepare(`UPDATE churches SET email_opened=1, email_opened_at=COALESCE(email_opened_at,datetime('now')) WHERE name=? COLLATE NOCASE`).run(name);
-    }
-    for (const name of replied_names) {
-      db.prepare(`UPDATE churches SET replied=1, replied_at=COALESCE(replied_at,datetime('now')),
-        status=CASE WHEN status IN ('Client','Not Interested') THEN status ELSE 'Contacted' END
-        WHERE name=? COLLATE NOCASE`).run(name);
-    }
-
-    res.json({ ok: true, imported, sent: sent_names.length, opened: opened_names.length, replied: replied_names.length });
   });
 
   // ── MARK EMAIL OPENED (token bypass — called from CLI/import scripts) ────
