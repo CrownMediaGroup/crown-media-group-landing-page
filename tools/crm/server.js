@@ -2742,34 +2742,11 @@ app.post('/api/internal/referral-refunded', (req, res) => {
   res.json({ ok: true, matched: true });
 });
 
-// ── Outreach Summary ─────────────────────────────────────────────────────────
+// ── Outreach Summary — reads from SQLite (works on Fly.io) ───────────────────
 app.get('/api/outreach/summary', (req, res) => {
-  const logPath    = join(__dirname, '../../Agency/ops/notes/OUTREACH-LOG.md');
-  const reportPath = join(__dirname, '../../Agency/ops/notes/REPLY-REPORT.md');
-
-  let sent = [];
-  if (existsSync(logPath)) {
-    const lines = readFileSync(logPath, 'utf8').split('\n');
-    for (const line of lines) {
-      const m = line.match(/^\s*-\s*\[SENT\]\s*(.+?)\s*→\s*(\S+@\S+)\s*$/);
-      if (m) {
-        const [, name, email] = m;
-        if (!sent.find(c => c.email === email)) sent.push({ name, email });
-      }
-    }
-  }
-
-  let replies = [];
-  let bounces = [];
-  if (existsSync(reportPath)) {
-    const lines = readFileSync(reportPath, 'utf8').split('\n');
-    for (const line of lines) {
-      const r = line.match(/^\s*-\s*\[REPLIED\]\s*(.+?)\s*→\s*(\S+@\S+)\s*$/);
-      const b = line.match(/^\s*-\s*\[BOUNCED\]\s*(.+?)\s*→\s*(\S+@\S+)\s*$/);
-      if (r) replies.push({ name: r[1], email: r[2] });
-      if (b) bounces.push({ name: b[1], email: b[2] });
-    }
-  }
+  const sent    = db.prepare("SELECT name, email FROM church_outreach_sends ORDER BY sent_at DESC").all();
+  const replies = db.prepare("SELECT email FROM church_outreach_replies WHERE type='replied'").all();
+  const bounces = db.prepare("SELECT email FROM church_outreach_replies WHERE type='bounced'").all();
 
   const repliedEmails = new Set(replies.map(r => r.email));
   const bouncedEmails = new Set(bounces.map(b => b.email));
@@ -2789,10 +2766,29 @@ app.get('/api/outreach/summary', (req, res) => {
   });
 });
 
+// ── Outreach: bulk-import sent emails into DB ─────────────────────────────────
+app.post('/api/outreach/import-sends', (req, res) => {
+  const { sends } = req.body || {};
+  if (!Array.isArray(sends)) return res.status(400).json({ error: 'sends array required' });
+  const stmt = db.prepare("INSERT OR IGNORE INTO church_outreach_sends (name, email) VALUES (?, ?)");
+  let imported = 0;
+  for (const { name, email } of sends) {
+    if (!email) continue;
+    stmt.run(name || email, email);
+    imported++;
+  }
+  res.json({ ok: true, imported });
+});
+
 // ── Outreach: mark a church as replied ───────────────────────────────────────
 app.post('/api/outreach/mark-replied', (req, res) => {
-  const { email, name } = req.body || {};
+  const { email, name, type = 'replied' } = req.body || {};
   if (!email) return res.status(400).json({ error: 'email required' });
+
+  // Write to DB (persists on Fly.io)
+  try {
+    db.prepare("INSERT OR REPLACE INTO church_outreach_replies (name, email, type) VALUES (?,?,?)").run(name || email, email, type);
+  } catch (_) {}
 
   const reportPath = join(__dirname, '../../Agency/ops/notes/REPLY-REPORT.md');
   try {

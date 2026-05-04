@@ -103,6 +103,24 @@ db.exec(`
   );
 `);
 
+// ── Church Outreach Sends (replaces file-based OUTREACH-LOG.md for Fly.io) ───
+db.exec(`
+  CREATE TABLE IF NOT EXISTS church_outreach_sends (
+    id        INTEGER PRIMARY KEY AUTOINCREMENT,
+    name      TEXT NOT NULL,
+    email     TEXT NOT NULL UNIQUE,
+    status    TEXT DEFAULT 'sent',
+    sent_at   DATETIME DEFAULT CURRENT_TIMESTAMP
+  );
+  CREATE TABLE IF NOT EXISTS church_outreach_replies (
+    id        INTEGER PRIMARY KEY AUTOINCREMENT,
+    name      TEXT NOT NULL,
+    email     TEXT NOT NULL UNIQUE,
+    type      TEXT DEFAULT 'replied',
+    logged_at DATETIME DEFAULT CURRENT_TIMESTAMP
+  );
+`);
+
 // ── Maintenance Requests ──────────────────────────────────────────────────────
 db.exec(`
   CREATE TABLE IF NOT EXISTS maintenance_requests (

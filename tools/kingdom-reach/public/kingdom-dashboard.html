@@ -34,8 +34,10 @@
   .filters { display:flex; gap:8px; padding:16px 28px; flex-wrap:wrap; align-items:center; background:var(--card); border-bottom:1px solid var(--line); }
   .filters input,.filters select { padding:8px 12px; border:1.5px solid var(--line); border-radius:8px; font-family:inherit; font-size:14px; background:var(--card); color:var(--ink); }
   .filters input { flex:1; min-width:200px; }
-  .pill { padding:6px 14px; border-radius:20px; font-size:13px; cursor:pointer; background:#f4f6fb; border:1.5px solid var(--line); -webkit-user-select:none; user-select:none; }
+  .pill { padding:6px 14px; border-radius:20px; font-size:13px; cursor:pointer; background:var(--soft); border:1.5px solid var(--line); color:var(--ink); -webkit-user-select:none; user-select:none; }
   .pill.active { background:var(--royal); color:#fff; border-color:var(--royal); }
+  body.dark .pill { background:rgba(255,255,255,0.08); border-color:rgba(255,255,255,0.22); color:var(--ink); }
+  body.dark .pill.active { background:var(--royal); border-color:var(--royal); color:#fff; }
 
   .table-wrap { padding:20px 28px 60px; }
   table { width:100%; border-collapse:collapse; background:var(--card); border-radius:12px; overflow:hidden; box-shadow:0 1px 4px rgba(15,36,82,.04); }

@@ -268,13 +268,32 @@ export function mountKingdomReach(app, db, { validateSession, getCookie } = {}) 
 
   // ── ENRICH CHURCHES (Overpass/OSM — free, no API key) ────────────────────
   app.post('/api/kingdom-reach/enrich', requireAuth, async (req, res) => {
-    const OVERPASS = 'https://overpass-api.de/api/interpreter';
-    const QUERY = `[out:json][timeout:60];(node["amenity"="place_of_worship"](33.8,-81.2,34.2,-80.7);way["amenity"="place_of_worship"](33.8,-81.2,34.2,-80.7););out body center;`;
-    let osmData;
-    try {
-      const r = await fetch(OVERPASS, { method:'POST', headers:{'Content-Type':'application/x-www-form-urlencoded'}, body:`data=${encodeURIComponent(QUERY)}` });
-      osmData = await r.json();
-    } catch (e) { return res.status(502).json({ error: 'Overpass API unreachable: ' + e.message }); }
+    const ENDPOINTS = [
+      'https://overpass-api.de/api/interpreter',
+      'https://overpass.kumi.systems/api/interpreter',
+      'https://overpass.openstreetmap.ru/api/interpreter',
+    ];
+    const QUERY = `[out:json][timeout:45];(node["amenity"="place_of_worship"](33.8,-81.2,34.2,-80.7);way["amenity"="place_of_worship"](33.8,-81.2,34.2,-80.7););out body center;`;
+    let osmData = null;
+    let lastErr = '';
+    for (const endpoint of ENDPOINTS) {
+      try {
+        const r = await fetch(endpoint, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+          body: `data=${encodeURIComponent(QUERY)}`,
+          signal: AbortSignal.timeout(30000),
+        });
+        const text = await r.text();
+        if (!r.ok || text.trim().startsWith('<')) {
+          lastErr = `${endpoint} → HTTP ${r.status}, got HTML`;
+          continue;
+        }
+        osmData = JSON.parse(text);
+        break;
+      } catch (e) { lastErr = `${endpoint} → ${e.message}`; }
+    }
+    if (!osmData) return res.status(502).json({ error: 'All Overpass mirrors failed: ' + lastErr });
 
     const elements = (osmData.elements || []).filter(el => el.tags && el.tags.name);
     const churches = db.prepare("SELECT id, name, address, phone, city, zip FROM churches").all();
