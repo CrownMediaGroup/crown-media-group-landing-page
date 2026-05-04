@@ -603,8 +603,9 @@ function requireSuperAdmin(req, res, next) {
 // ── Me ────────────────────────────────────────────────────────────────────────
 app.get('/api/me', (req, res) => {
   const workspace = db.prepare('SELECT id, name, primary_color, subscription_status, trial_ends_at, subscription_ends_at FROM workspaces WHERE id = ?').get(req.workspaceId);
+  if (!workspace) return res.status(404).json({ error: 'Workspace not found' });
   let trialDaysLeft = null;
-  if (workspace?.trial_ends_at && workspace?.subscription_status === 'trial') {
+  if (workspace.trial_ends_at && workspace.subscription_status === 'trial') {
     const diff = new Date(workspace.trial_ends_at) - new Date();
     trialDaysLeft = Math.max(0, Math.ceil(diff / (1000 * 60 * 60 * 24)));
   }

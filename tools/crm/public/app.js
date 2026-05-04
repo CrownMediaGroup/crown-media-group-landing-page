@@ -77,7 +77,8 @@ function showSubscriptionExpired(msg) {
     </div>`;
     document.body.appendChild(overlay);
   } else {
-    document.getElementById('subExpiredMsg').textContent = msg;
+    const msgEl = document.getElementById('subExpiredMsg');
+    if (msgEl) msgEl.textContent = msg;
     overlay.style.display = 'flex';
   }
 }
