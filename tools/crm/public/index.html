@@ -59,6 +59,10 @@
       <svg viewBox="0 0 24 24" fill="currentColor"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/></svg>
       SMS Inbox <span id="inboxBadge" style="display:none;background:var(--gold,#C9A84C);color:#000;border-radius:9px;font-size:.65rem;font-weight:700;padding:1px 6px;margin-left:4px;vertical-align:middle">0</span>
     </button>
+    <button class="nav-item nav-tab" data-tab="outreach">
+      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg>
+      Outreach
+    </button>
     <button class="nav-item nav-tab hidden" data-tab="hub">
       <svg viewBox="0 0 24 24" fill="currentColor"><path d="M4 8h4V4H4v4zm6 12h4v-4h-4v4zm-6 0h4v-4H4v4zm0-6h4v-4H4v4zm6 0h4v-4h-4v4zm6-10v4h4V4h-4zm-6 4h4V4h-4v4zm6 6h4v-4h-4v4zm0 6h4v-4h-4v4z"/></svg>
       Admin Hub
@@ -646,6 +650,51 @@
         </div>
       </div>
 
+    </div>
+  </main>
+
+  <!-- OUTREACH TAB -->
+  <main class="main hidden" id="tab-outreach">
+    <div class="page-header">
+      <div>
+        <h2>Outreach Tracker</h2>
+        <p>Church email campaign — who we sent to, who replied, who bounced.</p>
+      </div>
+      <button class="btn btn-gold" onclick="loadOutreach()" style="align-self:center">Refresh</button>
+    </div>
+
+    <div style="padding:0 28px 16px;display:flex;gap:16px;flex-wrap:wrap">
+      <div class="report-stat-card" id="oSent" style="min-width:120px">
+        <div class="stat-label">Sent</div>
+        <div class="stat-value" id="oSentVal">—</div>
+      </div>
+      <div class="report-stat-card" id="oReplied" style="min-width:120px">
+        <div class="stat-label">Replied</div>
+        <div class="stat-value" id="oRepliedVal" style="color:#4ade80">—</div>
+      </div>
+      <div class="report-stat-card" id="oBounced" style="min-width:120px">
+        <div class="stat-label">Bounced</div>
+        <div class="stat-value" id="oBouncedVal" style="color:#f87171">—</div>
+      </div>
+      <div class="report-stat-card" id="oPending" style="min-width:120px">
+        <div class="stat-label">No Response</div>
+        <div class="stat-value" id="oPendingVal">—</div>
+      </div>
+    </div>
+
+    <div style="padding:0 28px 48px">
+      <table style="width:100%;border-collapse:collapse;font-size:.875rem">
+        <thead>
+          <tr style="border-bottom:1px solid var(--border);text-align:left">
+            <th style="padding:10px 12px;color:var(--muted);font-weight:600">Church</th>
+            <th style="padding:10px 12px;color:var(--muted);font-weight:600">Email</th>
+            <th style="padding:10px 12px;color:var(--muted);font-weight:600;text-align:center">Status</th>
+          </tr>
+        </thead>
+        <tbody id="outreachTableBody">
+          <tr><td colspan="3" style="padding:24px;text-align:center;color:var(--muted)">Loading…</td></tr>
+        </tbody>
+      </table>
     </div>
   </main>
 

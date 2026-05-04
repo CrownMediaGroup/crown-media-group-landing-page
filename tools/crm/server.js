@@ -2741,6 +2741,53 @@ app.post('/api/internal/referral-refunded', (req, res) => {
   res.json({ ok: true, matched: true });
 });
 
+// ── Outreach Summary ─────────────────────────────────────────────────────────
+app.get('/api/outreach/summary', (req, res) => {
+  const logPath    = join(__dirname, '../../Agency/ops/notes/OUTREACH-LOG.md');
+  const reportPath = join(__dirname, '../../Agency/ops/notes/REPLY-REPORT.md');
+
+  let sent = [];
+  if (existsSync(logPath)) {
+    const lines = readFileSync(logPath, 'utf8').split('\n');
+    for (const line of lines) {
+      const m = line.match(/^\s*-\s*\[SENT\]\s*(.+?)\s*→\s*(\S+@\S+)\s*$/);
+      if (m) {
+        const [, name, email] = m;
+        if (!sent.find(c => c.email === email)) sent.push({ name, email });
+      }
+    }
+  }
+
+  let replies = [];
+  let bounces = [];
+  if (existsSync(reportPath)) {
+    const lines = readFileSync(reportPath, 'utf8').split('\n');
+    for (const line of lines) {
+      const r = line.match(/^\s*-\s*\[REPLIED\]\s*(.+?)\s*→\s*(\S+@\S+)\s*$/);
+      const b = line.match(/^\s*-\s*\[BOUNCED\]\s*(.+?)\s*→\s*(\S+@\S+)\s*$/);
+      if (r) replies.push({ name: r[1], email: r[2] });
+      if (b) bounces.push({ name: b[1], email: b[2] });
+    }
+  }
+
+  const repliedEmails = new Set(replies.map(r => r.email));
+  const bouncedEmails = new Set(bounces.map(b => b.email));
+
+  const contacts = sent.map(c => ({
+    ...c,
+    replied: repliedEmails.has(c.email),
+    bounced: bouncedEmails.has(c.email),
+  }));
+
+  res.json({
+    sent:    sent.length,
+    replied: replies.length,
+    bounced: bounces.length,
+    pending: sent.length - replies.length - bounces.length,
+    contacts,
+  });
+});
+
 // ── Kingdom Reach (church outreach automation) ───────────────────────────────
 mountKingdomReach(app, db, { validateSession, getCookie });
 
