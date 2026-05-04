@@ -740,15 +740,45 @@
     <!-- Left: Body System Network -->
     <div class="av-graph">
       <div class="av-graph-bg">
-        <!-- Human body silhouette SVG overlay -->
-        <svg class="av-body-silhouette" viewBox="0 0 300 600" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <ellipse cx="150" cy="55" rx="38" ry="48" stroke="rgba(212,168,75,.12)" stroke-width="1.5"/>
-          <rect x="112" y="100" width="76" height="160" rx="8" stroke="rgba(212,168,75,.08)" stroke-width="1.5"/>
-          <line x1="112" y1="110" x2="68" y2="240" stroke="rgba(212,168,75,.07)" stroke-width="1.5"/>
-          <line x1="188" y1="110" x2="232" y2="240" stroke="rgba(212,168,75,.07)" stroke-width="1.5"/>
-          <rect x="120" y="260" width="60" height="200" rx="6" stroke="rgba(212,168,75,.08)" stroke-width="1.5"/>
-          <line x1="135" y1="455" x2="125" y2="590" stroke="rgba(212,168,75,.07)" stroke-width="1.5"/>
-          <line x1="165" y1="455" x2="175" y2="590" stroke="rgba(212,168,75,.07)" stroke-width="1.5"/>
+        <!-- Lone Warrior at the Threshold — King's primary vibe motif -->
+        <svg class="av-body-silhouette" viewBox="0 0 300 700" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <!-- Divine light shaft descending from above — the command throne -->
+          <defs>
+            <radialGradient id="lightShaft" cx="50%" cy="0%" r="80%" fx="50%" fy="0%">
+              <stop offset="0%" stop-color="rgba(212,168,75,.18)"/>
+              <stop offset="60%" stop-color="rgba(212,168,75,.04)"/>
+              <stop offset="100%" stop-color="rgba(212,168,75,0)"/>
+            </radialGradient>
+            <linearGradient id="beamGrad" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="rgba(212,168,75,.35)"/>
+              <stop offset="100%" stop-color="rgba(212,168,75,0)"/>
+            </linearGradient>
+          </defs>
+          <!-- Central light column -->
+          <polygon points="140,0 160,0 175,520 125,520" fill="url(#beamGrad)" opacity=".5"/>
+          <!-- Wide ambient glow -->
+          <ellipse cx="150" cy="0" rx="120" ry="60" fill="url(#lightShaft)" opacity=".6"/>
+          <!-- Pool of light at base -->
+          <ellipse cx="150" cy="530" rx="60" ry="12" fill="rgba(212,168,75,.08)"/>
+          <!-- Lone warrior silhouette — standing at threshold -->
+          <!-- Head -->
+          <ellipse cx="150" cy="470" rx="11" ry="13" fill="rgba(212,168,75,.25)"/>
+          <!-- Body -->
+          <rect x="138" y="483" width="24" height="45" rx="4" fill="rgba(212,168,75,.18)"/>
+          <!-- Cape/cloak flowing -->
+          <path d="M138,490 Q120,530 125,560 L138,530 Z" fill="rgba(212,168,75,.1)"/>
+          <path d="M162,490 Q180,530 175,560 L162,530 Z" fill="rgba(212,168,75,.1)"/>
+          <!-- Arms at side -->
+          <line x1="138" y1="490" x2="122" y2="520" stroke="rgba(212,168,75,.2)" stroke-width="5" stroke-linecap="round"/>
+          <line x1="162" y1="490" x2="178" y2="520" stroke="rgba(212,168,75,.2)" stroke-width="5" stroke-linecap="round"/>
+          <!-- Legs -->
+          <line x1="145" y1="528" x2="140" y2="570" stroke="rgba(212,168,75,.18)" stroke-width="6" stroke-linecap="round"/>
+          <line x1="155" y1="528" x2="160" y2="570" stroke="rgba(212,168,75,.18)" stroke-width="6" stroke-linecap="round"/>
+          <!-- Crown above head — The Lion is King -->
+          <path d="M136,460 L141,450 L150,458 L159,450 L164,460 Z" fill="rgba(212,168,75,.4)" stroke="rgba(212,168,75,.6)" stroke-width=".8"/>
+          <!-- Sword/scepter in right hand -->
+          <line x1="178" y1="518" x2="185" y2="565" stroke="rgba(212,168,75,.35)" stroke-width="2.5" stroke-linecap="round"/>
+          <line x1="181" y1="535" x2="190" y2="538" stroke="rgba(212,168,75,.25)" stroke-width="1.5"/>
         </svg>
       </div>
 
@@ -780,15 +810,15 @@
 
       <!-- 12 Body System Cluster Nodes — positioned anatomically -->
 
-      <!-- NERVOUS (Brain) — top center -->
+      <!-- NERVOUS (Command Throne) — top center -->
       <div class="av-cluster av-nervous" id="avClusterNervous" style="top:2%;left:50%;transform:translateX(-50%)" onclick="expandCluster('nervous')">
         <div class="av-cluster-pulse"></div>
-        <div class="av-cluster-icon">🧠</div>
-        <div class="av-cluster-name">NERVOUS</div>
+        <div class="av-cluster-icon">👑</div>
+        <div class="av-cluster-name">COMMAND</div>
         <div class="av-cluster-agents">COMMANDER · WARDEN · GUARDIAN · PROPHET · ORACLE PRIME</div>
       </div>
 
-      <!-- SENSORY (Eyes/Ears) — upper sides -->
+      <!-- SENSORY (All-Seeing) — upper left -->
       <div class="av-cluster av-sensory" id="avClusterSensory" style="top:6%;left:4%" onclick="expandCluster('sensory')">
         <div class="av-cluster-pulse"></div>
         <div class="av-cluster-icon">👁️</div>
@@ -796,79 +826,79 @@
         <div class="av-cluster-agents">EYES</div>
       </div>
 
-      <!-- ENDOCRINE (Signals) — upper right -->
+      <!-- ENDOCRINE (Signal Burst) — upper right -->
       <div class="av-cluster av-endocrine" id="avClusterEndocrine" style="top:6%;right:4%" onclick="expandCluster('endocrine')">
         <div class="av-cluster-pulse"></div>
         <div class="av-cluster-icon">⚡</div>
-        <div class="av-cluster-name">ENDOCRINE</div>
+        <div class="av-cluster-name">SIGNAL</div>
         <div class="av-cluster-agents">PULSE</div>
       </div>
 
-      <!-- RESPIRATORY (Lungs) — mid left -->
+      <!-- RESPIRATORY (Breath/Cycle) — mid left -->
       <div class="av-cluster av-respiratory" id="avClusterRespiratory" style="top:28%;left:2%" onclick="expandCluster('respiratory')">
         <div class="av-cluster-pulse"></div>
-        <div class="av-cluster-icon">🫁</div>
-        <div class="av-cluster-name">RESPIRATORY</div>
+        <div class="av-cluster-icon">🌊</div>
+        <div class="av-cluster-name">BREATH</div>
         <div class="av-cluster-agents">BREATH</div>
       </div>
 
-      <!-- CIRCULATORY (Heart/Blood) — mid center -->
+      <!-- CIRCULATORY (Covenant Blood) — mid center -->
       <div class="av-cluster av-circulatory" id="avClusterCirculatory" style="top:25%;left:50%;transform:translateX(-50%)" onclick="expandCluster('circulatory')">
         <div class="av-cluster-pulse"></div>
-        <div class="av-cluster-icon">❤️</div>
-        <div class="av-cluster-name">CIRCULATORY</div>
+        <div class="av-cluster-icon">🔥</div>
+        <div class="av-cluster-name">PIPELINE</div>
         <div class="av-cluster-agents">FALCON · WORDSMITH · RADAR · ECHO · CLOSER · BLUEPRINT</div>
       </div>
 
-      <!-- IMMUNE (Defense) — mid right -->
+      <!-- IMMUNE (Warriors/Armor) — mid right -->
       <div class="av-cluster av-immune" id="avClusterImmune" style="top:28%;right:2%" onclick="expandCluster('immune')">
         <div class="av-cluster-pulse"></div>
-        <div class="av-cluster-icon">🛡️</div>
-        <div class="av-cluster-name">IMMUNE</div>
+        <div class="av-cluster-icon">⚔️</div>
+        <div class="av-cluster-name">DEFENSE</div>
         <div class="av-cluster-agents">SENTINEL · MOBILE · SHIELD · LAUNCH · ARMOR</div>
       </div>
 
-      <!-- DIGESTIVE (Intake) — center-left -->
+      <!-- DIGESTIVE (Raw Input Processing) — center-left -->
       <div class="av-cluster av-digestive" id="avClusterDigestive" style="top:50%;left:4%" onclick="expandCluster('digestive')">
         <div class="av-cluster-pulse"></div>
         <div class="av-cluster-icon">⚙️</div>
-        <div class="av-cluster-name">DIGESTIVE</div>
+        <div class="av-cluster-name">INTAKE</div>
         <div class="av-cluster-agents">INTAKE</div>
       </div>
 
-      <!-- GROWTH (Content/Traffic) — center-right -->
+      <!-- GROWTH (Content/Kingdom Expansion) — center-right -->
       <div class="av-cluster av-growth" id="avClusterGrowth" style="top:50%;right:4%" onclick="expandCluster('growth')">
         <div class="av-cluster-pulse"></div>
-        <div class="av-cluster-icon">🌱</div>
+        <div class="av-cluster-icon">📡</div>
         <div class="av-cluster-name">GROWTH</div>
         <div class="av-cluster-agents">SPARK · SIGNAL · STRIKE · DIRECTOR · SIGNAL BOOST</div>
       </div>
 
-      <!-- EXCRETORY (Filter) — lower-left -->
+      <!-- EXCRETORY (Data Purification) — lower-left -->
       <div class="av-cluster av-excretory" id="avClusterExcretory" style="top:68%;left:2%" onclick="expandCluster('excretory')">
         <div class="av-cluster-pulse"></div>
-        <div class="av-cluster-icon">🔬</div>
-        <div class="av-cluster-name">EXCRETORY</div>
+        <div class="av-cluster-icon">🧹</div>
+        <div class="av-cluster-name">FILTER</div>
         <div class="av-cluster-agents">FILTER</div>
       </div>
 
-      <!-- METABOLIC (Revenue) — lower-center -->
+      <!-- METABOLIC (Revenue/Kingdom Treasury) — lower-center -->
       <div class="av-cluster av-metabolic" id="avClusterMetabolic" style="top:65%;left:50%;transform:translateX(-50%)" onclick="expandCluster('metabolic')">
         <div class="av-cluster-pulse"></div>
-        <div class="av-cluster-icon">💰</div>
-        <div class="av-cluster-name">METABOLIC</div>
+        <div class="av-cluster-icon">🏛️</div>
+        <div class="av-cluster-name">TREASURY</div>
         <div class="av-cluster-agents">LEDGER · VISION · CALENDAR · WELCOME · DELIVER</div>
       </div>
 
-      <!-- INTEGUMENTARY (Armor/Skin) — lower-right -->
+      <!-- INTEGUMENTARY (Armor/First Impression) — lower-right -->
       <div class="av-cluster av-integumentary" id="avClusterIntegumentary" style="top:68%;right:2%" onclick="expandCluster('integumentary')">
         <div class="av-cluster-pulse"></div>
-        <div class="av-cluster-icon">🪬</div>
-        <div class="av-cluster-name">INTEGUMENTARY</div>
+        <div class="av-cluster-icon">🛡️</div>
+        <div class="av-cluster-name">ARMOR</div>
         <div class="av-cluster-agents">ARMOR · REPUTATION</div>
       </div>
 
-      <!-- SOUL (Foundation) — bottom center -->
+      <!-- SOUL (The Foundation — Cross — Everything rests here) — bottom center -->
       <div class="av-cluster av-soul" id="avClusterSoul" style="bottom:2%;left:50%;transform:translateX(-50%)" onclick="expandCluster('soul')">
         <div class="av-cluster-pulse"></div>
         <div class="av-cluster-icon">✝️</div>
