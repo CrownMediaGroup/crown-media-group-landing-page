@@ -131,7 +131,11 @@ export function mountKingdomReach(app, db, { validateSession, getCookie } = {}) 
         SUM(CASE WHEN status = 'Client'        THEN 1 ELSE 0 END) as clients,
         SUM(CASE WHEN status = 'Proposal Sent' THEN 1 ELSE 0 END) as proposals,
         SUM(CASE WHEN status = 'Contacted'     THEN 1 ELSE 0 END) as contacted,
-        SUM(pipeline_value) as pipeline_total
+        SUM(pipeline_value) as pipeline_total,
+        SUM(CASE WHEN email_sent = 1    THEN 1 ELSE 0 END) as emailed,
+        SUM(CASE WHEN email_opened = 1  THEN 1 ELSE 0 END) as opened,
+        SUM(CASE WHEN replied = 1       THEN 1 ELSE 0 END) as replied_count,
+        SUM(CASE WHEN follow_up_sent = 1 THEN 1 ELSE 0 END) as follow_ups
       FROM churches WHERE workspace_id = 1`).get();
     res.json({ ok:true, churches, totals });
   });
@@ -144,7 +148,7 @@ export function mountKingdomReach(app, db, { validateSession, getCookie } = {}) 
   });
 
   app.patch('/api/kingdom-reach/churches/:id', requireAuth, (req, res) => {
-    const allowed = ['status','recommended_tier','follow_up_date','notes','phone','email','pastor','website','has_website','pipeline_value','name','address'];
+    const allowed = ['status','recommended_tier','follow_up_date','notes','phone','email','pastor','website','has_website','pipeline_value','name','address','email_sent','email_sent_at','email_opened','email_opened_at','follow_up_sent','follow_up_sent_at','replied','replied_at'];
     const fields  = Object.keys(req.body || {}).filter(k => allowed.includes(k));
     if (!fields.length) return res.status(400).json({ error: 'No valid fields' });
     const sets = fields.map(f => `${f} = ?`).join(', ');
@@ -152,6 +156,91 @@ export function mountKingdomReach(app, db, { validateSession, getCookie } = {}) 
     vals.push(req.params.id);
     db.prepare(`UPDATE churches SET ${sets} WHERE id = ?`).run(...vals);
     res.json({ ok: true });
+  });
+
+  // ── BULK IMPORT (token bypass — called from import-churches-to-db.js) ───
+  app.post('/api/kingdom-reach/churches/import', async (req, res) => {
+    const { token, churches: rows, sent_names = [], opened_names = [], replied_names = [] } = req.body || {};
+    const SEED_TOKEN = process.env.SEED_TOKEN || 'KingdomSeed2026';
+    if (token !== SEED_TOKEN && !req.kingdomUser) return res.status(403).json({ error: 'auth required' });
+    if (!rows?.length) return res.status(400).json({ error: 'churches array required' });
+
+    const upsert = db.prepare(`
+      INSERT INTO churches
+        (name,tier,denomination,address,city,state,zip,phone,website,pastor,email,
+         instagram,facebook,size,social,fit,has_website,status,notes,workspace_id)
+      VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,1)
+      ON CONFLICT(name) DO UPDATE SET
+        tier          = COALESCE(excluded.tier, tier),
+        denomination  = COALESCE(NULLIF(excluded.denomination,''), denomination),
+        address       = COALESCE(NULLIF(excluded.address,''),      address),
+        city          = COALESCE(NULLIF(excluded.city,''),         city),
+        state         = COALESCE(NULLIF(excluded.state,''),        state),
+        zip           = COALESCE(NULLIF(excluded.zip,''),          zip),
+        phone         = COALESCE(NULLIF(excluded.phone,''),        phone),
+        website       = COALESCE(NULLIF(excluded.website,''),      website),
+        pastor        = COALESCE(NULLIF(excluded.pastor,''),       pastor),
+        email         = COALESCE(NULLIF(excluded.email,''),        email),
+        instagram     = COALESCE(NULLIF(excluded.instagram,''),    instagram),
+        facebook      = COALESCE(NULLIF(excluded.facebook,''),     facebook),
+        has_website   = excluded.has_website
+    `);
+
+    let imported = 0;
+    const importMany = db.transaction(() => {
+      for (const c of rows) {
+        upsert.run(c.name,c.tier||'C',c.denomination||'',c.address||'',c.city||'Columbia',c.state||'SC',
+          c.zip||'',c.phone||'',c.website||'',c.pastor||'',c.email||'',
+          c.instagram||'',c.facebook||'',c.size||'',c.social||'',c.fit||'',
+          c.has_website?1:0, c.status||'Not Contacted', c.notes||'');
+        imported++;
+      }
+    });
+    importMany();
+
+    // Apply tracking markers by name (case-insensitive)
+    for (const name of sent_names) {
+      db.prepare(`UPDATE churches SET email_sent=1, email_sent_at=COALESCE(email_sent_at,datetime('now')) WHERE name=? COLLATE NOCASE`).run(name);
+    }
+    for (const name of opened_names) {
+      db.prepare(`UPDATE churches SET email_opened=1, email_opened_at=COALESCE(email_opened_at,datetime('now')) WHERE name=? COLLATE NOCASE`).run(name);
+    }
+    for (const name of replied_names) {
+      db.prepare(`UPDATE churches SET replied=1, replied_at=COALESCE(replied_at,datetime('now')),
+        status=CASE WHEN status IN ('Client','Not Interested') THEN status ELSE 'Contacted' END
+        WHERE name=? COLLATE NOCASE`).run(name);
+    }
+
+    res.json({ ok: true, imported, sent: sent_names.length, opened: opened_names.length, replied: replied_names.length });
+  });
+
+  // ── MARK EMAIL OPENED (token bypass — called from CLI/import scripts) ────
+  app.post('/api/kingdom-reach/churches/mark-opened', async (req, res) => {
+    const { emails, token } = req.body || {};
+    const SEED_TOKEN = process.env.SEED_TOKEN || 'KingdomSeed2026';
+    if (token !== SEED_TOKEN && !req.kingdomUser) return res.status(403).json({ error: 'auth required' });
+    if (!emails || !emails.length) return res.status(400).json({ error: 'emails array required' });
+    let updated = 0;
+    for (const email of emails) {
+      const r = db.prepare(`UPDATE churches SET email_opened=1, email_opened_at=COALESCE(email_opened_at,datetime('now')) WHERE email=? AND email_opened=0`).run(email);
+      updated += r.changes;
+    }
+    res.json({ ok: true, updated });
+  });
+
+  // ── MARK REPLIED (token bypass) ───────────────────────────────────────────
+  app.post('/api/kingdom-reach/churches/mark-replied-church', async (req, res) => {
+    const { email, name, token } = req.body || {};
+    const SEED_TOKEN = process.env.SEED_TOKEN || 'KingdomSeed2026';
+    if (token !== SEED_TOKEN && !req.kingdomUser) return res.status(403).json({ error: 'auth required' });
+    if (!email && !name) return res.status(400).json({ error: 'email or name required' });
+    let r;
+    if (email) {
+      r = db.prepare(`UPDATE churches SET replied=1, replied_at=COALESCE(replied_at,datetime('now')), status=CASE WHEN status IN ('Client','Not Interested') THEN status ELSE 'Contacted' END WHERE email=?`).run(email);
+    } else {
+      r = db.prepare(`UPDATE churches SET replied=1, replied_at=COALESCE(replied_at,datetime('now')), status=CASE WHEN status IN ('Client','Not Interested') THEN status ELSE 'Contacted' END WHERE name=? COLLATE NOCASE`).run(name);
+    }
+    res.json({ ok: true, updated: r.changes });
   });
 
   // ── DISPATCH LIST ─────────────────────────────────────────────────────────

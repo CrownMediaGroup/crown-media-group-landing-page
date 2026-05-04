@@ -53,6 +53,17 @@ export function ensureSchema(db) {
   const cols = db.prepare('PRAGMA table_info(kingdom_dispatches)').all().map(c => c.name);
   if (!cols.includes('followup_1_sent')) db.exec('ALTER TABLE kingdom_dispatches ADD COLUMN followup_1_sent INTEGER DEFAULT 0');
   if (!cols.includes('followup_2_sent')) db.exec('ALTER TABLE kingdom_dispatches ADD COLUMN followup_2_sent INTEGER DEFAULT 0');
+
+  // Additive email tracking columns on churches table
+  const cc = db.prepare('PRAGMA table_info(churches)').all().map(c => c.name);
+  if (!cc.includes('email_sent'))         db.exec('ALTER TABLE churches ADD COLUMN email_sent INTEGER DEFAULT 0');
+  if (!cc.includes('email_sent_at'))      db.exec('ALTER TABLE churches ADD COLUMN email_sent_at DATETIME');
+  if (!cc.includes('email_opened'))       db.exec('ALTER TABLE churches ADD COLUMN email_opened INTEGER DEFAULT 0');
+  if (!cc.includes('email_opened_at'))    db.exec('ALTER TABLE churches ADD COLUMN email_opened_at DATETIME');
+  if (!cc.includes('follow_up_sent'))     db.exec('ALTER TABLE churches ADD COLUMN follow_up_sent INTEGER DEFAULT 0');
+  if (!cc.includes('follow_up_sent_at'))  db.exec('ALTER TABLE churches ADD COLUMN follow_up_sent_at DATETIME');
+  if (!cc.includes('replied'))            db.exec('ALTER TABLE churches ADD COLUMN replied INTEGER DEFAULT 0');
+  if (!cc.includes('replied_at'))         db.exec('ALTER TABLE churches ADD COLUMN replied_at DATETIME');
 }
 
 export function slugify(name = '') {

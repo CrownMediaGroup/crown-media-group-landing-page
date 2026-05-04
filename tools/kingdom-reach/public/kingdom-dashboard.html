@@ -66,6 +66,12 @@
   .has-no  { color:var(--err); font-weight:700; }
   .has-yes { color:#5a6a87; }
   .followup-badge { background:#f59e0b; color:#000; font-size:0.65rem; padding:2px 6px; border-radius:9px; margin-left:6px; font-weight:700; }
+  .track-icon { font-size:15px; display:inline-block; }
+  .track-on  { color:var(--ok); }
+  .track-off { color:#d1d5db; }
+  .track-star-on  { color:#d97706; }
+  .track-reply-on { color:#7c3aed; }
+  td.track-col, th.track-col { text-align:center; width:36px; padding:10px 4px; }
 
   select.status-sel { padding:6px 8px; font-size:12px; border:1.5px solid var(--line); border-radius:6px; background:var(--card); color:var(--ink); font-family:inherit; }
   .actions a { color:var(--royal); text-decoration:none; font-size:13px; font-weight:600; margin-right:10px; }
@@ -179,6 +185,10 @@
     <input type="search" id="searchInput" placeholder="Search church, pastor, city...">
     <span class="pill" data-filter="all">All</span>
     <span class="pill active" data-filter="priority">No Website (Priority)</span>
+    <span class="pill" data-filter="emailed">Emailed</span>
+    <span class="pill" data-filter="opened">Opened</span>
+    <span class="pill" data-filter="replied">Replied</span>
+    <span class="pill" data-filter="has_email">Has Email</span>
     <span class="pill" data-filter="contacted">Contacted</span>
     <span class="pill" data-filter="proposal">Proposal Sent</span>
     <span class="pill" data-filter="client">Clients</span>
@@ -200,15 +210,18 @@
           <th class="sortable" data-col="name">Church<span class="sort-ind"></span></th>
           <th class="sortable hide-sm" data-col="tier">Tier<span class="sort-ind"></span></th>
           <th class="hide-sm">Pastor</th>
-          <th>Website?</th>
+          <th class="hide-sm">Email</th>
+          <th class="hide-sm">Phone</th>
+          <th class="track-col" title="Email Sent">&#9993;</th>
+          <th class="track-col" title="Email Opened">&#128065;</th>
+          <th class="track-col" title="Follow-up Sent">&#128336;</th>
+          <th class="track-col" title="Replied">&#9733;</th>
           <th class="sortable" data-col="status">Status<span class="sort-ind"></span></th>
-          <th class="sortable hide-sm" data-col="date_added">Date Added<span class="sort-ind"></span></th>
           <th class="sortable hide-sm" data-col="dist">Distance<span class="sort-ind"></span></th>
-          <th class="hide-sm">Recommended</th>
           <th>Actions</th>
         </tr>
       </thead>
-      <tbody id="rows"><tr><td colspan="10" class="empty">Loading...</td></tr></tbody>
+      <tbody id="rows"><tr><td colspan="13" class="empty">Loading...</td></tr></tbody>
     </table>
   </div>
 
@@ -321,7 +334,7 @@ async function load() {
     render();
   } catch(e) {
     document.getElementById('rows').innerHTML =
-      `<tr><td colspan="10" class="empty" style="color:var(--err)">
+      `<tr><td colspan="13" class="empty" style="color:var(--err)">
         Failed to load churches: ${esc(e.message)}.
         <a href="javascript:load()" style="color:var(--royal);font-weight:700">Retry</a>
       </td></tr>`;
@@ -329,22 +342,28 @@ async function load() {
 }
 
 function renderStats(t) {
+  const winRate = t?.total > 0 ? ((t.clients / t.total) * 100).toFixed(1) + '%' : '0%';
   document.getElementById('stats').innerHTML = `
     <div class="stat priority"><div class="stat-label">No-Website Targets</div><div class="stat-value">${t?.no_website||0}</div></div>
-    <div class="stat"><div class="stat-label">Contacted</div><div class="stat-value">${t?.contacted||0}</div></div>
+    <div class="stat"><div class="stat-label">Total Churches</div><div class="stat-value">${t?.total||0}</div></div>
+    <div class="stat"><div class="stat-label">Emailed</div><div class="stat-value">${t?.emailed||0}</div></div>
+    <div class="stat"><div class="stat-label">Opened Email</div><div class="stat-value">${t?.opened||0}</div></div>
+    <div class="stat"><div class="stat-label">Replied</div><div class="stat-value">${t?.replied_count||0}</div></div>
     <div class="stat"><div class="stat-label">Proposals Sent</div><div class="stat-value">${t?.proposals||0}</div></div>
     <div class="stat client"><div class="stat-label">Clients</div><div class="stat-value">${t?.clients||0}</div></div>
     <div class="stat"><div class="stat-label">Pipeline Value</div><div class="stat-value">$${Math.round(t?.pipeline_total||0).toLocaleString()}</div></div>
-    <div class="stat"><div class="stat-label">Total Churches</div><div class="stat-value">${t?.total||0}</div></div>
+    <div class="stat"><div class="stat-label">Win Rate</div><div class="stat-value">${winRate}</div></div>
   `;
   renderFunnel(t);
 }
 
 function renderFunnel(t) {
-  const total     = t?.total      || 0;
-  const contacted = t?.contacted  || 0;
-  const proposals = t?.proposals  || 0;
-  const clients   = t?.clients    || 0;
+  const total     = t?.total          || 0;
+  const emailed   = t?.emailed        || 0;
+  const opened    = t?.opened         || 0;
+  const replied   = t?.replied_count  || 0;
+  const proposals = t?.proposals      || 0;
+  const clients   = t?.clients        || 0;
   const pctOf = (n, base) => base > 0 ? (n / base * 100).toFixed(1) + '%' : '0%';
   document.getElementById('funnel').innerHTML = `
     <div class="funnel-step">
@@ -353,15 +372,27 @@ function renderFunnel(t) {
     </div>
     <div class="funnel-arrow">&#8594;</div>
     <div class="funnel-step">
-      <div class="funnel-count">${contacted}</div>
-      <div class="funnel-label">Contacted</div>
-      <div class="funnel-pct">${pctOf(contacted, total)} of total</div>
+      <div class="funnel-count">${emailed}</div>
+      <div class="funnel-label">Emailed</div>
+      <div class="funnel-pct">${pctOf(emailed, total)} of total</div>
+    </div>
+    <div class="funnel-arrow">&#8594;</div>
+    <div class="funnel-step">
+      <div class="funnel-count">${opened}</div>
+      <div class="funnel-label">Opened</div>
+      <div class="funnel-pct">${pctOf(opened, emailed)} of emailed</div>
+    </div>
+    <div class="funnel-arrow">&#8594;</div>
+    <div class="funnel-step">
+      <div class="funnel-count">${replied}</div>
+      <div class="funnel-label">Replied</div>
+      <div class="funnel-pct">${pctOf(replied, opened)} of opened</div>
     </div>
     <div class="funnel-arrow">&#8594;</div>
     <div class="funnel-step">
       <div class="funnel-count">${proposals}</div>
-      <div class="funnel-label">Proposal Sent</div>
-      <div class="funnel-pct">${pctOf(proposals, contacted)} of contacted</div>
+      <div class="funnel-label">Proposal</div>
+      <div class="funnel-pct">${pctOf(proposals, replied)} of replies</div>
     </div>
     <div class="funnel-arrow">&#8594;</div>
     <div class="funnel-step gold">
@@ -397,6 +428,10 @@ function getFiltered() {
   const tier = document.getElementById('tierSel').value;
   let rows = allChurches;
   if (activeFilter === 'priority')  rows = rows.filter(c => !c.has_website);
+  if (activeFilter === 'emailed')   rows = rows.filter(c => c.email_sent);
+  if (activeFilter === 'opened')    rows = rows.filter(c => c.email_opened);
+  if (activeFilter === 'replied')   rows = rows.filter(c => c.replied);
+  if (activeFilter === 'has_email') rows = rows.filter(c => c.email);
   if (activeFilter === 'contacted') rows = rows.filter(c => c.status === 'Contacted');
   if (activeFilter === 'proposal')  rows = rows.filter(c => c.status === 'Proposal Sent');
   if (activeFilter === 'client')    rows = rows.filter(c => c.status === 'Client');
@@ -431,7 +466,7 @@ function render() {
   });
 
   if (!rows.length) {
-    tbody.innerHTML = `<tr><td colspan="10" class="empty">No churches match these filters. <a id="clearFiltersLink">Clear filters</a></td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="13" class="empty">No churches match these filters. <a id="clearFiltersLink">Clear filters</a></td></tr>`;
     const link = document.getElementById('clearFiltersLink');
     if (link) link.addEventListener('click', clearFilters);
     return;
@@ -448,30 +483,37 @@ function render() {
     const addrParts = [c.address, c.city, c.state, c.zip].filter(Boolean);
     const addrLine  = addrParts.length ? esc(addrParts.join(', ')) : '';
     const distLabel = c.dist >= 990 ? '—' : c.dist === 0 ? '< 1 mi' : '~' + c.dist + ' mi';
+    const sentIcon   = c.email_sent    ? '<span class="track-icon track-on">&#10003;</span>'  : '<span class="track-icon track-off">&#8211;</span>';
+    const openIcon   = c.email_opened  ? '<span class="track-icon track-on">&#128065;</span>' : '<span class="track-icon track-off">&#8211;</span>';
+    const fuIcon     = c.follow_up_sent? '<span class="track-icon track-on">&#10003;</span>'  : '<span class="track-icon track-off">&#8211;</span>';
+    const repIcon    = c.replied       ? '<span class="track-icon track-reply-on">&#9733;</span>' : '<span class="track-icon track-off">&#8211;</span>';
     return `<tr class="${cls}" data-church-id="${c.id}">
       <td class="cb-col" onclick="event.stopPropagation()">
         <input type="checkbox" class="row-cb" data-church-id="${c.id}">
       </td>
       <td>
         <div class="name">${esc(c.name)}${followUpBadge}</div>
-        <div class="meta">${addrLine}${c.phone ? ' · '+esc(c.phone) : ''}</div>
+        <div class="meta">${addrLine}</div>
       </td>
       <td class="hide-sm"><span class="badge badge-${esc(c.tier||'C')}">${esc(c.tier||'—')}</span></td>
       <td class="hide-sm">${esc(c.pastor||'—')}</td>
-      <td class="${c.has_website ? 'has-yes' : 'has-no'}">${c.has_website ? 'Yes' : 'NO'}</td>
+      <td class="hide-sm" style="font-size:12px">${c.email ? `<a href="mailto:${esc(c.email)}" onclick="event.stopPropagation()" style="color:var(--royal)">${esc(c.email)}</a>` : '<span style="color:var(--muted)">—</span>'}</td>
+      <td class="hide-sm" style="font-size:12px;white-space:nowrap">${c.phone ? `<a href="tel:${esc(c.phone.replace(/[^0-9+]/g,''))}" onclick="event.stopPropagation()" style="color:var(--royal)">${esc(c.phone)}</a>` : '<span style="color:var(--muted)">—</span>'}</td>
+      <td class="track-col">${sentIcon}</td>
+      <td class="track-col">${openIcon}</td>
+      <td class="track-col">${fuIcon}</td>
+      <td class="track-col">${repIcon}</td>
       <td>
         <select class="status-sel" data-id="${c.id}">
           ${['Not Contacted','Contacted','Proposal Sent','Client','Not Interested'].map(s =>
             `<option ${s===c.status?'selected':''}>${s}</option>`).join('')}
         </select>
       </td>
-      <td class="hide-sm">${esc(formatDate(c.date_added))}</td>
       <td class="hide-sm" style="white-space:nowrap;font-size:13px;color:#5a6a87">${distLabel}</td>
-      <td class="hide-sm">${esc(c.recommended_tier||'—')}</td>
       <td class="actions" style="white-space:nowrap">
         ${c.email ? `<a href="mailto:${esc(c.email)}" onclick="event.stopPropagation()">Email</a>` : ''}
-        ${c.website ? `<a href="https://${esc(stripProto(c.website))}" target="_blank" onclick="event.stopPropagation()">Site</a>` : ''}
         ${c.phone ? `<a href="tel:${esc(c.phone.replace(/[^0-9+]/g,''))}" onclick="event.stopPropagation()">Call</a>` : ''}
+        ${c.website ? `<a href="https://${esc(stripProto(c.website))}" target="_blank" onclick="event.stopPropagation()">Site</a>` : ''}
       </td>
     </tr>`;
   }).join('');
