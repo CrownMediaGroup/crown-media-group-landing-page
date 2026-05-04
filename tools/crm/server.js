@@ -148,6 +148,20 @@ setInterval(() => {
   if (deleted.changes > 0) console.log(`[CRM] Cleaned ${deleted.changes} expired sessions`);
 }, 60 * 60 * 1000);
 
+// ── Avengers Live Ecosystem — SSE event bus ───────────────────────────────────
+const avengerEvents = [];
+const sseClients    = new Set();
+
+function emitAgentEvent(agent, action) {
+  const event = { agent, action, ts: Date.now() };
+  avengerEvents.push(event);
+  if (avengerEvents.length > 100) avengerEvents.shift();
+  const payload = `data: ${JSON.stringify(event)}\n\n`;
+  for (const res of sseClients) {
+    try { res.write(payload); } catch (_) { sseClients.delete(res); }
+  }
+}
+
 // ── Portfolio uploads dir ─────────────────────────────────────────────────────
 const PORTFOLIO_DIR = join(__dirname, 'portfolio-uploads');
 if (!existsSync(PORTFOLIO_DIR)) mkdirSync(PORTFOLIO_DIR, { recursive: true });
@@ -791,6 +805,7 @@ app.post('/api/contacts', (req, res) => {
     'INSERT INTO contacts (name, business, phone, email, source, priority, notes, workspace_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?)'
   ).run(name.trim(), business, phone, email, source, priority, notes, req.workspaceId);
   const contact = db.prepare('SELECT * FROM contacts WHERE id = ?').get(result.lastInsertRowid);
+  emitAgentEvent('FALCON', `Lead captured: ${name.trim()}${business ? ' — ' + business : ''}`);
   res.json({ ok: true, contact });
 });
 
@@ -2777,6 +2792,7 @@ app.post('/api/outreach/import-sends', (req, res) => {
     stmt.run(name || email, email);
     imported++;
   }
+  emitAgentEvent('BROADCAST', `Campaign import — ${imported} church sends loaded`);
   res.json({ ok: true, imported });
 });
 
@@ -2784,6 +2800,7 @@ app.post('/api/outreach/import-sends', (req, res) => {
 app.post('/api/outreach/mark-replied', (req, res) => {
   const { email, name, type = 'replied' } = req.body || {};
   if (!email) return res.status(400).json({ error: 'email required' });
+  emitAgentEvent('RADAR', `Reply logged — ${name || email} (${type})`);
 
   // Write to DB (persists on Fly.io)
   try {
@@ -2813,6 +2830,52 @@ app.post('/api/outreach/mark-replied', (req, res) => {
   } catch (_) {}
 
   res.json({ ok: true });
+});
+
+// ── Avengers: SSE stream ──────────────────────────────────────────────────────
+app.get('/api/avengers/stream', (req, res) => {
+  const session = validateSession(getCookie(req, 'crm_session'));
+  if (!session) return res.status(401).end();
+  res.setHeader('Content-Type', 'text/event-stream');
+  res.setHeader('Cache-Control', 'no-cache');
+  res.setHeader('Connection', 'keep-alive');
+  res.setHeader('X-Accel-Buffering', 'no');
+  res.flushHeaders();
+  sseClients.add(res);
+  const replay = avengerEvents.slice(-15);
+  for (const ev of replay) res.write(`data: ${JSON.stringify(ev)}\n\n`);
+  req.on('close', () => sseClients.delete(res));
+});
+
+// ── Avengers: status snapshot ─────────────────────────────────────────────────
+app.get('/api/avengers/status', (req, res) => {
+  const session = validateSession(getCookie(req, 'crm_session'));
+  if (!session) return res.status(401).json({ error: 'Unauthorized' });
+  const now = Date.now();
+  const recentAgents = new Set(avengerEvents.filter(e => now - e.ts < 3600000).map(e => e.agent));
+  res.json({
+    events: avengerEvents.slice(-20),
+    activeCount: recentAgents.size,
+    eventCountToday: avengerEvents.filter(e => now - e.ts < 86400000).length,
+    lastEvent: avengerEvents.length ? avengerEvents[avengerEvents.length - 1] : null,
+  });
+});
+
+// ── Avengers: token-based seed (bypasses session auth for Fly.io seeding) ────
+app.post('/api/admin/seed-outreach', (req, res) => {
+  const { token, sends } = req.body || {};
+  const SEED_TOKEN = process.env.SEED_TOKEN || 'KingdomSeed2026';
+  if (token !== SEED_TOKEN) return res.status(403).json({ error: 'Invalid token' });
+  if (!Array.isArray(sends)) return res.status(400).json({ error: 'sends array required' });
+  const stmt = db.prepare("INSERT OR IGNORE INTO church_outreach_sends (name, email) VALUES (?, ?)");
+  let imported = 0;
+  for (const { name, email } of sends) {
+    if (!email) continue;
+    const r = stmt.run(name || email.split('@')[0], email);
+    if (r.changes) imported++;
+  }
+  emitAgentEvent('BROADCAST', `Seed import complete — ${imported} sends loaded`);
+  res.json({ ok: true, imported });
 });
 
 // ── Kingdom Reach (church outreach automation) ───────────────────────────────

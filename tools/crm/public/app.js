@@ -184,6 +184,7 @@ function switchTab(tab) {
   if (tab === 'leads')     loadLeadGen();
   if (tab === 'inbox')     loadInbox();
   if (tab === 'outreach')  loadOutreach();
+  if (tab === 'avengers')  loadAvengers();
 }
 
 // ── Load contacts ─────────────────────────────────────────────────────────────
@@ -2288,6 +2289,226 @@ async function markReplied(email, name, btn) {
     btn.disabled = false;
   }
 }
+
+// ── Kingdom War Room — Live Agent Ecosystem ──────────────────────────────────
+
+let avSSE = null;
+let avEvents = [];
+
+const AV_CLUSTER_MAP = {
+  avClusterNervous:       ['COMMANDER','WARDEN','GUARDIAN','PROPHET','ORACLE PRIME','ORACLE'],
+  avClusterCirculatory:   ['FALCON','WORDSMITH','RADAR','ECHO','CLOSER','BLUEPRINT','WELCOME','DELIVER'],
+  avClusterImmune:        ['SENTINEL','MOBILE','SHIELD','LAUNCH','ARMOR'],
+  avClusterGrowth:        ['SPARK','SIGNAL','STRIKE','DIRECTOR','SIGNAL BOOST','BROADCAST'],
+  avClusterMetabolic:     ['LEDGER','VISION','CALENDAR'],
+  avClusterSoul:          ['ANCHOR','KINGDOM'],
+  avClusterRespiratory:   ['BREATH'],
+  avClusterDigestive:     ['INTAKE'],
+  avClusterEndocrine:     ['PULSE'],
+  avClusterSensory:       ['EYES'],
+  avClusterExcretory:     ['FILTER'],
+  avClusterIntegumentary: ['ARMOR','REPUTATION','NETWORK'],
+};
+
+const AV_AGENT_DETAILS = {
+  nervous: {
+    title: 'NERVOUS SYSTEM — Intelligence & Command',
+    color: '#D4A84B',
+    agents: [
+      { name: 'COMMANDER', role: 'The General — fires first on Avengers, builds mission brief, dispatches all agents in waves' },
+      { name: 'WARDEN', role: 'Task Tracker — reads every request, confirms nothing dropped, distills Sprint Laws' },
+      { name: 'GUARDIAN', role: 'R&D Chief — researches world\'s best agent systems, upgrades the whole team automatically' },
+      { name: 'PROPHET', role: 'Plain-English Explainer — translates complexity into clarity King can act on immediately' },
+      { name: 'ORACLE PRIME', role: 'Deep Researcher — Reddit, YouTube, forums, think pieces; what\'s working NOW' },
+    ]
+  },
+  circulatory: {
+    title: 'CIRCULATORY SYSTEM — The Sales Pipeline',
+    color: '#ff7b7b',
+    agents: [
+      { name: 'FALCON', role: 'Lead Finder — researches prospects, builds qualified lists with contact info + pain points' },
+      { name: 'WORDSMITH', role: 'Outreach Writer — cold emails and DMs that open, faith-forward, always a specific CTA' },
+      { name: 'RADAR', role: 'Reply Handler — scans Gmail for church replies, classifies hot/cold/bounced, drafts response' },
+      { name: 'ECHO', role: 'Follow-Up Machine — 3-touch sequence, adapts to open/click signals not just time' },
+      { name: 'CLOSER', role: 'Call Coach — full discovery call brief before every sales conversation' },
+      { name: 'BLUEPRINT', role: 'Proposal Builder — complete polished proposal in 90 seconds' },
+      { name: 'WELCOME', role: 'Onboarding Crew — fires the moment a deal closes, zero manual steps' },
+      { name: 'DELIVER', role: 'Client Manager — tracks every deliverable, nothing goes overdue' },
+    ]
+  },
+  immune: {
+    title: 'IMMUNE SYSTEM — Defense & Quality',
+    color: '#60A5FA',
+    agents: [
+      { name: 'SENTINEL', role: 'Bug + Visual QA — catches code bugs AND dark mode contrast, mobile layout, button visibility' },
+      { name: 'MOBILE', role: 'Responsive Optimizer — 375px/768px/1440px. Fixes overflow, tiny fonts, untappable buttons' },
+      { name: 'SHIELD', role: 'Security Auditor — XSS, SQL injection, exposed keys, bad auth. CRITICAL/WARNING/OK' },
+      { name: 'LAUNCH', role: 'Deploy Watcher — confirms every git push actually went live. PASS/FAIL with specifics' },
+      { name: 'ARMOR', role: 'Brand Protection — monitors site uptime, brand mentions, ensures external assets match standards' },
+    ]
+  },
+  growth: {
+    title: 'GROWTH SYSTEM — Content & Traffic',
+    color: '#22D984',
+    agents: [
+      { name: 'SPARK', role: 'Content Creator — 7 captions, 3 Reel hooks, 1 story sequence per week, platform-specific' },
+      { name: 'SIGNAL', role: 'SEO Optimizer — Columbia SC local search, keyword-first blog posts, Google Business' },
+      { name: 'STRIKE', role: 'Ad Copy — 3 Facebook/Instagram variations: pain point, result, faith hook. Upload-ready' },
+      { name: 'DIRECTOR', role: 'YouTube Machine — script + Shorts + thumbnail concept + upload checklist' },
+      { name: 'SIGNAL BOOST', role: 'Newsletter Writer — full weekly email, value-first, faith-aligned, one CTA' },
+    ]
+  },
+  metabolic: {
+    title: 'METABOLIC SYSTEM — Revenue & Operations',
+    color: '#A78BFA',
+    agents: [
+      { name: 'LEDGER', role: 'Revenue Tracker — Stripe + Supabase data, MRR, conversion rate, sprint goal status' },
+      { name: 'VISION', role: 'CEO Advisor — one clear next move, revenue-tied, mission-tied, Dan Martell + Kingdom' },
+      { name: 'CALENDAR', role: 'Content Scheduler — 30-day calendar, every slot planned, spreadsheet-ready' },
+      { name: 'WELCOME', role: 'Onboarding — fires on every deal close. Zero manual steps.' },
+      { name: 'DELIVER', role: 'Deliverable Tracker — every client, every tier, what\'s owed vs done' },
+    ]
+  },
+  soul: {
+    title: 'SOUL SYSTEM — The Foundation',
+    color: '#ffffff',
+    agents: [
+      { name: 'ANCHOR', role: 'Prayer & Purpose — the spiritual OS. Colossians 3:23. Every output filtered through the mind of Christ' },
+      { name: 'KINGDOM', role: 'Church Website Pipeline — transcript → pain points → website concept → proposal → follow-up' },
+      { name: 'ORACLE', role: 'Church Data Enricher — fills missing phones, addresses, pastors using Overpass + Google' },
+    ]
+  },
+  respiratory: {
+    title: 'RESPIRATORY SYSTEM — Refresh Cycles',
+    color: '#7dd3fc',
+    agents: [{ name: 'BREATH', role: 'Cycle Monitor — identifies stale campaigns, content, leads. Retires the old. Opens the next cycle.' }]
+  },
+  digestive: {
+    title: 'DIGESTIVE SYSTEM — Raw Input Processing',
+    color: '#fb923c',
+    agents: [{ name: 'INTAKE', role: 'Raw Data Processor — call transcripts, Otter recordings, scraped data → structured action-ready briefs' }]
+  },
+  endocrine: {
+    title: 'ENDOCRINE SYSTEM — System-Wide Signals',
+    color: '#f472b6',
+    agents: [{ name: 'PULSE', role: 'Broadcast Signal — when a milestone hits, PULSE tells every agent to recalibrate priorities simultaneously' }]
+  },
+  sensory: {
+    title: 'SENSORY SYSTEM — External Intelligence',
+    color: '#facc15',
+    agents: [{ name: 'EYES', role: 'Market Monitor — Google Trends, competitor moves, Columbia SC news, TikTok trends. Routes intel to the right agent.' }]
+  },
+  excretory: {
+    title: 'EXCRETORY SYSTEM — Data Cleanup',
+    color: '#14b8a6',
+    agents: [{ name: 'FILTER', role: 'Data Purifier — removes duplicates, dead emails, failed campaigns, stale leads. Keeps the pipeline clean.' }]
+  },
+  integumentary: {
+    title: 'INTEGUMENTARY SYSTEM — External Interface',
+    color: '#94a3b8',
+    agents: [
+      { name: 'ARMOR', role: 'Brand Shield — site uptime monitoring, brand mention alerts, external asset brand consistency' },
+      { name: 'REPUTATION', role: 'Review Automator — 3-step personalized review request. Google Business Profile link. Timed perfectly.' },
+      { name: 'NETWORK', role: 'Referral Engine — turns every happy client into a referral source. Tracks, incentivizes, converts.' },
+    ]
+  },
+};
+
+function expandCluster(system) {
+  const detail = document.getElementById('avDetail');
+  const content = document.getElementById('avDetailContent');
+  const data = AV_AGENT_DETAILS[system];
+  if (!data) return;
+  content.innerHTML = `
+    <div style="color:${data.color};font-size:.65rem;font-weight:800;letter-spacing:.14em;text-transform:uppercase;margin-bottom:12px">${data.title}</div>
+    ${data.agents.map(a => `
+      <div style="background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07);border-radius:8px;padding:12px 14px;margin-bottom:8px">
+        <div style="font-weight:700;font-size:.82rem;color:${data.color};margin-bottom:4px">${a.name}</div>
+        <div style="font-size:.78rem;color:rgba(238,242,255,.7);line-height:1.5">${a.role}</div>
+      </div>`).join('')}`;
+  detail.classList.remove('hidden');
+}
+
+function _avFeedItem(ev) {
+  const ago = Math.round((Date.now() - ev.ts) / 1000);
+  const timeStr = ago < 60 ? `${ago}s ago` : ago < 3600 ? `${Math.round(ago/60)}m ago` : `${Math.round(ago/3600)}h ago`;
+  return `<div class="av-feed-item">
+    <span class="av-feed-badge">${ev.agent}</span>
+    <span class="av-feed-action">${ev.action}</span>
+    <span class="av-feed-time">${timeStr}</span>
+  </div>`;
+}
+
+function _avFlashCluster(agentName) {
+  for (const [clusterId, agents] of Object.entries(AV_CLUSTER_MAP)) {
+    if (agents.includes(agentName)) {
+      const el = document.getElementById(clusterId);
+      if (el) { el.classList.add('av-firing'); setTimeout(() => el.classList.remove('av-firing'), 2000); }
+    }
+  }
+}
+
+function _avUpdateStats(events) {
+  const now = Date.now();
+  const recent = events.filter(e => now - e.ts < 3600000);
+  const activeAgents = new Set(recent.map(e => e.agent));
+  document.getElementById('avActiveCount').textContent = activeAgents.size;
+  document.getElementById('avEventCount').textContent = events.filter(e => now - e.ts < 86400000).length;
+  if (events.length) {
+    const last = events[events.length - 1];
+    document.getElementById('avLastAgent').textContent = last.agent;
+  }
+}
+
+function _avRenderFeed(events) {
+  const list = document.getElementById('avFeedList');
+  if (!list) return;
+  if (!events.length) {
+    list.innerHTML = '<div class="av-feed-empty">Waiting for agent activity…<br><span style="font-size:.75rem;opacity:.5">Actions in the CRM will appear here in real time</span></div>';
+    return;
+  }
+  list.innerHTML = [...events].reverse().slice(0, 20).map(_avFeedItem).join('');
+}
+
+function _avSetConnStatus(status) {
+  const el = document.getElementById('avConnStatus');
+  if (!el) return;
+  el.className = 'av-conn-status ' + status;
+  el.textContent = status === 'connected' ? '● LIVE' : status === 'connecting' ? '● CONNECTING' : '○ OFFLINE';
+}
+
+async function loadAvengers() {
+  _avSetConnStatus('connecting');
+  try {
+    const data = await get('/api/avengers/status');
+    if (data?.events) {
+      avEvents = data.events;
+      _avRenderFeed(avEvents);
+      _avUpdateStats(avEvents);
+    }
+  } catch (_) {}
+
+  if (avSSE) { avSSE.close(); avSSE = null; }
+  avSSE = new EventSource('/api/avengers/stream');
+
+  avSSE.onopen = () => _avSetConnStatus('connected');
+
+  avSSE.onmessage = e => {
+    try {
+      const event = JSON.parse(e.data);
+      avEvents.push(event);
+      if (avEvents.length > 50) avEvents.shift();
+      _avRenderFeed(avEvents);
+      _avUpdateStats(avEvents);
+      _avFlashCluster(event.agent);
+    } catch (_) {}
+  };
+
+  avSSE.onerror = () => { _avSetConnStatus('disconnected'); };
+}
+
+// Close SSE when navigating away from avengers tab
+const _origSwitchTab = switchTab;
 
 // Poll for new inbound messages every 30s when inbox tab is active
 setInterval(() => {
