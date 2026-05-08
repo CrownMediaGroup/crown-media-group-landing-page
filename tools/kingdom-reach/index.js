@@ -72,6 +72,30 @@ crownmediagroup.co`;
         `Is there a good person to run this by?`,
       ]
     });
+  } else if (template === 'ministry_org') {
+    subject = `Helping ${name} grow its reach online`;
+    bodyText = `Hi there,
+
+My name is David King. I run Crown Media Group — a faith-aligned marketing agency based in Columbia, SC.
+
+I work exclusively with faith-based organizations like ${name}, and I noticed your ministry could benefit from a stronger digital presence — whether that's a professional website, social media, or just a clearer way for people in ${city} to find you online.
+
+I'd love to share a few ideas I've put together for your organization. Takes 10 minutes, zero commitment.
+
+If you're open to it, visit us at crownmediagroup.co or reply to this email.
+
+In Christ and in service,
+King
+Crown Media Group | king@crownmediagroup.co
+crownmediagroup.co`;
+    bodyHtml = campaignHtml({ first: 'there', name, city, pixel, subject,
+      bodyLines: [
+        `My name is David King — I run <strong>Crown Media Group</strong>, a faith-aligned marketing agency based in Columbia, SC.`,
+        `I work exclusively with faith-based organizations like <strong>${esc(name)}</strong>, and I noticed your ministry could benefit from a stronger digital presence — whether that's a professional website, social media, or a clearer way for people in ${esc(city)} to find you online.`,
+        `I'd love to share a few ideas I've put together for your organization. Takes 10 minutes, zero commitment.`,
+        `If you're open to it, visit us at <a href="https://crownmediagroup.co" style="color:#1a3a8e;font-weight:600">crownmediagroup.co</a> or reply to this email.`,
+      ]
+    });
   } else if (template === 'social_media') {
     subject = `How ${name} could reach more families in ${city}`;
     bodyText = `Hi ${first},
@@ -292,8 +316,8 @@ export function mountKingdomReach(app, db, { validateSession, getCookie } = {}) 
       const insertStmt = db.prepare(`
         INSERT OR IGNORE INTO churches
           (name,tier,denomination,address,city,state,zip,phone,website,pastor,email,
-           instagram,facebook,size,social,fit,has_website,status,notes,workspace_id)
-        VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,1)
+           instagram,facebook,size,social,fit,has_website,status,notes,org_type,workspace_id)
+        VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,1)
       `);
       const updateStmt = db.prepare(`
         UPDATE churches SET
@@ -337,7 +361,8 @@ export function mountKingdomReach(app, db, { validateSession, getCookie } = {}) 
           const hw   = c.has_website ? 1 : 0;
           const stat = c.status || 'Not Contacted';
           const nt   = c.notes || '';
-          insertStmt.run(n, tier, den, addr, city, st, zip, ph, web, pas, em, ig, fb, sz, soc, fit, hw, stat, nt);
+          const ot   = c.org_type || 'church';
+          insertStmt.run(n, tier, den, addr, city, st, zip, ph, web, pas, em, ig, fb, sz, soc, fit, hw, stat, nt, ot);
           updateStmt.run(tier, den, addr, city, st, zip, ph, web, pas, em, ig, fb, hw, n);
           imported++;
         }
@@ -627,7 +652,7 @@ export function mountKingdomReach(app, db, { validateSession, getCookie } = {}) 
       if (!session) return res.status(401).json({ error: 'Unauthorized' });
     }
 
-    const { template = 'no_website', filter = 'not_sent', church_ids, dry_run = false } = req.body || {};
+    const { template = 'no_website', filter = 'not_sent', church_ids, org_type: orgTypeFilter, dry_run = false } = req.body || {};
     const proto   = req.headers['x-forwarded-proto'] || 'https';
     const host    = req.headers['x-forwarded-host'] || req.headers.host || 'crm.crownmediagroup.co';
     const baseUrl = `${proto}://${host}`;
@@ -642,7 +667,10 @@ export function mountKingdomReach(app, db, { validateSession, getCookie } = {}) 
       if (filter === 'has_website')   sql += ' AND has_website = 1';
       if (filter === 'tier_a')        sql += " AND tier = 'A'";
       if (filter === 'tier_ab')       sql += " AND tier IN ('A','B')";
+      if (filter === 'orgs_only')     sql += " AND org_type != 'church'";
+      if (filter === 'churches_only') sql += " AND (org_type = 'church' OR org_type IS NULL)";
       if (filter === 'follow_up')     sql = `SELECT * FROM churches WHERE email IS NOT NULL AND email != '' AND email_sent=1 AND replied=0 AND email_sent_at < datetime('now','-7 days') AND follow_up_sent=0`;
+      if (orgTypeFilter)              sql += ` AND org_type = '${orgTypeFilter.replace(/'/g,"''")}'`;
       sql += ' ORDER BY tier ASC, name ASC LIMIT 100';
       churches = db.prepare(sql).all();
     }

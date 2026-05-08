@@ -275,10 +275,11 @@
         <div class="cm-section">
           <div class="cm-label">Target Audience</div>
           <div class="cm-options" id="cmFilterOpts">
-            <label class="cm-option selected"><input type="radio" name="cmFilter" value="not_sent" checked> All churches with email — not yet sent</label>
-            <label class="cm-option"><input type="radio" name="cmFilter" value="no_website"> No-website churches only (Priority Targets)</label>
-            <label class="cm-option"><input type="radio" name="cmFilter" value="has_website"> Has-website churches only</label>
-            <label class="cm-option"><input type="radio" name="cmFilter" value="tier_ab"> Tier A & B churches only</label>
+            <label class="cm-option selected"><input type="radio" name="cmFilter" value="not_sent" checked> Everyone with email — not yet sent (churches + orgs)</label>
+            <label class="cm-option"><input type="radio" name="cmFilter" value="churches_only"> Churches only — not yet sent</label>
+            <label class="cm-option"><input type="radio" name="cmFilter" value="orgs_only"> Faith-based orgs only — nonprofits, schools, recovery, media</label>
+            <label class="cm-option"><input type="radio" name="cmFilter" value="no_website"> No-website targets only (Priority)</label>
+            <label class="cm-option"><input type="radio" name="cmFilter" value="tier_ab"> Tier A & B only</label>
             <label class="cm-option"><input type="radio" name="cmFilter" value="follow_up"> Follow-up: sent 7+ days ago, no reply</label>
           </div>
         </div>
@@ -288,6 +289,9 @@
           <div class="cm-options" id="cmTemplateOpts">
             <label class="cm-option selected"><input type="radio" name="cmTemplate" value="no_website" checked>
               <span><strong>No-Website Pitch</strong> — "Your church isn't showing up online — let's fix that"</span>
+            </label>
+            <label class="cm-option"><input type="radio" name="cmTemplate" value="ministry_org">
+              <span><strong>Faith Org Intro</strong> — "Helping [Org] grow its reach online" — for nonprofits, schools, recovery, media</span>
             </label>
             <label class="cm-option"><input type="radio" name="cmTemplate" value="social_media">
               <span><strong>Social Media Pitch</strong> — "How [Church] could reach more families in Columbia"</span>
