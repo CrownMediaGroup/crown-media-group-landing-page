@@ -333,7 +333,8 @@ export function mountKingdomReach(app, db, { validateSession, getCookie } = {}) 
           email         = COALESCE(NULLIF(?,  ''), email),
           instagram     = COALESCE(NULLIF(?,  ''), instagram),
           facebook      = COALESCE(NULLIF(?,  ''), facebook),
-          has_website   = CASE WHEN ? = 1 THEN 1 ELSE has_website END
+          has_website   = CASE WHEN ? = 1 THEN 1 ELSE has_website END,
+          org_type      = COALESCE(NULLIF(?,  ''), org_type)
         WHERE name = ? COLLATE NOCASE
       `);
 
@@ -363,7 +364,7 @@ export function mountKingdomReach(app, db, { validateSession, getCookie } = {}) 
           const nt   = c.notes || '';
           const ot   = c.org_type || 'church';
           insertStmt.run(n, tier, den, addr, city, st, zip, ph, web, pas, em, ig, fb, sz, soc, fit, hw, stat, nt, ot);
-          updateStmt.run(tier, den, addr, city, st, zip, ph, web, pas, em, ig, fb, hw, n);
+          updateStmt.run(tier, den, addr, city, st, zip, ph, web, pas, em, ig, fb, hw, ot, n);
           imported++;
         }
         db.prepare('COMMIT').run();
