@@ -40,6 +40,123 @@ async function sendAlertEmail(churchName, errorMsg, dispatchId) {
   await sendViaResend({ to: 'king@crownmediagroup.co', subject, html, text: `Pipeline failed for ${churchName}: ${errorMsg}` });
 }
 
+// ── CAMPAIGN EMAIL TEMPLATES ──────────────────────────────────────────────────
+function buildCampaignEmail(church, template, baseUrl = '', previewMode = false) {
+  const name    = church.name || 'your church';
+  const pastor  = church.pastor || '';
+  const first   = pastor ? pastor.split(' ')[0] : 'Pastor';
+  const city    = church.city || 'Columbia';
+  const trackUrl = previewMode ? '' : `${baseUrl}/api/kingdom-reach/track/open/${church.id}`;
+  const pixel    = trackUrl ? `<img src="${trackUrl}" width="1" height="1" style="display:block;width:1px;height:1px;border:0" alt="">` : '';
+
+  let subject, bodyText, bodyHtml;
+
+  if (template === 'follow_up') {
+    subject = `Re: Helping ${name} reach more people online`;
+    bodyText = `Hi ${first},
+
+Just following up on my note from a few days ago. I know ministry keeps you busy — I completely understand.
+
+I put together a quick idea specifically for ${name} — happy to share it if there's any interest. It would take about 10 minutes to look over and zero commitment.
+
+Is there a good person to run this by?
+
+In service,
+King
+Crown Media Group | king@crownmediagroup.co
+crownmediagroup.co`;
+    bodyHtml = campaignHtml({ first, name, city, pixel, subject,
+      bodyLines: [
+        `Just following up on my note from a few days ago. I know ministry keeps you busy — I completely understand.`,
+        `I put together a quick idea specifically for <strong>${esc(name)}</strong> — happy to share it if there's any interest. It would take about 10 minutes to look over and zero commitment.`,
+        `Is there a good person to run this by?`,
+      ]
+    });
+  } else if (template === 'social_media') {
+    subject = `How ${name} could reach more families in ${city}`;
+    bodyText = `Hi ${first},
+
+My name is David King. I'm a faith-aligned marketing professional based right here in ${city}, SC — and I work exclusively with faith-based organizations.
+
+I was looking at ${name}'s online presence and I spotted a few quick wins that could meaningfully grow your reach in the community — more people finding you on Sunday, more engagement from your existing congregation, more visibility when families move to ${city} and search for a church home.
+
+I'm not trying to sell you anything today. I'd just love to share what I found — takes 10 minutes, no pressure, no strings.
+
+Would you be open to a quick call this week?
+
+In Christ and in service,
+King
+Crown Media Group | king@crownmediagroup.co
+crownmediagroup.co`;
+    bodyHtml = campaignHtml({ first, name, city, pixel, subject,
+      bodyLines: [
+        `My name is David King — faith-aligned marketing professional based right here in ${esc(city)}, SC, working exclusively with faith-based organizations.`,
+        `I was looking at <strong>${esc(name)}'s</strong> online presence and spotted a few quick wins that could meaningfully grow your reach in the community — more people finding you on Sunday, more engagement from your congregation, more visibility when families search for a church home in ${esc(city)}.`,
+        `I'm not trying to sell you anything today. I'd just love to share what I found — takes 10 minutes, no pressure, no strings.`,
+        `Would you be open to a quick call this week?`,
+      ]
+    });
+  } else {
+    // no_website — default
+    subject = `Helping ${name} reach more people online`;
+    bodyText = `Hi ${first},
+
+My name is David King. I'm a faith-aligned marketing professional based right here in ${city}, SC.
+
+I work with churches across the area, and I noticed that ${name} doesn't currently have a website. That's more common than people think — but it does mean families searching for a church home in ${city} can't find you online.
+
+I'd love to help change that. I put together a quick idea for ${name} specifically — what a simple, professional web presence would look like and what it would cost to get live fast.
+
+Happy to share it if you're open — takes 10 minutes, zero commitment.
+
+In Christ and in service,
+King
+Crown Media Group | king@crownmediagroup.co
+crownmediagroup.co`;
+    bodyHtml = campaignHtml({ first, name, city, pixel, subject,
+      bodyLines: [
+        `My name is David King — faith-aligned marketing professional based right here in ${esc(city)}, SC.`,
+        `I work with churches across the area, and I noticed that <strong>${esc(name)}</strong> doesn't currently have a website. That means families searching for a church home in ${esc(city)} can't find you online.`,
+        `I'd love to help change that. I put together a quick idea for <strong>${esc(name)}</strong> specifically — what a simple, professional web presence would look like and what it would cost to get live fast.`,
+        `Happy to share it if you're open — takes 10 minutes, zero commitment.`,
+      ]
+    });
+  }
+
+  return { subject, text: bodyText, html: bodyHtml };
+}
+
+function esc(s = '') { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+function campaignHtml({ first, name, city, pixel, subject, bodyLines }) {
+  const lines = bodyLines.map(l => `<p style="margin:0 0 16px;line-height:1.7;color:#0a1628">${l}</p>`).join('');
+  return `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${esc(subject)}</title></head>
+<body style="margin:0;padding:0;background:#f4f6fb;font-family:-apple-system,Segoe UI,Roboto,sans-serif">
+<table width="100%" cellpadding="0" cellspacing="0" style="background:#f4f6fb;padding:32px 16px">
+<tr><td align="center">
+<table width="600" cellpadding="0" cellspacing="0" style="background:#ffffff;border-radius:12px;overflow:hidden;box-shadow:0 2px 12px rgba(10,22,40,.08);max-width:600px">
+  <tr><td style="background:linear-gradient(135deg,#1a3a8e,#0f2452);padding:28px 32px">
+    <p style="margin:0;font-size:11px;font-weight:700;letter-spacing:2px;color:#d4a73c;text-transform:uppercase">CROWN MEDIA GROUP</p>
+    <p style="margin:6px 0 0;font-size:22px;font-weight:800;color:#ffffff;font-family:Georgia,serif">Kingdom Reach</p>
+  </td></tr>
+  <tr><td style="padding:32px">
+    <p style="margin:0 0 24px;font-size:16px;color:#0a1628">Hi ${esc(first)},</p>
+    ${lines}
+    <p style="margin:24px 0 0;font-size:14px;color:#5a6a87">In Christ and in service,</p>
+    <p style="margin:4px 0 0;font-weight:700;font-size:18px;color:#0a1628">King</p>
+    <p style="margin:2px 0 0;font-size:13px;color:#5a6a87">Founder · Crown Media Group</p>
+    <p style="margin:2px 0 0;font-size:13px"><a href="mailto:king@crownmediagroup.co" style="color:#1a3a8e">king@crownmediagroup.co</a> · <a href="https://crownmediagroup.co" style="color:#1a3a8e">crownmediagroup.co</a></p>
+    <hr style="border:none;border-top:1px solid #e5e9f2;margin:24px 0">
+    <p style="margin:0;font-size:12px;color:#8a96b8;font-style:italic">"Whatever you do, work heartily, as for the Lord and not for men." — Colossians 3:23</p>
+    <p style="margin:16px 0 0;font-size:11px;color:#aaa;text-align:center">Crown Media Group · Columbia, SC · <a href="mailto:king@crownmediagroup.co?subject=Unsubscribe" style="color:#aaa">Unsubscribe</a></p>
+  </td></tr>
+</table>
+</td></tr>
+</table>
+${pixel}
+</body></html>`;
+}
+
 export function mountKingdomReach(app, db, { validateSession, getCookie } = {}) {
   ensureDirs();
   ensureSchema(db);
@@ -473,6 +590,93 @@ export function mountKingdomReach(app, db, { validateSession, getCookie } = {}) 
 
     const missing = db.prepare("SELECT COUNT(*) as c FROM churches WHERE (address IS NULL OR address='') AND (phone IS NULL OR phone='')").get().c;
     res.json({ ok:true, osm_found: elements.length, updated, still_missing: missing });
+  });
+
+  // ── OPEN TRACKING PIXEL (public — embedded in outreach emails) ──────────
+  // 1x1 transparent GIF — fires when email client renders the image
+  const PIXEL = Buffer.from('R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7', 'base64');
+  app.get('/api/kingdom-reach/track/open/:churchId', (req, res) => {
+    const id = parseInt(req.params.churchId, 10);
+    if (id) {
+      db.prepare(`UPDATE churches SET email_opened=1, email_opened_at=COALESCE(email_opened_at,datetime('now'))
+        WHERE id=? AND email_opened=0`).run(id);
+    }
+    res.set({ 'Content-Type':'image/gif', 'Cache-Control':'no-cache,no-store,must-revalidate', 'Pragma':'no-cache' });
+    res.send(PIXEL);
+  });
+
+  // ── CAMPAIGN PREVIEW (generate personalized email HTML for a church) ─────
+  app.post('/api/kingdom-reach/campaign/preview', (req, res) => {
+    const SEED_TOKEN = process.env.SEED_TOKEN || 'KingdomSeed2026';
+    if (req.body?.token !== SEED_TOKEN && !req.kingdomUser) {
+      const session = validateSession && getCookie ? validateSession(getCookie(req, 'crm_session')) : null;
+      if (!session) return res.status(401).json({ error: 'Unauthorized' });
+    }
+    const { church_id, template } = req.body || {};
+    const church = church_id ? db.prepare('SELECT * FROM churches WHERE id=?').get(church_id) : null;
+    if (!church) return res.status(400).json({ error: 'church_id required' });
+    const { subject, html, text } = buildCampaignEmail(church, template || 'no_website', '', true);
+    res.json({ ok: true, subject, html, text });
+  });
+
+  // ── CAMPAIGN SEND (batch outreach via Resend — no GMass needed) ──────────
+  app.post('/api/kingdom-reach/campaign/send', async (req, res) => {
+    const SEED_TOKEN = process.env.SEED_TOKEN || 'KingdomSeed2026';
+    if (req.body?.token !== SEED_TOKEN && !req.kingdomUser) {
+      const session = validateSession && getCookie ? validateSession(getCookie(req, 'crm_session')) : null;
+      if (!session) return res.status(401).json({ error: 'Unauthorized' });
+    }
+
+    const { template = 'no_website', filter = 'not_sent', church_ids, dry_run = false } = req.body || {};
+    const proto   = req.headers['x-forwarded-proto'] || 'https';
+    const host    = req.headers['x-forwarded-host'] || req.headers.host || 'crm.crownmediagroup.co';
+    const baseUrl = `${proto}://${host}`;
+
+    let churches;
+    if (Array.isArray(church_ids) && church_ids.length) {
+      const placeholders = church_ids.map(() => '?').join(',');
+      churches = db.prepare(`SELECT * FROM churches WHERE id IN (${placeholders}) AND email IS NOT NULL AND email != ''`).all(...church_ids);
+    } else {
+      let sql = `SELECT * FROM churches WHERE email IS NOT NULL AND email != '' AND email_sent = 0`;
+      if (filter === 'no_website')    sql += ' AND has_website = 0';
+      if (filter === 'has_website')   sql += ' AND has_website = 1';
+      if (filter === 'tier_a')        sql += " AND tier = 'A'";
+      if (filter === 'tier_ab')       sql += " AND tier IN ('A','B')";
+      if (filter === 'follow_up')     sql = `SELECT * FROM churches WHERE email IS NOT NULL AND email != '' AND email_sent=1 AND replied=0 AND email_sent_at < datetime('now','-7 days') AND follow_up_sent=0`;
+      sql += ' ORDER BY tier ASC, name ASC LIMIT 100';
+      churches = db.prepare(sql).all();
+    }
+
+    if (!churches.length) return res.json({ ok: true, sent: 0, skipped: 0, message: 'No eligible churches found' });
+    if (dry_run) return res.json({ ok: true, dry_run: true, count: churches.length, churches: churches.map(c => ({ id:c.id, name:c.name, email:c.email, template })) });
+
+    let sent = 0, failed = 0, errors = [];
+    const isFollowUp = filter === 'follow_up';
+
+    for (const church of churches) {
+      try {
+        const { subject, html, text } = buildCampaignEmail(church, template, baseUrl, false);
+        const result = await sendViaResend({ to: church.email, subject, html, text });
+        if (!result.ok) {
+          failed++;
+          errors.push({ church: church.name, error: result.error });
+          continue;
+        }
+        if (isFollowUp) {
+          db.prepare(`UPDATE churches SET follow_up_sent=1, follow_up_sent_at=datetime('now') WHERE id=?`).run(church.id);
+        } else {
+          db.prepare(`UPDATE churches SET email_sent=1, email_sent_at=datetime('now') WHERE id=?`).run(church.id);
+        }
+        sent++;
+        // Brief delay to stay within Resend rate limits
+        await new Promise(r => setTimeout(r, 120));
+      } catch (err) {
+        failed++;
+        errors.push({ church: church.name, error: err.message });
+      }
+    }
+
+    res.json({ ok: true, sent, failed, total: churches.length, errors: errors.slice(0, 10) });
   });
 
   // ── HEALTH ────────────────────────────────────────────────────────────────

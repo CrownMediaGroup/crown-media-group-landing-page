@@ -149,6 +149,39 @@
     #detailPanel { width:100vw; }
     #funnel { display:none; }
   }
+
+  /* ── Campaign Send Modal ── */
+  #campaignOverlay { display:none; position:fixed; inset:0; background:rgba(10,22,40,.55); z-index:1000; align-items:center; justify-content:center; }
+  #campaignOverlay.open { display:flex; }
+  #campaignModal {
+    background:var(--card); border-radius:16px; width:560px; max-width:96vw; max-height:90vh;
+    overflow-y:auto; box-shadow:0 8px 48px rgba(10,22,40,.25); display:flex; flex-direction:column;
+  }
+  .cm-head { background:linear-gradient(135deg,var(--royal),var(--deep)); color:#fff; padding:20px 24px; border-radius:16px 16px 0 0; display:flex; justify-content:space-between; align-items:center; }
+  .cm-head h2 { font-family:'Playfair Display',serif; font-size:20px; font-weight:800; }
+  .cm-head .cm-sub { font-size:12px; color:rgba(255,255,255,.7); margin-top:2px; }
+  #btnCloseCampaign { background:rgba(255,255,255,.15); border:none; color:#fff; font-size:20px; width:32px; height:32px; border-radius:6px; cursor:pointer; display:flex; align-items:center; justify-content:center; }
+  #btnCloseCampaign:hover { background:rgba(255,255,255,.28); }
+  .cm-body { padding:24px; flex:1; }
+  .cm-section { margin-bottom:20px; }
+  .cm-label { font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:1px; color:var(--muted); margin-bottom:10px; }
+  .cm-options { display:flex; flex-direction:column; gap:8px; }
+  .cm-option { display:flex; align-items:center; gap:10px; cursor:pointer; padding:10px 14px; border-radius:8px; border:1.5px solid var(--line); transition:border-color .15s,background .15s; font-size:14px; }
+  .cm-option:hover { border-color:var(--royal); background:rgba(26,58,142,.04); }
+  .cm-option input[type=radio] { accent-color:var(--royal); width:16px; height:16px; flex-shrink:0; }
+  .cm-option.selected { border-color:var(--royal); background:rgba(26,58,142,.07); }
+  .cm-count-bar { background:rgba(26,58,142,.08); border:1.5px solid rgba(26,58,142,.18); border-radius:10px; padding:14px 18px; display:flex; align-items:center; gap:12px; margin-bottom:20px; }
+  .cm-count-num { font-family:'Playfair Display',serif; font-size:28px; font-weight:800; color:var(--royal); }
+  .cm-count-label { font-size:13px; color:var(--ink); }
+  .cm-count-label strong { display:block; font-weight:700; }
+  #cmPreviewBox { border:1px solid var(--line); border-radius:10px; overflow:hidden; margin-bottom:20px; max-height:320px; overflow-y:auto; display:none; }
+  #cmPreviewSubject { background:var(--soft); padding:10px 14px; font-size:13px; font-weight:600; color:var(--ink); border-bottom:1px solid var(--line); }
+  #cmPreviewFrame { width:100%; min-height:240px; border:none; display:block; }
+  .cm-footer { padding:16px 24px; border-top:1px solid var(--line); display:flex; gap:10px; justify-content:flex-end; background:var(--card); border-radius:0 0 16px 16px; position:sticky; bottom:0; }
+  #cmSendBtn { background:var(--royal); color:#fff; border:none; padding:11px 24px; border-radius:8px; font-weight:700; font-size:14px; cursor:pointer; transition:background .15s; }
+  #cmSendBtn:hover:not(:disabled) { background:var(--deep); }
+  #cmSendBtn:disabled { opacity:.55; cursor:not-allowed; }
+  #cmProgress { display:none; padding:14px 20px; background:rgba(22,163,74,.08); border:1px solid rgba(22,163,74,.2); border-radius:10px; margin-bottom:16px; font-size:13px; color:var(--ok); font-weight:600; }
 </style>
 </head>
 <body>
@@ -157,6 +190,7 @@
     <h1 class="title">Kingdom Reach · Church Dashboard</h1>
     <div class="header-actions">
       <a class="btn btn-gold" href="/kingdom-reach">+ Dispatch a Meeting</a>
+      <button type="button" class="btn btn-gold" onclick="openCampaignModal()" title="Send batch outreach emails via Resend — no GMass needed">Send Campaign</button>
       <a class="btn btn-out"  href="/">Back to CRM</a>
       <button id="btnDark" type="button" class="btn btn-out btn-dark-toggle" onclick="toggleDark()" title="Toggle dark mode">☀</button>
       <span id="healthBadge" class="health-badge"></span>
@@ -223,6 +257,63 @@
       </thead>
       <tbody id="rows"><tr><td colspan="13" class="empty">Loading...</td></tr></tbody>
     </table>
+  </div>
+
+  <!-- Campaign Send Modal -->
+  <div id="campaignOverlay">
+    <div id="campaignModal">
+      <div class="cm-head">
+        <div>
+          <h2>Send Email Campaign</h2>
+          <div class="cm-sub">Native Resend · tracks opens · no GMass needed</div>
+        </div>
+        <button id="btnCloseCampaign" type="button" onclick="closeCampaignModal()">×</button>
+      </div>
+      <div class="cm-body">
+        <div id="cmProgress"></div>
+
+        <div class="cm-section">
+          <div class="cm-label">Target Audience</div>
+          <div class="cm-options" id="cmFilterOpts">
+            <label class="cm-option selected"><input type="radio" name="cmFilter" value="not_sent" checked> All churches with email — not yet sent</label>
+            <label class="cm-option"><input type="radio" name="cmFilter" value="no_website"> No-website churches only (Priority Targets)</label>
+            <label class="cm-option"><input type="radio" name="cmFilter" value="has_website"> Has-website churches only</label>
+            <label class="cm-option"><input type="radio" name="cmFilter" value="tier_ab"> Tier A & B churches only</label>
+            <label class="cm-option"><input type="radio" name="cmFilter" value="follow_up"> Follow-up: sent 7+ days ago, no reply</label>
+          </div>
+        </div>
+
+        <div class="cm-section">
+          <div class="cm-label">Email Template</div>
+          <div class="cm-options" id="cmTemplateOpts">
+            <label class="cm-option selected"><input type="radio" name="cmTemplate" value="no_website" checked>
+              <span><strong>No-Website Pitch</strong> — "Your church isn't showing up online — let's fix that"</span>
+            </label>
+            <label class="cm-option"><input type="radio" name="cmTemplate" value="social_media">
+              <span><strong>Social Media Pitch</strong> — "How [Church] could reach more families in Columbia"</span>
+            </label>
+            <label class="cm-option"><input type="radio" name="cmTemplate" value="follow_up">
+              <span><strong>Follow-up</strong> — "Just checking in, still happy to share the idea"</span>
+            </label>
+          </div>
+        </div>
+
+        <div class="cm-count-bar" id="cmCountBar">
+          <div class="cm-count-num" id="cmCountNum">—</div>
+          <div class="cm-count-label"><strong id="cmCountText">calculating...</strong><span id="cmCountSub" style="color:var(--muted);font-size:12px"></span></div>
+        </div>
+
+        <div id="cmPreviewBox">
+          <div id="cmPreviewSubject"></div>
+          <iframe id="cmPreviewFrame" title="Email Preview" sandbox="allow-same-origin"></iframe>
+        </div>
+      </div>
+      <div class="cm-footer">
+        <button type="button" class="btn btn-outline btn-sm" id="cmPreviewBtn" onclick="previewCampaign()">Preview First Email</button>
+        <button type="button" class="btn btn-outline btn-sm" onclick="closeCampaignModal()">Cancel</button>
+        <button type="button" id="cmSendBtn" onclick="sendCampaign()">Send Campaign →</button>
+      </div>
+    </div>
   </div>
 
   <!-- Detail slide panel -->
@@ -1087,6 +1178,148 @@ async function enrichChurches() {
   }
   btn.textContent = 'Enrich Data';
   btn.disabled = false;
+}
+
+// ── Campaign Send Modal ───────────────────────────────────────────────────────
+let cmChurchCount = 0;
+
+function openCampaignModal() {
+  document.getElementById('campaignOverlay').classList.add('open');
+  document.getElementById('cmProgress').style.display = 'none';
+  document.getElementById('cmPreviewBox').style.display = 'none';
+  document.getElementById('cmSendBtn').disabled = false;
+  document.getElementById('cmSendBtn').textContent = 'Send Campaign →';
+  // Style radio options
+  document.querySelectorAll('.cm-option').forEach(el => {
+    el.classList.toggle('selected', el.querySelector('input[type=radio]').checked);
+  });
+  updateCampaignCount();
+}
+
+function closeCampaignModal() {
+  document.getElementById('campaignOverlay').classList.remove('open');
+}
+
+document.getElementById('campaignOverlay').addEventListener('click', e => {
+  if (e.target === document.getElementById('campaignOverlay')) closeCampaignModal();
+});
+
+// Update option highlight on change
+document.querySelectorAll('#cmFilterOpts input, #cmTemplateOpts input').forEach(radio => {
+  radio.addEventListener('change', () => {
+    radio.closest('.cm-options').querySelectorAll('.cm-option').forEach(el =>
+      el.classList.toggle('selected', el.querySelector('input[type=radio]').checked)
+    );
+    updateCampaignCount();
+    document.getElementById('cmPreviewBox').style.display = 'none';
+  });
+});
+
+async function updateCampaignCount() {
+  const filter   = document.querySelector('input[name="cmFilter"]:checked')?.value || 'not_sent';
+  const template = document.querySelector('input[name="cmTemplate"]:checked')?.value || 'no_website';
+  document.getElementById('cmCountNum').textContent = '…';
+  document.getElementById('cmCountText').textContent = 'Calculating…';
+  document.getElementById('cmCountSub').textContent = '';
+
+  try {
+    const r = await fetch('/api/kingdom-reach/campaign/send', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
+      body: JSON.stringify({ filter, template, dry_run: true }),
+    });
+    const d = await r.json();
+    cmChurchCount = d.count || 0;
+    document.getElementById('cmCountNum').textContent = cmChurchCount;
+    document.getElementById('cmCountText').textContent = cmChurchCount === 1
+      ? '1 church ready to receive this email'
+      : `${cmChurchCount} churches ready to receive this email`;
+    document.getElementById('cmCountSub').textContent = filter === 'follow_up'
+      ? ' · Follow-up: sent 7+ days ago, no reply'
+      : ' · All have email addresses · None yet contacted with this campaign';
+    document.getElementById('cmSendBtn').disabled = cmChurchCount === 0;
+    if (cmChurchCount === 0) document.getElementById('cmSendBtn').textContent = 'No Eligible Churches';
+    else document.getElementById('cmSendBtn').textContent = `Send to ${cmChurchCount} → `;
+  } catch {
+    document.getElementById('cmCountNum').textContent = '?';
+    document.getElementById('cmCountText').textContent = 'Could not calculate';
+  }
+}
+
+async function previewCampaign() {
+  const filter   = document.querySelector('input[name="cmFilter"]:checked')?.value || 'not_sent';
+  const template = document.querySelector('input[name="cmTemplate"]:checked')?.value || 'no_website';
+
+  // Get the first eligible church
+  const r = await fetch('/api/kingdom-reach/campaign/send', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    credentials: 'include',
+    body: JSON.stringify({ filter, template, dry_run: true }),
+  });
+  const d = await r.json();
+  if (!d.churches?.length) { showToast('No eligible churches to preview', true); return; }
+
+  const firstId = d.churches[0].id;
+  const pr = await fetch('/api/kingdom-reach/campaign/preview', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    credentials: 'include',
+    body: JSON.stringify({ church_id: firstId, template }),
+  });
+  const pd = await pr.json();
+  if (!pd.ok || !pd.html) { showToast('Preview failed', true); return; }
+
+  document.getElementById('cmPreviewSubject').textContent = 'Subject: ' + pd.subject;
+  const frame = document.getElementById('cmPreviewFrame');
+  frame.srcdoc = pd.html;
+  document.getElementById('cmPreviewBox').style.display = 'block';
+  document.getElementById('cmPreviewBtn').textContent = 'Refresh Preview';
+}
+
+async function sendCampaign() {
+  if (cmChurchCount === 0) { showToast('No eligible churches', true); return; }
+  const filter   = document.querySelector('input[name="cmFilter"]:checked')?.value || 'not_sent';
+  const template = document.querySelector('input[name="cmTemplate"]:checked')?.value || 'no_website';
+
+  if (!confirm(`Send "${template}" emails to ${cmChurchCount} churches? This will mark each church as emailed.`)) return;
+
+  const btn = document.getElementById('cmSendBtn');
+  const prog = document.getElementById('cmProgress');
+  btn.disabled = true;
+  btn.textContent = 'Sending…';
+  prog.style.display = 'block';
+  prog.textContent = `Sending to ${cmChurchCount} churches via Resend… this may take a minute.`;
+
+  try {
+    const r = await fetch('/api/kingdom-reach/campaign/send', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
+      body: JSON.stringify({ filter, template }),
+    });
+    const d = await r.json();
+    if (d.ok) {
+      prog.style.background = 'rgba(22,163,74,.08)';
+      prog.style.color = 'var(--ok)';
+      const failNote = d.failed > 0 ? ` · ${d.failed} failed` : '';
+      prog.textContent = `Done! ${d.sent} emails sent${failNote}. Dashboard will refresh.`;
+      btn.textContent = `${d.sent} Sent ✓`;
+      showToast(`${d.sent} emails sent successfully`);
+      setTimeout(() => { closeCampaignModal(); load(); }, 2000);
+    } else {
+      prog.style.color = 'var(--err)';
+      prog.textContent = 'Error: ' + (d.error || 'Unknown error');
+      btn.disabled = false;
+      btn.textContent = 'Send Campaign →';
+    }
+  } catch (err) {
+    prog.style.color = 'var(--err)';
+    prog.textContent = 'Network error — check console';
+    btn.disabled = false;
+    btn.textContent = 'Send Campaign →';
+  }
 }
 </script>
 </body>
