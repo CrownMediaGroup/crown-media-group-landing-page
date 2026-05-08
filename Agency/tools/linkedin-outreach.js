@@ -89,7 +89,7 @@ function loadRateLog() {
     if (fs.existsSync(CONFIG.RATE_LOG))
       return JSON.parse(fs.readFileSync(CONFIG.RATE_LOG, 'utf8'));
   } catch {}
-  return { date: '', count: 0, sent: [] };
+  return { date: '', count: 0, sent: [], history: [] };
 }
 
 function saveRateLog(log) {
@@ -101,15 +101,28 @@ function saveRateLog(log) {
 function checkRateLimit() {
   const today = new Date().toISOString().slice(0, 10);
   const log = loadRateLog();
-  if (log.date !== today) return { allowed: true, count: 0, log: { date: today, count: 0, sent: [] } };
+  if (!log.history) log.history = [];
+  if (log.date !== today) {
+    // New day — reset daily count but preserve history
+    const newLog = { date: today, count: 0, sent: [], history: log.history };
+    return { allowed: true, count: 0, log: newLog };
+  }
   if (log.count >= CONFIG.DAILY_MAX) return { allowed: false, count: log.count, log };
   return { allowed: true, count: log.count, log };
 }
 
 function bumpRateLog(log, profileUrl, action) {
   log.count += 1;
-  log.sent.push({ profileUrl, action, at: new Date().toISOString() });
+  const entry = { profileUrl, action, at: new Date().toISOString() };
+  log.sent.push(entry);
+  if (!log.history) log.history = [];
+  log.history.push(entry);
   saveRateLog(log);
+}
+
+function alreadySentUrls() {
+  const log = loadRateLog();
+  return new Set((log.history || []).map(e => e.profileUrl));
 }
 
 async function logToSupabase(profileUrl, message, action, status) {
@@ -170,14 +183,14 @@ async function login(page) {
   }
 
   console.log('[LOGIN] Navigating to LinkedIn...');
-  await page.goto('https://www.linkedin.com/login', { waitUntil: 'networkidle' });
+  await page.goto('https://www.linkedin.com/login', { waitUntil: 'domcontentloaded', timeout: 60000 });
   await delay(CONFIG.DELAYS.page_load);
 
   await humanType(page, 'input#username', LI_USERNAME);
   await delay(CONFIG.DELAYS.between_actions);
   await humanType(page, 'input#password', LI_PASSWORD);
   await page.click('button[type="submit"]');
-  await page.waitForLoadState('networkidle');
+  await page.waitForLoadState('domcontentloaded', { timeout: 30000 }).catch(() => {});
   await delay(CONFIG.DELAYS.page_load);
 
   if (page.url().includes('/checkpoint') || page.url().includes('/login')) {
@@ -202,27 +215,38 @@ async function sendConnect(page, profileUrl, note, dryRun) {
     return { success: true, dryRun: true };
   }
 
-  await page.goto(profileUrl, { waitUntil: 'networkidle' });
+  await page.goto(profileUrl, { waitUntil: 'domcontentloaded', timeout: 60000 });
   await delay(CONFIG.DELAYS.page_load);
+  // Scroll to top so profile header is visible
+  await page.evaluate(() => window.scrollTo(0, 0));
+  await delay([500, 800]);
   await screenshot(page, `profile-${Date.now()}`);
 
-  // Find Connect button (may be under More menu)
-  let connectBtn = page.locator('button:has-text("Connect")').first();
+  // Find Connect button — try direct first, then More actions menu
+  // Use stable aria-label selectors that survive LinkedIn UI updates
+  let connectBtn = page.locator([
+    'button[aria-label*="Invite"][aria-label*="connect"]',
+    'button[aria-label="Connect"]',
+    '.pvs-profile-actions button:has-text("Connect")',
+    '.pv-top-card__non-self-ctas button:has-text("Connect")',
+  ].join(', ')).first();
+
   let visible = await connectBtn.isVisible({ timeout: 5000 }).catch(() => false);
 
   if (!visible) {
-    // Try More menu
-    const moreBtn = page.locator('button:has-text("More")').first();
-    if (await moreBtn.isVisible({ timeout: 3000 })) {
+    // Try More actions dropdown — use aria-label not text-match to avoid wrong button
+    const moreBtn = page.locator('button[aria-label="More actions"]').first();
+    const moreVisible = await moreBtn.isVisible({ timeout: 3000 }).catch(() => false);
+    if (moreVisible) {
       await moreBtn.click();
       await delay(CONFIG.DELAYS.between_actions);
-      connectBtn = page.locator('div[aria-label="Connect"], span:has-text("Connect")').first();
+      connectBtn = page.locator('div[role="option"]:has-text("Connect"), li[role="option"]:has-text("Connect"), [data-control-name="connect"]').first();
       visible = await connectBtn.isVisible({ timeout: 3000 }).catch(() => false);
     }
   }
 
   if (!visible) {
-    console.log('[CONNECT] Connect button not found — already connected or not available');
+    console.log('[CONNECT] Connect button not found — already connected or pending');
     await logToSupabase(profileUrl, note, 'connect', 'skipped_no_button');
     return { success: false, reason: 'no_connect_button' };
   }
@@ -231,12 +255,12 @@ async function sendConnect(page, profileUrl, note, dryRun) {
   await delay(CONFIG.DELAYS.between_actions);
 
   // Add note dialog
-  const addNoteBtn = page.locator('button:has-text("Add a note")').first();
+  const addNoteBtn = page.locator('button:has-text("Add a note"), button[aria-label="Add a note"]').first();
   if (await addNoteBtn.isVisible({ timeout: 4000 })) {
     await addNoteBtn.click();
     await delay(CONFIG.DELAYS.between_actions);
 
-    const noteBox = page.locator('textarea[name="message"]').first();
+    const noteBox = page.locator('textarea[name="message"], textarea#custom-message').first();
     await noteBox.waitFor({ timeout: 5000 });
     await noteBox.click();
     for (const char of note) {
@@ -246,8 +270,8 @@ async function sendConnect(page, profileUrl, note, dryRun) {
     await delay(CONFIG.DELAYS.between_actions);
   }
 
-  // Send
-  const sendBtn = page.locator('button:has-text("Send"), button[aria-label="Send now"]').first();
+  // Send — try multiple selectors
+  const sendBtn = page.locator('button:has-text("Send"), button[aria-label="Send now"], button[aria-label="Send invitation"]').first();
   await sendBtn.waitFor({ timeout: 5000 });
   await sendBtn.click();
   await delay(CONFIG.DELAYS.post_send);
@@ -271,7 +295,7 @@ async function sendMessage(page, profileUrl, message, dryRun) {
     return { success: true, dryRun: true };
   }
 
-  await page.goto(profileUrl, { waitUntil: 'networkidle' });
+  await page.goto(profileUrl, { waitUntil: 'domcontentloaded', timeout: 60000 });
   await delay(CONFIG.DELAYS.page_load);
 
   const msgBtn = page.locator('button:has-text("Message"), a:has-text("Message")').first();
@@ -348,7 +372,12 @@ async function main() {
     process.exit(0);
   }
 
-  const queue = dryRun ? targets : targets.slice(0, remaining);
+  // Filter profiles already sent across all previous days
+  const sentHistory = alreadySentUrls();
+  const unsent = targets.filter(t => !sentHistory.has(t.profileUrl));
+  if (sentHistory.size > 0) console.log(`[HISTORY] ${sentHistory.size} already sent, ${unsent.length} remaining`);
+
+  const queue = dryRun ? unsent : unsent.slice(0, remaining);
 
   const browser = await chromium.launch({
     headless: false,
@@ -373,7 +402,7 @@ async function main() {
         await login(page);
         await saveSession(context);
       } else {
-        await page.goto('https://www.linkedin.com/feed/', { waitUntil: 'networkidle' });
+        await page.goto('https://www.linkedin.com/feed/', { waitUntil: 'domcontentloaded', timeout: 60000 });
         if (page.url().includes('/login')) {
           await login(page);
           await saveSession(context);
