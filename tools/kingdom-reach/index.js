@@ -72,6 +72,52 @@ crownmediagroup.co`;
         `Is there a good person to run this by?`,
       ]
     });
+  } else if (template === 'follow_up_opener') {
+    // Behavioral Touch-2 — warm opener: they saw the first note. Lead with proof + lower-friction CTA.
+    subject = `Quick follow-up — saw you took a look`;
+    bodyText = `Hi ${first},
+
+Noticed you took a peek at my note from last week — appreciated you giving it a moment.
+
+Quick context on why I reached out: I just helped a Columbia organization rebuild their full digital presence — new website + social system — live in 14 days. Made me think of ${name}.
+
+I'd rather not push a call on you. If easier, I can send a 1-page concept built specifically for ${name} — what a refreshed presence could look like and what it would take to get live fast.
+
+Want me to send it over?
+
+In Christ and in service,
+King
+Crown Media Group | king@crownmediagroup.co
+crownmediagroup.co`;
+    bodyHtml = campaignHtml({ first, name, city, pixel, subject,
+      bodyLines: [
+        `Noticed you took a peek at my note from last week — appreciated you giving it a moment.`,
+        `Quick context on why I reached out: I just helped a Columbia organization rebuild their full digital presence — new website + social system — live in 14 days. Made me think of <strong>${esc(name)}</strong>.`,
+        `I'd rather not push a call on you. If easier, I can send a 1-page concept built specifically for <strong>${esc(name)}</strong> — what a refreshed presence could look like and what it would take to get live fast.`,
+        `Want me to send it over?`,
+      ]
+    });
+  } else if (template === 'follow_up_cold') {
+    // Behavioral Touch-2 — cold non-opener: fresh subject line + ultra-short body.
+    subject = `One question about ${name}`;
+    bodyText = `Hi ${first},
+
+Quick one — wondered if my note from last week landed in your inbox. Totally fine if not the right season.
+
+If it is the right season, I work with churches in ${city} on web + social — 10-min look, zero commitment.
+
+Worth a reply?
+
+In service,
+King
+Crown Media Group | king@crownmediagroup.co`;
+    bodyHtml = campaignHtml({ first, name, city, pixel, subject,
+      bodyLines: [
+        `Quick one — wondered if my note from last week landed in your inbox. Totally fine if not the right season.`,
+        `If it is the right season, I work with churches in ${esc(city)} on web + social — 10-min look, zero commitment.`,
+        `Worth a reply?`,
+      ]
+    });
   } else if (template === 'ministry_org') {
     subject = `Helping ${name} grow its reach online`;
     bodyText = `Hi there,
@@ -676,8 +722,10 @@ export function mountKingdomReach(app, db, { validateSession, getCookie } = {}) 
       if (filter === 'tier_ab')       sql += " AND tier IN ('A','B')";
       if (filter === 'orgs_only')     sql += " AND org_type != 'church'";
       if (filter === 'churches_only') sql += " AND (org_type = 'church' OR org_type IS NULL)";
-      if (filter === 'follow_up')     sql = `SELECT * FROM churches WHERE email IS NOT NULL AND email != '' AND email_sent=1 AND replied=0 AND email_sent_at < datetime('now','-7 days') AND follow_up_sent=0`;
-      if (orgTypeFilter)              sql += ` AND org_type = '${orgTypeFilter.replace(/'/g,"''")}'`;
+      if (filter === 'follow_up')         sql = `SELECT * FROM churches WHERE email IS NOT NULL AND email != '' AND email_sent=1 AND replied=0 AND email_sent_at < datetime('now','-7 days') AND follow_up_sent=0`;
+      if (filter === 'follow_up_openers') sql = `SELECT * FROM churches WHERE email IS NOT NULL AND email != '' AND email_sent=1 AND replied=0 AND email_opened=1 AND email_sent_at < datetime('now','-7 days') AND follow_up_sent=0`;
+      if (filter === 'follow_up_cold')    sql = `SELECT * FROM churches WHERE email IS NOT NULL AND email != '' AND email_sent=1 AND replied=0 AND (email_opened=0 OR email_opened IS NULL) AND email_sent_at < datetime('now','-7 days') AND follow_up_sent=0`;
+      if (orgTypeFilter)                  sql += ` AND org_type = '${orgTypeFilter.replace(/'/g,"''")}'`;
       sql += ' ORDER BY tier ASC, name ASC LIMIT 100';
       churches = db.prepare(sql).all();
     }
@@ -686,7 +734,11 @@ export function mountKingdomReach(app, db, { validateSession, getCookie } = {}) 
     if (dry_run) return res.json({ ok: true, dry_run: true, count: churches.length, churches: churches.map(c => ({ id:c.id, name:c.name, email:c.email, template })) });
 
     let sent = 0, failed = 0, errors = [];
-    const isFollowUp = filter === 'follow_up';
+    const isFollowUp =
+      filter === 'follow_up' ||
+      filter === 'follow_up_openers' ||
+      filter === 'follow_up_cold' ||
+      (typeof template === 'string' && template.startsWith('follow_up'));
 
     for (const church of churches) {
       try {
