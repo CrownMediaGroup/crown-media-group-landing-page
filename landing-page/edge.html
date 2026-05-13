@@ -1,0 +1,229 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Kingdom Edge — AI Trading Intelligence | Crown Media Group</title>
+<meta name="description" content="AI-powered daily market briefings, watchlists, and alerts for stocks + crypto. Educational research tool. Not investment advice.">
+<link rel="icon" type="image/png" href="logo.png">
+<meta property="og:title" content="Kingdom Edge — AI Trading Intelligence">
+<meta property="og:description" content="Daily AI market briefings + watchlist alerts. Educational research tool.">
+<meta property="og:image" content="https://crownmediagroup.co/logo.png">
+<meta property="og:url" content="https://crownmediagroup.co/edge.html">
+<link rel="canonical" href="https://crownmediagroup.co/edge.html">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--white:#FFFFFF;--cream:#FDFBF7;--deep:#0E0E28;--gold:#C9981A;--gold-light:#E8B832;--gold-deep:#9A720D;--royal:#1A1A3E;--text:#1A1A2E;--text-mid:#4A4A6A;--text-light:#8A8AAA;--border:rgba(201,152,26,0.2);--green:#2D8C5A;--red:#C8442C}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{background:var(--cream);color:var(--text);font-family:'Inter',sans-serif;line-height:1.6}
+.display{font-family:'Cormorant Garamond',serif;font-weight:700;letter-spacing:-.02em;line-height:1.05}
+.grad-gold{background:linear-gradient(135deg,var(--gold-deep) 0,var(--gold-light) 50%,var(--gold-deep) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+a{color:inherit;text-decoration:none}
+.container{max-width:1200px;margin:0 auto;padding:0 24px}
+.legal-banner{background:#1A1A3E;color:#E8B832;font-size:.78rem;text-align:center;padding:8px 16px;border-bottom:1px solid var(--gold-deep)}
+nav{position:sticky;top:0;background:rgba(253,251,247,.96);backdrop-filter:blur(12px);z-index:50;border-bottom:1px solid var(--border)}
+.nav-inner{display:flex;justify-content:space-between;align-items:center;padding:18px 24px;max-width:1200px;margin:0 auto}
+.nav-logo{display:flex;align-items:center;gap:10px;font-family:'Cormorant Garamond',serif;font-size:1.15rem;font-weight:700}
+.nav-logo img{height:34px;width:34px;border-radius:6px}
+.nav-links{display:flex;gap:32px;align-items:center}
+.nav-links a{font-size:.92rem;color:var(--text-mid)}
+.nav-links a:hover{color:var(--gold)}
+.btn-royal{display:inline-block;background:var(--royal);color:var(--gold-light);padding:12px 28px;border-radius:4px;font-weight:600;font-size:.85rem;letter-spacing:.06em;text-transform:uppercase;border:none;cursor:pointer;transition:transform .2s}
+.btn-royal:hover{transform:translateY(-2px)}
+.btn-outline{display:inline-block;background:transparent;color:var(--text);padding:12px 28px;border-radius:4px;font-weight:600;font-size:.85rem;letter-spacing:.06em;text-transform:uppercase;border:1px solid var(--border);cursor:pointer}
+.btn-outline:hover{border-color:var(--gold);color:var(--gold)}
+.hero{padding:80px 0 60px;text-align:center}
+.kicker{display:inline-block;padding:6px 14px;background:rgba(201,152,26,.1);border:1px solid var(--border);border-radius:99px;color:var(--gold-deep);font-size:.78rem;font-weight:600;letter-spacing:.12em;text-transform:uppercase;margin-bottom:24px}
+h1{font-size:clamp(2.5rem,6vw,4.5rem);margin-bottom:20px}
+.lead{font-size:1.18rem;color:var(--text-mid);max-width:680px;margin:0 auto 32px}
+.proof-strip{display:flex;justify-content:center;gap:32px;flex-wrap:wrap;font-size:.85rem;color:var(--text-mid);margin-top:40px}
+.proof-strip span{display:flex;align-items:center;gap:6px}
+.proof-strip span:before{content:'';width:8px;height:8px;background:var(--gold);border-radius:50%}
+.section{padding:64px 0}
+.section h2{font-size:clamp(2rem,4vw,3rem);margin-bottom:16px;text-align:center}
+.section .sub{text-align:center;color:var(--text-mid);max-width:600px;margin:0 auto 48px}
+.features{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:24px;margin:48px 0}
+.feature{background:var(--white);padding:32px;border-radius:8px;border:1px solid var(--border)}
+.feature h3{font-family:'Cormorant Garamond',serif;font-size:1.4rem;margin-bottom:12px;color:var(--royal)}
+.tiers{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:24px;margin-top:40px}
+.tier{background:var(--white);border:1px solid var(--border);border-radius:8px;padding:32px;position:relative;transition:transform .2s,box-shadow .2s}
+.tier:hover{transform:translateY(-4px);box-shadow:0 16px 40px rgba(26,26,62,.08)}
+.tier.featured{border:2px solid var(--gold);box-shadow:0 16px 40px rgba(201,152,26,.15)}
+.tier.featured:before{content:'MOST POPULAR';position:absolute;top:-12px;left:50%;transform:translateX(-50%);background:var(--gold);color:var(--white);font-size:.7rem;font-weight:700;letter-spacing:.12em;padding:4px 12px;border-radius:99px}
+.tier-name{font-family:'Cormorant Garamond',serif;font-size:1.6rem;font-weight:700;margin-bottom:8px}
+.tier-price{font-size:2.4rem;font-weight:800;color:var(--royal);margin-bottom:4px}
+.tier-price span{font-size:1rem;color:var(--text-mid);font-weight:500}
+.tier-list{list-style:none;margin:24px 0 28px}
+.tier-list li{padding:8px 0;border-bottom:1px solid var(--border);font-size:.94rem;color:var(--text-mid)}
+.tier-list li:last-child{border:none}
+.tier-list li:before{content:'+ ';color:var(--gold);font-weight:700}
+.disclaimer-box{background:var(--royal);color:var(--white);border-radius:8px;padding:40px;margin:48px 0;text-align:center}
+.disclaimer-box h3{font-family:'Cormorant Garamond',serif;font-size:1.6rem;margin-bottom:12px;color:var(--gold-light)}
+.disclaimer-box p{max-width:700px;margin:0 auto 8px;color:rgba(255,255,255,.85);font-size:.95rem}
+.toast{position:fixed;bottom:24px;right:24px;background:var(--royal);color:var(--white);padding:16px 22px;border-radius:6px;box-shadow:0 16px 40px rgba(0,0,0,.2);max-width:360px;z-index:100;display:none}
+.toast.show{display:block}
+.toast.error{background:#7a1f1f}
+footer{background:var(--royal);color:rgba(255,255,255,.75);padding:48px 0;font-size:.88rem;text-align:center;margin-top:80px}
+footer a{color:var(--gold-light)}
+@media (max-width:640px){.nav-links{gap:16px}.nav-links a:not(.btn-royal){display:none}}
+</style>
+</head>
+<body>
+
+<div class="legal-banner">Kingdom Edge is an educational research tool. <strong>Not investment advice.</strong> Trading involves risk of loss. By using this service you agree to the <a href="/edge/terms.html" style="color:#fff">Terms</a>.</div>
+
+<nav>
+  <div class="nav-inner">
+    <a href="/" class="nav-logo"><img src="logo.png" alt=""> Crown Media Group</a>
+    <div class="nav-links">
+      <a href="/#services">Services</a>
+      <a href="/ai-tools.html">AI Tools</a>
+      <a href="/music.html">Music</a>
+      <a href="/edge.html" style="color:var(--gold);font-weight:700">Edge</a>
+      <a href="/edge/dashboard.html" class="btn-royal">Dashboard</a>
+    </div>
+  </div>
+</nav>
+
+<header class="hero">
+  <div class="container">
+    <span class="kicker">Kingdom Edge · AI Trading Intelligence</span>
+    <h1 class="display">Trade with <span class="grad-gold">an information edge.</span></h1>
+    <p class="lead">AI-summarized market briefings before the open, midday, and close. Watchlist tracking. Pattern alerts. Built so you walk into every session knowing exactly what's moving — and why.</p>
+    <a href="#tiers" class="btn-royal">See Plans</a>
+    <a href="/edge/dashboard.html" class="btn-outline" style="margin-left:12px">Open Dashboard</a>
+    <div class="proof-strip">
+      <span>3 daily briefs (Trade tier)</span>
+      <span>Stocks + crypto</span>
+      <span>Built on Claude AI</span>
+    </div>
+  </div>
+</header>
+
+<section class="section">
+  <div class="container">
+    <h2 class="display">What <span class="grad-gold">Kingdom Edge</span> does.</h2>
+    <p class="sub">Like having a Wall Street research desk in your inbox — without the Wall Street salary.</p>
+    <div class="features">
+      <div class="feature">
+        <h3>Morning brief, 6:00 AM ET</h3>
+        <p>Overnight news from Asia/Europe, futures direction, 3 specific tickers to watch today, earnings/events on deck. ~350 words. Designed to be read with coffee.</p>
+      </div>
+      <div class="feature">
+        <h3>Midday + close briefs <span style="color:var(--gold);font-size:.85rem">(Trade & Edge tiers)</span></h3>
+        <p>Midday check-in at 12:00 PM ET on what's moving + why. Close brief at 4:30 PM ET wraps the day and previews tomorrow's catalysts.</p>
+      </div>
+      <div class="feature">
+        <h3>Watchlist alerts</h3>
+        <p>Build watchlists of tickers and set conditions — price crosses, moving-average crosses, % change spikes. We email or text you when conditions trigger.</p>
+      </div>
+      <div class="feature">
+        <h3>Pattern + setup scanning</h3>
+        <p>Edge tier scans your watchlists every 5 minutes during market hours for high-conviction setups. You decide if/when to act.</p>
+      </div>
+      <div class="feature">
+        <h3>Earnings calendar with AI takes</h3>
+        <p>Each week's notable earnings — pre-summarized. What analysts expect, what to listen for on the call, what would move the stock.</p>
+      </div>
+      <div class="feature">
+        <h3>Crypto coverage</h3>
+        <p>BTC, ETH, and the top 20 by market cap. Same brief format. Plus a "macro alignment" call — when crypto and equities are likely to diverge.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="tiers">
+  <div class="container">
+    <h2 class="display">Pick your <span class="grad-gold">edge</span>.</h2>
+    <p class="sub">Cancel anytime. No long-term commitment. All tiers include the legal-disclosure framework + full Terms.</p>
+
+    <div class="tiers">
+      <div class="tier">
+        <div class="tier-name">Watch</div>
+        <div class="tier-price">$37<span>/mo</span></div>
+        <p style="color:var(--text-mid);font-size:.92rem">For traders building the habit.</p>
+        <ul class="tier-list">
+          <li>Morning brief, 6:00 AM ET</li>
+          <li>1 watchlist (10 symbols max)</li>
+          <li>5 alerts per day</li>
+          <li>Stocks + crypto</li>
+          <li>Email delivery</li>
+        </ul>
+        <button class="btn-royal" style="width:100%" onclick="subscribe('edge-watch-37')">Start Watch</button>
+      </div>
+
+      <div class="tier featured">
+        <div class="tier-name">Trade</div>
+        <div class="tier-price">$97<span>/mo</span></div>
+        <p style="color:var(--text-mid);font-size:.92rem">For active intraday + swing traders.</p>
+        <ul class="tier-list">
+          <li>Morning + midday + close briefs</li>
+          <li>3 watchlists (20 symbols each)</li>
+          <li>25 alerts per day</li>
+          <li>Earnings preview + sector heatmaps</li>
+          <li>Email + SMS delivery</li>
+          <li>5-minute scanning during market hours</li>
+        </ul>
+        <button class="btn-royal" style="width:100%" onclick="subscribe('edge-trade-97')">Go Trade</button>
+      </div>
+
+      <div class="tier">
+        <div class="tier-name">Edge</div>
+        <div class="tier-price">$297<span>/mo</span></div>
+        <p style="color:var(--text-mid);font-size:.92rem">For full-time + pro retail traders.</p>
+        <ul class="tier-list">
+          <li>All Trade features</li>
+          <li>10 watchlists (50 symbols each)</li>
+          <li>100 alerts per day</li>
+          <li>Real-time push alerts</li>
+          <li>Custom setup scanning</li>
+          <li>Weekly 30-min strategy call w/ King</li>
+        </ul>
+        <button class="btn-royal" style="width:100%" onclick="subscribe('edge-edge-297')">Go Edge</button>
+      </div>
+    </div>
+
+    <div class="disclaimer-box">
+      <h3>Important — read this first.</h3>
+      <p><strong>Kingdom Edge is a research and educational tool.</strong> It does not provide investment advice or execute trades. All briefs are identical across all subscribers — there is no personalized recommendation made for you.</p>
+      <p>Trading securities and cryptocurrencies involves risk, including the potential loss of principal. Past performance is not indicative of future results. Information provided is for educational purposes only. Consult a licensed financial advisor before making investment decisions.</p>
+      <p style="margin-top:16px"><a href="/edge/terms.html" style="color:var(--gold-light)">Full Terms</a> &middot; <a href="/edge/disclaimers.html" style="color:var(--gold-light)">Disclaimers</a> &middot; <a href="/edge/risk-disclosure.html" style="color:var(--gold-light)">Risk Disclosure</a></p>
+    </div>
+  </div>
+</section>
+
+<div class="toast" id="toast"></div>
+
+<footer>
+  <div class="container">
+    <p>&copy; 2026 Crown Media Group · All Glory to Jesus Global LLC · Columbia, SC</p>
+    <p style="margin-top:8px"><a href="/">Home</a> &middot; <a href="/ai-tools.html">AI Tools</a> &middot; <a href="/music.html">Music</a> &middot; <a href="/edge/terms.html">Terms</a> &middot; <a href="mailto:king@crownmediagroup.co">Contact</a></p>
+    <p style="margin-top:16px;font-size:.78rem;color:rgba(255,255,255,.5);max-width:680px;margin-left:auto;margin-right:auto">Kingdom Edge is operated by Crown Media Group / All Glory to Jesus Global LLC. It is an educational research service and does not constitute investment advice or solicitation. We are not a Registered Investment Adviser. Trading involves risk of loss.</p>
+  </div>
+</footer>
+
+<script>
+async function subscribe(productId) {
+  try {
+    const email = prompt('Your email (for delivery + dashboard access):');
+    if (!email) return;
+    const res = await fetch('/api/create-subscription', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ productId, customerEmail: email }),
+    });
+    const data = await res.json();
+    if (data.url) location.href = data.url;
+    else toast('Could not start checkout. Try again.', true);
+  } catch (e) { toast('Network error: ' + e.message, true); }
+}
+function toast(msg, isError) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.className = 'toast show' + (isError ? ' error' : '');
+  setTimeout(() => t.classList.remove('show'), 4000);
+}
+</script>
+</body>
+</html>

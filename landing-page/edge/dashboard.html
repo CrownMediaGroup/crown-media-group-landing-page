@@ -1,0 +1,291 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Edge Dashboard — Kingdom Edge | Crown Media Group</title>
+<meta name="robots" content="noindex">
+<link rel="icon" type="image/png" href="/logo.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@700&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--white:#FFFFFF;--cream:#FDFBF7;--deep:#0E0E28;--gold:#C9981A;--gold-light:#E8B832;--royal:#1A1A3E;--text:#1A1A2E;--text-mid:#4A4A6A;--text-light:#8A8AAA;--border:rgba(201,152,26,0.2);--green:#2D8C5A;--red:#C8442C}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{background:#F5F3EE;color:var(--text);font-family:'Inter',sans-serif;line-height:1.6}
+a{color:inherit;text-decoration:none}
+.display{font-family:'Cormorant Garamond',serif;font-weight:700}
+.legal-banner{background:#1A1A3E;color:#E8B832;font-size:.78rem;text-align:center;padding:8px 16px}
+nav{background:var(--white);border-bottom:1px solid var(--border);padding:16px 24px;display:flex;justify-content:space-between;align-items:center}
+.nav-logo{display:flex;align-items:center;gap:10px;font-family:'Cormorant Garamond',serif;font-size:1.1rem;font-weight:700}
+.nav-logo img{height:30px;width:30px;border-radius:6px}
+.nav-links a{margin-left:24px;font-size:.88rem;color:var(--text-mid)}
+.container{max-width:1280px;margin:0 auto;padding:32px 24px}
+h1{font-size:2rem;margin-bottom:8px}
+.tier-tag{display:inline-block;background:var(--royal);color:var(--gold-light);font-size:.72rem;font-weight:700;letter-spacing:.12em;padding:4px 10px;border-radius:99px;text-transform:uppercase;margin-left:8px}
+.market-status{display:inline-flex;align-items:center;gap:6px;font-size:.85rem;color:var(--text-mid);margin-left:8px}
+.market-status .dot{width:8px;height:8px;border-radius:50%;background:#aaa}
+.market-status.open .dot{background:var(--green)}
+.btn{padding:10px 20px;border-radius:4px;font-size:.84rem;font-weight:600;letter-spacing:.06em;text-transform:uppercase;border:none;cursor:pointer;transition:transform .2s}
+.btn-royal{background:var(--royal);color:var(--gold-light)}
+.btn-royal:hover{transform:translateY(-1px)}
+.btn-outline{background:transparent;color:var(--text);border:1px solid var(--border)}
+.btn-outline:hover{border-color:var(--gold);color:var(--gold)}
+.btn-danger{background:transparent;color:var(--red);border:1px solid var(--red);font-size:.78rem;padding:6px 12px}
+
+#gate{max-width:480px;margin:80px auto;padding:48px 32px;background:var(--white);border-radius:8px;border:1px solid var(--border);text-align:center}
+#gate input{width:100%;padding:14px;border:1px solid var(--border);border-radius:4px;font-size:1rem;font-family:inherit;margin:16px 0}
+#gate input:focus{outline:none;border-color:var(--gold)}
+
+#app{display:none}
+#app.active{display:grid;grid-template-columns:300px 1fr;gap:24px}
+.sidebar{background:var(--white);border-radius:8px;padding:24px;border:1px solid var(--border);height:fit-content;position:sticky;top:24px}
+.sidebar h3{font-size:.78rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--text-light);margin-bottom:12px}
+.watchlist-card{background:#F9F7F2;border:1px solid var(--border);border-radius:6px;padding:14px;margin-bottom:12px}
+.watchlist-card .name{font-weight:700;margin-bottom:6px}
+.watchlist-card .symbols{font-size:.82rem;color:var(--text-mid);word-break:break-word}
+.watchlist-card .actions{display:flex;gap:6px;margin-top:10px}
+.watchlist-card .actions button{font-size:.72rem;padding:5px 10px;border-radius:3px;border:1px solid var(--border);background:var(--white);cursor:pointer}
+
+.main{display:grid;gap:24px}
+.card{background:var(--white);border-radius:8px;padding:32px;border:1px solid var(--border)}
+.card h2{font-family:'Cormorant Garamond',serif;font-size:1.6rem;margin-bottom:14px;color:var(--royal)}
+.brief-meta{display:flex;gap:12px;font-size:.78rem;color:var(--text-light);text-transform:uppercase;letter-spacing:.08em;margin-bottom:16px}
+.brief-content{font-size:.96rem;line-height:1.8;color:var(--text-mid);white-space:pre-wrap}
+.brief-tabs{display:flex;gap:8px;border-bottom:1px solid var(--border);margin-bottom:24px}
+.brief-tabs button{background:transparent;border:none;padding:12px 20px;font-weight:600;font-size:.88rem;color:var(--text-light);cursor:pointer;border-bottom:2px solid transparent}
+.brief-tabs button.active{color:var(--royal);border-bottom-color:var(--gold)}
+.alerts ul{list-style:none;margin:8px 0}
+.alerts li{padding:12px 0;border-bottom:1px solid var(--border);font-size:.88rem;display:flex;justify-content:space-between;gap:12px}
+.alerts li:last-child{border:none}
+.alerts .sym{font-weight:700;color:var(--royal)}
+.alerts .time{font-size:.78rem;color:var(--text-light)}
+
+dialog{border:none;border-radius:8px;padding:32px;max-width:480px;width:90%}
+dialog::backdrop{background:rgba(14,14,40,.7)}
+dialog h3{font-family:'Cormorant Garamond',serif;font-size:1.4rem;margin-bottom:16px}
+dialog input,dialog textarea{width:100%;padding:12px;border:1px solid var(--border);border-radius:4px;font-family:inherit;font-size:.94rem;margin:8px 0}
+dialog .dialog-actions{display:flex;gap:10px;justify-content:flex-end;margin-top:16px}
+.toast{position:fixed;bottom:24px;right:24px;background:var(--royal);color:var(--white);padding:14px 22px;border-radius:6px;max-width:360px;z-index:100;display:none}
+.toast.show{display:block}
+.toast.error{background:#7a1f1f}
+.footer-disclaimer{padding:32px 24px;text-align:center;font-size:.78rem;color:var(--text-light);max-width:800px;margin:32px auto;line-height:1.7}
+@media (max-width:900px){#app.active{grid-template-columns:1fr}.sidebar{position:static}}
+</style>
+</head>
+<body>
+
+<div class="legal-banner">Kingdom Edge is an educational research tool. <strong>Not investment advice.</strong> Trading involves risk of loss.</div>
+
+<nav>
+  <a href="/" class="nav-logo"><img src="/logo.png" alt=""> Crown Media Group</a>
+  <div class="nav-links">
+    <a href="/edge.html">Plans</a>
+    <a href="/edge/terms.html">Terms</a>
+    <a href="javascript:void(0)" onclick="logout()">Sign out</a>
+  </div>
+</nav>
+
+<div id="gate">
+  <h1 class="display">Edge Dashboard</h1>
+  <p style="color:var(--text-mid);margin-top:8px">Enter your subscriber email to access your dashboard.</p>
+  <input type="email" id="gate-email" placeholder="you@example.com" autocomplete="email">
+  <button class="btn btn-royal" style="width:100%" onclick="loadDashboard()">Open Dashboard</button>
+  <p style="color:var(--text-light);font-size:.82rem;margin-top:16px">Not a subscriber? <a href="/edge.html" style="color:var(--gold)">See plans</a></p>
+</div>
+
+<div class="container" id="app">
+  <aside class="sidebar">
+    <h3>Your watchlists</h3>
+    <div id="watchlists"></div>
+    <button class="btn btn-outline" style="width:100%" onclick="openWatchlistDialog()">+ New watchlist</button>
+    <h3 style="margin-top:32px">Plan</h3>
+    <p id="plan-info" style="font-size:.88rem;color:var(--text-mid)"></p>
+  </aside>
+
+  <main class="main">
+    <div class="card">
+      <h1>Welcome back<span id="market-status" class="market-status"><span class="dot"></span> <span id="market-text">Market closed</span></span></h1>
+      <p style="color:var(--text-mid)">Tier: <strong id="tier-name"></strong></p>
+    </div>
+
+    <div class="card">
+      <h2>Today's brief</h2>
+      <div class="brief-tabs" id="brief-tabs"></div>
+      <div class="brief-meta" id="brief-meta"></div>
+      <div class="brief-content" id="brief-content"></div>
+    </div>
+
+    <div class="card alerts">
+      <h2>Recent alerts</h2>
+      <ul id="alerts-list"><li style="color:var(--text-light)">No alerts yet. Add a watchlist + symbols to start receiving them.</li></ul>
+    </div>
+  </main>
+</div>
+
+<dialog id="wl-dialog">
+  <h3 id="wl-title">New watchlist</h3>
+  <p style="font-size:.88rem;color:var(--text-mid)">Name</p>
+  <input type="text" id="wl-name" placeholder="e.g. Tech Megacaps">
+  <p style="font-size:.88rem;color:var(--text-mid);margin-top:8px">Symbols (comma-separated)</p>
+  <textarea id="wl-symbols" rows="3" placeholder="AAPL, MSFT, NVDA, X:BTCUSD, X:ETHUSD"></textarea>
+  <div class="dialog-actions">
+    <button class="btn btn-outline" onclick="document.getElementById('wl-dialog').close()">Cancel</button>
+    <button class="btn btn-royal" id="wl-save">Save</button>
+  </div>
+</dialog>
+
+<div class="toast" id="toast"></div>
+
+<p class="footer-disclaimer">
+  Kingdom Edge / Crown Media Group / All Glory to Jesus Global LLC. The information and analysis on this page are for educational purposes only and do not constitute investment advice or a solicitation to buy or sell any security. We are not a Registered Investment Adviser. Trading involves risk including loss of principal. By using this service you agree to the <a href="/edge/terms.html" style="color:var(--royal)">Terms</a>, <a href="/edge/disclaimers.html" style="color:var(--royal)">Disclaimers</a>, and <a href="/edge/risk-disclosure.html" style="color:var(--royal)">Risk Disclosure</a>.
+</p>
+
+<script>
+let state = { email: '', tier: '', features: null };
+
+function toast(msg, isError) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.className = 'toast show' + (isError ? ' error' : '');
+  setTimeout(() => t.classList.remove('show'), 4000);
+}
+
+function logout() { localStorage.removeItem('edge_email'); location.reload(); }
+
+async function loadDashboard() {
+  const email = (document.getElementById('gate-email').value || localStorage.getItem('edge_email') || '').toLowerCase().trim();
+  if (!email) return toast('Enter your email', true);
+  state.email = email;
+  localStorage.setItem('edge_email', email);
+
+  try {
+    const res = await fetch(`/api/edge-dashboard?email=${encodeURIComponent(email)}`);
+    const data = await res.json();
+    if (res.status === 403) return toast('No active Edge subscription for that email.', true);
+    if (!res.ok) return toast(data.error || 'Failed to load', true);
+
+    state.tier     = data.tier;
+    state.features = data.features;
+
+    document.getElementById('gate').style.display = 'none';
+    document.getElementById('app').classList.add('active');
+    document.getElementById('tier-name').textContent = data.tier.toUpperCase();
+    document.getElementById('plan-info').textContent = `${data.features.watchlistMax} watchlist(s), ${data.features.alertsPerDay} alerts/day, ${data.features.briefTypes.length} daily brief(s).`;
+
+    // Market status
+    if (data.market.open) {
+      document.getElementById('market-status').classList.add('open');
+      document.getElementById('market-text').textContent = 'Market open';
+    }
+
+    // Watchlists
+    renderWatchlists(data.watchlists);
+
+    // Briefs
+    renderBriefs(data.briefs, data.features.briefTypes);
+
+    // Alerts
+    renderAlerts(data.alerts);
+  } catch (e) { toast('Network error: ' + e.message, true); }
+}
+
+function renderWatchlists(wls) {
+  const wrap = document.getElementById('watchlists');
+  if (!wls.length) {
+    wrap.innerHTML = '<p style="font-size:.85rem;color:var(--text-light);margin-bottom:12px">No watchlists yet.</p>';
+    return;
+  }
+  wrap.innerHTML = wls.map(w => `
+    <div class="watchlist-card" data-id="${w.id}">
+      <div class="name">${escapeHtml(w.name)}</div>
+      <div class="symbols">${w.symbols.length ? w.symbols.join(', ') : '<em style="color:var(--text-light)">no symbols yet</em>'}</div>
+      <div class="actions">
+        <button onclick='editWatchlist(${JSON.stringify(w)})'>Edit</button>
+        <button onclick="deleteWatchlist(${w.id})" style="color:var(--red);border-color:var(--red)">Delete</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+function renderBriefs(briefs, types) {
+  const tabs = document.getElementById('brief-tabs');
+  const content = document.getElementById('brief-content');
+  const meta = document.getElementById('brief-meta');
+  if (!Object.keys(briefs).length) {
+    tabs.innerHTML = '';
+    meta.innerHTML = '';
+    content.innerHTML = '<em style="color:var(--text-light)">No briefs delivered yet. Your first morning brief lands tomorrow at 6:00 AM ET.</em>';
+    return;
+  }
+  tabs.innerHTML = types.filter(t => briefs[t]).map((t, i) =>
+    `<button class="${i === 0 ? 'active' : ''}" onclick="showBrief('${t}')">${t.charAt(0).toUpperCase()+t.slice(1)}</button>`
+  ).join('');
+  window._briefs = briefs;
+  showBrief(Object.keys(briefs)[0]);
+}
+function showBrief(type) {
+  const b = window._briefs[type];
+  if (!b) return;
+  document.querySelectorAll('.brief-tabs button').forEach(btn => btn.classList.toggle('active', btn.textContent.toLowerCase() === type));
+  document.getElementById('brief-meta').innerHTML = `<span>${b.brief_type}</span><span>${b.brief_date}</span><span>${(b.symbols||[]).length} symbols tracked</span>`;
+  document.getElementById('brief-content').textContent = b.content_text || '';
+}
+
+function renderAlerts(alerts) {
+  const ul = document.getElementById('alerts-list');
+  if (!alerts.length) return;
+  ul.innerHTML = alerts.map(a => `
+    <li>
+      <div><span class="sym">${escapeHtml(a.symbol||'')}</span> — ${escapeHtml(a.message)}</div>
+      <div class="time">${new Date(a.triggered_at).toLocaleString()}</div>
+    </li>
+  `).join('');
+}
+
+function openWatchlistDialog(existing) {
+  document.getElementById('wl-title').textContent = existing ? 'Edit watchlist' : 'New watchlist';
+  document.getElementById('wl-name').value = existing?.name || '';
+  document.getElementById('wl-symbols').value = (existing?.symbols || []).join(', ');
+  document.getElementById('wl-save').onclick = () => saveWatchlist(existing?.id);
+  document.getElementById('wl-dialog').showModal();
+}
+function editWatchlist(w) { openWatchlistDialog(w); }
+
+async function saveWatchlist(id) {
+  const name = document.getElementById('wl-name').value.trim() || 'My Watchlist';
+  const symbols = document.getElementById('wl-symbols').value.split(/[,\s]+/).map(s => s.trim().toUpperCase()).filter(Boolean);
+  const body = { email: state.email, name, symbols };
+  const method = id ? 'PATCH' : 'POST';
+  if (id) body.id = id;
+  try {
+    const res = await fetch('/api/edge-watchlist', {
+      method, headers: {'Content-Type':'application/json'}, body: JSON.stringify(body),
+    });
+    const data = await res.json();
+    if (!res.ok) return toast(data.error || 'Save failed', true);
+    document.getElementById('wl-dialog').close();
+    toast(id ? 'Watchlist updated' : 'Watchlist created');
+    loadDashboard();
+  } catch (e) { toast('Network error: ' + e.message, true); }
+}
+
+async function deleteWatchlist(id) {
+  if (!confirm('Delete this watchlist?')) return;
+  try {
+    const res = await fetch('/api/edge-watchlist', {
+      method: 'DELETE', headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ email: state.email, id }),
+    });
+    if (!res.ok) return toast('Delete failed', true);
+    toast('Deleted');
+    loadDashboard();
+  } catch (e) { toast('Network error: ' + e.message, true); }
+}
+
+function escapeHtml(s) { return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+
+// Auto-load if email saved
+const saved = localStorage.getItem('edge_email');
+if (saved) { document.getElementById('gate-email').value = saved; loadDashboard(); }
+</script>
+</body>
+</html>
