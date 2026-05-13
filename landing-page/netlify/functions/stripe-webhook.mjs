@@ -64,6 +64,63 @@ export default async (req) => {
       const email        = session.customer_details?.email || '';
       const isLogo       = productId === 'logo-basic';
       const isWebsite    = productId === 'website-basic';
+      const isMusic      = typeof productId === 'string' && productId.startsWith('music-');
+      const isEdge       = typeof productId === 'string' && productId.startsWith('edge-');
+
+      // ── Kingdom Sound / Kingdom Edge subscription welcome ─────────────────
+      if (isMusic || isEdge) {
+        const serviceName = isMusic ? 'Kingdom Sound' : 'Kingdom Edge';
+        const memberPath  = isMusic ? '/music.html' : '/edge.html';
+        const ctaLabel    = isMusic ? 'Open the Music Library' : 'Open the Edge Dashboard';
+
+        // Notify King
+        const amountDollars = ((session.amount_total || 0) / 100).toFixed(2);
+        resend.emails.send({
+          from: 'Crown Media Group <king@crownmediagroup.co>',
+          to: 'king@crownmediagroup.co',
+          subject: `New ${serviceName} subscription — $${amountDollars}/mo (${email})`,
+          html: `<div style="font-family:sans-serif;max-width:480px;padding:32px;background:#0d0d14;color:#e8e8f0">
+            <h2 style="color:#C9981A;margin-bottom:16px">New ${serviceName} subscriber</h2>
+            <p><strong>Product:</strong> ${productId}</p>
+            <p><strong>Amount:</strong> $${amountDollars}/mo</p>
+            <p><strong>Customer email:</strong> ${email}</p>
+            ${businessName ? `<p><strong>Business:</strong> ${businessName}</p>` : ''}
+            <p style="color:#555;font-size:13px;margin-top:24px">Welcome email auto-sent. Subscription tracked in upkeep_clients.</p>
+          </div>`,
+        }).catch(console.error);
+
+        // Welcome email to subscriber
+        const intro = isMusic
+          ? `Your library is unlocked. Start downloading tracks for your videos — every download includes a perpetual license you keep even if you cancel.`
+          : `Your AI trading intelligence is live. The next morning brief lands in your inbox tomorrow at 6:00 AM ET. <strong>Reminder: Kingdom Edge is an educational research tool. Not investment advice.</strong>`;
+
+        resend.emails.send({
+          from: 'Crown Media Group <king@crownmediagroup.co>',
+          to: email,
+          subject: `Welcome to ${serviceName}${businessName ? `, ${businessName}` : ''}`,
+          html: `<div style="font-family:sans-serif;max-width:560px;margin:0 auto;padding:40px 20px;background:#0d0d14;color:#e8e8f0">
+            <img src="https://crownmediagroup.co/logo.png" alt="Crown Media Group" style="height:40px;margin-bottom:32px">
+            <h1 style="font-size:24px;font-weight:800;margin-bottom:12px">Welcome to ${serviceName}.</h1>
+            <p style="color:#8888aa;margin-bottom:28px;line-height:1.7">${intro}</p>
+            <a href="https://crownmediagroup.co${memberPath}?email=${encodeURIComponent(email)}" style="display:inline-block;background:#c9a84c;color:#000;font-weight:700;padding:14px 28px;border-radius:8px;text-decoration:none;margin-bottom:32px">${ctaLabel}</a>
+            <p style="color:#555;font-size:13px">Questions? Reply to this email.</p>
+            <p style="color:#333;font-size:12px;margin-top:24px">Crown Media Group &middot; Columbia, SC &middot; crownmediagroup.co</p>
+            ${isEdge ? `<p style="color:#666;font-size:11px;margin-top:16px;border-top:1px solid #222;padding-top:12px">Kingdom Edge is an educational research tool. Not investment advice. Trading involves risk of loss. By using this service you agree to the <a href="https://crownmediagroup.co/edge/terms.html" style="color:#888">Terms of Service</a>.</p>` : ''}
+          </div>`,
+        }).catch(console.error);
+
+        // For Edge — pre-create an empty default watchlist so the dashboard isn't empty
+        if (isEdge) {
+          supabase.from('edge_watchlists').insert({
+            user_email:    email,
+            product_id:    productId,
+            stripe_sub_id: session.subscription || null,
+            name:          'My Watchlist',
+            symbols:       [],
+            active:        true,
+          }).then(() => {}, (err) => console.error('[WEBHOOK] edge default watchlist insert error:', err));
+        }
+      } else {
 
       const { data: order, error } = await supabase.from('ai_orders').insert({
         email,
@@ -154,6 +211,7 @@ export default async (req) => {
           body: JSON.stringify({ email, scout_code: session.metadata?.scout_code || '' }),
         }).catch(console.error);
       }
+      } // end else (non-music, non-edge)
     }
   }
 
