@@ -1,72 +1,75 @@
 ---
-title: "Kingdom Sound Is Live — AI Music for Creators Who Are Tired of Copyright Strikes"
+title: "Kingdom Sound — Original Music, Licensed Your Way"
 date: "2026-05-13"
 publishTime: "16:00"
 slug: "kingdom-sound-ai-music-for-creators"
 category: "Product"
-tags: ["Kingdom Sound", "AI Music", "Content Creation", "YouTube", "Reels"]
-excerpt: "Original AI-generated music you can drop into any YouTube video, Reel, podcast, or paid ad — without the copyright strike anxiety. Subscribe monthly, license tracks forever."
+tags: ["Kingdom Sound", "Music Licensing", "Custom Music", "Content Creation", "Original Song"]
+excerpt: "Three ways to get original music from Crown Media Group: license a track from the catalog, commission a custom instrumental, or have a fully original song written for one person, one story."
 author: "David King"
 draft: false
 faq:
   - q: "What is Kingdom Sound?"
-    a: "Kingdom Sound is Crown Media Group's monthly subscription music library. Every track is original — generated using AI music platforms (Suno, Udio, AIVA) under commercial licenses — and every download comes with a perpetual non-exclusive worldwide commercial license. Use it on YouTube, Instagram, TikTok, podcasts, paid ads, websites — anywhere video or audio lives."
+    a: "Kingdom Sound is Crown Media Group's music service. Three ways to work together: license a ready-made track from the catalog ($150-$497), commission a custom instrumental built for your brand ($500-$997), or commission a fully original song with lyrics, vocals, and production written for one person or story ($993). Every option includes full commercial rights — buy once, own forever. No subscription."
   - q: "Will my YouTube video get a Content ID claim if I use a Kingdom Sound track?"
-    a: "Our tracks are original AI-generated audio that is not registered in YouTube's Content ID database. In the rare event a track triggers a claim, our Content ID guarantee kicks in: we swap it free and handle the dispute on your behalf. Studio tier customers get a 24-hour SLA on swaps."
-  - q: "What happens to my tracks if I cancel?"
-    a: "Every track you downloaded during your active subscription stays licensed forever — even after you cancel. Your license PDF (auto-generated at the time of download) is your proof. New downloads stop the day your subscription ends."
-  - q: "Can I use Kingdom Sound tracks for client work or paid ads?"
-    a: "Yes. The Pro and Studio tiers include an all-platform commercial license that covers client deliverables, paid advertising, podcasts, and corporate video. The Starter tier covers personal and creator-platform use (YouTube, Reels, TikTok, Shorts)."
-  - q: "What kinds of music are in the library?"
-    a: "Ten genres at launch: cinematic, corporate, hip-hop, ambient, worship, upbeat, lo-fi, rock, electronic, and R&B. Within each genre, multiple moods (uplifting, reflective, energetic, peaceful, tense, triumphant) and BPM ranges. The library expands weekly."
-  - q: "How does the custom track request work?"
-    a: "Pro tier subscribers can request one custom track per month. Studio tier subscribers get unlimited requests. Tell us the mood, genre, BPM, and what the track is for — we deliver an original AI-generated track tailored to your brief, usually within 48 hours."
-  - q: "Ready to stop worrying about copyright?"
-    a: "[Browse Kingdom Sound and pick a plan →](https://crownmediagroup.co/music.html). Three tiers ($27, $67, $147 per month). Cancel anytime. Tracks you download stay yours forever."
+    a: "Catalog tracks are original audio that is not registered in YouTube's Content ID database. In the rare event a track triggers a claim, we swap it for a different track free of charge and handle the dispute on your behalf."
+  - q: "Do I keep the rights forever?"
+    a: "Yes. Every Kingdom Sound purchase — catalog license, custom instrumental, or original song — is a one-time payment with a perpetual, non-exclusive, worldwide commercial license. There is no subscription and nothing expires. Your license certificate (a one-page PDF) is your proof."
+  - q: "Can I use Kingdom Sound music for client work or paid ads?"
+    a: "Yes. Every tier includes full commercial-use rights covering client deliverables, paid advertising, podcasts, broadcast, and corporate video."
+  - q: "How does a custom instrumental work?"
+    a: "You share your concept — mood, genre, BPM, a reference track, the vibe your brand lives in. King crafts a full original instrumental around it. Two rounds of revisions included. Delivered as WAV + MP3 within 5-7 business days. $500-$997 depending on scope."
+  - q: "What is the fully original song service?"
+    a: "This is the most personal one. You send King a story — an athlete, a public figure, a documentary, someone whose journey deserves to be honored — and he writes and produces a complete original song: lyrics, melody, vocals, production. One song, one story, made to last. $993 flat. King has done this for the Ian McCormick story and for TD Jakes."
+  - q: "Ready to get started?"
+    a: "[Browse Kingdom Sound →](https://crownmediagroup.co/music.html). License a track, commission a custom beat, or commission an original song. Or text King directly at (908) 848-1436."
 ---
 
 If you make videos, you already know the math.
 
-You film a beautiful Reel. You edit it tight. You pick a song that fits the energy perfectly — and three days after you post, you get the email: **"A copyright owner has matched content in your video."** Now your view counts route their ad revenue to someone else, or worse, your video gets pulled, or worse than that, your channel takes a strike that puts the whole thing at risk.
+You film a beautiful Reel. You edit it tight. You pick a song that fits the energy perfectly — and three days after you post, you get the email: **"A copyright owner has matched content in your video."** Your ad revenue gets routed to someone else, or your video gets pulled, or your channel takes a strike.
 
-This is not a small problem. It's the single biggest reason small creators and small businesses fail to ship consistent video content.
+This is the single biggest reason small creators and small businesses fail to ship consistent video content. So we built Kingdom Sound to solve it — but we built it the way a craftsman would, not the way a software company would.
 
-**Today we're launching Kingdom Sound — and we built it to solve exactly this problem.**
+**There is no subscription. There is no download quota. You buy once, you own it forever.**
 
-## What Kingdom Sound is
+## Three ways King serves you
 
-Kingdom Sound is a monthly subscription music library. Every track in the library is original. Every track is AI-generated by our team using commercial-licensed platforms — Suno Pro, Udio Pro, and AIVA Pro — and every track is yours to use with a perpetual, non-exclusive, worldwide commercial license.
+### Service One — License a track from the catalog
+Ready-made. Refined. Already alive. Browse the catalog and license a track that speaks to you — commercially cleared and ready to use across YouTube, social media, branded content, and beyond. No waiting. The music is already there. **$150–$497 per track**, depending on the track's tier. One payment. Yours forever.
 
-That last sentence is the entire point. Here's what it means in plain English:
+### Service Two — Custom instrumental or beat
+You have a melody in your head. A feeling you want to evoke. A mood your brand lives in. You bring the idea — King brings it into sound. Every instrumental is built to be used freely and commercially. Two rounds of revisions. Delivered as WAV + MP3 within 5-7 business days. **$500–$997 per project.**
 
-- **Download a track today. Use it forever.** Even if you cancel your subscription, the tracks you downloaded during your active months stay licensed to you for the rest of time.
-- **No copyright strikes.** These tracks aren't registered in YouTube's Content ID system. Use them on YouTube, Instagram, TikTok, podcasts, paid ads — anywhere.
-- **No royalty bills, no third-party clearance.** Your license is one PDF, generated automatically when you download, with your name and the track ID on it.
+### Service Three — A fully original song, written for one person
+This is the one that moves people to tears. An athlete. A public figure. Someone with a story that deserves to be honored. Send King their documentary, their footage, their journey — and he writes and produces a complete original song. Lyrics, melody, vocals, production. One song. One story. Made to last forever. Just as King has done for the Ian McCormick story and for TD Jakes. **$993 flat.**
+
+### The bundle
+All three services — catalog license + custom instrumental + fully original song — for **$2,500**. Saves you $487 versus buying them separately.
 
 ## The Content ID guarantee
 
-We don't pretend the system is perfect. AI-generated music is new, and YouTube's matching algorithms occasionally flag things by accident.
+AI-generated music is new, and YouTube's matching algorithms occasionally flag things by accident. So we wrote a guarantee into the product: **if any catalog track from Kingdom Sound ever gets flagged on YouTube, Instagram, or TikTok, we swap it for a different track free of charge — and handle the dispute on your behalf.** You never lose a video over music we sold you.
 
-So we wrote a guarantee into the product. **If any track from Kingdom Sound ever gets flagged on YouTube, Instagram, or TikTok, we swap it for a different track free of charge — and we handle the dispute on your behalf.** Studio tier gets a 24-hour swap SLA. Pro and Starter tier swaps fire as fast as we can verify the claim. Either way, you never lose a video over music we sold you.
+## What the market charges
 
-## The three tiers
+So you can see what this investment really means:
 
-We kept the pricing simple.
+- Licensed track (Musicbed / Artlist / Epidemic Sound): $200–$500 per year — and the license dies when you stop paying.
+- Custom beat (BeatStars top producers): $300–$2,000+
+- Original song (independent composer): $1,500–$5,000+
+- Original song (LA / NYC studio composer): $5,000–$20,000+
 
-**Starter — $27 per month.** Five track downloads per month. Standard library. YouTube + Reels + TikTok license. Built for creators just getting started or anyone who needs reliable music a few times a month.
-
-**Pro — $67 per month.** Twenty track downloads per month. Full library access (Starter tracks + the Pro-tier exclusives). All-platform commercial license — including paid ads and client work. One custom track request per month. MP3 + WAV downloads.
-
-**Studio — $147 per month.** Unlimited downloads. The entire library including studio-tier exclusives. Unlimited custom track requests. MP3 + WAV + stems. One brand-exclusive track per quarter (a track we generate for you and never license to anyone else). Priority swap with a 24-hour SLA.
+What you get with King: direct access to the composer. Faith-driven work with personal attention to your project. No subscription. No middleman. Full commercial rights. Built for your specific vision — not a template.
 
 ## Why we built this
 
-I run a marketing agency in Columbia, SC. Every week we ship video content for clients — Reels, ads, YouTube uploads, social cuts — and every week we hit the same wall: finding music that's both *good* and *legally safe*. The "royalty-free" libraries are either expensive, generic, or both. The AI music tools are powerful but the licenses are confusing and the rights to re-license to clients are inconsistent across platforms.
+I run a marketing agency in Columbia, SC. Every week we ship video content for clients, and every week we hit the same wall: finding music that's both *good* and *legally safe*. The royalty-free libraries rent you access — stop paying and your rights evaporate. That never sat right with me.
 
-So we did the work. We subscribed to the platforms with the cleanest commercial-rights language. We built a catalog of original tracks across ten genres. We wrote a clear, customer-protective license. And we put the whole thing behind a price that an indie creator can actually afford.
+So Kingdom Sound works the way it should: you pay once, you own it, you keep it. Whether that's a $150 catalog track or a $993 original song written for someone you love.
 
-If you've ever paused before posting a video because you weren't 100% sure about the music — this is for you.
+If you've ever paused before posting because you weren't sure about the music — or if you have a story that deserves its own song — this is for you.
 
-[Browse the library and pick a plan →](https://crownmediagroup.co/music.html)
+[Browse Kingdom Sound →](https://crownmediagroup.co/music.html) · or text King at (908) 848-1436
 
-*"Whatever you do, work heartily, as for the Lord and not for men." — Colossians 3:23*
+*"Whatever you do, work at it with all your heart, as working for the Lord, not for human masters." — Colossians 3:23*
