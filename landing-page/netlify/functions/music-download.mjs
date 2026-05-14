@@ -4,6 +4,7 @@
 // Body: { email, trackId, format ('mp3' | 'wav' | 'stems') }
 
 import { supabase, resolveMusicSubscription, monthlyDownloadsFor, TIER_QUOTAS, json } from './_music-helpers.mjs';
+import { buildAndUploadLicensePdf } from './_music-license-pdf.mjs';
 
 const BUCKET = 'kingdom-sound';
 const SIGNED_URL_EXPIRY_SEC = 60 * 30; // 30 minutes
@@ -80,26 +81,38 @@ export default async (req) => {
     return json(500, { error: 'sign_failed', detail: signErr?.message });
   }
 
-  // 6. Log the download (drives next-month quota)
+  // 6. Mint license id + build PDF (fail-soft → fall back to JSON-only)
+  const issuedAt   = new Date();
+  const licenseId  = `KSL-${track.id}-${issuedAt.getTime().toString(36)}`;
+  const pdfResult  = await buildAndUploadLicensePdf({
+    licenseId,
+    licensee: email,
+    track:    { id: track.id, title: track.title },
+    tier:     sub.tier,
+    issuedAt,
+  });
+
+  // 7. Log the download (record the PDF path if we got one)
   const { error: logErr } = await supabase.from('music_downloads').insert({
-    user_email:     email,
-    product_id:     sub.productId,
-    stripe_sub_id:  sub.subscriptionId,
-    track_id:       track.id,
-    // license_pdf_path: null    -- v2 will populate this with a generated PDF
+    user_email:       email,
+    product_id:       sub.productId,
+    stripe_sub_id:    sub.subscriptionId,
+    track_id:         track.id,
+    license_pdf_path: pdfResult?.storagePath || null,
   });
   if (logErr) console.error('[MUSIC] download log insert error:', logErr);
 
-  // 7. Build inline license text (lightweight v1; PDF generator is a Phase 2 item)
+  // 8. Inline license object (always returned — PDF is in addition, not in place of)
   const license = {
     track_id:        track.id,
     track_title:     track.title,
     licensee:        email,
-    license_date:    new Date().toISOString(),
+    license_date:    issuedAt.toISOString(),
     rights:          'Perpetual non-exclusive worldwide license to use this track in commercial and non-commercial video, audio, podcast, and digital content. Re-sale or re-distribution of the underlying audio file is not permitted.',
     platforms:       'YouTube, Instagram, TikTok, Reels, Shorts, Vimeo, podcasts, websites, paid ads',
     issued_by:       'Crown Media Group (All Glory to Jesus Global LLC)',
-    license_id:      `KSL-${track.id}-${Date.now().toString(36)}`,
+    license_id:      licenseId,
+    license_pdf_url: pdfResult?.signedUrl || null,
   };
 
   return json(200, {
