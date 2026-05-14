@@ -64,14 +64,99 @@ export default async (req) => {
       const email        = session.customer_details?.email || '';
       const isLogo       = productId === 'logo-basic';
       const isWebsite    = productId === 'website-basic';
-      const isMusic      = typeof productId === 'string' && productId.startsWith('music-');
+      const isMusicSub   = typeof productId === 'string' && (productId === 'music-starter-27' || productId === 'music-pro-67' || productId === 'music-studio-147');
+      const isMusicOrder = typeof productId === 'string' && (productId.startsWith('music-license-') || productId.startsWith('music-custom-') || productId.startsWith('music-original-') || productId.startsWith('music-bundle-'));
+      const isMusic      = isMusicSub || isMusicOrder;
       const isEdge       = typeof productId === 'string' && productId.startsWith('edge-');
 
-      // ── Kingdom Sound / Kingdom Edge subscription welcome ─────────────────
-      if (isMusic || isEdge) {
-        const serviceName = isMusic ? 'Kingdom Sound' : 'Kingdom Edge';
-        const memberPath  = isMusic ? '/music.html' : '/edge.html';
-        const ctaLabel    = isMusic ? 'Open the Music Library' : 'Open the Edge Dashboard';
+      // ── Kingdom Sound per-project ORDER (new model) ───────────────────────
+      if (isMusicOrder) {
+        const amountDollars = ((session.amount_total || 0) / 100).toFixed(2);
+        const productType = productId.startsWith('music-license-')  ? 'license'
+                          : productId.startsWith('music-custom-')   ? 'custom'
+                          : productId.startsWith('music-original-') ? 'original'
+                          : productId.startsWith('music-bundle-')   ? 'bundle' : 'other';
+
+        const trackIdMeta = parseInt(session.metadata?.trackId) || null;
+
+        const { data: order, error: orderErr } = await supabase.from('music_orders').insert({
+          user_email:           email,
+          product_id:           productId,
+          product_type:         productType,
+          amount_cents:         session.amount_total,
+          stripe_session_id:    session.id,
+          stripe_payment_intent: session.payment_intent || null,
+          status:               productType === 'license' ? 'paid' : 'paid',
+          track_id:             trackIdMeta,
+          intake_brief:         session.metadata?.intakeBrief || null,
+          paid_at:              new Date().toISOString(),
+        }).select().single();
+
+        if (orderErr) console.error('[WEBHOOK] music_orders insert error:', orderErr);
+
+        // Notify King
+        resend.emails.send({
+          from: 'Crown Media Group <king@crownmediagroup.co>',
+          to:   'king@crownmediagroup.co',
+          subject: `New Kingdom Sound ${productType} — $${amountDollars} (${email})`,
+          html: `<div style="font-family:sans-serif;max-width:480px;padding:32px;background:#0d0d14;color:#e8e8f0">
+            <h2 style="color:#C9981A;margin-bottom:16px">New ${productType.toUpperCase()} Order</h2>
+            <p><strong>Product:</strong> ${productId}</p>
+            <p><strong>Amount:</strong> $${amountDollars}</p>
+            <p><strong>Customer:</strong> ${email}</p>
+            ${trackIdMeta ? `<p><strong>Track ID:</strong> ${trackIdMeta}</p>` : ''}
+            ${session.metadata?.intakeBrief ? `<p><strong>Brief (first 500 chars):</strong><br>${session.metadata.intakeBrief}</p>` : ''}
+            <p style="color:#555;font-size:13px;margin-top:24px">Order ID: ${order?.id || '?'}. Customer welcome auto-sent.</p>
+          </div>`,
+        }).catch(console.error);
+
+        // Customer welcome — different CTA per product type
+        const customerSubject = productType === 'license'   ? 'Your Kingdom Sound license is ready' :
+                                productType === 'custom'    ? 'Custom track brief — next steps' :
+                                productType === 'original'  ? 'Original song commission — next steps' :
+                                                              'Kingdom Sound Bundle — next steps';
+
+        const intakePath = productType === 'custom'   ? '/music/custom-intake.html'   :
+                           productType === 'original' ? '/music/original-song-intake.html' :
+                           productType === 'bundle'   ? '/music/bundle-intake.html'    :
+                                                        '/music.html#delivered';
+
+        const ctaLabel = productType === 'license' ? 'Open your delivery page' :
+                                                     'Fill out your project brief';
+
+        const introCopy = productType === 'license'
+          ? `Thanks for licensing a track. Your delivery email with download link + license PDF is on its way separately within the next 10 minutes.`
+          : productType === 'custom'
+          ? `Thanks for commissioning a custom instrumental. Next step: tell me what you're going for. Fill the brief below and I'll deliver within 5-7 business days.`
+          : productType === 'original'
+          ? `Thanks for trusting me with an original song. This is the personal one. Fill out the long-form brief so I can write something that honors the story. 14 business days to deliver.`
+          : `Thanks for the full bundle. Fill out each project brief in order — catalog license first, then custom instrumental, then original song.`;
+
+        resend.emails.send({
+          from: 'Crown Media Group <king@crownmediagroup.co>',
+          to:   email,
+          subject: customerSubject,
+          html: `<div style="font-family:sans-serif;max-width:560px;margin:0 auto;padding:40px 20px;background:#0d0d14;color:#e8e8f0">
+            <img src="https://crownmediagroup.co/logo.png" alt="Crown Media Group" style="height:40px;margin-bottom:32px">
+            <h1 style="font-size:24px;font-weight:800;margin-bottom:12px">Payment confirmed.</h1>
+            <p style="color:#8888aa;margin-bottom:28px;line-height:1.7">${introCopy}</p>
+            <a href="https://crownmediagroup.co${intakePath}?order=${order?.id || ''}&email=${encodeURIComponent(email)}" style="display:inline-block;background:#c9a84c;color:#000;font-weight:700;padding:14px 28px;border-radius:8px;text-decoration:none;margin-bottom:32px">${ctaLabel}</a>
+            <p style="color:#555;font-size:13px">Order: ${order?.id || ''} · ${productId} · $${amountDollars}</p>
+            <p style="color:#333;font-size:12px;margin-top:24px">Crown Media Group · Columbia, SC · crownmediagroup.co · "Whatever you do, work heartily, as for the Lord and not for men." — Colossians 3:23</p>
+          </div>`,
+        }).catch(console.error);
+
+        // For license orders, the music-download flow will be triggered separately via the delivery page
+        // (which uses a signed token tied to the order_id)
+
+        return new Response(JSON.stringify({ ok: true, order_id: order?.id }), { status: 200 });
+      }
+
+      // ── Kingdom Sound (legacy subscription) / Kingdom Edge subscription welcome ─────
+      if (isMusicSub || isEdge) {
+        const serviceName = isMusicSub ? 'Kingdom Sound' : 'Kingdom Edge';
+        const memberPath  = isMusicSub ? '/music.html' : '/edge.html';
+        const ctaLabel    = isMusicSub ? 'Open the Music Library' : 'Open the Edge Dashboard';
 
         // Notify King
         const amountDollars = ((session.amount_total || 0) / 100).toFixed(2);
@@ -90,9 +175,9 @@ export default async (req) => {
         }).catch(console.error);
 
         // Welcome email to subscriber
-        const intro = isMusic
+        const intro = isMusicSub
           ? `Your library is unlocked. Start downloading tracks for your videos — every download includes a perpetual license you keep even if you cancel.`
-          : `Your AI trading intelligence is live. The next morning brief lands in your inbox tomorrow at 6:00 AM ET. <strong>Reminder: Kingdom Edge is an educational research tool. Not investment advice.</strong>`;
+          : `Your Kingdom Edge subscription is live. Connect your Alpaca paper-trading account to let the bot run for you, or read the next morning brief at 6:00 AM ET. <strong>Reminder: Kingdom Edge is an educational research tool. Trading involves risk of loss.</strong>`;
 
         resend.emails.send({
           from: 'Crown Media Group <king@crownmediagroup.co>',

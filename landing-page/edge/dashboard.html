@@ -108,6 +108,11 @@ dialog .dialog-actions{display:flex;gap:10px;justify-content:flex-end;margin-top
       <p style="color:var(--text-mid)">Tier: <strong id="tier-name"></strong></p>
     </div>
 
+    <div class="card" id="bot-card">
+      <h2>Bot status</h2>
+      <div id="bot-content" style="color:var(--text-mid)">Loading bot state…</div>
+    </div>
+
     <div class="card">
       <h2>Today's brief</h2>
       <div class="brief-tabs" id="brief-tabs"></div>
@@ -185,7 +190,62 @@ async function loadDashboard() {
 
     // Alerts
     renderAlerts(data.alerts);
+
+    // Bot status — fired in parallel
+    loadBotStatus().catch(() => {});
   } catch (e) { toast('Network error: ' + e.message, true); }
+}
+
+async function loadBotStatus() {
+  const wrap = document.getElementById('bot-content');
+  if (!state.email) return;
+  try {
+    const res = await fetch(`/api/edge-bot-status?email=${encodeURIComponent(state.email)}`);
+    const d = await res.json();
+    if (!res.ok) { wrap.textContent = (d.error||'').replace(/_/g,' '); return; }
+    const tier = (d.tier||'').toUpperCase();
+    if (tier === 'WATCH') {
+      wrap.innerHTML = `<p style="color:var(--text-mid)">Bot access is available on <strong>Paper Trader</strong> and <strong>Live Trader</strong> tiers. <a href="/edge.html#tiers" style="color:var(--gold);font-weight:700">Upgrade →</a></p>`;
+      return;
+    }
+    if (!d.brokerage?.connected) {
+      wrap.innerHTML = `
+        <p style="color:var(--text-mid);margin-bottom:14px">Connect your Alpaca account to start the bot. Paper-mode only — simulated money, zero risk.</p>
+        <a href="/edge/connect-alpaca.html?email=${encodeURIComponent(state.email)}" class="btn btn-royal">Connect Alpaca</a>`;
+      return;
+    }
+    const acc = d.live_account || {};
+    const strat = d.strategy;
+    const exec  = d.executions || [];
+    wrap.innerHTML = `
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:14px;margin-bottom:18px">
+        <div><div style="font-size:.78rem;color:var(--text-light);text-transform:uppercase;letter-spacing:.08em">Mode</div><div style="font-weight:700;color:var(--royal);font-size:1.1rem">${d.brokerage.mode.toUpperCase()}</div></div>
+        <div><div style="font-size:.78rem;color:var(--text-light);text-transform:uppercase;letter-spacing:.08em">Portfolio</div><div style="font-weight:700;color:var(--royal);font-size:1.1rem">$${(acc.portfolio_value||0).toLocaleString()}</div></div>
+        <div><div style="font-size:.78rem;color:var(--text-light);text-transform:uppercase;letter-spacing:.08em">Cash</div><div style="font-weight:700;color:var(--royal);font-size:1.1rem">$${(acc.cash||0).toLocaleString()}</div></div>
+        <div><div style="font-size:.78rem;color:var(--text-light);text-transform:uppercase;letter-spacing:.08em">Buying power</div><div style="font-weight:700;color:var(--royal);font-size:1.1rem">$${(acc.buying_power||0).toLocaleString()}</div></div>
+      </div>
+      ${strat
+        ? `<p style="color:var(--text-mid)"><strong>Strategy:</strong> ${strat.strategy.replace(/_/g,' ')} on <code>${(strat.symbols||[]).join(', ')}</code> · $${strat.position_size_usd}/trade · max ${strat.max_open_positions} open</p>`
+        : `<p style="color:var(--text-mid);margin-bottom:10px">No strategy active yet. Pick one and the bot starts on the next runner pass.</p>
+           <button class="btn btn-royal" onclick="openStrategyDialog()">Pick a strategy</button>`}
+      <h3 style="margin-top:24px;font-size:.78rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--text-light)">Recent bot executions</h3>
+      ${exec.length ? `<ul style="list-style:none;margin:6px 0">${exec.slice(0,8).map(e => `<li style="padding:8px 0;border-bottom:1px solid var(--border);font-size:.88rem;display:flex;justify-content:space-between"><span><strong>${e.side.toUpperCase()} ${e.symbol}</strong> — ${e.signal_reason||''}</span><span style="font-size:.78rem;color:var(--text-light)">${new Date(e.executed_at).toLocaleString()}</span></li>`).join('')}</ul>` : '<p style="color:var(--text-light);font-size:.88rem;margin-top:6px">No bot trades yet. Pick a strategy and wait for the next 5-min runner pass during market hours.</p>'}
+    `;
+  } catch (e) { wrap.textContent = 'Bot status unavailable: ' + e.message; }
+}
+
+function openStrategyDialog() {
+  const strategy = prompt('Strategy — type one of: trend_follow / mean_revert / breakout', 'trend_follow');
+  if (!strategy) return;
+  const symbolsRaw = prompt('Symbols (comma-separated, e.g. SPY,QQQ,AAPL,MSFT)', 'SPY,QQQ,AAPL,MSFT');
+  if (!symbolsRaw) return;
+  fetch('/api/edge-bot-strategy', {
+    method:'POST', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({ email: state.email, strategy, symbols: symbolsRaw.split(',') }),
+  }).then(r => r.json()).then(j => {
+    if (j.ok) { toast('Strategy set. Bot runs on next pass.'); loadBotStatus(); }
+    else toast(j.error || 'Failed to set strategy', true);
+  }).catch(e => toast('Network error: ' + e.message, true));
 }
 
 function renderWatchlists(wls) {

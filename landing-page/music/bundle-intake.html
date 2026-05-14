@@ -1,0 +1,207 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Project Brief — Kingdom Sound | Crown Media Group</title>
+<meta name="robots" content="noindex">
+<link rel="icon" type="image/png" href="/logo.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--cream:#FDFBF7;--white:#FFF;--gold:#C9981A;--gold-deep:#9A720D;--royal:#1A1A3E;--text:#1A1A2E;--text-mid:#4A4A6A;--border:rgba(201,152,26,0.2)}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{background:var(--cream);color:var(--text);font-family:'Inter',sans-serif;line-height:1.6}
+.display{font-family:'Cormorant Garamond',serif;font-weight:700;letter-spacing:-.02em}
+a{color:inherit;text-decoration:none}
+nav{padding:16px 24px;border-bottom:1px solid var(--border);background:var(--white);display:flex;justify-content:space-between;align-items:center;max-width:1200px;margin:0 auto}
+.nav-logo{display:flex;align-items:center;gap:10px;font-family:'Cormorant Garamond',serif;font-weight:700}
+.nav-logo img{height:30px;width:30px;border-radius:6px}
+.container{max-width:720px;margin:0 auto;padding:48px 24px}
+h1{font-size:2.4rem;margin-bottom:8px}
+.lead{color:var(--text-mid);margin-bottom:32px}
+form{background:var(--white);border:1px solid var(--border);border-radius:8px;padding:32px}
+label{display:block;font-weight:600;font-size:.92rem;margin:18px 0 6px;color:var(--royal)}
+label .req{color:#C8442C}
+input[type=text],input[type=email],input[type=url],textarea,select{width:100%;padding:12px 14px;border:1px solid var(--border);border-radius:4px;font-family:inherit;font-size:.95rem;background:var(--white)}
+input:focus,textarea:focus,select:focus{outline:none;border-color:var(--gold)}
+textarea{resize:vertical;min-height:120px}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.help{font-size:.82rem;color:var(--text-mid);margin-top:4px}
+button{background:var(--royal);color:var(--gold);padding:14px 28px;border-radius:4px;font-weight:600;font-size:.85rem;letter-spacing:.06em;text-transform:uppercase;border:none;cursor:pointer;width:100%;margin-top:24px}
+button:hover{transform:translateY(-1px);opacity:.95}
+.meta{background:#F9F5EE;padding:14px 18px;border-radius:6px;font-size:.85rem;color:var(--text-mid);margin-bottom:24px}
+.success{display:none;background:#E8F5EC;border:1px solid #2D8C5A;color:#1A5C3A;padding:20px;border-radius:6px;margin-bottom:24px}
+.success.show{display:block}
+footer{padding:32px 24px;text-align:center;color:var(--text-mid);font-size:.85rem;border-top:1px solid var(--border);margin-top:48px}
+@media (max-width:640px){.row{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="/" class="nav-logo"><img src="/logo.png" alt=""> Crown Media Group</a>
+  <a href="/music.html" style="font-size:.88rem;color:var(--text-mid)">← Back</a>
+</nav>
+
+<main class="container">
+  <h1 class="display" id="title">Project Brief</h1>
+  <p class="lead" id="lead">Tell me everything I need to deliver this right. Takes 3-5 minutes.</p>
+
+  <div class="success" id="success">
+    <strong>Brief received.</strong> I'll reach out within 24 hours to confirm details and kick off production. Check your inbox.
+  </div>
+
+  <form id="brief-form">
+    <div class="meta" id="order-meta">Loading order…</div>
+
+    <label>Your name <span class="req">*</span></label>
+    <input type="text" name="name" required>
+
+    <label>Email <span class="req">*</span></label>
+    <input type="email" name="email" required>
+
+    <label>Phone (optional)</label>
+    <input type="text" name="phone">
+
+    <div id="custom-fields">
+      <label>Project name / use case <span class="req">*</span></label>
+      <input type="text" name="project_name" placeholder="e.g. Brand reel for ABC Co. / Documentary opening theme" required>
+
+      <div class="row">
+        <div>
+          <label>Genre / style <span class="req">*</span></label>
+          <input type="text" name="genre" placeholder="e.g. cinematic, lo-fi, gospel, hip-hop">
+        </div>
+        <div>
+          <label>BPM target</label>
+          <input type="text" name="bpm" placeholder="e.g. 90 BPM or slow/medium/fast">
+        </div>
+      </div>
+
+      <label>Mood — what should this make people feel? <span class="req">*</span></label>
+      <input type="text" name="mood" placeholder="e.g. triumphant, reflective, hopeful, tense, intimate" required>
+
+      <label>Reference track (URL or artist name)</label>
+      <input type="url" name="reference_url" placeholder="https://… or 'Sounds like [artist]'">
+      <p class="help">If you can hear something close to what you want, paste a YouTube/Spotify link or the artist name. This makes my job easier.</p>
+
+      <label>What is this for? (use case)</label>
+      <textarea name="use_case" placeholder="e.g. Going on a YouTube documentary about my grandfather. Will play under the opening 90 seconds…"></textarea>
+
+      <label>Length needed</label>
+      <select name="length">
+        <option value="">— pick one —</option>
+        <option>15-30 seconds (Reel / Short)</option>
+        <option>30-60 seconds (Ad spot)</option>
+        <option>60-120 seconds (Standard track)</option>
+        <option>2-3 minutes (Full track)</option>
+        <option>3-5 minutes (Extended)</option>
+        <option>Specific length below</option>
+      </select>
+
+      <label>Deadline (if you have one)</label>
+      <input type="text" name="deadline" placeholder="e.g. ASAP / by 2026-06-01 / no rush">
+    </div>
+
+    <div id="original-fields" style="display:none">
+      <label>Who is this song for? <span class="req">*</span></label>
+      <input type="text" name="subject_name" placeholder="e.g. Person's name, brand, story title">
+
+      <label>Their story — give me everything <span class="req">*</span></label>
+      <textarea name="story" placeholder="The backstory. The journey. The character. The struggle. The win. What would honor them? The more I know, the better the song. Include links to their docs / footage / IG if useful." style="min-height:200px"></textarea>
+
+      <label>Documentary, footage, or reference URLs</label>
+      <textarea name="reference_urls" placeholder="Paste any YouTube, Vimeo, Drive, or IG links that give me material to work with"></textarea>
+
+      <label>Tone / genre direction</label>
+      <input type="text" name="tone" placeholder="e.g. gospel ballad, hip-hop tribute, country-rock anthem, orchestral cinematic">
+
+      <label>Vocal type</label>
+      <select name="vocal">
+        <option value="">— pick one —</option>
+        <option>Male lead</option>
+        <option>Female lead</option>
+        <option>Choir / group</option>
+        <option>King decides based on song</option>
+      </select>
+
+      <label>Use case / where it lives</label>
+      <textarea name="placement" placeholder="e.g. Will play during the documentary's closing 4 minutes / lives on the brand site / used in athlete's launch video"></textarea>
+    </div>
+
+    <label>Anything else I should know</label>
+    <textarea name="notes" placeholder="Anything else — pricing flexibility needed, special timing, etc."></textarea>
+
+    <button type="submit" id="submit-btn">Submit Project Brief</button>
+  </form>
+</main>
+
+<footer>
+  <p>Questions? Text/call King — <a href="tel:9088481436" style="color:var(--royal);font-weight:600">(908) 848-1436</a> · <a href="mailto:king@crownmediagroup.co" style="color:var(--royal)">king@crownmediagroup.co</a></p>
+  <p style="margin-top:8px;font-size:.78rem">Crown Media Group · All Glory to Jesus Global LLC · Columbia, SC</p>
+</footer>
+
+<script>
+const params = new URLSearchParams(location.search);
+const orderId = params.get('order');
+const email = params.get('email');
+// 'type' query param controls which intake variation to show: custom (default) | original | bundle
+const type = params.get('type') || (location.pathname.includes('original-song') ? 'original' : 'custom');
+
+const titles = {
+  custom:   'Custom Instrumental Brief',
+  original: 'Original Song Brief',
+  bundle:   'Bundle Brief — All Three Services',
+};
+const leads = {
+  custom:   "Tell me everything I need to deliver this right. Takes 3-5 minutes. I'll start production within 24 hours of receiving the brief.",
+  original: "This is the most personal one. Give me the story, give me the footage, give me the soul of who this is for. The more I know, the more this song will mean. 14 business days from now to delivered original.",
+  bundle:   "All three services — pick a catalog track, custom instrumental, AND original song. Fill the brief below; we'll coordinate the catalog license + instrumental + original separately.",
+};
+
+document.getElementById('title').textContent = titles[type] || titles.custom;
+document.getElementById('lead').textContent  = leads[type]  || leads.custom;
+
+if (type === 'original') {
+  document.getElementById('custom-fields').style.display = 'none';
+  document.getElementById('original-fields').style.display = 'block';
+}
+
+if (email) document.querySelector('input[name=email]').value = email;
+const meta = document.getElementById('order-meta');
+meta.textContent = orderId
+  ? `Order #${orderId} · ${email || 'no email on file'} · ${type} project`
+  : 'No order ID in URL — that\'s OK, I\'ll match by email.';
+
+document.getElementById('brief-form').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const btn = document.getElementById('submit-btn');
+  btn.disabled = true; btn.textContent = 'Submitting…';
+  const data = Object.fromEntries(new FormData(e.target));
+  data.order_id = orderId;
+  data.product_type = type;
+  try {
+    const res = await fetch('/api/music-intake', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify(data),
+    });
+    const json = await res.json();
+    if (res.ok && json.ok) {
+      document.getElementById('success').classList.add('show');
+      document.getElementById('brief-form').style.display = 'none';
+      window.scrollTo({top:0,behavior:'smooth'});
+    } else {
+      btn.disabled = false; btn.textContent = 'Submit Project Brief';
+      alert(json.error || 'Submission failed — try again or text (908) 848-1436');
+    }
+  } catch (err) {
+    btn.disabled = false; btn.textContent = 'Submit Project Brief';
+    alert('Network error: ' + err.message);
+  }
+});
+</script>
+
+</body>
+</html>

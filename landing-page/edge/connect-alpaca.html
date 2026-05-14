@@ -1,0 +1,181 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Connect Your Alpaca Account — Kingdom Edge | Crown Media Group</title>
+<meta name="robots" content="noindex">
+<link rel="icon" type="image/png" href="/logo.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--cream:#FDFBF7;--white:#FFF;--gold:#C9981A;--gold-deep:#9A720D;--royal:#1A1A3E;--text:#1A1A2E;--text-mid:#4A4A6A;--border:rgba(201,152,26,0.2);--green:#2D8C5A;--red:#C8442C}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{background:var(--cream);color:var(--text);font-family:'Inter',sans-serif;line-height:1.7}
+.display{font-family:'Cormorant Garamond',serif;font-weight:700}
+a{color:inherit}
+.legal-banner{background:var(--royal);color:#E8B832;font-size:.78rem;text-align:center;padding:8px 16px}
+nav{padding:16px 24px;border-bottom:1px solid var(--border);background:var(--white);display:flex;justify-content:space-between;align-items:center;max-width:1200px;margin:0 auto}
+.nav-logo{display:flex;align-items:center;gap:10px;font-family:'Cormorant Garamond',serif;font-weight:700}
+.nav-logo img{height:30px;width:30px;border-radius:6px}
+.container{max-width:780px;margin:0 auto;padding:48px 24px}
+h1{font-size:2.4rem;margin-bottom:12px}
+h2{font-family:'Cormorant Garamond',serif;font-size:1.6rem;margin:32px 0 12px;color:var(--royal)}
+.lead{color:var(--text-mid);margin-bottom:32px}
+.step{background:var(--white);border:1px solid var(--border);border-radius:8px;padding:24px 28px;margin-bottom:18px;position:relative;padding-left:64px}
+.step .num{position:absolute;left:22px;top:24px;width:32px;height:32px;border-radius:50%;background:var(--royal);color:var(--gold);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.95rem}
+.step h3{font-family:'Cormorant Garamond',serif;font-size:1.25rem;margin-bottom:6px;color:var(--royal)}
+.step p{color:var(--text-mid);font-size:.95rem;margin-bottom:10px}
+.step ul{padding-left:22px;color:var(--text-mid);font-size:.92rem;margin:8px 0}
+.step a.ext{color:var(--gold-deep);font-weight:600;border-bottom:1px solid var(--gold)}
+.connect-form{background:var(--white);border:2px solid var(--gold);border-radius:8px;padding:28px;margin-top:32px}
+label{display:block;font-weight:600;font-size:.92rem;margin:14px 0 6px;color:var(--royal)}
+label .req{color:var(--red)}
+input{width:100%;padding:12px 14px;border:1px solid var(--border);border-radius:4px;font-family:inherit;font-size:.95rem;background:var(--white)}
+input:focus{outline:none;border-color:var(--gold)}
+input[type=password]{font-family:monospace;letter-spacing:.1em}
+.mode-pick{display:flex;gap:10px;margin-top:6px}
+.mode-pick label{flex:1;padding:10px;border:1px solid var(--border);border-radius:4px;cursor:pointer;margin:0;text-align:center;background:#FAF7F0}
+.mode-pick label.selected{border-color:var(--gold);background:rgba(201,152,26,.08)}
+.mode-pick label input{display:none}
+.mode-pick small{display:block;color:var(--text-mid);font-weight:400;font-size:.78rem;margin-top:4px}
+button{background:var(--royal);color:var(--gold);padding:14px 28px;border-radius:4px;font-weight:600;font-size:.85rem;letter-spacing:.06em;text-transform:uppercase;border:none;cursor:pointer;width:100%;margin-top:18px}
+button:disabled{opacity:.5;cursor:not-allowed}
+.success{display:none;background:#E8F5EC;border:1px solid var(--green);color:#1A5C3A;padding:20px;border-radius:6px;margin-top:18px}
+.success.show{display:block}
+.error{display:none;background:#FBE8E5;border:1px solid var(--red);color:#7A1F1F;padding:14px;border-radius:6px;margin-top:18px}
+.error.show{display:block}
+.alert-warn{background:#FFF8E1;border-left:4px solid var(--gold);padding:16px 20px;border-radius:0 6px 6px 0;margin:24px 0;font-size:.92rem;color:var(--text-mid)}
+footer{padding:32px 24px;text-align:center;color:var(--text-mid);font-size:.85rem;border-top:1px solid var(--border);margin-top:48px}
+</style>
+</head>
+<body>
+
+<div class="legal-banner">Kingdom Edge — Phase 1 ships paper-trading only. Educational tool. Not investment advice.</div>
+
+<nav>
+  <a href="/" class="nav-logo"><img src="/logo.png" alt=""> Crown Media Group</a>
+  <a href="/edge/dashboard.html" style="font-size:.88rem;color:var(--text-mid)">← Dashboard</a>
+</nav>
+
+<main class="container">
+  <h1 class="display">Connect your <span style="color:var(--gold-deep)">Alpaca account</span>.</h1>
+  <p class="lead">Three steps. Five minutes. After this, our bot can fire trades on your account — but only on your account, using your own credentials. Crown Media Group never takes custody of your funds.</p>
+
+  <h2>Setup walkthrough</h2>
+
+  <div class="step">
+    <span class="num">1</span>
+    <h3>Create a free Alpaca account</h3>
+    <p>Go to <a class="ext" href="https://alpaca.markets/" target="_blank" rel="noopener">alpaca.markets</a> and sign up. Free. No funding required for paper trading.</p>
+    <ul>
+      <li>Email + password</li>
+      <li>Skip the live-account application for now — we only need paper trading</li>
+    </ul>
+  </div>
+
+  <div class="step">
+    <span class="num">2</span>
+    <h3>Get your paper-trading API key</h3>
+    <p>From the Alpaca dashboard:</p>
+    <ul>
+      <li>Switch the toggle at the top from "Live" to "Paper"</li>
+      <li>Click your profile → <strong>API Keys</strong></li>
+      <li>Click <strong>Generate New Key</strong></li>
+      <li>Copy the <strong>Key ID</strong> AND the <strong>Secret Key</strong> (the secret only shows once — save it now)</li>
+    </ul>
+  </div>
+
+  <div class="step">
+    <span class="num">3</span>
+    <h3>Paste them below</h3>
+    <p>We'll encrypt them on the server using AES-256 and call Alpaca to confirm the keys work.</p>
+  </div>
+
+  <div class="alert-warn">
+    <strong>What this gives us:</strong> permission to read your account state and place orders. <strong>What this does NOT give us:</strong> withdrawal access. Your funds stay with Alpaca; Crown Media Group cannot move them out. Revoke API access anytime via Alpaca's dashboard.
+  </div>
+
+  <form class="connect-form" id="connect-form" autocomplete="off">
+    <h3 style="margin:0 0 6px;font-family:'Cormorant Garamond',serif;color:var(--royal)">Paste your Alpaca keys</h3>
+    <p style="color:var(--text-mid);font-size:.88rem;margin-bottom:14px">We'll validate them with Alpaca before saving anything.</p>
+
+    <label>Your Edge subscriber email <span class="req">*</span></label>
+    <input type="email" name="email" required placeholder="you@example.com">
+
+    <label>Mode</label>
+    <div class="mode-pick">
+      <label class="selected"><input type="radio" name="mode" value="paper" checked> Paper<small>Simulated money. Available now.</small></label>
+      <label><input type="radio" name="mode" value="live"> Live<small>Real money. Coming after legal review.</small></label>
+    </div>
+
+    <label>API Key ID <span class="req">*</span></label>
+    <input type="text" name="api_key_id" required placeholder="PKxxxxxxxxxxxxxxxxxx" spellcheck="false">
+
+    <label>API Secret Key <span class="req">*</span></label>
+    <input type="password" name="api_secret" required placeholder="xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" spellcheck="false">
+
+    <button type="submit" id="submit-btn">Connect &amp; Validate</button>
+
+    <div class="success" id="success">
+      <strong>Connected.</strong> Alpaca confirmed your keys. <a href="/edge/dashboard.html" style="color:var(--royal);font-weight:700">Open the dashboard →</a> to pick a strategy.
+    </div>
+    <div class="error" id="error"></div>
+  </form>
+</main>
+
+<footer>
+  <p>Trouble connecting? Text <a href="tel:9088481436" style="color:var(--royal);font-weight:600">(908) 848-1436</a> or email <a href="mailto:king@crownmediagroup.co" style="color:var(--royal)">king@crownmediagroup.co</a></p>
+  <p style="margin-top:8px;font-size:.78rem">Crown Media Group · All Glory to Jesus Global LLC · Columbia, SC · <a href="/edge/terms.html" style="color:var(--royal)">Terms</a></p>
+</footer>
+
+<script>
+// Mode picker styling
+document.querySelectorAll('.mode-pick label').forEach(l => {
+  l.addEventListener('click', () => {
+    document.querySelectorAll('.mode-pick label').forEach(x => x.classList.remove('selected'));
+    l.classList.add('selected');
+  });
+});
+
+const params = new URLSearchParams(location.search);
+if (params.get('email')) document.querySelector('input[name=email]').value = params.get('email');
+
+document.getElementById('connect-form').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const btn = document.getElementById('submit-btn');
+  const successEl = document.getElementById('success');
+  const errorEl   = document.getElementById('error');
+  successEl.classList.remove('show'); errorEl.classList.remove('show');
+  btn.disabled = true; btn.textContent = 'Validating with Alpaca…';
+
+  const data = Object.fromEntries(new FormData(e.target));
+  try {
+    const res = await fetch('/api/edge-alpaca-connect', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify(data),
+    });
+    const json = await res.json();
+    if (res.ok && json.ok) {
+      successEl.classList.add('show');
+      btn.style.display = 'none';
+      window.scrollTo({top:document.body.scrollHeight, behavior:'smooth'});
+    } else {
+      btn.disabled = false; btn.textContent = 'Connect & Validate';
+      errorEl.textContent = json.error === 'alpaca_auth_failed'
+        ? 'Alpaca rejected the keys. Double-check you copied them correctly and that you generated them in PAPER mode.'
+        : json.error === 'live_mode_not_yet_available'
+        ? 'Live trading is not yet available. Use Paper mode for now — we will email you the day live unlocks.'
+        : (json.message || json.error || 'Something went wrong.');
+      errorEl.classList.add('show');
+    }
+  } catch (err) {
+    btn.disabled = false; btn.textContent = 'Connect & Validate';
+    errorEl.textContent = 'Network error: ' + err.message;
+    errorEl.classList.add('show');
+  }
+});
+</script>
+</body>
+</html>
