@@ -1,185 +1,95 @@
-# Kingdom Sound + Kingdom Edge — Launch Handoff
-Built 2026-05-13 · Status: code shipped, manual setup required to go live
+# Kingdom Sound + Kingdom Edge — Launch Handoff (post-pivot)
+Updated 2026-05-14 · Reflects the per-project music model + Alpaca trading bot pivot
 
-This doc walks King through the manual steps to flip both services live. Everything else is already coded and pushed.
-
----
-
-## SERVICE A — Kingdom Sound
-
-### What's already built
-- Pricing tiers (`$27` / `$67` / `$147` per month) in `create-subscription.mjs`
-- Stripe checkout flow + `subscription_data.metadata` propagation
-- Welcome email + subscriber-notification email on `checkout.session.completed`
-- Library API: `GET /api/music-library` (paginated, filtered, gated by active sub)
-- Download API: `POST /api/music-download` (signed URL, monthly quota enforcement)
-- Custom track request API: `POST /api/music-custom-request` (Pro + Studio only)
-- Marketing + member surface: `/music.html`
-- DB schema: 4 tables in `landing-page/supabase/migrations/0001_kingdom_sound.sql`
-
-### King's manual steps to launch
-
-1. **Run the SQL migration** in Supabase
-   - Open https://supabase.com/dashboard/project/pcikjtzvruvavaduawes → SQL Editor
-   - Paste contents of `landing-page/supabase/migrations/0001_kingdom_sound.sql`
-   - Run. (Idempotent — safe to re-run.)
-
-2. **Create the `kingdom-sound` Storage bucket** (Supabase Studio → Storage → New bucket)
-   - Name: `kingdom-sound`
-   - Public: NO (private — signed URLs only)
-   - File size limit: 50 MB (room for WAV)
-
-3. **Subscribe to AI music platforms** (recurring monthly cost):
-   - Suno Pro: $24/mo (https://suno.com)
-   - Udio Pro: $30/mo (https://udio.com)
-   - AIVA Pro: $33/mo (https://aiva.ai)
-   - Verify each platform's terms grant commercial use AND third-party licensing rights. Suno's TOS explicitly grants this on Pro; verify Udio + AIVA before going live.
-
-4. **Seed the catalog** — generate 100 starting tracks (10 each across 10 genres)
-   - Recommended genres: cinematic, corporate, hip-hop, ambient, worship, upbeat, lo-fi, rock, electronic, R&B
-   - Export each as MP3 (320 kbps) + WAV
-   - Upload to the `kingdom-sound` bucket — path pattern: `tracks/<track-id>.mp3` and `.wav`
-   - Insert each into `music_tracks` via Supabase Studio (Table Editor → music_tracks → Insert). Or batch via SQL.
-
-5. **Test the full flow**
-   - Use Stripe Test Mode keys. Subscribe to Starter via `/music.html`.
-   - Click "Open Library" after redirect, enter the test email.
-   - Search, filter, download a track — verify it lands.
-   - Try 6th download → should hit `quota_exceeded` 429.
+> For the full prioritized to-do across ALL of this week's work, see `Agency/ops/notes/KINGS-ACTION-LIST.md`.
+> This doc is the technical reference for the two products specifically.
 
 ---
 
-## SERVICE B — Kingdom Edge
+## SERVICE A — Kingdom Sound (per-project music)
 
-### What's already built
-- Pricing tiers (`$37` / `$97` / `$297` per month) in `create-subscription.mjs`
-- Welcome email + default watchlist auto-created on subscription
-- Watchlist CRUD API: `/api/edge-watchlist` (GET/POST/PATCH/DELETE)
-- Dashboard data API: `GET /api/edge-dashboard` (one-shot fetch)
-- Daily brief generator: `POST /api/edge-daily-brief` (Polygon + Claude + Resend)
-- Marketing surface: `/edge.html`
-- Member dashboard: `/edge/dashboard.html`
-- Legal pages: `/edge/terms.html`, `/edge/disclaimers.html`, `/edge/risk-disclosure.html`
-- DB schema: 5 tables in `landing-page/supabase/migrations/0002_kingdom_edge.sql`
+### Model
+NOT a subscription. One-time payments, three services:
+- **Catalog License** — `music-license-150` / `music-license-297` / `music-license-497`
+- **Custom Instrumental** — `music-custom-500` / `music-custom-750` / `music-custom-997`
+- **Fully Original Song** — `music-original-993`
+- **Bundle (all three)** — `music-bundle-2500`
 
-### King's manual steps to launch
+The old subscription SKUs (`music-starter-27` / `music-pro-67` / `music-studio-147`) are deprecated — left in `create-subscription.mjs` but removed from the site. Zero existing subscribers, clean cutover.
 
-1. **Run the SQL migration** in Supabase
-   - Paste contents of `landing-page/supabase/migrations/0002_kingdom_edge.sql` → Run.
+### What's built
+- `landing-page/music.html` — per-project pricing, samples player, three service cards, bundle, market comparison
+- `create-checkout.mjs` — all 8 one-time music SKUs
+- `stripe-webhook.mjs` — routes `music-license-*` to delivery, `music-custom-*` / `music-original-*` / `music-bundle-*` to intake forms
+- `music-intake.mjs` — receives project briefs, emails King
+- `music/custom-intake.html` + `original-song-intake.html` + `bundle-intake.html` — one shared template
+- `music-download.mjs` + `_music-license-pdf.mjs` — signed-URL delivery + PDF license certificate (pdf-lib)
+- 5 sample MP3s live in `assets/music-samples/` (generated via fal.ai stable-audio)
+- Migration `0003_music_orders.sql`
 
-2. **Get API keys** and add to Netlify environment variables:
-   - `POLYGON_API_KEY` — sign up at https://polygon.io (Starter plan, $29/mo)
-   - `ANTHROPIC_API_KEY` — already set (Claude API)
-   - `EDGE_INTERNAL_SECRET` — make up a strong secret (this gates `/api/edge-daily-brief` so randoms can't trigger it)
-
-3. **LEGAL — DO NOT SKIP**
-   - Send `/edge/terms.html` + `/edge/disclaimers.html` + `/edge/risk-disclosure.html` to a securities attorney for review. Budget: $1.5k-3k flat fee.
-   - Common attorneys for SC small business / fintech disclaimers: search for "securities lawyer Charleston SC" or "fintech attorney South Carolina."
-   - Until attorney signs off — keep `/edge.html` link off the homepage if you want to be ultra-cautious. (It's already on the homepage. If concerned, comment out the service card on `landing-page/index.html` lines ~498-500 until reviewed.)
-
-4. **Stripe products in test mode first**
-   - Subscribe to one of each tier via `/edge.html`
-   - Confirm welcome email arrives, default watchlist auto-creates
-   - Log into dashboard with that email, add symbols, edit watchlist
-
-5. **Trigger first daily brief manually**
-   ```bash
-   curl -X POST https://crownmediagroup.co/api/edge-daily-brief \
-     -H "Content-Type: application/json" \
-     -d '{"brief_type":"morning","secret":"YOUR_EDGE_INTERNAL_SECRET"}'
-   ```
-   - Verify the response includes `subscribers > 0` and `sent > 0`
-   - Verify the brief arrives in the test subscriber's inbox
-   - View brief in dashboard (latest brief surfaces automatically)
-
-6. **Set up the schedule** (once everything else works)
-   - Add this to `landing-page/netlify.toml` to schedule the morning brief at 10:00 UTC = ~6 AM ET:
-     ```toml
-     [functions."edge-daily-brief"]
-       schedule = "0 10 * * 1-5"
-     ```
-   - Note: Netlify's scheduled functions don't pass POST bodies. You'll need to refactor `edge-daily-brief.mjs` to accept default `brief_type='morning'` and read the secret from `process.env`. Or use an external cron service (cron-job.org is free, lets you POST with a body).
-   - Repeat for midday + close: `0 16 * * 1-5` (12 PM ET) and `30 20 * * 1-5` (4:30 PM ET).
+### King's manual steps for Music
+1. Run `0003_music_orders.sql` in Supabase SQL editor
+2. Create `kingdom-sound` private storage bucket in Supabase
+3. Create the 8 one-time Stripe products (one per SKU above) — set price IDs to match `create-checkout.mjs` amounts
+4. Seed the catalog: generate 100 tracks via Suno/Udio using `Agency/ops/music/100-track-seed-prompts.md`, upload to the bucket, insert rows into `music_tracks`
+5. Test-mode: buy `music-license-150` → confirm delivery email + license PDF; buy `music-custom-500` → confirm intake form flow
 
 ---
 
-## SHARED — Site Updates Shipped
+## SERVICE B — Kingdom Edge (Alpaca trading bot)
 
-- 2 new service cards on homepage (`/` → services section) — cards 07 + 08 with NEW badges
-- Updated `LocalBusiness > hasOfferCatalog` JSON-LD with both new services
-- Nav links to `/music.html` + `/edge.html` (desktop + mobile)
-- `sitemap.xml` updated with 5 new URLs (music, edge, terms, disclaimers, risk)
+### Model
+Three tiers — the bot trades the user's OWN Alpaca account with the user's OWN keys:
+- **Watch — `edge-watch-37`** — daily AI brief only, no bot
+- **Paper Trader — `edge-trade-97`** — bot trades the user's Alpaca PAPER account (simulated money)
+- **Live Trader — `edge-edge-297`** — bot trades the user's LIVE account — **GATED** behind `EDGE_LIVE_ENABLED=true` env var (leave unset until attorney sign-off)
 
----
+### What's built
+- `landing-page/edge.html` — 3 tiers, "how it works" steps, 3 strategy cards, Live tier shown as "Coming after legal review"
+- `_edge-bot-helpers.mjs` — AES-256-GCM key encryption + Alpaca REST helpers (paper/live URL switching)
+- `edge-alpaca-connect.mjs` — validates the user's key against Alpaca `/account` before encrypting + storing
+- `edge-bot-strategy.mjs` — user picks active strategy + symbols
+- `edge-bot-runner.mjs` — scheduled-function-ready executor; loops active strategies, runs evaluators, places orders, snapshots accounts. Manual trigger via curl with `EDGE_INTERNAL_SECRET`.
+- `edge-bot-status.mjs` — dashboard data
+- `_strategies/{trend-follow,mean-revert,breakout,index}.mjs` — 3 strategies
+- `edge/connect-alpaca.html` — 3-step onboarding
+- `edge/dashboard.html` — bot status panel added
+- Legal pages updated: `terms.html` §2A authorization clause, `disclaimers.html` §3, `risk-disclosure.html` §7A
+- Migration `0004_edge_bot.sql`
 
-## Environment Variables Required (Netlify Dashboard → Site Settings → Env)
-
-| Var | Used by | Required? |
-|-----|---------|-----------|
-| `STRIPE_SECRET_KEY` | All checkout + webhook | Already set |
-| `STRIPE_WEBHOOK_SECRET` | Webhook signature verification | Already set |
-| `SUPABASE_URL` | All Supabase clients | Already set |
-| `SUPABASE_SERVICE_ROLE_KEY` | All Supabase clients (admin) | Already set |
-| `RESEND_API_KEY` | Welcome + brief emails | Already set |
-| `POLYGON_API_KEY` | Edge daily brief market data | **NEW — set this** |
-| `ANTHROPIC_API_KEY` | Edge daily brief summarization | Already set (or set if missing) |
-| `EDGE_INTERNAL_SECRET` | Gates manual brief trigger | **NEW — set this (any strong string)** |
-
----
-
-## Stripe Test-Mode Verification Checklist
-
-Run through this BEFORE switching to live mode:
-
-- [ ] Subscribe to `music-starter-27` → welcome email arrives → `/music.html?success=1&email=...` opens → library loads → download 1 track → quota shows 1/5
-- [ ] Hit download 6 times → 6th returns 429 `quota_exceeded`
-- [ ] Subscribe to `music-pro-67` from same test email → quota now 1/20 (pro tier wins over starter)
-- [ ] Try `/api/music-custom-request` from starter email → 403 `starter_tier_not_eligible`
-- [ ] Subscribe to `edge-watch-37` → welcome email → default watchlist auto-created → dashboard loads → add 5 symbols → save
-- [ ] Manually trigger morning brief via curl → email arrives in test subscriber inbox → dashboard shows it under "Today's brief"
-- [ ] Cancel subscription in Stripe → `customer.subscription.deleted` fires → `upkeep_clients.status = 'cancelled'` → next API call returns 403
+### King's manual steps for Edge
+1. Run `0004_edge_bot.sql` in Supabase SQL editor
+2. Create the 3 edge Stripe subscription products (`edge-watch-37`, `edge-trade-97`, `edge-edge-297`)
+3. Set Netlify env vars:
+   - `EDGE_BOT_KEY_SECRET` — 32+ char random string. **ONE-WAY: never change it once set or all stored Alpaca keys become unrecoverable.**
+   - `POLYGON_API_KEY` — for the daily brief market data
+   - `EDGE_INTERNAL_SECRET` — gates the bot runner + brief trigger
+   - Leave `EDGE_LIVE_ENABLED` UNSET — keeps live trading blocked
+4. **Securities attorney review** of `edge/terms.html`, `disclaimers.html`, `risk-disclosure.html` — highest-priority legal item now that Edge places real trades
+5. Test-mode: subscribe to `edge-trade-97` → connect a personal Alpaca paper key at `/edge/connect-alpaca.html` → pick a strategy in the dashboard → manually trigger `edge-bot-runner.mjs` via curl during market hours → confirm a paper trade fires
+6. Once tested + attorney-cleared: schedule `edge-bot-runner.mjs` in `netlify.toml` (cron `*/5 13-20 * * 1-5`) and `edge-daily-brief.mjs`
 
 ---
 
-## Files Changed/Created This Session
+## Env var summary
 
-**Backend:**
-- `landing-page/netlify/functions/create-subscription.mjs` (modified — 6 new SKUs + subscription_data metadata)
-- `landing-page/netlify/functions/stripe-webhook.mjs` (modified — music/edge welcome flow + default watchlist)
-- `landing-page/netlify/functions/_music-helpers.mjs` (new — shared helpers)
-- `landing-page/netlify/functions/_edge-helpers.mjs` (new — shared helpers)
-- `landing-page/netlify/functions/music-library-search.mjs` (new)
-- `landing-page/netlify/functions/music-download.mjs` (new)
-- `landing-page/netlify/functions/music-custom-request.mjs` (new)
-- `landing-page/netlify/functions/edge-watchlist-crud.mjs` (new)
-- `landing-page/netlify/functions/edge-dashboard-data.mjs` (new)
-- `landing-page/netlify/functions/edge-daily-brief.mjs` (new)
-
-**Migrations:**
-- `landing-page/supabase/migrations/0001_kingdom_sound.sql` (new)
-- `landing-page/supabase/migrations/0002_kingdom_edge.sql` (new)
-
-**Frontend:**
-- `landing-page/music.html` (new)
-- `landing-page/edge.html` (new)
-- `landing-page/edge/dashboard.html` (new)
-- `landing-page/edge/terms.html` (new)
-- `landing-page/edge/disclaimers.html` (new)
-- `landing-page/edge/risk-disclosure.html` (new)
-
-**Site integration:**
-- `landing-page/index.html` (services grid + OfferCatalog JSON-LD + nav)
-- `landing-page/sitemap.xml` (5 new URLs)
+| Var | Used by | Status |
+|-----|---------|--------|
+| `STRIPE_SECRET_KEY` / `STRIPE_WEBHOOK_SECRET` | checkout + webhook | already set |
+| `SUPABASE_URL` / `SUPABASE_SERVICE_ROLE_KEY` | all DB access | already set |
+| `RESEND_API_KEY` | all emails | already set |
+| `EDGE_BOT_KEY_SECRET` | Alpaca key encryption | **SET THIS — never change after** |
+| `POLYGON_API_KEY` | Edge daily brief | **SET THIS** |
+| `EDGE_INTERNAL_SECRET` | bot runner + brief trigger gate | **SET THIS** |
+| `EDGE_LIVE_ENABLED` | unlocks live trading | **leave UNSET until attorney sign-off** |
+| `FAL_KEY` | music sample generation | already set |
 
 ---
 
-## What's NOT shipped (deferred to Phase 2+)
+## The 3 things that block everything
 
-- Music license PDF auto-generator (currently returns license object inline)
-- Edge alert engine (5-min scheduled cron checking setups)
-- Edge SMS delivery (currently email-only)
-- Edge auto-execute via user's brokerage API (Phase 6 — requires attorney review)
-- Magic-link authentication for member areas (currently email-gate trust model)
-- AI tools page tabs for Music + Edge (skipped — both have dedicated marketing pages)
+1. **Run the 4 Supabase migrations** (0001-0004) — without these, every signup fails at the data layer
+2. **Set `EDGE_BOT_KEY_SECRET`** — without it, nobody can connect Alpaca
+3. **Securities attorney review** — Edge is now a real trading bot; this is the top legal exposure
 
-These are noted as future scope. None block launch.
+Everything else (Stripe products, catalog seeding, GBP, coupon) is important but not a hard blocker on the others.

@@ -1,74 +1,77 @@
 ---
-title: "Kingdom Edge Is Live — AI-Powered Market Intelligence for Retail Traders"
+title: "Kingdom Edge — Connect Your Account, Let the Bot Trade"
 date: "2026-05-13"
 publishTime: "16:30"
 slug: "kingdom-edge-ai-trading-intelligence-launch"
 category: "Product"
-tags: ["Kingdom Edge", "AI Trading", "Market Research", "Daily Briefing"]
-excerpt: "Daily AI-summarized market briefings, watchlist tracking, and pattern alerts for stocks and crypto. Educational research tool — not investment advice."
+tags: ["Kingdom Edge", "AI Trading Bot", "Alpaca", "Paper Trading", "Automated Trading"]
+excerpt: "Connect your own Alpaca account. Our AI bot fires trades on your account using your own keys. Start in paper-mode — simulated money, real bot, zero risk. Educational tool — not investment advice."
 author: "David King"
 draft: false
 faq:
   - q: "What is Kingdom Edge?"
-    a: "Kingdom Edge is a subscription research and education service that delivers AI-summarized market briefings, watchlist tracking, and pattern alerts to retail traders. The service covers both U.S. equities and major cryptocurrencies. It is a research tool, not investment advice."
-  - q: "Does Kingdom Edge place trades for me?"
-    a: "No. Kingdom Edge does not execute trades, transfer funds, or take custody of any securities or cryptocurrency. Every trade decision you make is yours alone, executed through your own brokerage. We provide information; you make the call."
+    a: "Kingdom Edge is a subscription service with three tiers. Watch ($37/mo) delivers daily AI market briefings — research only. Paper Trader ($97/mo) connects your Alpaca paper-trading account so our AI bot can fire simulated trades for you. Live Trader ($297/mo) does the same on a live account — and unlocks only after our securities attorney review is complete."
+  - q: "Does Kingdom Edge take my money?"
+    a: "No. Crown Media Group never takes custody of your funds. You connect your OWN Alpaca brokerage account using your OWN API keys. The bot can place buy and sell orders, but it cannot withdraw or transfer funds. You retain complete control and can revoke API access anytime from Alpaca's dashboard."
+  - q: "What is paper-mode and why start there?"
+    a: "Alpaca lets you create a free paper-trading account — real markets, simulated money. In paper-mode the bot trades exactly as it would live, but no real capital is at risk. It is the honest way to find out whether the bot works for you before you ever risk a dollar."
   - q: "Is Kingdom Edge investment advice?"
-    a: "No. Kingdom Edge is an educational and research tool. The information delivered through the service is identical for all subscribers of a given tier — none of it is personalized to your individual financial situation, goals, or risk tolerance. We are not a Registered Investment Adviser. Always consult a licensed financial advisor before making investment decisions."
-  - q: "How are the daily briefings generated?"
-    a: "We pull market data and recent news from professional data providers (Polygon.io and similar), then use Claude AI to summarize overnight market activity, identify three tickers worth watching that session, and surface earnings or events on the calendar. The morning brief is written like a Wall Street Journal Morning Briefing — sharp, scannable, no fluff."
-  - q: "What watchlists and alerts are available?"
-    a: "Build watchlists of tickers you care about (stocks and crypto), then set conditions — price crosses, moving-average crosses, percentage-change spikes. When a condition triggers, we email you (and on Trade and Edge tiers, send an SMS). Watch tier supports one watchlist with 10 symbols. Trade tier supports three watchlists with 20 symbols each. Edge tier supports ten watchlists with 50 symbols each."
-  - q: "What if I lose money trading after acting on a Kingdom Edge brief?"
-    a: "Trading carries risk, and Kingdom Edge cannot and does not guarantee any specific outcome. Past performance is not indicative of future results. You are solely responsible for your trading decisions. Our Terms of Service, Disclaimers, and Risk Disclosure pages cover this in detail. Only trade with funds you can afford to lose entirely."
-  - q: "Want a daily information edge?"
-    a: "[See plans and start your subscription →](https://crownmediagroup.co/edge.html). Three tiers ($37, $97, $297 per month). Cancel anytime. Educational research tool — not investment advice."
+    a: "No. Kingdom Edge is an educational tool. We are not a Registered Investment Adviser. The bot runs pre-built strategies you select — it is not personalized advice tailored to your financial situation. Trading involves substantial risk including loss of principal. Consult a licensed financial advisor before trading. See our Terms, Disclaimers, and Risk Disclosure."
+  - q: "What strategies does the bot run?"
+    a: "Three pre-built, back-tested strategies you pick from: Trend Follow (SMA-crossover momentum), Mean Revert (RSI-based buying of oversold conditions), and Breakout (20-day high breakouts with volume confirmation). You choose one at a time and can switch monthly. All back-test results are historical and not indicative of future performance."
+  - q: "When will live trading be available?"
+    a: "The Live Trader tier is visible but gated. It unlocks only after Crown Media Group completes a securities attorney review of the operating model and puts a signed customer agreement in place. Until then, everyone trades in paper-mode. Subscribe to be notified the day live unlocks."
+  - q: "Ready to test the bot?"
+    a: "[See plans and start →](https://crownmediagroup.co/edge.html). Watch $37/mo, Paper Trader $97/mo. Cancel anytime. Educational tool — not investment advice. Trading involves risk of loss."
 ---
 
-**Important first: Kingdom Edge is an educational research tool. It is not investment advice. Trading securities and cryptocurrencies involves substantial risk including loss of principal. We are not a Registered Investment Adviser. Please review our [Terms](/edge/terms.html), [Disclaimers](/edge/disclaimers.html), and [Risk Disclosure](/edge/risk-disclosure.html) before subscribing.**
+**Important first: Kingdom Edge is an educational tool operating an automated trading bot on YOUR brokerage account using YOUR API keys. We are not a Registered Investment Adviser. We never take custody of your funds. Trading securities and cryptocurrencies involves substantial risk including loss of principal. Please review our [Terms](/edge/terms.html), [Disclaimers](/edge/disclaimers.html), and [Risk Disclosure](/edge/risk-disclosure.html) before subscribing.**
 
-Now that's out of the way — let me tell you what we built and why.
+Now — let me tell you what we built and why.
 
-## The information asymmetry problem
+## The problem: information without action
 
-If you trade — stocks, crypto, options, anything — you already know the game. Big institutional traders walk into every session with a research desk behind them. Bloomberg terminals, Reuters feeds, sell-side analyst notes summarized before the open, dedicated analysts watching every catalyst in the calendar. They start the day with a pre-processed view of the world.
+Most trading tools stop at information. TradingView gives you charts. Benzinga gives you news. Trade Ideas gives you scanners. They hand you a beautiful dashboard — and then they hand you the hardest part: actually pulling the trigger, consistently, without emotion, every single session.
 
-Retail traders, by default, walk into the same session with Twitter, Reddit, and a few free news sites. By the time you've scrolled enough to understand what moved overnight, the open is gone and you're reacting to price action instead of leading it.
+Most retail traders don't lose because they lack information. They lose because they hesitate, they second-guess, they let fear and greed override the plan. The gap isn't knowledge. The gap is **execution discipline.**
 
-**Kingdom Edge closes that gap.**
+Kingdom Edge closes that gap by letting an AI bot run the plan for you — on your own account, with your own money, under your own control.
 
-## What Kingdom Edge actually does
+## How it works
 
-Three things, every market day:
+Four steps:
 
-**1. The Morning Brief — 6:00 AM ET.** Overnight news from Asia and Europe. Futures direction. Three specific tickers worth watching today, with a one-line reason why. Earnings and events on the calendar that could move things. Around 350 words. Built to read in three minutes with coffee.
+1. **Subscribe** — Watch (briefings only, $37/mo) or Paper Trader ($97/mo, the bot tier).
+2. **Get a free Alpaca paper account** — takes under 60 seconds. Real markets, simulated money, no funding required.
+3. **Paste your paper API key** — encrypted server-side with AES-256. The key gives us read + trade permission only. We can place orders; we cannot move your money.
+4. **Pick a strategy. The bot runs.** — Choose one of three pre-built strategies. The bot fires trades during market hours. A daily P&L report lands in your inbox.
 
-**2. The Midday Brief — 12:00 PM ET.** A check-in on what's moving and why. The pre-close setup. (Trade and Edge tiers.)
+## Three strategies
 
-**3. The Close Brief — 4:30 PM ET.** Wraps the day. Previews tomorrow's catalysts. (Trade and Edge tiers.)
+You pick one at a time, reconfigurable monthly:
 
-Underneath those briefs, you get a member dashboard where you build watchlists — your tickers, organized your way. Add conditions (price crosses, moving-average crosses, percentage moves) and we alert you when they fire. Edge tier scans your watchlists every 5 minutes during market hours for high-conviction setups. You decide whether and when to act.
+- **Trend Follow** — systematic SMA-crossover momentum on liquid large-caps. Holds while the trend is intact, exits on the moving-average flip.
+- **Mean Revert** — buys oversold RSI conditions on quality names, takes profit as price reverts. Best in choppy markets.
+- **Breakout** — buys validated breakouts above multi-day resistance with volume confirmation, cuts losers fast with a trailing stop.
 
-Every email, every alert, every page on the platform carries the same disclaimer: **this is an educational research tool, not investment advice.** That's not legal cover — that's what the product actually *is*. We're showing you the same information a research analyst would summarize for a portfolio manager. We're not telling you what to do with it.
+All three are back-tested. All back-tests are historical and **not indicative of future results.** Every strategy experiences drawdown periods. That's not marketing softness — that's how trading actually works.
 
-## Three tiers
+## Why paper-mode first
 
-**Watch — $37 per month.** Morning brief. One watchlist (10 symbols max). 5 alerts per day. Stocks and crypto. Email delivery. Best for traders building the habit.
+Here's the honest part. We're launching paper-mode only. Not because the bot doesn't work — because **you shouldn't trust a bot with real money until you've watched it trade for a month with fake money.**
 
-**Trade — $97 per month.** Morning + midday + close briefs. Three watchlists (20 symbols each). 25 alerts per day. Earnings preview. Sector heatmaps. Email and SMS delivery. Best for active intraday and swing traders.
+Connect your Alpaca paper account. Let the bot run. Watch the daily P&L reports. See how it behaves in a good week and a bad week. Then — and only then — decide whether you want the Live Trader tier when it opens.
 
-**Edge — $297 per month.** Everything in Trade, plus: ten watchlists (50 symbols each), 100 alerts per day, real-time push alerts, custom setup scanning during market hours, and a weekly 30-minute strategy call directly with King to talk through your watchlist or your week. Best for full-time and pro retail traders.
+## What Kingdom Edge is — and is not
 
-## What Kingdom Edge is not
+**It is:** an automated trading service that runs pre-built strategies on your own brokerage account, under your own control, with a research-briefing layer on top.
 
-Let me be precise about what we are not, because the line matters.
+**It is not:** a Registered Investment Adviser. It does not give personalized investment advice. It does not take custody of your funds. It does not promise returns — past back-tests never indicate future results. It does not pool your money with anyone else's.
 
-We are not a Registered Investment Adviser. We are not telling you which stocks to buy. We are not executing trades on your behalf. We are not taking custody of your funds. We are not promising any return — past performance never indicates future results. We are not, and never will be, recommending positions tailored to your specific financial situation.
+The Watch tier is pure research. The Paper Trader tier is the bot on simulated money. The Live Trader tier — real money on your live account — is gated behind a securities attorney review and a signed customer agreement. We will not turn it on a day before that's done.
 
-What we are is a research engine. A daily briefing service. A pattern-scanner. A watchlist tracker. A way to walk into the session better informed than you walked in yesterday.
-
-If that's the edge you've been looking for — we built this for you.
+If that's the kind of discipline you've been looking for — built honestly, faith-first — we made this for you.
 
 [See plans and get started →](https://crownmediagroup.co/edge.html)
 
-*Kingdom Edge is an educational research tool. Not investment advice. Trading involves risk of loss. Past performance is not indicative of future results. Please review the [Terms of Service](/edge/terms.html), [Disclaimers](/edge/disclaimers.html), and [Risk Disclosure](/edge/risk-disclosure.html) before subscribing.*
+*Kingdom Edge is an educational tool. Not investment advice. We are not a Registered Investment Adviser. We do not take custody of customer funds. Trading involves substantial risk of loss including loss of principal. Past back-test performance is not indicative of future results. Please review the [Terms of Service](/edge/terms.html), [Disclaimers](/edge/disclaimers.html), and [Risk Disclosure](/edge/risk-disclosure.html) before subscribing.*

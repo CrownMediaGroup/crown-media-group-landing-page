@@ -32,10 +32,20 @@ const GENERIC_PATTERNS = [
   // Wix/CMS internal addresses
   /wixpress\.com$/i,
   /sentry-next\./i,
+  /@sentry\.io$/i,
+  /@churchspring/i,
+  /indiantypefoundry/i,
   // Placeholder/template emails
   /mysite\.com$/i,
   /churchemailaddress\.com$/i,
   /sansoxygen\.com$/i,
+  /^name@email/i,
+  /@email\.com$/i,
+  /@yourdomain/i,
+  /@example\./i,
+  // URL-encoded garbage prefixes (e.g. %20macowen@me.com)
+  /^%/,
+  /%[0-9a-f]{2}/i,
   // Numeric-prefixed donation/account IDs (e.g. 28289-0004donorservices@)
   /^\d{5}-\d{4}/,
 ];
