@@ -22,7 +22,7 @@ const resend = new Resend(process.env.RESEND_API_KEY);
 
 const POLYGON_KEY    = process.env.POLYGON_API_KEY;
 const ANTHROPIC_KEY  = process.env.ANTHROPIC_API_KEY;
-const INTERNAL_SECRET = process.env.EDGE_INTERNAL_SECRET || 'EdgeBrief2026';
+const INTERNAL_SECRET = process.env.EDGE_INTERNAL_SECRET;
 
 const TRACKED_TICKERS = ['SPY', 'QQQ', 'IWM', 'DIA', 'VIX'];
 const TRACKED_CRYPTO  = ['X:BTCUSD', 'X:ETHUSD'];
@@ -160,6 +160,7 @@ export default async (req) => {
   let body;
   try { body = await req.json(); } catch { return json(400, { error: 'invalid_json' }); }
 
+  if (!INTERNAL_SECRET) return json(503, { error: 'server_misconfig', detail: 'EDGE_INTERNAL_SECRET not set' });
   if (body.secret !== INTERNAL_SECRET) return json(401, { error: 'unauthorized' });
 
   const briefType = body.brief_type || 'morning';

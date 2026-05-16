@@ -110,14 +110,20 @@ app.use(helmet({
 app.set('trust proxy', 1);
 
 // ── CORS — allow crownmediagroup.co to call the CRM API with credentials ───────
-const ALLOWED_ORIGINS = [
+// Localhost origins are dev-only; gated behind NODE_ENV.
+const PROD_ORIGINS = [
   'https://crownmediagroup.co',
   'https://www.crownmediagroup.co',
   'https://crm.crownmediagroup.co',
+];
+const DEV_ORIGINS = [
   'http://localhost:3000',
   'http://localhost:8080',
   'http://localhost:5500',
 ];
+const ALLOWED_ORIGINS = process.env.NODE_ENV === 'production'
+  ? PROD_ORIGINS
+  : [...PROD_ORIGINS, ...DEV_ORIGINS];
 app.use((req, res, next) => {
   const origin = req.headers.origin;
   if (origin && ALLOWED_ORIGINS.includes(origin)) {
@@ -320,22 +326,23 @@ app.post('/api/login', loginLimiter, (req, res) => {
   const valid = user ? verifyPassword(password, user.password_hash) : (verifyPassword(password, dummyHash), false);
 
   const clientIp = (req.headers['x-forwarded-for'] || '').split(',')[0].trim() || req.ip || 'unknown';
+  const hashId = (s) => s ? require('crypto').createHash('sha256').update(String(s)).digest('hex').slice(0, 12) : 'none';
 
   if (!valid) {
-    // Generic error — never reveal whether email or password was wrong
-    console.log(`[CRM LOGIN FAIL] email=${email?.toLowerCase().trim().slice(0,60)} | ${new Date().toISOString()} | ip=${clientIp}`);
+    // Generic error — never reveal whether email or password was wrong. Log hashed identifiers only.
+    console.log(`[CRM LOGIN FAIL] email_hash=${hashId(email)} | ${new Date().toISOString()} | ip_hash=${hashId(clientIp)}`);
     return res.status(401).json({ error: 'Wrong email or password.' });
   }
 
   // Login success — clean expired sessions
   db.prepare("DELETE FROM sessions WHERE expires_at < datetime('now')").run();
 
-  // Secure login log — email + trial status, never password
+  // Secure login log — hashed email + trial status, never password or plain PII
   const ws = db.prepare('SELECT trial_ends_at, subscription_status FROM workspaces WHERE id = ?').get(user.workspace_id);
   const trialDaysLeft = ws?.trial_ends_at
     ? Math.max(0, Math.ceil((new Date(ws.trial_ends_at) - Date.now()) / (1000 * 60 * 60 * 24)))
     : null;
-  console.log(`[CRM LOGIN] email=${user.email} | ${new Date().toISOString()} | ip=${clientIp} | role=${user.role} | status=${ws?.subscription_status || 'unknown'}${trialDaysLeft !== null ? ` | trial_days_left=${trialDaysLeft}` : ''}`);
+  console.log(`[CRM LOGIN] email_hash=${hashId(user.email)} | ${new Date().toISOString()} | ip_hash=${hashId(clientIp)} | role=${user.role} | status=${ws?.subscription_status || 'unknown'}${trialDaysLeft !== null ? ` | trial_days_left=${trialDaysLeft}` : ''}`);
 
   const token = createSession(user.id, user.workspace_id);
   const isProd = process.env.NODE_ENV === 'production';

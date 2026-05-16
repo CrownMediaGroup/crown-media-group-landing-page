@@ -25,6 +25,47 @@ export default async (req) => {
 
   if (!email || !email.includes('@')) return json(400, { error: 'invalid_email' });
 
+  // ── AUTH: must be tied to a paid order on this email, OR rate-limited ──
+  // Pre-payment briefs are no longer accepted from unverified emails — too much
+  // spam exposure on the custom/original tiers.
+  let order = null;
+  if (orderId) {
+    const { data } = await supabase
+      .from('music_orders')
+      .select('id, user_email, status, product_type')
+      .eq('id', orderId)
+      .eq('user_email', email)
+      .maybeSingle();
+    if (!data || data.status !== 'paid') {
+      return json(403, { error: 'order_not_found_or_unpaid', detail: 'Submit your brief from the link in your post-purchase confirmation email.' });
+    }
+    order = data;
+  } else {
+    // No order_id provided — only allow if the email has at least one paid music order
+    const { data: anyPaid } = await supabase
+      .from('music_orders')
+      .select('id')
+      .eq('user_email', email)
+      .eq('status', 'paid')
+      .limit(1)
+      .maybeSingle();
+    if (!anyPaid) {
+      return json(403, { error: 'no_paid_order', detail: 'You need a paid order before submitting a brief. Check your inbox for the link from your purchase confirmation.' });
+    }
+  }
+
+  // ── RATE LIMIT: one brief per email per hour ──────────────────────────────
+  const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000).toISOString();
+  const { count: recentCount } = await supabase
+    .from('music_orders')
+    .select('id', { count: 'exact', head: true })
+    .eq('user_email', email)
+    .gte('updated_at', oneHourAgo)
+    .not('intake_brief', 'is', null);
+  if ((recentCount || 0) >= 2) {
+    return json(429, { error: 'rate_limited', detail: 'Too many briefs in the last hour. Try again later or text (908) 848-1436.' });
+  }
+
   // Build a human-readable brief text + structured metadata
   const briefLines = [];
   const skip = ['order_id', 'product_type', 'email'];
@@ -34,30 +75,37 @@ export default async (req) => {
   }
   const briefText = briefLines.join('\n');
 
-  // Try to find an existing order; if found, update; if not, insert new
-  let order;
-  if (orderId) {
+  // Update the verified order with the brief
+  if (order) {
     const { data } = await supabase
       .from('music_orders')
-      .update({ intake_brief: briefText, intake_metadata: body })
-      .eq('id', orderId)
+      .update({ intake_brief: briefText, intake_metadata: body, updated_at: new Date().toISOString() })
+      .eq('id', order.id)
       .eq('user_email', email)
       .select().single();
-    order = data;
-  }
-  if (!order) {
+    order = data || order;
+  } else {
+    // No specific orderId, but customer has paid orders — attach to most recent unbrief'd one
     const { data } = await supabase
       .from('music_orders')
-      .insert({
-        user_email:   email,
-        product_id:   'music-intake-pre-payment',
-        product_type: productType,
-        amount_cents: 0,
-        status:       'brief_only',
-        intake_brief: briefText,
-        intake_metadata: body,
-      }).select().single();
-    order = data;
+      .select('id')
+      .eq('user_email', email)
+      .eq('status', 'paid')
+      .is('intake_brief', null)
+      .order('created_at', { ascending: false })
+      .limit(1)
+      .maybeSingle();
+    if (data?.id) {
+      const { data: updated } = await supabase
+        .from('music_orders')
+        .update({ intake_brief: briefText, intake_metadata: body, updated_at: new Date().toISOString() })
+        .eq('id', data.id)
+        .eq('user_email', email)
+        .select().single();
+      order = updated;
+    } else {
+      return json(409, { error: 'no_open_order', detail: 'Every paid order on this email already has a brief. Reply to the original confirmation email to add notes.' });
+    }
   }
 
   // Notify King

@@ -2,6 +2,14 @@
 import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
 import { existsSync, mkdirSync, readFileSync } from 'fs';
+import { createHmac } from 'crypto';
+
+// HMAC-signed unsubscribe token — uses SEED_TOKEN as the signing secret.
+// Keeps tokens short (16 hex chars / 64 bits) — adequate for a non-sensitive opt-out flow.
+function unsubscribeSig(churchId) {
+  const secret = process.env.SEED_TOKEN || '';
+  return createHmac('sha256', secret).update(`unsub:${churchId}`).digest('hex').slice(0, 16);
+}
 
 import { ensureSchema, slugify }                from './schema.js';
 import { seedChurches }                         from './seed.js';
@@ -48,6 +56,7 @@ function buildCampaignEmail(church, template, baseUrl = '', previewMode = false)
   const city    = church.city || 'Columbia';
   const trackUrl = previewMode ? '' : `${baseUrl}/api/kingdom-reach/track/open/${church.id}`;
   const pixel    = trackUrl ? `<img src="${trackUrl}" width="1" height="1" style="display:block;width:1px;height:1px;border:0" alt="">` : '';
+  const unsubUrl = previewMode ? '#preview-unsubscribe' : `https://crownmediagroup.co/unsubscribe.html?id=${church.id}&t=${unsubscribeSig(church.id)}`;
 
   let subject, bodyText, bodyHtml;
 
@@ -65,7 +74,7 @@ In service,
 King
 Crown Media Group | king@crownmediagroup.co
 crownmediagroup.co`;
-    bodyHtml = campaignHtml({ first, name, city, pixel, subject,
+    bodyHtml = campaignHtml({ first, name, city, pixel, unsubUrl, subject,
       bodyLines: [
         `Just following up on my note from a few days ago. I know ministry keeps you busy — I completely understand.`,
         `I put together a quick idea specifically for <strong>${esc(name)}</strong> — happy to share it if there's any interest. It would take about 10 minutes to look over and zero commitment.`,
@@ -89,7 +98,7 @@ In Christ and in service,
 King
 Crown Media Group | king@crownmediagroup.co
 crownmediagroup.co`;
-    bodyHtml = campaignHtml({ first, name, city, pixel, subject,
+    bodyHtml = campaignHtml({ first, name, city, pixel, unsubUrl, subject,
       bodyLines: [
         `Noticed you took a peek at my note from last week — appreciated you giving it a moment.`,
         `Quick context on why I reached out: I just helped a Columbia organization rebuild their full digital presence — new website + social system — live in 14 days. Made me think of <strong>${esc(name)}</strong>.`,
@@ -111,7 +120,7 @@ Worth a reply?
 In service,
 King
 Crown Media Group | king@crownmediagroup.co`;
-    bodyHtml = campaignHtml({ first, name, city, pixel, subject,
+    bodyHtml = campaignHtml({ first, name, city, pixel, unsubUrl, subject,
       bodyLines: [
         `Quick one — wondered if my note from last week landed in your inbox. Totally fine if not the right season.`,
         `If it is the right season, I work with churches in ${esc(city)} on web + social — 10-min look, zero commitment.`,
@@ -158,7 +167,7 @@ In Christ and in service,
 King
 Crown Media Group | king@crownmediagroup.co
 crownmediagroup.co`;
-    bodyHtml = campaignHtml({ first, name, city, pixel, subject,
+    bodyHtml = campaignHtml({ first, name, city, pixel, unsubUrl, subject,
       bodyLines: [
         `My name is David King — faith-aligned marketing professional based right here in ${esc(city)}, SC, working exclusively with faith-based organizations.`,
         `I was looking at <strong>${esc(name)}'s</strong> online presence and spotted a few quick wins that could meaningfully grow your reach in the community — more people finding you on Sunday, more engagement from your congregation, more visibility when families search for a church home in ${esc(city)}.`,
@@ -183,7 +192,7 @@ In Christ and in service,
 King
 Crown Media Group | king@crownmediagroup.co
 crownmediagroup.co`;
-    bodyHtml = campaignHtml({ first, name, city, pixel, subject,
+    bodyHtml = campaignHtml({ first, name, city, pixel, unsubUrl, subject,
       bodyLines: [
         `My name is David King — faith-aligned marketing professional based right here in ${esc(city)}, SC.`,
         `I work with churches across the area, and I noticed that <strong>${esc(name)}</strong> doesn't currently have a website. That means families searching for a church home in ${esc(city)} can't find you online.`,
@@ -198,7 +207,7 @@ crownmediagroup.co`;
 
 function esc(s = '') { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 
-function campaignHtml({ first, name, city, pixel, subject, bodyLines }) {
+function campaignHtml({ first, name, city, pixel, unsubUrl, subject, bodyLines }) {
   const lines = bodyLines.map(l => `<p style="margin:0 0 16px;line-height:1.7;color:#0a1628">${l}</p>`).join('');
   return `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${esc(subject)}</title></head>
 <body style="margin:0;padding:0;background:#f4f6fb;font-family:-apple-system,Segoe UI,Roboto,sans-serif">
@@ -218,7 +227,7 @@ function campaignHtml({ first, name, city, pixel, subject, bodyLines }) {
     <p style="margin:2px 0 0;font-size:13px"><a href="mailto:king@crownmediagroup.co" style="color:#1a3a8e">king@crownmediagroup.co</a> · <a href="https://crownmediagroup.co" style="color:#1a3a8e">crownmediagroup.co</a></p>
     <hr style="border:none;border-top:1px solid #e5e9f2;margin:24px 0">
     <p style="margin:0;font-size:12px;color:#8a96b8;font-style:italic">"Whatever you do, work heartily, as for the Lord and not for men." — Colossians 3:23</p>
-    <p style="margin:16px 0 0;font-size:11px;color:#aaa;text-align:center">Crown Media Group · Columbia, SC · <a href="mailto:king@crownmediagroup.co?subject=Unsubscribe" style="color:#aaa">Unsubscribe</a></p>
+    <p style="margin:16px 0 0;font-size:11px;color:#aaa;text-align:center">Crown Media Group · Columbia, SC · You're getting this because we believe ${esc(name)} would benefit from what we do. <a href="${unsubUrl || 'mailto:king@crownmediagroup.co?subject=Unsubscribe'}" style="color:#aaa;text-decoration:underline">Unsubscribe</a></p>
   </td></tr>
 </table>
 </td></tr>
@@ -300,8 +309,8 @@ export function mountKingdomReach(app, db, { validateSession, getCookie } = {}) 
 
   // ── CHURCH LIST (priority-sorted) ─────────────────────────────────────────
   app.get('/api/kingdom-reach/churches', (req, res) => {
-    const SEED_TOKEN = process.env.SEED_TOKEN || 'KingdomSeed2026';
-    if (req.query.token !== SEED_TOKEN && !req.kingdomUser) {
+    const SEED_TOKEN = process.env.SEED_TOKEN;
+    if (!(SEED_TOKEN && req.query.token === SEED_TOKEN) && !req.kingdomUser) {
       const session = validateSession && getCookie ? validateSession(getCookie(req, 'crm_session')) : null;
       if (!session) return res.status(401).json({ error: 'Unauthorized' });
       req.kingdomUser = session;
@@ -341,8 +350,8 @@ export function mountKingdomReach(app, db, { validateSession, getCookie } = {}) 
   });
 
   app.patch('/api/kingdom-reach/churches/:id', (req, res) => {
-    const SEED_TOKEN = process.env.SEED_TOKEN || 'KingdomSeed2026';
-    if (req.body?.token !== SEED_TOKEN && !req.kingdomUser) {
+    const SEED_TOKEN = process.env.SEED_TOKEN;
+    if (!(SEED_TOKEN && req.body?.token === SEED_TOKEN) && !req.kingdomUser) {
       const session = validateSession && getCookie ? validateSession(getCookie(req, 'crm_session')) : null;
       if (!session) return res.status(401).json({ error: 'Unauthorized' });
       req.kingdomUser = session;
@@ -361,8 +370,8 @@ export function mountKingdomReach(app, db, { validateSession, getCookie } = {}) 
   app.post('/api/kingdom-reach/churches/import', async (req, res) => {
     try {
       const { token, churches: rows, sent_names = [], opened_names = [], replied_names = [] } = req.body || {};
-      const SEED_TOKEN = process.env.SEED_TOKEN || 'KingdomSeed2026';
-      if (token !== SEED_TOKEN && !req.kingdomUser) return res.status(403).json({ error: 'auth required' });
+      const SEED_TOKEN = process.env.SEED_TOKEN;
+      if (!(SEED_TOKEN && token === SEED_TOKEN) && !req.kingdomUser) return res.status(403).json({ error: 'auth required' });
       if (!rows?.length) return res.status(400).json({ error: 'churches array required' });
 
       const insertStmt = db.prepare(`
@@ -448,8 +457,8 @@ export function mountKingdomReach(app, db, { validateSession, getCookie } = {}) 
   // ── MARK EMAIL OPENED (token bypass — called from CLI/import scripts) ────
   app.post('/api/kingdom-reach/churches/mark-opened', async (req, res) => {
     const { emails, token } = req.body || {};
-    const SEED_TOKEN = process.env.SEED_TOKEN || 'KingdomSeed2026';
-    if (token !== SEED_TOKEN && !req.kingdomUser) return res.status(403).json({ error: 'auth required' });
+    const SEED_TOKEN = process.env.SEED_TOKEN;
+    if (!(SEED_TOKEN && token === SEED_TOKEN) && !req.kingdomUser) return res.status(403).json({ error: 'auth required' });
     if (!emails || !emails.length) return res.status(400).json({ error: 'emails array required' });
     let updated = 0;
     for (const email of emails) {
@@ -462,8 +471,8 @@ export function mountKingdomReach(app, db, { validateSession, getCookie } = {}) 
   // ── MARK REPLIED (token bypass) ───────────────────────────────────────────
   app.post('/api/kingdom-reach/churches/mark-replied-church', async (req, res) => {
     const { email, name, token } = req.body || {};
-    const SEED_TOKEN = process.env.SEED_TOKEN || 'KingdomSeed2026';
-    if (token !== SEED_TOKEN && !req.kingdomUser) return res.status(403).json({ error: 'auth required' });
+    const SEED_TOKEN = process.env.SEED_TOKEN;
+    if (!(SEED_TOKEN && token === SEED_TOKEN) && !req.kingdomUser) return res.status(403).json({ error: 'auth required' });
     if (!email && !name) return res.status(400).json({ error: 'email or name required' });
     let r;
     if (email) {
@@ -588,8 +597,8 @@ export function mountKingdomReach(app, db, { validateSession, getCookie } = {}) 
 
   // ── ENRICH CHURCHES (Overpass/OSM — free, no API key) ────────────────────
   app.post('/api/kingdom-reach/enrich', async (req, res) => {
-    const SEED_TOKEN = process.env.SEED_TOKEN || 'KingdomSeed2026';
-    if ((req.body?.token) !== SEED_TOKEN && !req.kingdomUser) {
+    const SEED_TOKEN = process.env.SEED_TOKEN;
+    if (!(SEED_TOKEN && req.body?.token === SEED_TOKEN) && !req.kingdomUser) {
       const session = validateSession && getCookie ? validateSession(getCookie(req, 'crm_session')) : null;
       if (!session) return res.status(401).json({ error: 'Unauthorized' });
       req.kingdomUser = session;
@@ -685,8 +694,8 @@ export function mountKingdomReach(app, db, { validateSession, getCookie } = {}) 
 
   // ── CAMPAIGN PREVIEW (generate personalized email HTML for a church) ─────
   app.post('/api/kingdom-reach/campaign/preview', (req, res) => {
-    const SEED_TOKEN = process.env.SEED_TOKEN || 'KingdomSeed2026';
-    if (req.body?.token !== SEED_TOKEN && !req.kingdomUser) {
+    const SEED_TOKEN = process.env.SEED_TOKEN;
+    if (!(SEED_TOKEN && req.body?.token === SEED_TOKEN) && !req.kingdomUser) {
       const session = validateSession && getCookie ? validateSession(getCookie(req, 'crm_session')) : null;
       if (!session) return res.status(401).json({ error: 'Unauthorized' });
     }
@@ -699,8 +708,8 @@ export function mountKingdomReach(app, db, { validateSession, getCookie } = {}) 
 
   // ── CAMPAIGN SEND (batch outreach via Resend — no GMass needed) ──────────
   app.post('/api/kingdom-reach/campaign/send', async (req, res) => {
-    const SEED_TOKEN = process.env.SEED_TOKEN || 'KingdomSeed2026';
-    if (req.body?.token !== SEED_TOKEN && !req.kingdomUser) {
+    const SEED_TOKEN = process.env.SEED_TOKEN;
+    if (!(SEED_TOKEN && req.body?.token === SEED_TOKEN) && !req.kingdomUser) {
       const session = validateSession && getCookie ? validateSession(getCookie(req, 'crm_session')) : null;
       if (!session) return res.status(401).json({ error: 'Unauthorized' });
     }
@@ -713,21 +722,33 @@ export function mountKingdomReach(app, db, { validateSession, getCookie } = {}) 
     let churches;
     if (Array.isArray(church_ids) && church_ids.length) {
       const placeholders = church_ids.map(() => '?').join(',');
-      churches = db.prepare(`SELECT * FROM churches WHERE id IN (${placeholders}) AND email IS NOT NULL AND email != ''`).all(...church_ids);
+      churches = db.prepare(`SELECT * FROM churches WHERE id IN (${placeholders}) AND email IS NOT NULL AND email != '' AND (unsubscribed = 0 OR unsubscribed IS NULL)`).all(...church_ids);
     } else {
-      let sql = `SELECT * FROM churches WHERE email IS NOT NULL AND email != '' AND email_sent = 0`;
+      // Every outreach query excludes unsubscribed contacts. NULL counts as not-unsubscribed (legacy rows).
+      const UNSUB_CLAUSE = ` AND (unsubscribed = 0 OR unsubscribed IS NULL)`;
+      let sql = `SELECT * FROM churches WHERE email IS NOT NULL AND email != '' AND email_sent = 0` + UNSUB_CLAUSE;
       if (filter === 'no_website')    sql += ' AND has_website = 0';
       if (filter === 'has_website')   sql += ' AND has_website = 1';
       if (filter === 'tier_a')        sql += " AND tier = 'A'";
       if (filter === 'tier_ab')       sql += " AND tier IN ('A','B')";
       if (filter === 'orgs_only')     sql += " AND org_type != 'church'";
       if (filter === 'churches_only') sql += " AND (org_type = 'church' OR org_type IS NULL)";
-      if (filter === 'follow_up')         sql = `SELECT * FROM churches WHERE email IS NOT NULL AND email != '' AND email_sent=1 AND replied=0 AND email_sent_at < datetime('now','-7 days') AND follow_up_sent=0`;
-      if (filter === 'follow_up_openers') sql = `SELECT * FROM churches WHERE email IS NOT NULL AND email != '' AND email_sent=1 AND replied=0 AND email_opened=1 AND email_sent_at < datetime('now','-7 days') AND follow_up_sent=0`;
-      if (filter === 'follow_up_cold')    sql = `SELECT * FROM churches WHERE email IS NOT NULL AND email != '' AND email_sent=1 AND replied=0 AND (email_opened=0 OR email_opened IS NULL) AND email_sent_at < datetime('now','-7 days') AND follow_up_sent=0`;
-      if (orgTypeFilter)                  sql += ` AND org_type = '${orgTypeFilter.replace(/'/g,"''")}'`;
+      if (filter === 'follow_up')         sql = `SELECT * FROM churches WHERE email IS NOT NULL AND email != '' AND email_sent=1 AND replied=0 AND email_sent_at < datetime('now','-7 days') AND follow_up_sent=0` + UNSUB_CLAUSE;
+      if (filter === 'follow_up_openers') sql = `SELECT * FROM churches WHERE email IS NOT NULL AND email != '' AND email_sent=1 AND replied=0 AND email_opened=1 AND email_sent_at < datetime('now','-7 days') AND follow_up_sent=0` + UNSUB_CLAUSE;
+      if (filter === 'follow_up_cold')    sql = `SELECT * FROM churches WHERE email IS NOT NULL AND email != '' AND email_sent=1 AND replied=0 AND (email_opened=0 OR email_opened IS NULL) AND email_sent_at < datetime('now','-7 days') AND follow_up_sent=0` + UNSUB_CLAUSE;
+      // Whitelist + param-bind to defeat SQL injection (org_type is a fixed enum from import scripts)
+      const ALLOWED_ORG_TYPES = ['nonprofit','school','youth','business','network','missions','media','recovery','prison','men','women','church','mixed'];
+      let orgTypeParam = null;
+      if (orgTypeFilter) {
+        const candidate = String(orgTypeFilter).toLowerCase().trim();
+        if (ALLOWED_ORG_TYPES.includes(candidate)) {
+          sql += ` AND org_type = ?`;
+          orgTypeParam = candidate;
+        }
+        // unknown org_type → silently ignored (do not splice user input into SQL)
+      }
       sql += ' ORDER BY tier ASC, name ASC LIMIT 100';
-      churches = db.prepare(sql).all();
+      churches = orgTypeParam ? db.prepare(sql).all(orgTypeParam) : db.prepare(sql).all();
     }
 
     if (!churches.length) return res.json({ ok: true, sent: 0, skipped: 0, message: 'No eligible churches found' });
@@ -767,6 +788,27 @@ export function mountKingdomReach(app, db, { validateSession, getCookie } = {}) 
   });
 
   // ── HEALTH ────────────────────────────────────────────────────────────────
+  // ── UNSUBSCRIBE ───────────────────────────────────────────────────────────
+  // Public, signed-token endpoint — does NOT require SEED_TOKEN or session.
+  // Called by the unsubscribe.html page hosted on crownmediagroup.co.
+  app.post('/api/kingdom-reach/unsubscribe', (req, res) => {
+    const { id, t } = req.body || {};
+    const churchId = parseInt(id);
+    if (!churchId || !t) return res.status(400).json({ error: 'missing_id_or_token' });
+
+    const expected = unsubscribeSig(churchId);
+    if (t !== expected) return res.status(401).json({ error: 'invalid_token' });
+
+    const result = db.prepare(`
+      UPDATE churches
+      SET unsubscribed = 1, unsubscribed_at = datetime('now')
+      WHERE id = ?
+    `).run(churchId);
+
+    if (result.changes === 0) return res.status(404).json({ error: 'not_found' });
+    return res.json({ ok: true });
+  });
+
   app.get('/api/kingdom-reach/health', (req, res) => {
     res.json({
       ok: true,

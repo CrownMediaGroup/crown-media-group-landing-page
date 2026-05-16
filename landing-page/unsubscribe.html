@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Unsubscribe — Crown Media Group</title>
+<meta name="robots" content="noindex">
+<link rel="canonical" href="https://crownmediagroup.co/unsubscribe.html">
+<link rel="icon" type="image/png" href="/logo.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--cream:#FDFBF7;--gold:#C9981A;--royal:#1A1A3E;--text:#1A1A2E;--text-mid:#4A4A6A;--border:rgba(201,152,26,0.2);--green:#2D8C5A;--red:#C8442C}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{background:var(--cream);color:var(--text);font-family:'Inter',sans-serif;line-height:1.7;min-height:100vh;display:flex;flex-direction:column}
+.display{font-family:'Cormorant Garamond',serif;font-weight:700;letter-spacing:-.02em}
+a{color:var(--royal)}a:hover{color:var(--gold)}
+nav{padding:16px 24px;border-bottom:1px solid var(--border);background:#FFF;display:flex;justify-content:space-between;align-items:center;max-width:1200px;margin:0 auto;width:100%}
+.nav-logo{display:flex;align-items:center;gap:10px;font-family:'Cormorant Garamond',serif;font-weight:700}
+.nav-logo img{height:30px;width:30px;border-radius:6px}
+main{flex:1;display:flex;align-items:center;justify-content:center;padding:32px 16px}
+.card{max-width:520px;width:100%;background:#fff;border:1px solid var(--border);border-radius:8px;padding:48px 36px;text-align:center;box-shadow:0 8px 32px rgba(26,26,62,.06)}
+h1{font-size:2rem;margin-bottom:8px}
+p{color:var(--text-mid);margin-bottom:14px}
+button{background:var(--royal);color:var(--gold);padding:14px 28px;border-radius:4px;font-weight:600;font-size:.85rem;letter-spacing:.06em;text-transform:uppercase;border:none;cursor:pointer;margin-top:12px}
+button:disabled{opacity:.5;cursor:wait}
+.success{color:var(--green)}
+.error{color:var(--red)}
+.muted{color:var(--text-mid);font-size:.88rem;margin-top:18px}
+footer{padding:24px;text-align:center;color:var(--text-mid);font-size:.82rem}
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="/" class="nav-logo"><img src="/logo.png" alt=""> Crown Media Group</a>
+  <a href="/" style="font-size:.88rem">← Home</a>
+</nav>
+
+<main>
+  <div class="card" id="card">
+    <h1 class="display">Unsubscribe</h1>
+    <p>We'll stop emailing this address right away. Just click below to confirm.</p>
+    <button id="confirm-btn" type="button">Confirm Unsubscribe</button>
+    <p class="muted">If this was a mistake, just close this tab — no change is made until you click the button.</p>
+  </div>
+</main>
+
+<footer>
+  <p>&copy; 2026 Crown Media Group · All Glory to Jesus Global LLC · Columbia, SC</p>
+  <p style="margin-top:6px"><a href="/privacy.html">Privacy</a> · <a href="/terms.html">Terms</a> · <a href="mailto:king@crownmediagroup.co">Contact</a></p>
+</footer>
+
+<script>
+const card = document.getElementById('card');
+const btn  = document.getElementById('confirm-btn');
+const params = new URLSearchParams(location.search);
+const id = params.get('id');
+const t  = params.get('t');
+
+if (!id || !t) {
+  card.innerHTML = '<h1 class="display error">Invalid link</h1><p>This unsubscribe link is missing required info. If you got it from a Crown Media Group email, please reply with "unsubscribe" and we\'ll handle it manually.</p><p class="muted"><a href="mailto:king@crownmediagroup.co?subject=Unsubscribe">king@crownmediagroup.co</a></p>';
+}
+
+btn?.addEventListener('click', async () => {
+  btn.disabled = true;
+  btn.textContent = 'Working…';
+  try {
+    const res = await fetch('https://crm.crownmediagroup.co/api/kingdom-reach/unsubscribe', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ id, t }),
+    });
+    const data = await res.json();
+    if (res.ok && data.ok) {
+      card.innerHTML = '<h1 class="display success">You\'re unsubscribed.</h1><p>You won\'t receive any further outreach emails from Crown Media Group. We honor opt-outs permanently.</p><p class="muted">If you change your mind, email <a href="mailto:king@crownmediagroup.co">king@crownmediagroup.co</a> and we can re-enable.</p>';
+    } else {
+      card.innerHTML = `<h1 class="display error">Couldn\'t unsubscribe</h1><p>${(data.error || 'unknown').replace(/_/g,' ')}. If this keeps happening, email king@crownmediagroup.co and we will remove you manually.</p>`;
+    }
+  } catch (e) {
+    card.innerHTML = `<h1 class="display error">Network error</h1><p>${e.message}. Please email <a href="mailto:king@crownmediagroup.co?subject=Unsubscribe">king@crownmediagroup.co</a> and we will remove you.</p>`;
+  }
+});
+</script>
+
+</body>
+</html>

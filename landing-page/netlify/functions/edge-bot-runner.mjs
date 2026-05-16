@@ -18,7 +18,7 @@ import { supabase, json } from './_edge-helpers.mjs';
 import { loadBrokerage, alpacaAccount, alpacaPositions, alpacaPlaceOrder, alpacaBars } from './_edge-bot-helpers.mjs';
 import { getStrategy } from './_strategies/index.mjs';
 
-const INTERNAL_SECRET = process.env.EDGE_INTERNAL_SECRET || 'EdgeBrief2026';
+const INTERNAL_SECRET = process.env.EDGE_INTERNAL_SECRET;
 
 async function runOneUser(strategyRow) {
   const email     = strategyRow.user_email;
@@ -103,6 +103,7 @@ async function runOneUser(strategyRow) {
 export default async (req) => {
   if (req.method !== 'POST') return json(405, { error: 'method_not_allowed' });
   let body; try { body = await req.json(); } catch { body = {}; }
+  if (!INTERNAL_SECRET) return json(503, { error: 'server_misconfig', detail: 'EDGE_INTERNAL_SECRET not set' });
   if (body.secret !== INTERNAL_SECRET) return json(401, { error: 'unauthorized' });
 
   // Get every active strategy across all users
