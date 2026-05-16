@@ -22,9 +22,28 @@ export default async (req) => {
   if (!email || !trackId) return json(400, { error: 'missing_email_or_track' });
   if (!['mp3', 'wav', 'stems'].includes(format)) return json(400, { error: 'invalid_format' });
 
-  // 1. Verify active subscription
-  const sub = await resolveMusicSubscription(email);
-  if (!sub.ok) return json(403, { error: 'no_active_music_subscription', reason: sub.reason });
+  // 1A. Check for an order-bound license first (post-pivot per-project model).
+  //     If the email has a paid music_orders.license tying it to this track_id,
+  //     allow the download regardless of subscription state.
+  const { data: licenseOrder } = await supabase
+    .from('music_orders')
+    .select('id, product_type, status')
+    .eq('user_email', email)
+    .eq('track_id', trackId)
+    .in('product_type', ['license', 'bundle'])
+    .eq('status', 'paid')
+    .limit(1)
+    .maybeSingle();
+
+  if (licenseOrder) {
+    // License-bound download — skip subscription + quota; just issue signed URL below.
+    // Set a synthetic sub object so downstream code stays consistent.
+    var sub = { ok: true, tier: 'studio', productId: licenseOrder.product_type, subscriptionId: null, _licenseOrder: licenseOrder.id };
+  } else {
+    // 1B. Fall back to subscription gate (legacy / unused at v1, kept for back-compat)
+    sub = await resolveMusicSubscription(email);
+    if (!sub.ok) return json(403, { error: 'no_active_music_subscription', reason: sub.reason, hint: 'Pass a trackId you have already licensed, or subscribe.' });
+  }
 
   // 2. Load track + enforce tier visibility
   const { data: track, error: trackErr } = await supabase

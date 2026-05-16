@@ -925,6 +925,8 @@ async function submitScout(e) {
     <li><a href="/blog/">Blog</a></li>
     <li><a href="#pricing">Pricing</a></li>
     <li><a href="https://calendly.com/crownmediagroupco" target="_blank" rel="noopener noreferrer">Book a Call</a></li>
+    <li><a href="/privacy.html">Privacy</a></li>
+    <li><a href="/terms.html">Terms</a></li>
   </ul>
   <div class="footer-copy" itemscope itemtype="https://schema.org/LocalBusiness">
     <span itemprop="name">Crown Media Group</span> &middot;
@@ -1206,5 +1208,6 @@ if (/iPhone|iPad/.test(navigator.userAgent) && !navigator.standalone) {
   if(copyBtn){copyBtn.addEventListener('click',function(e){e.stopPropagation();var addr='king@crownmediagroup.co';function fb(){var ta=document.createElement('textarea');ta.value=addr;ta.style.position='fixed';ta.style.opacity='0';document.body.appendChild(ta);ta.select();try{document.execCommand('copy');copyBtn.textContent='Copied!';}catch(ex){copyBtn.textContent='Failed';}document.body.removeChild(ta);setTimeout(function(){copyBtn.textContent='Copy Address';},2000);}if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(addr).then(function(){copyBtn.textContent='Copied!';setTimeout(function(){copyBtn.textContent='Copy Address';},2000);}).catch(fb);}else{fb();}});}
 })();
 </script>
+<script src="/assets/cookie-consent.js" defer></script>
 </body>
 </html>

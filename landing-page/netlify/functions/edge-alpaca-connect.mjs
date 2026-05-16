@@ -5,10 +5,32 @@
 // the user be subscribed to edge-edge-297 (Live Trader) AND the live-trader feature
 // flag be enabled (via EDGE_LIVE_ENABLED env var, off by default until attorney signs off).
 
+import { Resend } from 'resend';
 import { supabase, resolveEdgeSubscription, json } from './_edge-helpers.mjs';
 import { encryptSecret, alpacaFetch } from './_edge-bot-helpers.mjs';
 
 const LIVE_ENABLED = process.env.EDGE_LIVE_ENABLED === 'true';
+const resend = new Resend(process.env.RESEND_API_KEY);
+
+async function logConnectionAttempt(email, ip, mode, success, error_reason) {
+  try {
+    await supabase.from('edge_bot_connection_attempts').insert({
+      user_email: email, requester_ip: ip || null, mode, success, error_reason: error_reason || null,
+    });
+  } catch (e) { /* table may not exist yet in dev; fail silently */ }
+}
+
+async function checkAnomaly(ip) {
+  if (!ip) return false;
+  const tenMinAgo = new Date(Date.now() - 10 * 60 * 1000).toISOString();
+  const { data } = await supabase
+    .from('edge_bot_connection_attempts')
+    .select('user_email')
+    .eq('requester_ip', ip)
+    .gte('created_at', tenMinAgo);
+  const distinctEmails = new Set((data || []).map(r => r.user_email));
+  return distinctEmails.size >= 2;
+}
 
 export default async (req) => {
   if (req.method !== 'POST') return json(405, { error: 'method_not_allowed' });
@@ -18,9 +40,16 @@ export default async (req) => {
   const keyId      = (body.api_key_id || '').trim();
   const apiSecret  = (body.api_secret || '').trim();
   const mode       = (body.mode || 'paper').toLowerCase();
+  const ip         = (req.headers.get('x-nf-client-connection-ip') || req.headers.get('x-forwarded-for') || '').split(',')[0].trim();
 
-  if (!email || !keyId || !apiSecret) return json(400, { error: 'missing_fields' });
-  if (!['paper', 'live'].includes(mode)) return json(400, { error: 'invalid_mode' });
+  if (!email || !keyId || !apiSecret) {
+    await logConnectionAttempt(email, ip, mode, false, 'missing_fields');
+    return json(400, { error: 'missing_fields' });
+  }
+  if (!['paper', 'live'].includes(mode)) {
+    await logConnectionAttempt(email, ip, mode, false, 'invalid_mode');
+    return json(400, { error: 'invalid_mode' });
+  }
 
   // 1. Verify edge subscription
   const sub = await resolveEdgeSubscription(email);
@@ -60,7 +89,39 @@ export default async (req) => {
     }, { onConflict: 'user_email' })
     .select().single();
 
-  if (error) return json(500, { error: 'db_error', detail: error.message });
+  if (error) {
+    await logConnectionAttempt(email, ip, mode, false, `db_error: ${error.message}`);
+    return json(500, { error: 'db_error', detail: error.message });
+  }
+
+  // Log success
+  await logConnectionAttempt(email, ip, mode, true, null);
+
+  // Anomaly: same IP submitted multiple different emails in 10 min → alert King
+  const anomaly = await checkAnomaly(ip);
+  if (anomaly) {
+    resend.emails.send({
+      from: 'Crown Media Group <king@crownmediagroup.co>',
+      to:   'king@crownmediagroup.co',
+      subject: `[Edge SECURITY] Multiple email connect attempts from one IP`,
+      html: `<div style="font-family:sans-serif;padding:24px"><h3>Anomaly detected</h3><p>IP <code>${ip}</code> has connected Alpaca keys for 2+ distinct emails in the last 10 minutes. Latest: <strong>${email}</strong> (${mode} mode). Investigate.</p></div>`,
+    }).catch(() => {});
+  }
+
+  // Send confirmation email to the connecting email — gives them a chance to revoke if it wasn't them
+  resend.emails.send({
+    from: 'Crown Media Group <king@crownmediagroup.co>',
+    to:   email,
+    subject: `Alpaca account connected to Kingdom Edge${mode === 'paper' ? ' (paper mode)' : ' (LIVE)'}`,
+    html: `<div style="font-family:sans-serif;max-width:560px;margin:0 auto;padding:40px 20px;background:#0d0d14;color:#e8e8f0">
+      <img src="https://crownmediagroup.co/logo.png" alt="Crown Media Group" style="height:40px;margin-bottom:32px">
+      <h1 style="font-size:22px;font-weight:800;margin-bottom:12px">Your Alpaca account is now connected.</h1>
+      <p style="color:#8888aa;line-height:1.7">An Alpaca API key was just linked to your Kingdom Edge subscription in <strong>${mode}</strong> mode. The bot can now place ${mode === 'paper' ? 'simulated' : 'real'} trades on your account.</p>
+      <p style="color:#8888aa;line-height:1.7;margin-top:16px"><strong>If this wasn't you:</strong> log into <a href="https://app.alpaca.markets/" style="color:#C9981A">Alpaca</a> immediately and rotate/delete the API key. Then reply to this email so we can investigate.</p>
+      <p style="color:#555;font-size:13px;margin-top:24px">Connected from IP: <code>${ip || 'unknown'}</code></p>
+      <p style="color:#333;font-size:12px;margin-top:24px">Crown Media Group · Columbia, SC · Kingdom Edge is an educational tool. Not investment advice. Trading involves risk of loss.</p>
+    </div>`,
+  }).catch(() => {});
 
   return json(200, {
     ok: true,
@@ -72,6 +133,7 @@ export default async (req) => {
       cash: probe.data?.cash,
     },
     next_step: 'Pick a strategy and start the bot from your dashboard.',
+    confirmation_email_sent: true,
   });
 };
 

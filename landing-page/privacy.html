@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Privacy Policy — Crown Media Group</title>
+<meta name="description" content="How Crown Media Group collects, stores, and protects your data — for the website, AI Tools, Kingdom Sound, and Kingdom Edge.">
+<link rel="canonical" href="https://crownmediagroup.co/privacy.html">
+<link rel="icon" type="image/png" href="/logo.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--cream:#FDFBF7;--gold:#C9981A;--royal:#1A1A3E;--text:#1A1A2E;--text-mid:#4A4A6A;--border:rgba(201,152,26,0.2)}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{background:var(--cream);color:var(--text);font-family:'Inter',sans-serif;line-height:1.7}
+.display{font-family:'Cormorant Garamond',serif;font-weight:700;letter-spacing:-.02em}
+a{color:var(--royal)}a:hover{color:var(--gold)}
+.container{max-width:780px;margin:0 auto;padding:48px 24px}
+nav{padding:16px 24px;border-bottom:1px solid var(--border);background:#FFF;display:flex;justify-content:space-between;align-items:center;max-width:1200px;margin:0 auto}
+.nav-logo{display:flex;align-items:center;gap:10px;font-family:'Cormorant Garamond',serif;font-weight:700}
+.nav-logo img{height:30px;width:30px;border-radius:6px}
+h1{font-size:2.4rem;margin-bottom:8px}
+h2{font-size:1.4rem;margin:32px 0 10px;color:var(--royal);font-family:'Cormorant Garamond',serif;font-weight:700}
+h3{font-size:1.05rem;margin:18px 0 6px;font-weight:700}
+p,li{color:var(--text-mid);margin-bottom:12px;font-size:.95rem}
+ul,ol{padding-left:24px;margin-bottom:16px}
+.meta{color:var(--text-mid);font-size:.88rem;margin-bottom:32px;padding-bottom:24px;border-bottom:1px solid var(--border)}
+table{width:100%;border-collapse:collapse;margin:14px 0;background:#fff;border:1px solid var(--border);border-radius:6px;overflow:hidden}
+th,td{padding:10px 14px;font-size:.88rem;text-align:left;border-bottom:1px solid var(--border);vertical-align:top}
+th{background:var(--royal);color:#fff;font-weight:600}
+td:first-child{font-weight:600;color:var(--royal);background:#F9F5EE}
+footer{padding:32px 24px;text-align:center;color:var(--text-mid);font-size:.85rem;border-top:1px solid var(--border);margin-top:48px}
+</style>
+</head>
+<body>
+<nav>
+  <a href="/" class="nav-logo"><img src="/logo.png" alt=""> Crown Media Group</a>
+  <a href="/" style="font-size:.88rem">← Home</a>
+</nav>
+
+<main class="container">
+<h1 class="display">Privacy Policy</h1>
+<p class="meta">Effective 2026-05-16 · Crown Media Group is operated by All Glory to Jesus Global LLC, Columbia, South Carolina, USA.</p>
+
+<p>This policy covers crownmediagroup.co, the AI Tools store, Kingdom Sound (music services), Kingdom Edge (trading research + bot), and the Crown Media CRM. We've written it in plain English. If anything is unclear, email <a href="mailto:king@crownmediagroup.co">king@crownmediagroup.co</a>.</p>
+
+<h2>1. What we collect — and why</h2>
+
+<h3>You give us directly:</h3>
+<ul>
+  <li><strong>Email address</strong> — to deliver products, send receipts and license certificates, and (with your consent) marketing emails. Required for every purchase.</li>
+  <li><strong>Business name</strong> — optional, for invoice and license-certificate personalization.</li>
+  <li><strong>Payment information</strong> — handled directly by <a href="https://stripe.com/privacy">Stripe</a>. We never see or store your card number; we only see the last four digits, the country, and the transaction status.</li>
+  <li><strong>Project briefs (Kingdom Sound)</strong> — the description, references, and use-case info you submit when commissioning custom music. Stored so we can deliver the project; deletable on request after delivery.</li>
+  <li><strong>Watchlists + strategies (Kingdom Edge)</strong> — the tickers and strategy choices you configure for the trading bot.</li>
+  <li><strong>Alpaca API keys (Kingdom Edge Paper Trader and Live Trader tiers)</strong> — encrypted server-side with AES-256-GCM. The decryption key is held only in Netlify's environment, never in the database. The bot uses the keys to place trades on your own Alpaca account. We can never withdraw your funds — the API permission scope only allows reading and placing orders.</li>
+</ul>
+
+<h3>Collected automatically when you visit:</h3>
+<ul>
+  <li><strong>Essential cookies</strong> — session state, referral attribution (cmg_ref), checkout state. These are required for the site to work and don't require consent.</li>
+  <li><strong>Analytics (only with your consent)</strong> — when you choose "Accept all" on the cookie banner, we load Google Tag Manager so we can understand which pages are popular. You can change your choice anytime via the banner.</li>
+  <li><strong>IP address and user agent</strong> — used briefly in server logs for abuse prevention. Hashed before storage where practical; never sold.</li>
+</ul>
+
+<h3>Collected via the Kingdom Reach outreach system (only if you are a recipient of a Crown Media Group email):</h3>
+<ul>
+  <li>Email open / click events via a tracking pixel and link redirect. You can unsubscribe from any campaign email and we will permanently exclude you from future sends.</li>
+</ul>
+
+<h2>2. Where your data is stored</h2>
+<table>
+  <thead><tr><th>Service</th><th>What it holds</th><th>Region</th></tr></thead>
+  <tbody>
+    <tr><td>Supabase (Postgres + Storage)</td><td>orders, subscriptions, watchlists, encrypted Alpaca keys, music files, license certificates</td><td>US East</td></tr>
+    <tr><td>Stripe</td><td>payment info + transaction records</td><td>Global (PCI compliant)</td></tr>
+    <tr><td>Resend</td><td>transactional emails + delivery logs</td><td>US</td></tr>
+    <tr><td>Polygon.io</td><td>market data lookups (no PII)</td><td>US</td></tr>
+    <tr><td>Anthropic</td><td>AI summarization of public market data (no PII sent)</td><td>US</td></tr>
+    <tr><td>Alpaca</td><td>your brokerage account — we send orders via your own API keys</td><td>US (regulated broker-dealer)</td></tr>
+    <tr><td>Netlify + Fly.io</td><td>application hosting + ephemeral logs</td><td>US</td></tr>
+  </tbody>
+</table>
+
+<h2>3. How long we keep it</h2>
+<ul>
+  <li><strong>Active subscriptions / orders:</strong> for as long as you're an active customer + 90 days after cancellation, so we can answer support questions, generate refunds, and meet tax / accounting obligations.</li>
+  <li><strong>Music license certificates:</strong> stored permanently — they prove your ongoing usage rights. We do not delete these.</li>
+  <li><strong>Alpaca API keys (encrypted):</strong> deleted immediately when you cancel your Kingdom Edge subscription or revoke the connection from your dashboard.</li>
+  <li><strong>Outreach (Kingdom Reach):</strong> contact records are retained as long as the campaign is active. Unsubscribes are retained permanently so we don't accidentally email you again.</li>
+  <li><strong>Tax records and Stripe transactions:</strong> 7 years (US accounting requirement).</li>
+</ul>
+
+<h2>4. Who we share data with</h2>
+<p>We do not sell, rent, or trade your personal data. We share only what's required to run the service:</p>
+<ul>
+  <li>Stripe (payment processing)</li>
+  <li>Resend (email delivery)</li>
+  <li>Alpaca (when the bot places a trade on your behalf, on your own account)</li>
+  <li>Supabase + Netlify + Fly.io (hosting infrastructure)</li>
+  <li>Law enforcement, only when legally required by a valid subpoena or court order</li>
+</ul>
+
+<h2>5. Your rights</h2>
+<ul>
+  <li><strong>Access</strong> — email us; we'll send you a copy of the data we hold about you within 30 days.</li>
+  <li><strong>Delete</strong> — email us to request deletion. We'll honor it within 30 days, except where law requires retention (tax records, etc.).</li>
+  <li><strong>Correct</strong> — email us with the correction. Or change it yourself via the relevant dashboard (Edge dashboard, music intake, etc.).</li>
+  <li><strong>Withdraw consent</strong> — for marketing emails: click Unsubscribe in any email. For analytics: use the cookie banner.</li>
+  <li><strong>Export</strong> — we'll provide an export of your data on request.</li>
+</ul>
+<p>EU / UK residents: the legal basis for processing is contract performance (for purchases) and legitimate interest (for fraud prevention, analytics with consent). California residents: same rights as above; "Do Not Sell" is automatic — we never sell.</p>
+
+<h2>6. Security</h2>
+<p>We follow industry-standard practices: TLS encryption in transit, AES-256 encryption at rest for sensitive secrets (Alpaca keys), least-privilege access to production systems, no plaintext passwords (bcrypt hashed), Stripe webhook signature verification, and parameterized queries to prevent SQL injection. We are not a bank or RIA — see our <a href="/terms.html">Terms</a> and <a href="/edge/risk-disclosure.html">Edge Risk Disclosure</a>.</p>
+<p>If you discover a security issue, please email <a href="mailto:king@crownmediagroup.co">king@crownmediagroup.co</a> — we read every report.</p>
+
+<h2>7. Children</h2>
+<p>Crown Media Group's services are not directed at children under 13. We do not knowingly collect data from anyone under 13. If you believe we have, email us and we will delete it.</p>
+
+<h2>8. International transfers</h2>
+<p>Our service runs from servers in the United States. If you access it from outside the US, your data will be transferred to the US for processing under standard contractual safeguards.</p>
+
+<h2>9. Changes</h2>
+<p>We'll update this policy as the product evolves. Material changes will be notified by email to active customers at least 7 days before they take effect.</p>
+
+<h2>10. Contact</h2>
+<p>Crown Media Group / All Glory to Jesus Global LLC<br>Columbia, SC, USA<br><a href="mailto:king@crownmediagroup.co">king@crownmediagroup.co</a></p>
+
+<p style="margin-top:48px;color:#aaa;font-size:.82rem"><em>"Whatever you do, work at it with all your heart, as working for the Lord, not for human masters." — Colossians 3:23</em></p>
+</main>
+
+<footer>
+  <p><a href="/">Home</a> &middot; <a href="/terms.html">Terms</a> &middot; <a href="/edge/disclaimers.html">Edge Disclaimers</a> &middot; <a href="/edge/risk-disclosure.html">Edge Risk Disclosure</a> &middot; <a href="mailto:king@crownmediagroup.co">Contact</a></p>
+</footer>
+</body>
+</html>
