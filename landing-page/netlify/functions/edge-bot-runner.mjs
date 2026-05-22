@@ -282,4 +282,8 @@ export default async (req) => {
   });
 };
 
-export const config = { path: '/api/edge-bot-runner' };
+// Scheduled-only — schedule is defined in netlify.toml. Path MUST be omitted
+// (Netlify rejects scheduled functions with a custom path). Manual HTTP invocation
+// is intentionally not supported in production; for ad-hoc test use Netlify CLI
+// `netlify functions:invoke edge-bot-runner` from a logged-in dev machine.
+export const config = {};

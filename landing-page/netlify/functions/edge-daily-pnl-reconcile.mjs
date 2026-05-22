@@ -60,4 +60,5 @@ export default async (req) => {
   return json(200, { ok: true, reconciled, today, yest });
 };
 
-export const config = { path: '/api/edge-daily-pnl-reconcile' };
+// Scheduled-only — schedule lives in netlify.toml. Path MUST be omitted.
+export const config = {};
