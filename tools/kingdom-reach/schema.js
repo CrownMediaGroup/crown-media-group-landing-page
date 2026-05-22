@@ -67,6 +67,23 @@ export function ensureSchema(db) {
   if (!cc.includes('org_type'))           db.exec("ALTER TABLE churches ADD COLUMN org_type TEXT DEFAULT 'church'");
   if (!cc.includes('unsubscribed'))       db.exec('ALTER TABLE churches ADD COLUMN unsubscribed INTEGER DEFAULT 0');
   if (!cc.includes('unsubscribed_at'))    db.exec('ALTER TABLE churches ADD COLUMN unsubscribed_at DATETIME');
+  if (!cc.includes('email_bounced'))      db.exec('ALTER TABLE churches ADD COLUMN email_bounced INTEGER DEFAULT 0');
+  if (!cc.includes('email_bounced_at'))   db.exec('ALTER TABLE churches ADD COLUMN email_bounced_at DATETIME');
+
+  // ── Workspace-level settings (single-tenant: key/value pairs) ──────────────
+  db.exec(`
+    CREATE TABLE IF NOT EXISTS workspace_settings (
+      key TEXT PRIMARY KEY,
+      value TEXT,
+      updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    )
+  `);
+
+  // Seed defaults idempotently
+  const seedSetting = db.prepare('INSERT OR IGNORE INTO workspace_settings (key, value) VALUES (?, ?)');
+  seedSetting.run('outreach_paused', 'false');
+  seedSetting.run('last_reply_poll_at', '');
+  seedSetting.run('safety_pause_reason', '');
 }
 
 export function slugify(name = '') {

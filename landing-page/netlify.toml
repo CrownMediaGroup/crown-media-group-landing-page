@@ -36,6 +36,19 @@
 [functions."edge-daily-pnl-reconcile"]
   schedule = "30 21 * * 1-5"
 
+# ── KINGDOM REACH AUTOPILOT ──────────────────────────────────────────────────
+# Weekly outreach fire — Monday 14:00 UTC (9am EST)
+[functions."outreach-weekly-fire"]
+  schedule = "0 14 * * 1"
+
+# Gmail reply poll — every 6 hours
+[functions."outreach-reply-poll"]
+  schedule = "0 */6 * * *"
+
+# Safety monitor — daily 04:00 UTC
+[functions."outreach-safety-monitor"]
+  schedule = "0 4 * * *"
+
 [[headers]]
   for = "/*"
   [headers.values]

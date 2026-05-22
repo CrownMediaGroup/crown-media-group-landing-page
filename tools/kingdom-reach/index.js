@@ -483,6 +483,79 @@ export function mountKingdomReach(app, db, { validateSession, getCookie } = {}) 
     res.json({ ok: true, updated: r.changes });
   });
 
+  // ── WORKSPACE SETTINGS (token bypass for scheduled functions) ──────────────
+  // GET all settings as flat object
+  app.get('/api/kingdom-reach/workspace-settings', (req, res) => {
+    const SEED_TOKEN = process.env.SEED_TOKEN;
+    const token = req.query.token;
+    if (!(SEED_TOKEN && token === SEED_TOKEN) && !req.kingdomUser) {
+      return res.status(401).json({ error: 'Unauthorized' });
+    }
+    const rows = db.prepare('SELECT key, value, updated_at FROM workspace_settings').all();
+    const out = {};
+    for (const r of rows) out[r.key] = { value: r.value, updated_at: r.updated_at };
+    res.json({ ok: true, settings: out });
+  });
+
+  // PATCH single setting by key
+  app.patch('/api/kingdom-reach/workspace-settings/:key', (req, res) => {
+    const SEED_TOKEN = process.env.SEED_TOKEN;
+    if (!(SEED_TOKEN && req.body?.token === SEED_TOKEN) && !req.kingdomUser) {
+      return res.status(401).json({ error: 'Unauthorized' });
+    }
+    const { key } = req.params;
+    const { value } = req.body || {};
+    if (typeof value !== 'string') return res.status(400).json({ error: 'value (string) required' });
+    // Whitelist of editable keys (extend as features grow)
+    const allowed = ['outreach_paused', 'last_reply_poll_at', 'safety_pause_reason'];
+    if (!allowed.includes(key)) return res.status(400).json({ error: 'key not allowed' });
+    db.prepare(`INSERT INTO workspace_settings (key, value, updated_at) VALUES (?, ?, datetime('now'))
+                ON CONFLICT(key) DO UPDATE SET value=excluded.value, updated_at=excluded.updated_at`).run(key, value);
+    res.json({ ok: true, key, value });
+  });
+
+  // ── BOUNCE / COMPLAINT MARKER (token bypass — called from Resend webhook fn) ──
+  app.post('/api/kingdom-reach/churches/mark-bounced', (req, res) => {
+    const SEED_TOKEN = process.env.SEED_TOKEN;
+    if (!(SEED_TOKEN && req.body?.token === SEED_TOKEN) && !req.kingdomUser) {
+      return res.status(403).json({ error: 'auth required' });
+    }
+    const { email, reason } = req.body || {};
+    if (!email) return res.status(400).json({ error: 'email required' });
+    const r = db.prepare(`UPDATE churches SET
+      email_bounced=1,
+      email_bounced_at=COALESCE(email_bounced_at, datetime('now')),
+      status='Bounced',
+      notes=COALESCE(notes,'') || ?
+      WHERE email=?`).run(` [BOUNCED ${new Date().toISOString()}: ${(reason||'unknown').slice(0,80)}]`, email);
+    res.json({ ok: true, updated: r.changes });
+  });
+
+  // ── AGGREGATE STATS (for safety-monitor function) ──────────────────────────
+  app.get('/api/kingdom-reach/stats/last-7-days', (req, res) => {
+    const SEED_TOKEN = process.env.SEED_TOKEN;
+    const token = req.query.token;
+    if (!(SEED_TOKEN && token === SEED_TOKEN) && !req.kingdomUser) {
+      return res.status(401).json({ error: 'Unauthorized' });
+    }
+    const row7 = db.prepare(`SELECT
+      SUM(CASE WHEN email_sent_at >= datetime('now','-7 days') THEN 1 ELSE 0 END) as sent_7d,
+      SUM(CASE WHEN replied_at >= datetime('now','-7 days') THEN 1 ELSE 0 END) as replied_7d,
+      SUM(CASE WHEN email_bounced_at >= datetime('now','-7 days') THEN 1 ELSE 0 END) as bounced_7d,
+      SUM(CASE WHEN unsubscribed_at >= datetime('now','-1 day') THEN 1 ELSE 0 END) as unsub_24h
+      FROM churches`).get();
+    const sent = row7?.sent_7d || 0;
+    res.json({
+      ok: true,
+      sent_7d: sent,
+      replied_7d: row7?.replied_7d || 0,
+      bounced_7d: row7?.bounced_7d || 0,
+      unsub_24h: row7?.unsub_24h || 0,
+      reply_rate: sent > 0 ? +((row7.replied_7d / sent) * 100).toFixed(2) : 0,
+      bounce_rate: sent > 0 ? +((row7.bounced_7d / sent) * 100).toFixed(2) : 0,
+    });
+  });
+
   // ── DISPATCH LIST ─────────────────────────────────────────────────────────
   app.get('/api/kingdom-reach/dispatches', requireAuth, (req, res) => {
     const churchId = req.query.church_id ? parseInt(req.query.church_id, 10) : null;
