@@ -1,15 +1,13 @@
--- Security hardening migration (2026-05-16)
+-- Security hardening migration (2026-05-16) — SUPABASE PORTION ONLY
 -- Run idempotently in Supabase SQL editor.
 --
--- What this adds:
---   1. `churches.unsubscribed` + `unsubscribed_at` (Kingdom Reach campaign opt-out)
---   2. `music_orders.updated_at` (needed by the new music-intake rate-limiter)
---   3. `edge_bot_connection_attempts` (anomaly tracking for Alpaca connect)
-
--- ── KINGDOM REACH UNSUBSCRIBE ─────────────────────────────────────────────
-alter table churches add column if not exists unsubscribed boolean not null default false;
-alter table churches add column if not exists unsubscribed_at timestamptz;
-create index if not exists churches_unsubscribed_idx on churches (unsubscribed) where unsubscribed = true;
+-- What this adds to Supabase (allglory-agency project):
+--   1. `music_orders.updated_at` (needed by the new music-intake rate-limiter)
+--   2. `edge_bot_connection_attempts` (anomaly tracking for Alpaca connect)
+--
+-- NOTE: `churches.unsubscribed` is NOT in Supabase — it lives on the
+-- Fly.io CRM SQLite database and is added by tools/kingdom-reach/schema.js
+-- on every CRM startup (auto-applied on next deploy).
 
 -- ── MUSIC ORDERS — updated_at for rate-limit + intake updates ─────────────
 alter table music_orders add column if not exists updated_at timestamptz not null default now();

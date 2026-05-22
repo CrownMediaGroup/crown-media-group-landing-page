@@ -31,15 +31,14 @@ create index if not exists music_tracks_public_idx on music_tracks (public) wher
 create table if not exists music_downloads (
   id                bigserial primary key,
   user_email        text not null,
-  product_id        text not null,                        -- e.g. music-starter-27
+  product_id        text not null,                        -- e.g. music-license-150
   stripe_sub_id     text,
   track_id          bigint not null references music_tracks(id) on delete cascade,
   downloaded_at     timestamptz not null default now(),
-  license_pdf_path  text,                                 -- storage path of per-download license PDF
-  month_bucket      text generated always as (to_char(downloaded_at, 'YYYY-MM')) stored
+  license_pdf_path  text                                  -- storage path of per-download license PDF
 );
 
-create index if not exists music_downloads_email_month_idx on music_downloads (user_email, month_bucket);
+create index if not exists music_downloads_email_idx on music_downloads (user_email);
 create index if not exists music_downloads_track_idx on music_downloads (track_id);
 
 -- ── CUSTOM TRACK REQUESTS (Pro + Studio tier only) ─────────────────────────

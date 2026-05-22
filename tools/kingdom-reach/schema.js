@@ -65,6 +65,8 @@ export function ensureSchema(db) {
   if (!cc.includes('replied'))            db.exec('ALTER TABLE churches ADD COLUMN replied INTEGER DEFAULT 0');
   if (!cc.includes('replied_at'))         db.exec('ALTER TABLE churches ADD COLUMN replied_at DATETIME');
   if (!cc.includes('org_type'))           db.exec("ALTER TABLE churches ADD COLUMN org_type TEXT DEFAULT 'church'");
+  if (!cc.includes('unsubscribed'))       db.exec('ALTER TABLE churches ADD COLUMN unsubscribed INTEGER DEFAULT 0');
+  if (!cc.includes('unsubscribed_at'))    db.exec('ALTER TABLE churches ADD COLUMN unsubscribed_at DATETIME');
 }
 
 export function slugify(name = '') {
