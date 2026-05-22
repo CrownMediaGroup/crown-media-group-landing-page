@@ -11,7 +11,7 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT = join(__dirname, '../../..');
 
 const CRM_URL    = process.env.CRM_URL    || 'https://crm.crownmediagroup.co';
-const SEED_TOKEN = process.env.SEED_TOKEN || 'KingdomSeed2026';
+const SEED_TOKEN = process.env.SEED_TOKEN; if (!SEED_TOKEN) { console.error('SEED_TOKEN env var not set'); process.exit(1); }
 
 // ── Parse CSV ─────────────────────────────────────────────────────────────────
 function parseCSV(text) {

@@ -15,7 +15,12 @@
 set -e
 
 API="https://crm.crownmediagroup.co/api/kingdom-reach/campaign/send"
-TOKEN="KingdomSeed2026"
+TOKEN="${SEED_TOKEN:-}"
+if [ -z "$TOKEN" ]; then
+  echo "Error: SEED_TOKEN env var not set."
+  echo "Run: SEED_TOKEN=<your-new-rotated-token> bash $0"
+  exit 1
+fi
 
 echo "=== DRY-RUN: follow_up_openers ==="
 curl -s -X POST "$API" -H "Content-Type: application/json" \

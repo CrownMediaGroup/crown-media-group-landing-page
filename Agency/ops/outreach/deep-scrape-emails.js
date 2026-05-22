@@ -4,7 +4,7 @@
 // Run: node Agency/ops/outreach/deep-scrape-emails.js
 
 const BASE_URL = process.env.CRM_URL || 'https://crm.crownmediagroup.co';
-const TOKEN = 'KingdomSeed2026';
+const TOKEN = process.env.SEED_TOKEN; if (!TOKEN) { console.error('SEED_TOKEN env var not set. Run: SEED_TOKEN=<value> node ...'); process.exit(1); }
 const TIMEOUT_MS = 8000;
 const DELAY_MS = 350;
 

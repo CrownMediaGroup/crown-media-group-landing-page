@@ -4,7 +4,7 @@
 // Run: node Agency/ops/outreach/enrich-from-osm.js
 
 const BASE_URL = process.env.CRM_URL || 'https://crm.crownmediagroup.co';
-const TOKEN = 'KingdomSeed2026';
+const TOKEN = process.env.SEED_TOKEN; if (!TOKEN) { console.error('SEED_TOKEN env var not set'); process.exit(1); }
 
 const OVERPASS_URL = 'https://overpass-api.de/api/interpreter';
 const QUERY = `[out:json][timeout:60];

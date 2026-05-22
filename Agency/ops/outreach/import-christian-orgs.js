@@ -11,7 +11,7 @@ import { fileURLToPath } from 'url';
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const FILE_PATH = join(__dirname, 'christian-orgs-columbia-sc.txt');
 const BASE_URL  = process.env.CRM_URL   || 'https://crm.crownmediagroup.co';
-const TOKEN     = process.env.SEED_TOKEN || 'KingdomSeed2026';
+const TOKEN     = process.env.SEED_TOKEN; if (!TOKEN) { console.error('SEED_TOKEN env var not set'); process.exit(1); }
 const DRY_RUN   = process.argv.includes('--dry-run');
 
 // Section header → org_type

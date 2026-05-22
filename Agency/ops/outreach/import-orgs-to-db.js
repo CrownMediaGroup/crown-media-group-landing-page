@@ -14,7 +14,7 @@ const CSV_PATH  = CSV_ARG
   ? (CSV_ARG.startsWith('/') || /^[A-Za-z]:/.test(CSV_ARG) ? CSV_ARG : join(process.cwd(), CSV_ARG))
   : join(__dirname, 'faith-orgs-columbia-sc.csv');
 const BASE_URL  = process.env.CRM_URL || 'https://crm.crownmediagroup.co';
-const TOKEN     = process.env.SEED_TOKEN || 'KingdomSeed2026';
+const TOKEN     = process.env.SEED_TOKEN; if (!TOKEN) { console.error('SEED_TOKEN env var not set'); process.exit(1); }
 
 // Map CSV OrgType → org_type value stored in DB
 const ORG_TYPE_MAP = {

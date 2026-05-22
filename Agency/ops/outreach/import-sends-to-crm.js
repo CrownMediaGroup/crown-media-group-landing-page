@@ -12,7 +12,7 @@ const ROOT = join(__dirname, '../../..');
 
 // ── Config ────────────────────────────────────────────────────────────────────
 const CRM_URL    = process.env.CRM_URL    || 'https://crm.crownmediagroup.co';
-const SEED_TOKEN = process.env.SEED_TOKEN || 'KingdomSeed2026';
+const SEED_TOKEN = process.env.SEED_TOKEN; if (!SEED_TOKEN) { console.error('SEED_TOKEN env var not set'); process.exit(1); }
 
 // ── Collect all sent emails from multiple sources ─────────────────────────────
 const sends = new Map(); // email → name

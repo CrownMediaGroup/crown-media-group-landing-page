@@ -5,7 +5,7 @@
 import { readFileSync } from 'fs';
 
 const BASE_URL = process.env.CRM_URL || 'https://crm.crownmediagroup.co';
-const TOKEN = 'KingdomSeed2026';
+const TOKEN = process.env.SEED_TOKEN; if (!TOKEN) { console.error('SEED_TOKEN env var not set'); process.exit(1); }
 
 function norm(s) {
   return s.toLowerCase()
