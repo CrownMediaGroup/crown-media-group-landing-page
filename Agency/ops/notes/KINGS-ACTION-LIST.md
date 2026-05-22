@@ -1,43 +1,42 @@
 # King's Action List — Manual Items Only
-Last updated 2026-05-16 · ⚠️ SECURITY HARDENING PASS just shipped — top section below is URGENT
+Last updated 2026-05-17 · Security pass IS LIVE — Sec-1 verified done; Sec-2 + Sec-3 still pending
+
+**What changed since 2026-05-16:** Smoke test on 2026-05-17 proved `SEED_TOKEN` rotation is live (old `KingdomSeed2026` → 401 ✅). `EDGE_INTERNAL_SECRET` is still UNSET (Edge bot runner returns 503 → fail-closed working as designed but the secret needs to be set). All other security guards verified working: legal pages 200, Stripe webhook signature active.
 
 Everything Claude Code shipped this week is coded and pushed. This list is only the things that need YOUR hands — Stripe Dashboard, Supabase Studio, Netlify env, attorney, Google. Work top to bottom.
 
 Project ref for all Supabase steps: `pcikjtzvruvavaduawes`
 Supabase SQL Editor: https://supabase.com/dashboard/project/pcikjtzvruvavaduawes
 
+**One-shot verification:** `bash Agency/ops/tools/smoke-test-rotation.sh <new-seed-token>` confirms the full security posture in one command.
+
 ---
 
-## ⚠️ DO RIGHT NOW — Security rotation (2026-05-16 hardening pass)
+## ⚠️ DO RIGHT NOW — Finish the security rotation (4 of 6 left)
 
-Three audits found the live codebase had hardcoded token fallbacks (`KingdomSeed2026`, `EdgeBrief2026`) that bypassed auth. Those fallbacks are now **removed** — code requires the real env vars. **You must rotate the env vars now**, otherwise:
-- Old leaked tokens become useless (good — that's the whole point)
-- Anything in `Agency/ops/outreach/*.sh` that hard-coded `KingdomSeed2026` will stop working until you update it (you'll fix this in step 4)
+### ~~Sec-1. Rotate `SEED_TOKEN` in Fly.io~~ ✅ DONE 2026-05-17
+Verified: old `KingdomSeed2026` returns 401 from `https://crm.crownmediagroup.co/api/kingdom-reach/churches`.
 
-### Sec-1. Rotate `SEED_TOKEN` in Fly.io (Kingdom Reach API)
-- Generate a strong new value: `openssl rand -hex 24` or any 30+ char random string
-- `flyctl secrets set SEED_TOKEN=<newvalue>` (from the `tools/` directory)
-- **Effect:** Old `KingdomSeed2026` references in `Agency/ops/outreach/*.sh` will get 401 until you update them (next step)
+### Sec-2. Set `EDGE_INTERNAL_SECRET` in Netlify — STILL UNSET (smoke test got 503)
+- Netlify Dashboard → site → Site settings → Environment variables → add `EDGE_INTERNAL_SECRET` = a strong random string (`openssl rand -hex 24`)
+- **Effect:** The Edge bot runner + daily brief endpoints become callable instead of returning 503.
 
-### Sec-2. Rotate `EDGE_INTERNAL_SECRET` in Netlify
-- Netlify Dashboard → site → Site settings → Environment variables → edit `EDGE_INTERNAL_SECRET` → set to new strong value
-- **Effect:** The Edge bot runner + daily brief now require this exact value to fire
+### Sec-3. Set `EDGE_BOT_KEY_SECRET` in Netlify — STILL UNSET
+- Same place. **Without this, Alpaca connect can't encrypt keys → 500 error.** This is the AES master key for stored Alpaca keys.
+- **CRITICAL:** Once set, NEVER change it — every stored brokerage key becomes permanently unrecoverable if you do. Set once, lock it in.
 
-### Sec-3. Confirm `EDGE_BOT_KEY_SECRET` is set in Netlify
-- Same place. **Without this, Alpaca connect returns 500 — no keys stored unencrypted.** This is the AES master key for stored Alpaca keys; setting/changing it after subscribers exist will make old keys unrecoverable. **Set once, never change.**
-
-### Sec-4. Update local outreach scripts to use the new SEED_TOKEN
-- `grep -r KingdomSeed2026 Agency/ops/outreach/` — list every file that hardcodes the old token
-- Replace with the new value (or better, refactor to read from `process.env.SEED_TOKEN` and pass via `--token` flag)
+### Sec-4. Update local outreach scripts to the NEW `SEED_TOKEN`
+- `grep -rn KingdomSeed2026 Agency/ops/outreach/` — every file listed needs the new token value
+- Most critical: `Agency/ops/outreach/fire-touch-2.sh` (lines with `--data` will get 401 until updated)
+- Also any `*.mjs` / `*.js` that hardcoded the token
+- Easiest: shell out to env var → `SEED_TOKEN=<newvalue>` then `--data "{\"token\":\"$SEED_TOKEN\",...}"`
 
 ### Sec-5. Run migration `0005_security_hardening.sql`
-- Adds `churches.unsubscribed`, `music_orders.updated_at`, and the new `edge_bot_connection_attempts` table
-- BLOCKED until done: unsubscribe links in campaign emails won't work; the new alpaca-connect anomaly log won't write; the music-intake rate-limit query will fail
+- Adds `churches.unsubscribed`, `music_orders.updated_at`, and `edge_bot_connection_attempts` table
+- BLOCKED until done: unsubscribe links won't actually flip records; alpaca-connect anomaly log won't write; music-intake rate-limit query will fail
 
-### Sec-6. Re-test critical flows
-- Hit the CRM with the OLD token → confirm 401: `curl 'https://crm.crownmediagroup.co/api/kingdom-reach/churches?token=KingdomSeed2026'`
-- Hit the CRM with the NEW token → confirm 200
-- Click an unsubscribe link in a Kingdom Reach email → confirm the page works + the church record flips to `unsubscribed=true`
+### Sec-6. Re-run the smoke test with the new token
+- `bash Agency/ops/tools/smoke-test-rotation.sh <new-seed-token> <new-edge-internal-secret>` — all checks should turn green
 
 See `SECURITY.md` at the repo root for the full audit summary.
 
