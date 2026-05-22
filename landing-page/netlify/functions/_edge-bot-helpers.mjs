@@ -90,11 +90,32 @@ export async function alpacaPlaceOrder(brokerage, { symbol, qty, side, type='mar
 }
 
 /**
- * Pull recent bars (1-day) for a symbol from Alpaca market data API.
- * Note: data endpoint accepts the same API key.
+ * Place a bracket order — market entry + stop-loss + take-profit legs in one atomic submission.
+ * Alpaca requires integer qty for bracket orders on most accounts (no notional, no fractional).
  */
-export async function alpacaBars(brokerage, symbol, { timeframe='1Day', limit=50 } = {}) {
-  const url = `${ALPACA_DATA_BASE}/stocks/${encodeURIComponent(symbol)}/bars?timeframe=${timeframe}&limit=${limit}`;
+export async function alpacaPlaceBracketOrder(brokerage, { symbol, qty, side='buy', stop_price, limit_price, time_in_force='day' }) {
+  const body = {
+    symbol,
+    qty:           String(qty),
+    side,
+    type:          'market',
+    time_in_force,
+    order_class:   'bracket',
+    take_profit:   { limit_price: String(limit_price) },
+    stop_loss:     { stop_price:  String(stop_price)  },
+  };
+  return alpacaFetch(brokerage, '/orders', { method: 'POST', body: JSON.stringify(body) });
+}
+
+/**
+ * Latest trade price for a symbol (used for bracket-order sizing).
+ */
+export async function alpacaLatestPrice(brokerage, symbol) {
+  const isCrypto = /\/(USD|USDT|USDC)$/.test(symbol);
+  const path = isCrypto
+    ? `/crypto/us/latest/trades?symbols=${encodeURIComponent(symbol)}`
+    : `/stocks/${encodeURIComponent(symbol)}/trades/latest`;
+  const url = `${ALPACA_DATA_BASE}${path}`;
   const res = await fetch(url, {
     headers: {
       'APCA-API-KEY-ID':     brokerage.api_key_id,
@@ -103,5 +124,29 @@ export async function alpacaBars(brokerage, symbol, { timeframe='1Day', limit=50
   });
   if (!res.ok) return { ok: false, status: res.status };
   const j = await res.json();
-  return { ok: true, bars: j.bars || [] };
+  const price = isCrypto
+    ? j.trades?.[symbol]?.p
+    : j.trade?.p;
+  return { ok: true, price: price || null };
+}
+
+/**
+ * Pull recent bars for a symbol from Alpaca market data API.
+ * Supports both stocks and crypto. Note: data endpoint accepts the same API key.
+ */
+export async function alpacaBars(brokerage, symbol, { timeframe='1Day', limit=50 } = {}) {
+  const isCrypto = /\/(USD|USDT|USDC)$/.test(symbol);
+  const url = isCrypto
+    ? `${ALPACA_DATA_BASE}/crypto/us/bars?symbols=${encodeURIComponent(symbol)}&timeframe=${timeframe}&limit=${limit}`
+    : `${ALPACA_DATA_BASE}/stocks/${encodeURIComponent(symbol)}/bars?timeframe=${timeframe}&limit=${limit}`;
+  const res = await fetch(url, {
+    headers: {
+      'APCA-API-KEY-ID':     brokerage.api_key_id,
+      'APCA-API-SECRET-KEY': brokerage.api_secret,
+    },
+  });
+  if (!res.ok) return { ok: false, status: res.status };
+  const j = await res.json();
+  const bars = isCrypto ? (j.bars?.[symbol] || []) : (j.bars || []);
+  return { ok: true, bars };
 }

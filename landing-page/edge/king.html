@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>King · Kingdom Edge Tier-0</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js" defer></script>
+<style>
+:root{--bg:#0d0d14;--card:#15151f;--ink:#e8e8f0;--mute:#8888aa;--gold:#C9981A;--green:#22c55e;--red:#ef4444;--border:#23232f}
+*{box-sizing:border-box}
+body{margin:0;font-family:'Inter',sans-serif;background:var(--bg);color:var(--ink);line-height:1.5;min-height:100vh}
+.wrap{max-width:1280px;margin:0 auto;padding:32px 24px}
+.head{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;flex-wrap:wrap;gap:12px}
+.head h1{margin:0;font-size:26px;font-weight:800;letter-spacing:-0.02em}
+.head h1 span{color:var(--gold)}
+.subtle{color:var(--mute);font-size:14px}
+.gate{background:#1a0e0e;border:1px solid #5a1a1a;border-radius:10px;padding:14px 18px;margin-bottom:20px;display:none}
+.gate.visible{display:block}
+.gate b{color:var(--red)}
+.auth{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:32px;max-width:480px;margin:60px auto}
+.auth h2{margin:0 0 12px;font-weight:700}
+.auth input{width:100%;padding:12px 14px;background:#0a0a12;border:1px solid var(--border);border-radius:8px;color:var(--ink);font-size:14px;margin-bottom:12px;font-family:inherit}
+.auth button{width:100%;padding:12px;background:var(--gold);color:#0a0a12;border:none;border-radius:8px;font-weight:700;font-size:14px;cursor:pointer;font-family:inherit}
+.auth button:hover{filter:brightness(1.05)}
+.auth .err{color:var(--red);font-size:13px;margin-top:8px;min-height:18px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px;margin-bottom:24px}
+.card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:18px 20px}
+.card .lab{color:var(--mute);font-size:12px;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:6px}
+.card .val{font-size:24px;font-weight:700;letter-spacing:-0.01em}
+.card .delta{font-size:13px;margin-top:4px}
+.delta.up{color:var(--green)}.delta.down{color:var(--red)}.delta.flat{color:var(--mute)}
+.section{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:20px;margin-bottom:20px}
+.section h3{margin:0 0 14px;font-size:15px;font-weight:700;letter-spacing:0.02em;text-transform:uppercase;color:var(--mute)}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{text-align:left;color:var(--mute);font-weight:500;padding:8px 6px;border-bottom:1px solid var(--border);font-size:11px;text-transform:uppercase;letter-spacing:0.05em}
+td{padding:10px 6px;border-bottom:1px solid var(--border)}
+tr:last-child td{border-bottom:none}
+.pill{display:inline-block;padding:3px 8px;border-radius:6px;font-size:11px;font-weight:600}
+.pill.buy{background:#0f2918;color:var(--green)}
+.pill.sell{background:#291014;color:var(--red)}
+.pill.rejected{background:#3a2a0a;color:#e0a82a}
+.pill.submitted{background:#0a253a;color:#5fb3e6}
+.pill.tier0{background:#3a2a0a;color:var(--gold)}
+.muted{color:var(--mute)}
+.empty{color:var(--mute);text-align:center;padding:30px}
+canvas{max-width:100%}
+.refresh{display:inline-flex;align-items:center;gap:6px;color:var(--mute);font-size:12px}
+.refresh .dot{width:8px;height:8px;border-radius:50%;background:var(--green);box-shadow:0 0 8px var(--green);animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+@media(max-width:640px){.wrap{padding:20px 14px}.head h1{font-size:22px}}
+</style>
+</head>
+<body>
+<div class="wrap" id="app"></div>
+
+<script>
+const PARAMS = new URLSearchParams(location.search);
+const STORAGE_KEY = 'edge-king-auth';
+
+function getAuth(){
+  const u = PARAMS.get('email'), t = PARAMS.get('token');
+  if (u && t) {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({email: u, token: t}));
+    history.replaceState({}, '', location.pathname);
+    return {email: u, token: t};
+  }
+  try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || 'null'); } catch { return null; }
+}
+
+function fmt(n, opts={}){
+  if (n == null || isNaN(n)) return '—';
+  const num = Number(n);
+  const sign = opts.signed && num > 0 ? '+' : '';
+  const fixed = opts.pct ? num.toFixed(2) + '%' : '$' + Math.abs(num).toLocaleString(undefined, {minimumFractionDigits:2, maximumFractionDigits:2});
+  return sign + (num < 0 && !opts.pct ? '-' : '') + fixed;
+}
+function fmtDate(s){ if (!s) return '—'; return new Date(s).toLocaleDateString(undefined, {month:'short', day:'numeric'}); }
+function fmtTime(s){ if (!s) return '—'; const d = new Date(s); return d.toLocaleDateString(undefined,{month:'short',day:'numeric'}) + ' ' + d.toLocaleTimeString(undefined,{hour:'2-digit',minute:'2-digit'}); }
+
+function renderAuth(err){
+  const app = document.getElementById('app');
+  app.innerHTML = `
+    <div class="auth">
+      <h2>King · Tier-0 Access</h2>
+      <p class="subtle" style="margin:0 0 20px">Restricted to King's personal trading dashboard. Requires allowlisted email + dashboard token.</p>
+      <input id="i-email" type="email" placeholder="King's email" autocomplete="email">
+      <input id="i-token" type="password" placeholder="EDGE_KING_DASH_TOKEN">
+      <button id="b-go">Unlock</button>
+      <div class="err">${err || ''}</div>
+    </div>`;
+  document.getElementById('b-go').onclick = () => {
+    const email = document.getElementById('i-email').value.trim().toLowerCase();
+    const token = document.getElementById('i-token').value.trim();
+    if (!email || !token) return;
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({email, token}));
+    location.search = '?email=' + encodeURIComponent(email) + '&token=' + encodeURIComponent(token);
+  };
+}
+
+function renderShell(d){
+  const app = document.getElementById('app');
+  const acct = d.liveAccount || {};
+  const equity      = Number(acct.equity || 0);
+  const cash        = Number(acct.cash || 0);
+  const dayChange   = Number(acct.equity || 0) - Number(acct.last_equity || acct.equity || 0);
+  const dayChangePct = acct.last_equity ? (dayChange / Number(acct.last_equity)) * 100 : 0;
+  const cumPnl      = d.snapshots.length ? Number(d.snapshots[d.snapshots.length-1].cumulative_pnl || 0) : 0;
+
+  const dayCls  = dayChange > 0 ? 'up' : dayChange < 0 ? 'down' : 'flat';
+  const cumCls  = cumPnl > 0 ? 'up' : cumPnl < 0 ? 'down' : 'flat';
+  const tier    = d.brokerage?.tier || 'paper';
+
+  const unrecovered = (d.killSwitches || []).find(k => !k.recovered_at);
+  const gateBanner = unrecovered
+    ? `<div class="gate visible"><b>RISK GATE TRIGGERED</b> · ${unrecovered.switch_name} · ${fmtTime(unrecovered.triggered_at)} · ${unrecovered.positions_flattened || 0} positions flattened. Bot is paused. Recover from Supabase: <code>update edge_kill_switches set recovered_at = now() where id = ${unrecovered.id || '...'}</code></div>`
+    : `<div class="gate"></div>`;
+
+  app.innerHTML = `
+    <div class="head">
+      <div>
+        <h1>Kingdom Edge · <span>Tier-0</span></h1>
+        <div class="subtle">${d.email} · <span class="pill tier0">${tier.toUpperCase()}</span> · ${d.brokerage?.mode || 'no brokerage'}</div>
+      </div>
+      <div class="refresh"><span class="dot"></span> auto-refresh 30s</div>
+    </div>
+    ${gateBanner}
+    <div class="grid">
+      <div class="card"><div class="lab">Equity</div><div class="val">${fmt(equity)}</div><div class="delta ${dayCls}">${fmt(dayChange, {signed:true})} today (${dayChangePct.toFixed(2)}%)</div></div>
+      <div class="card"><div class="lab">Cash</div><div class="val">${fmt(cash)}</div><div class="delta flat">${fmt(Number(acct.buying_power||0))} buying power</div></div>
+      <div class="card"><div class="lab">Cumulative P&L</div><div class="val ${cumCls}">${fmt(cumPnl, {signed:true})}</div><div class="delta ${cumCls}">${d.snapshots.length} day${d.snapshots.length===1?'':'s'} of history</div></div>
+      <div class="card"><div class="lab">Open Positions</div><div class="val">${d.livePositions.length}</div><div class="delta flat">${d.activeStrategy ? d.activeStrategy.strategy : 'no active strategy'}</div></div>
+    </div>
+    <div class="section">
+      <h3>Equity Curve (90d)</h3>
+      ${d.snapshots.length > 1 ? '<canvas id="equity-chart" height="100"></canvas>' : '<div class="empty">No history yet — the bot needs at least 2 daily snapshots.</div>'}
+    </div>
+    <div class="section">
+      <h3>Open Positions</h3>
+      ${d.livePositions.length ? `
+        <table><thead><tr><th>Symbol</th><th>Qty</th><th>Avg Cost</th><th>Mkt Value</th><th>Unrealized P&L</th><th>Change %</th></tr></thead>
+        <tbody>${d.livePositions.map(p => {
+          const upnl = Number(p.unrealized_pl || 0);
+          const cls  = upnl > 0 ? 'up' : upnl < 0 ? 'down' : 'flat';
+          const pct  = Number(p.unrealized_plpc || 0) * 100;
+          return `<tr><td><b>${p.symbol}</b></td><td>${p.qty}</td><td>${fmt(Number(p.avg_entry_price))}</td><td>${fmt(Number(p.market_value))}</td><td class="${cls}">${fmt(upnl, {signed:true})}</td><td class="${cls}">${pct.toFixed(2)}%</td></tr>`;
+        }).join('')}</tbody></table>
+      ` : '<div class="empty">No positions open right now.</div>'}
+    </div>
+    <div class="section">
+      <h3>Recent Trades (50)</h3>
+      ${d.trades.length ? `
+        <table><thead><tr><th>When</th><th>Symbol</th><th>Side</th><th>Notional</th><th>Status</th><th>Signal</th></tr></thead>
+        <tbody>${d.trades.map(t => `
+          <tr>
+            <td class="muted">${fmtTime(t.executed_at)}</td>
+            <td><b>${t.symbol}</b></td>
+            <td><span class="pill ${t.side}">${t.side.toUpperCase()}</span></td>
+            <td>${t.notional ? fmt(Number(t.notional)) : t.qty}</td>
+            <td><span class="pill ${t.status}">${t.status}</span></td>
+            <td class="muted">${(t.signal_reason || '').slice(0, 90)}</td>
+          </tr>`).join('')}</tbody></table>
+      ` : '<div class="empty">No trades yet.</div>'}
+    </div>
+    <div class="section">
+      <h3>Kill Switch History</h3>
+      ${d.killSwitches.length ? `
+        <table><thead><tr><th>When</th><th>Switch</th><th>Flattened</th><th>Recovered</th><th>Reason</th></tr></thead>
+        <tbody>${d.killSwitches.map(k => `
+          <tr>
+            <td class="muted">${fmtTime(k.triggered_at)}</td>
+            <td><b>${k.switch_name}</b></td>
+            <td>${k.positions_flattened || 0}</td>
+            <td>${k.recovered_at ? fmtTime(k.recovered_at) : '<span style="color:var(--red)">PENDING</span>'}</td>
+            <td class="muted" style="font-family:monospace;font-size:11px">${(k.reason || '').slice(0, 80)}</td>
+          </tr>`).join('')}</tbody></table>
+      ` : '<div class="empty">No kill switches triggered. Bot has been running clean.</div>'}
+    </div>`;
+
+  if (d.snapshots.length > 1 && window.Chart) {
+    const ctx = document.getElementById('equity-chart');
+    if (ctx) {
+      new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: d.snapshots.map(s => fmtDate(s.snapshot_date)),
+          datasets: [{
+            label: 'Equity',
+            data: d.snapshots.map(s => Number(s.equity)),
+            borderColor: '#C9981A',
+            backgroundColor: 'rgba(201, 152, 26, 0.1)',
+            tension: 0.2, fill: true, pointRadius: 0,
+          }],
+        },
+        options: {
+          plugins: { legend: { display: false } },
+          scales: {
+            x: { grid: { color: '#23232f' }, ticks: { color: '#8888aa' } },
+            y: { grid: { color: '#23232f' }, ticks: { color: '#8888aa', callback: v => '$' + Number(v).toLocaleString() } },
+          },
+        },
+      });
+    }
+  }
+}
+
+async function load(){
+  const auth = getAuth();
+  if (!auth) return renderAuth();
+  try {
+    const res = await fetch(`/api/edge-king-dashboard?email=${encodeURIComponent(auth.email)}&token=${encodeURIComponent(auth.token)}`);
+    if (!res.ok) {
+      const j = await res.json().catch(() => ({}));
+      if (res.status === 401 || res.status === 403) {
+        localStorage.removeItem(STORAGE_KEY);
+        return renderAuth(j.error || 'access denied');
+      }
+      throw new Error(j.error || `HTTP ${res.status}`);
+    }
+    const data = await res.json();
+    renderShell(data);
+  } catch (e) {
+    document.getElementById('app').innerHTML = `<div class="auth"><h2>Error</h2><div class="err">${e.message}</div></div>`;
+  }
+}
+
+load();
+setInterval(load, 30000);
+</script>
+</body>
+</html>

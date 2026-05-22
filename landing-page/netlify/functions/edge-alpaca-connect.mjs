@@ -8,6 +8,7 @@
 import { Resend } from 'resend';
 import { supabase, resolveEdgeSubscription, json } from './_edge-helpers.mjs';
 import { encryptSecret, alpacaFetch } from './_edge-bot-helpers.mjs';
+import { tierFor, isKingEmail } from './_strategy-registry.mjs';
 
 const LIVE_ENABLED = process.env.EDGE_LIVE_ENABLED === 'true';
 const resend = new Resend(process.env.RESEND_API_KEY);
@@ -51,18 +52,29 @@ export default async (req) => {
     return json(400, { error: 'invalid_mode' });
   }
 
-  // 1. Verify edge subscription
+  // 1. Verify edge subscription (King bypasses — he's the operator, not a customer)
   const sub = await resolveEdgeSubscription(email);
-  if (!sub.ok) return json(403, { error: 'no_active_edge_subscription' });
+  if (!sub.ok && !isKingEmail(email)) {
+    return json(403, { error: 'no_active_edge_subscription' });
+  }
 
   // 2. Watch tier doesn't get bot access
-  if (sub.tier === 'watch') return json(403, { error: 'watch_tier_no_bot', upgrade_url: '/edge.html#tiers' });
-
-  // 3. Live mode gated by feature flag + Edge tier
-  if (mode === 'live') {
-    if (!LIVE_ENABLED) return json(403, { error: 'live_mode_not_yet_available', message: 'Live trading unlocks after securities attorney review.' });
-    if (sub.tier !== 'edge') return json(403, { error: 'live_requires_edge_tier' });
+  if (sub.ok && sub.tier === 'watch') {
+    return json(403, { error: 'watch_tier_no_bot', upgrade_url: '/edge.html#tiers' });
   }
+
+  // 3. Live mode gated by feature flag + Edge tier (King's tier_zero bypasses the flag — he's signed off himself)
+  if (mode === 'live') {
+    if (!LIVE_ENABLED && !isKingEmail(email)) {
+      return json(403, { error: 'live_mode_not_yet_available', message: 'Live trading unlocks after securities attorney review.' });
+    }
+    if (sub.ok && sub.tier !== 'edge' && !isKingEmail(email)) {
+      return json(403, { error: 'live_requires_edge_tier' });
+    }
+  }
+
+  // King's emails auto-promote to tier_zero regardless of mode.
+  const effectiveTier = tierFor(email, mode);
 
   // 4. Validate against Alpaca (call /account with the provided keys)
   const probe = await alpacaFetch({ api_key_id: keyId, api_secret: apiSecret, mode }, '/account');
@@ -78,14 +90,15 @@ export default async (req) => {
     .from('edge_brokerage_connections')
     .upsert({
       user_email:        email,
-      product_id:        sub.productId,
+      product_id:        sub.ok ? sub.productId : 'edge-tier-zero',
       broker:            'alpaca',
       mode,
+      tier:              effectiveTier,
       api_key_id_enc:    enc_key,
       api_secret_enc:    enc_secret,
       last_health_check: new Date().toISOString(),
       health_status:     'ok',
-      notes:             `Connected ${mode} mode. Alpaca account status: ${probe.data?.status || 'unknown'}`,
+      notes:             `Connected ${mode} mode (tier=${effectiveTier}). Alpaca account status: ${probe.data?.status || 'unknown'}`,
     }, { onConflict: 'user_email' })
     .select().single();
 

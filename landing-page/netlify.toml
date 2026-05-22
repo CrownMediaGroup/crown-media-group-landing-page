@@ -25,6 +25,17 @@
   event = "submission-created"
   functions = ["form-submission"]
 
+# ── KINGDOM EDGE BOT SCHEDULERS ──────────────────────────────────────────────
+# Stock bot — every 5 min during NYSE regular hours (13:30–20:00 UTC, Mon–Fri).
+# Daily P&L reconciler — 21:30 UTC (~30 min after NYSE close) — populates daily_pnl
+# field that the daily-loss risk gate reads.
+# Cron uses UTC. NYSE 09:30–16:00 ET = 13:30–20:00 UTC envelope (DST tolerant).
+[functions."edge-bot-runner"]
+  schedule = "*/5 13-20 * * 1-5"
+
+[functions."edge-daily-pnl-reconcile"]
+  schedule = "30 21 * * 1-5"
+
 [[headers]]
   for = "/*"
   [headers.values]
