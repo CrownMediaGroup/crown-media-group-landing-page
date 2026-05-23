@@ -20,12 +20,13 @@ import {
   sendEmail,
 } from './_outreach-helpers.mjs';
 
-const REPLY_RATE_MIN_PCT  = 2.0;   // below this = cold pool exhausted
-const BOUNCE_RATE_MAX_PCT = 5.0;   // above this = list quality dropped
-const UNSUB_24H_MAX       = 3;     // more than 3 unsubs in a day = message is wrong
-const MIN_SENT_FOR_RATES  = 200;   // don't pause based on rates if sample is tiny (raised from 30 — 140 sends in 90 min would trip 0% reply rate falsely)
-// Bounce rate has a separate (lower) gate so we still catch bad lists fast:
-const MIN_SENT_FOR_BOUNCE = 30;
+const REPLY_RATE_MIN_PCT  = 2.0;    // below this = cold pool exhausted
+const BOUNCE_RATE_MAX_PCT = 10.0;   // above this = list quality dropped
+                                    // (raised from 5% — day-1 list cleanup spikes can hit 8-9% without indicating a real reputation crisis;
+                                    // bounced addresses are auto-excluded from future cohorts at filter level via email_bounced=1)
+const UNSUB_24H_MAX       = 3;      // more than 3 unsubs in a day = message is wrong
+const MIN_SENT_FOR_RATES  = 200;    // don't pause based on reply rate if sample is tiny
+const MIN_SENT_FOR_BOUNCE = 30;     // bounce rate gate fires earlier (bad lists need fast detection)
 
 const ALERT_TO = 'king@crownmediagroup.co';
 
