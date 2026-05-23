@@ -23,7 +23,9 @@ import {
 const REPLY_RATE_MIN_PCT  = 2.0;   // below this = cold pool exhausted
 const BOUNCE_RATE_MAX_PCT = 5.0;   // above this = list quality dropped
 const UNSUB_24H_MAX       = 3;     // more than 3 unsubs in a day = message is wrong
-const MIN_SENT_FOR_RATES  = 30;    // don't pause based on rates if sample is tiny
+const MIN_SENT_FOR_RATES  = 200;   // don't pause based on rates if sample is tiny (raised from 30 — 140 sends in 90 min would trip 0% reply rate falsely)
+// Bounce rate has a separate (lower) gate so we still catch bad lists fast:
+const MIN_SENT_FOR_BOUNCE = 30;
 
 const ALERT_TO = 'king@crownmediagroup.co';
 
@@ -43,7 +45,8 @@ export default async (req, _context) => {
   if (stats.sent_7d >= MIN_SENT_FOR_RATES && stats.reply_rate < REPLY_RATE_MIN_PCT) {
     triggers.push(`reply rate ${stats.reply_rate}% < ${REPLY_RATE_MIN_PCT}% over ${stats.sent_7d} sends in last 7 days`);
   }
-  if (stats.sent_7d >= MIN_SENT_FOR_RATES && stats.bounce_rate > BOUNCE_RATE_MAX_PCT) {
+  // Bounce rate uses a tighter threshold — bad lists need to be caught quickly
+  if (stats.sent_7d >= MIN_SENT_FOR_BOUNCE && stats.bounce_rate > BOUNCE_RATE_MAX_PCT) {
     triggers.push(`bounce rate ${stats.bounce_rate}% > ${BOUNCE_RATE_MAX_PCT}% over ${stats.sent_7d} sends in last 7 days`);
   }
   if (stats.unsub_24h > UNSUB_24H_MAX) {
