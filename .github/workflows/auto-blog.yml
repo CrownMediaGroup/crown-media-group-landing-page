@@ -1,19 +1,23 @@
 name: Auto-Blog — Crown Media Group
 
 # ── Best times to publish for Columbia SC small business audience ──────────────
-# Research-backed optimal blog posting times (EST → UTC):
-#   8:00 AM EST  = 13:00 UTC  (morning commute / coffee)
-#  12:00 PM EST  = 17:00 UTC  (lunch break browsing)
+# 6 posts per day at evenly-spaced peak audience times (EST → UTC):
+#   7:00 AM EST  = 12:00 UTC  (morning commute / coffee)
+#  10:00 AM EST  = 15:00 UTC  (mid-morning desk time)
+#   1:00 PM EST  = 18:00 UTC  (lunch break browsing)
 #   4:00 PM EST  = 21:00 UTC  (end-of-workday wind-down)
-#   8:00 PM EST  = 01:00 UTC  (evening research / planning)
+#   7:00 PM EST  = 00:00 UTC  (evening discovery)
+#  10:00 PM EST  = 03:00 UTC  (late-night research / planning)
 # Saturday is skipped (Sabbath). Sunday runs normally.
 
 on:
   schedule:
-    - cron: '0 13 * * 0,1,2,3,4'   # 8:00 AM EST  — Mon–Fri + Sun
-    - cron: '0 17 * * 0,1,2,3,4'   # 12:00 PM EST — Mon–Fri + Sun
-    - cron: '0 21 * * 0,1,2,3,4'   # 4:00 PM EST  — Mon–Fri + Sun
-    - cron: '0 1  * * 0,1,2,3,4'   # 8:00 PM EST  — Mon–Fri + Sun
+    - cron: '0 12 * * 0,1,2,3,4,5'  # 7:00 AM EST  — Sun–Fri (no Sat)
+    - cron: '0 15 * * 0,1,2,3,4,5'  # 10:00 AM EST — Sun–Fri
+    - cron: '0 18 * * 0,1,2,3,4,5'  # 1:00 PM EST  — Sun–Fri
+    - cron: '0 21 * * 0,1,2,3,4,5'  # 4:00 PM EST  — Sun–Fri
+    - cron: '0 0  * * 0,1,2,3,4,5'  # 7:00 PM EST  — Sun–Fri
+    - cron: '0 3  * * 0,1,2,3,4,5'  # 10:00 PM EST — Sun–Fri
 
   workflow_dispatch:
     inputs:
@@ -119,11 +123,15 @@ jobs:
           echo "=== Attempt 3: static fallback post ==="
           # CONTINGENCY 3: Pre-written evergreen post committed to repo as ultimate safety net.
           # If Claude API is completely down, we still publish something.
+          # Filename includes hour so 6 daily runs each produce a UNIQUE file
+          # (previously they all overwrote the same filename, killing 5 of 6 posts).
           if [ -f "content/blog/fallback-post.md" ]; then
             FALLBACK_DATE=$(date +'%Y-%m-%d')
-            cp content/blog/fallback-post.md "content/blog/${FALLBACK_DATE}-local-marketing-guide.md"
-            sed -i "s/DATE_PLACEHOLDER/${FALLBACK_DATE}/g" "content/blog/${FALLBACK_DATE}-local-marketing-guide.md" || true
-            echo "Fallback post deployed for ${FALLBACK_DATE}"
+            FALLBACK_HOUR=$(date +'%H')
+            FALLBACK_SLUG="${FALLBACK_DATE}-${FALLBACK_HOUR}h-local-marketing-guide"
+            cp content/blog/fallback-post.md "content/blog/${FALLBACK_SLUG}.md"
+            sed -i "s/DATE_PLACEHOLDER/${FALLBACK_DATE}/g" "content/blog/${FALLBACK_SLUG}.md" || true
+            echo "Fallback post deployed for ${FALLBACK_DATE} hour ${FALLBACK_HOUR}"
             exit 0
           fi
 

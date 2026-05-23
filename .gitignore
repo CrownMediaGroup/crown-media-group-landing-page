@@ -3,12 +3,12 @@
 # ============================================================
 
 # --- Shell-paste artifacts (JS code accidentally piped into the shell) ---
-# Block files matching JS-syntax-fragment patterns from being created at root
+# Block files matching JS-syntax-fragment patterns from being created at root.
+# NOTE: must NOT use /?* — that matches all files at root (single-char wildcard).
 /!*
 /(*
 /)*
 /{*
-/?*
 /c.*
 /`*
 /console.log*
@@ -24,9 +24,6 @@
 /Crown
 /OVERBOUGHT
 /Request
-/[0-9]
-/[0-9])
-/s
 
 # --- Personal/private content (out of repo) ---
 /Agency/personal/private/

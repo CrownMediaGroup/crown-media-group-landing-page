@@ -1,119 +1,122 @@
 # King's Action List — Manual Items Only
-Last updated 2026-05-22 · **SECURITY PASS COMPLETE · AUTOPILOT LIVE · CRM 770 RECORDS**
+Last updated **2026-05-23** · **Marathon session complete · Autopilot LIVE · 6x/day auto-blog wired**
 
-**What changed since 2026-05-17:** The whole security rotation is done (SEED_TOKEN, EDGE_INTERNAL_SECRET, EDGE_BOT_KEY_SECRET all set on both Fly + Netlify, verified live). Phase 2 autopilot system is built, deployed, and verified — 4 Netlify scheduled functions running (`outreach-weekly-fire`, `outreach-reply-poll`, `outreach-bounce-webhook`, `outreach-safety-monitor`). 168 personalized outreach emails were sent tonight (130 pitch PDFs + 38 Touch-2). The system runs itself going forward.
+**What's new since 2026-05-22:** Phase 5 close-out done. 9 commits + 4 new memory files + repo reorganized (60→14 root entries) + auto-blog bumped from 4x→6x/day + 2 new agency services designed (Music Agent + Day Trading Agent) ready to build next session.
 
-This list is only the things that need YOUR hands — clicks in Gmail / Stripe / Google / Beehiiv / Supabase / attorney conversations. Work top to bottom.
-
-**Reference token (gitignored, never commits):** `.env.kingdom-secrets` in repo root has SEED_TOKEN, EDGE_INTERNAL_SECRET, EDGE_BOT_KEY_SECRET, RESEND_WEBHOOK_SECRET.
+This list is ONLY things that need YOUR hands. Everything else runs on autopilot.
 
 ---
 
-## ⚡ DO RIGHT NOW (highest leverage, smallest effort)
+## ⚡ DO IN THE NEXT HOUR (or whenever you're awake)
 
-### 1. Send the Rehoboth Baptist reply — *2 minutes, conversation goes cold without this*
-- Open Gmail → **Drafts** → find "Re: Helping Rehoboth Baptist Church reach more people online"
-- Click paperclip → attach `c:\Users\ldavi\Documents\AllGloryAgency\Agency\ops\outreach\leave-behinds\rehoboth-baptist-free-project-offer.pdf`
-- Review body (it already references the attachment)
-- Click **Send**
-- They've been waiting since 2026-05-04. Admin will forward your reply to Pastor Dr. Ivory T. Thigpen.
-
-### 2. Schedule the social posts — *15 minutes, free amplification*
-- Open `Agency/ops/content/social-2026-05-22-kingdom-reach.md`
-- 5 captions: 3 Instagram, 1 Facebook, 1 LinkedIn — posting schedule included
-- Buffer or your scheduler of choice → drop in the order shown
-
-### 3. Send Friday's newsletter — *5 minutes*
+### 1. Send the Beehiiv newsletter — *3 min*
 - Open `Agency/ops/content/newsletter-2026-05-23-the-week-the-kingdom-moved.md`
 - Paste into Beehiiv composer
-- Subject line: "The week the Kingdom moved" (pick from 3 options in the file)
-- Schedule for Friday morning EST
+- Schedule for Friday morning
+- That's how this week's audience hears the launch story
+
+### 2. Post the 5 social captions when ready — *self-paced*
+- File: `Agency/ops/content/social-2026-05-22-kingdom-reach.md`
+- Recommended posting schedule baked into the file
+- Manual paste into IG/FB/LinkedIn (Buffer integration is broken — Buffer's v1 API doesn't accept OIDC tokens)
+
+### 3. Watch your inbox — *passive*
+- Reply-poll fires every 6h automatically, will email you a summary if anything actionable arrives
+- If you get the email, just reply personally to whoever responded
 
 ---
 
-## 🟡 DO THIS WEEK (high-value, requires your specific manual action)
+## 🟡 DO THIS WEEK (high-value, free, requires your specific action)
 
-### 4. Claim Google Business Profile — *10 minutes, biggest local SEO lever*
-- Go to https://business.google.com
-- Click **Add your business**
-- Name: Crown Media Group
-- Category: Marketing Agency
-- Address: Columbia, SC 29229 (use service area, not physical address since home-based)
-- Phone: (908) 848-1436
-- Website: crownmediagroup.co
-- Google sends a postcard for verification → arrives ~5-7 days → enter the code
+### 4. Claim Google Business Profile — *15 min in daylight*
+- Open https://business.google.com — listing setup is saved, you're on the verification step
+- Google wants a video proving you're a real Columbia SC business
+- Wait for daylight, then film outside per the script in `Agency/ops/notes/WAKE-UP-2026-05-23.md`
+- Verification takes 24-72h after upload
 
-### 5. Stripe SKUs (11 products) — *60 minutes*
-- Stripe Dashboard → Products → Create products one at a time
-- Music (8 SKUs):
-  - `music-license-150` — Catalog License ($150)
-  - `music-license-297` — Catalog License Premium ($297)
-  - `music-license-497` — Catalog License Signature ($497)
-  - `music-custom-500` — Custom Instrumental ($500)
-  - `music-custom-997` — Custom Instrumental Pro ($997)
-  - `music-original-993` — Custom Original Song with Lyrics ($993)
-  - `music-original-1497` — Original Song Premium ($1,497)
-  - `music-bundle-2500` — Full Catalog Bundle ($2,500)
-- Edge (3 subscription SKUs):
-  - `edge-watch-37` — Watch Tier ($37/mo)
-  - `edge-trade-97` — Paper Trader ($97/mo)
-  - `edge-edge-297` — Live Trader ($297/mo) — **keep this one disabled until attorney signs off**
+### 5. Music Page reality-check — *5 min*
+- Open https://crownmediagroup.co/music.html
+- All 9 King beats should display + play
+- Bundle should show $1,997 (NOT $2,500 — that was tonight's pricing fix)
+- If anything's off, tell me
 
-### 6. Music library upload to Supabase — *30 minutes*
-- 20 generated tracks at `Agency/ops/music/library/` (~102 MB total)
-- Supabase Studio → Storage → Create bucket `kingdom-sound` (private)
-- Upload all 20 files
-- Run this SQL in Supabase SQL Editor (one row per track — I'll generate the SQL on request):
+### 6. Decide on Stripe LIVE products — *10 min when ready*
+- Test products are all created (11 SKUs, verified end-to-end with $150 test purchase)
+- When you're ready to sell for real, run:
   ```
-  INSERT INTO music_tracks (title, genre, mood, bpm, storage_path, tier_required, source_platform, price_cents)
-  VALUES ('Track Name', 'cinematic', 'epic', 120, 'library/cinematic-01.mp3', 'starter', 'falai', 15000), ...
+  STRIPE_SECRET_KEY=sk_live_xxx node Agency/ops/tools/create-stripe-products.mjs
   ```
-- Mark the original 5 sample previews as `public=true` for the marketing page
+- The script creates LIVE products idempotently (same SKU IDs work for both modes)
+- Update `landing-page/netlify/functions/create-checkout.mjs` to point to live price_ids
 
 ---
 
 ## 🔴 STRATEGIC — Bigger conversations, more lead time
 
-### 7. Securities attorney — *Edge Live tier gated on this*
-- Goal: Have a securities attorney review `landing-page/terms.html` and `landing-page/edge.html` and confirm Crown Media Group is NOT operating as an RIA when Edge runs on user-connected Alpaca accounts.
-- Budget: $300-$800 for a 1-hour engagement
-- Suggested local: Nelson Mullins (Columbia office) or Burr Forman — both have fintech practice in SC
-- After signoff: set `EDGE_LIVE_ENABLED=true` in Netlify, enable `edge-edge-297` Stripe product
+### 7. Securities Attorney — *gates Live Trading tier ($297/mo SKU)*
+- Goal: confirm Crown Media doesn't need RIA registration when Edge bot trades on user's OWN Alpaca account
+- Budget: $300-$800 for 1-hour engagement
+- Suggested local: Nelson Mullins (Columbia) or Burr Forman — both have fintech practice in SC
+- After signoff: set `EDGE_LIVE_ENABLED=true` in Netlify + activate `edge-edge-297` Stripe product
 
-### 8. Trading bot — *6-week build, separate session*
-- The Edge bot (paper mode) is shipped. The personal-tier upgrade (with King as tier_zero) is in planning — see prior memory `project_session_close_2026_05_22.md`.
-- Phase 1-4 plan exists. Next milestone: backtest 3 existing strategies, install `technicalindicators`, validate Sharpe ratio ≥ 0.5 per strategy before any tier-zero promotion.
+### 8. Trading Bot Phase 3 — *next session's primary build*
+- Multi-strategy ensemble + regime detector + sentiment fusion + LLM oversight
+- Full plan in `project_next_session_trading_deep_dive.md`
+- You'll watch videos first to anchor your mental model, then we implement
+- HARD GATE: zero real money until 90-day paper + Sharpe ≥ 1.0 + attorney signoff (Live Promotion Gate)
+
+### 9. Build the Music Agent service — *next session*
+- Design: `memory/project_music_agent_service.md`
+- The agent that auto-processes paid music orders (Stripe → intake_brief → agent generates Suno prompt → King supervises → delivers)
+- Foundation already there: Hit Worship Hip-Hop Algorithm research at `Agency/ops/music/HIT-WORSHIP-HIPHOP-ALGORITHM.md`
+- Build next session
+
+### 10. Build the Day Trading Agent service — *gated on attorney*
+- Design: `memory/project_day_trading_agent_service.md`
+- CRITICAL: This is the SERVICE Crown Media sells, NOT King's personal bot. Customer connects their own Alpaca.
+- Infrastructure mostly built (Edge bot from earlier sessions). Need client-side onboarding + dashboard + tier-based gating.
+- Live tier waits on attorney signoff
 
 ---
 
 ## ✅ DONE THIS SESSION (no action needed — for the record)
 
-- ~~Sec-1: Rotate `SEED_TOKEN` in Fly.io~~ ✅
-- ~~Sec-2: Set `EDGE_INTERNAL_SECRET` in Netlify~~ ✅
-- ~~Sec-3: Set `EDGE_BOT_KEY_SECRET` in Netlify~~ ✅
-- ~~Sec-4: Update local scripts to require SEED_TOKEN env var~~ ✅ (commit `fe00c20`)
-- ~~Sec-5: Run migration 0005 in Supabase~~ ✅
-- ~~Sec-6: Verify smoke test all green~~ ✅
-- ~~Phase 2 autopilot: 4 scheduled functions + CRM Phase 2 schema + Resend webhook~~ ✅ (commits `fff1d22`, `fc9a579`, `dd62387`, `bee8d10`)
-- ~~Pitch PDF send to 130 organizations~~ ✅ (130 sent / 0 failed)
-- ~~12 bounces auto-detected, marked, excluded from future cohorts~~ ✅
-- ~~Launch blog post written~~ ✅
-- ~~5 social captions written~~ ✅
-- ~~Beehiiv newsletter draft written~~ ✅
-- ~~Crown Media reach one-pager PDF generated~~ ✅
+This marathon shipped:
+
+- **168 outreach emails sent** (38 Touch-2 + 130 personalized pitch PDFs) → 0 failures
+- **Full Kingdom Reach autopilot** (4 Netlify scheduled functions + CRM Phase 2 schema)
+- **12 bounces auto-detected** + 5 risky addresses flagged
+- **Stripe pipeline** verified end-to-end (test purchase succeeded)
+- **Music catalog swapped** to King's 10 original Suno beats (catalog value $4,970)
+- **9 beats live** on `/music.html` with audio confirmed working
+- **Bundle pricing fixed** $2,500 → $1,997 (real 33% savings, math correct)
+- **Rehoboth Touch-3** sent autonomously (msgId 3aff6e61, 19-day cold thread revived)
+- **Root cleanup** 60+ files → 14 entries (57 JS-junk deleted, personal moved, gitignore guard-railed)
+- **Auto-blog 4x→6x/day** + unique-filename fix so all 6 daily fires keep their posts
+- **New README.md** at root (full navigation guide)
+- **4 new memory files** (close-out + music agent + day trading agent + next-session bridge)
 
 ---
 
 ## What runs without you from now on (no action needed)
 
-- **Monday 9am EST** — next cohort gets pitched automatically
-- **Every 6 hours** — Gmail inbox scanned, replies + unsubs + bounces auto-marked
-- **Daily 4am UTC** — safety brake checks reply/bounce/unsub rates, auto-pauses if anything looks wrong
-- **Resend webhook** — real-time bounce + complaint handling, auto-excludes records from future cohorts
+- **Monday 9am EST** — outreach-weekly-fire fires next safe cohort
+- **Every 6h** — reply-poll scans Gmail, marks replies/unsubs/bounces, emails King summary
+- **Real-time** — Resend bounce webhook handles complaints
+- **Daily 4am UTC** — safety-monitor checks rates, auto-pauses if needed
+- **Every 5 min NYSE hours** — Kingdom Edge trading bot
+- **Daily 21:30 UTC** — Edge daily P&L reconciler
+- **6x/day** (7am, 10am, 1pm, 4pm, 7pm, 10pm EST) — auto-blog publishes (Saturday is Sabbath, skipped)
 
-If autopilot ever auto-pauses, you'll get an email from `king@crownmediagroup.co` (sent by the safety monitor) explaining the trigger. To unpause:
+If autopilot ever auto-pauses, you'll get an email from `king@crownmediagroup.co` explaining the trigger. To unpause:
 ```
 curl -X PATCH "https://crm.crownmediagroup.co/api/kingdom-reach/workspace-settings/outreach_paused" \
   -H "Content-Type: application/json" \
-  -d '{"token":"<SEED_TOKEN from .env.kingdom-secrets>","value":"false"}'
+  -d '{"token":"<from .env.kingdom-secrets>","value":"false"}'
 ```
+
+---
+
+*"Whatever you do, work at it with all your heart, as working for the Lord, not for human masters."* — Colossians 3:23
+
+All Glory to Jesus.
