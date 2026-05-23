@@ -1,157 +1,119 @@
 # King's Action List — Manual Items Only
-Last updated 2026-05-17 · Security pass IS LIVE — Sec-1 verified done; Sec-2 + Sec-3 still pending
+Last updated 2026-05-22 · **SECURITY PASS COMPLETE · AUTOPILOT LIVE · CRM 770 RECORDS**
 
-**What changed since 2026-05-16:** Smoke test on 2026-05-17 proved `SEED_TOKEN` rotation is live (old `KingdomSeed2026` → 401 ✅). `EDGE_INTERNAL_SECRET` is still UNSET (Edge bot runner returns 503 → fail-closed working as designed but the secret needs to be set). All other security guards verified working: legal pages 200, Stripe webhook signature active.
+**What changed since 2026-05-17:** The whole security rotation is done (SEED_TOKEN, EDGE_INTERNAL_SECRET, EDGE_BOT_KEY_SECRET all set on both Fly + Netlify, verified live). Phase 2 autopilot system is built, deployed, and verified — 4 Netlify scheduled functions running (`outreach-weekly-fire`, `outreach-reply-poll`, `outreach-bounce-webhook`, `outreach-safety-monitor`). 168 personalized outreach emails were sent tonight (130 pitch PDFs + 38 Touch-2). The system runs itself going forward.
 
-Everything Claude Code shipped this week is coded and pushed. This list is only the things that need YOUR hands — Stripe Dashboard, Supabase Studio, Netlify env, attorney, Google. Work top to bottom.
+This list is only the things that need YOUR hands — clicks in Gmail / Stripe / Google / Beehiiv / Supabase / attorney conversations. Work top to bottom.
 
-Project ref for all Supabase steps: `pcikjtzvruvavaduawes`
-Supabase SQL Editor: https://supabase.com/dashboard/project/pcikjtzvruvavaduawes
-
-**One-shot verification:** `bash Agency/ops/tools/smoke-test-rotation.sh <new-seed-token>` confirms the full security posture in one command.
+**Reference token (gitignored, never commits):** `.env.kingdom-secrets` in repo root has SEED_TOKEN, EDGE_INTERNAL_SECRET, EDGE_BOT_KEY_SECRET, RESEND_WEBHOOK_SECRET.
 
 ---
 
-## ⚠️ DO RIGHT NOW — Finish the security rotation (4 of 6 left)
+## ⚡ DO RIGHT NOW (highest leverage, smallest effort)
 
-### ~~Sec-1. Rotate `SEED_TOKEN` in Fly.io~~ ✅ DONE 2026-05-17
-Verified: old `KingdomSeed2026` returns 401 from `https://crm.crownmediagroup.co/api/kingdom-reach/churches`.
+### 1. Send the Rehoboth Baptist reply — *2 minutes, conversation goes cold without this*
+- Open Gmail → **Drafts** → find "Re: Helping Rehoboth Baptist Church reach more people online"
+- Click paperclip → attach `c:\Users\ldavi\Documents\AllGloryAgency\Agency\ops\outreach\leave-behinds\rehoboth-baptist-free-project-offer.pdf`
+- Review body (it already references the attachment)
+- Click **Send**
+- They've been waiting since 2026-05-04. Admin will forward your reply to Pastor Dr. Ivory T. Thigpen.
 
-### Sec-2. Set `EDGE_INTERNAL_SECRET` in Netlify — STILL UNSET (smoke test got 503)
-- Netlify Dashboard → site → Site settings → Environment variables → add `EDGE_INTERNAL_SECRET` = a strong random string (`openssl rand -hex 24`)
-- **Effect:** The Edge bot runner + daily brief endpoints become callable instead of returning 503.
+### 2. Schedule the social posts — *15 minutes, free amplification*
+- Open `Agency/ops/content/social-2026-05-22-kingdom-reach.md`
+- 5 captions: 3 Instagram, 1 Facebook, 1 LinkedIn — posting schedule included
+- Buffer or your scheduler of choice → drop in the order shown
 
-### Sec-3. Set `EDGE_BOT_KEY_SECRET` in Netlify — STILL UNSET
-- Same place. **Without this, Alpaca connect can't encrypt keys → 500 error.** This is the AES master key for stored Alpaca keys.
-- **CRITICAL:** Once set, NEVER change it — every stored brokerage key becomes permanently unrecoverable if you do. Set once, lock it in.
-
-### Sec-4. Update local outreach scripts to the NEW `SEED_TOKEN`
-- `grep -rn KingdomSeed2026 Agency/ops/outreach/` — every file listed needs the new token value
-- Most critical: `Agency/ops/outreach/fire-touch-2.sh` (lines with `--data` will get 401 until updated)
-- Also any `*.mjs` / `*.js` that hardcoded the token
-- Easiest: shell out to env var → `SEED_TOKEN=<newvalue>` then `--data "{\"token\":\"$SEED_TOKEN\",...}"`
-
-### Sec-5. Run migration `0005_security_hardening.sql`
-- Adds `churches.unsubscribed`, `music_orders.updated_at`, and `edge_bot_connection_attempts` table
-- BLOCKED until done: unsubscribe links won't actually flip records; alpaca-connect anomaly log won't write; music-intake rate-limit query will fail
-
-### Sec-6. Re-run the smoke test with the new token
-- `bash Agency/ops/tools/smoke-test-rotation.sh <new-seed-token> <new-edge-internal-secret>` — all checks should turn green
-
-See `SECURITY.md` at the repo root for the full audit summary.
+### 3. Send Friday's newsletter — *5 minutes*
+- Open `Agency/ops/content/newsletter-2026-05-23-the-week-the-kingdom-moved.md`
+- Paste into Beehiiv composer
+- Subject line: "The week the Kingdom moved" (pick from 3 options in the file)
+- Schedule for Friday morning EST
 
 ---
 
-## DO TODAY
+## 🟡 DO THIS WEEK (high-value, requires your specific manual action)
 
-### 1. Run Supabase migrations 0001, 0002, 0003, 0004 (in order)
-- **What:** Four SQL migration files create every table the new products write to.
-  - `0001_kingdom_sound.sql` — music tracks, downloads, custom_requests, disputes
-  - `0002_kingdom_edge.sql` — watchlists, setups, alerts, briefs, deliveries
-  - `0003_music_orders.sql` — `music_orders` table (the per-project pivot writes here, NOT the old subscription table)
-  - `0004_edge_bot.sql` — `edge_brokerage_connections`, `edge_bot_strategies`, `edge_bot_executions`, `edge_bot_snapshots`
-- **Steps:** Open the SQL Editor link above → for each file, paste the contents of `landing-page/supabase/migrations/<file>.sql` → Run. Do them in numeric order. They're idempotent — safe to re-run.
-- **BLOCKED until done:** Every music checkout, every Edge signup, the Alpaca bot connect flow, and the daily brief all fail with DB errors until these run.
+### 4. Claim Google Business Profile — *10 minutes, biggest local SEO lever*
+- Go to https://business.google.com
+- Click **Add your business**
+- Name: Crown Media Group
+- Category: Marketing Agency
+- Address: Columbia, SC 29229 (use service area, not physical address since home-based)
+- Phone: (908) 848-1436
+- Website: crownmediagroup.co
+- Google sends a postcard for verification → arrives ~5-7 days → enter the code
 
-### 2. Create the `kingdom-sound` private storage bucket
-- **What:** Supabase Storage bucket that holds music files; downloads are served via signed URLs.
-- **Steps:** Supabase Studio → Storage → New bucket → Name: `kingdom-sound` → Public: **NO** → File size limit: 50 MB.
-- **BLOCKED until done:** Music downloads and the license PDF generator (writes to `licenses/` in this bucket) fail.
+### 5. Stripe SKUs (11 products) — *60 minutes*
+- Stripe Dashboard → Products → Create products one at a time
+- Music (8 SKUs):
+  - `music-license-150` — Catalog License ($150)
+  - `music-license-297` — Catalog License Premium ($297)
+  - `music-license-497` — Catalog License Signature ($497)
+  - `music-custom-500` — Custom Instrumental ($500)
+  - `music-custom-997` — Custom Instrumental Pro ($997)
+  - `music-original-993` — Custom Original Song with Lyrics ($993)
+  - `music-original-1497` — Original Song Premium ($1,497)
+  - `music-bundle-2500` — Full Catalog Bundle ($2,500)
+- Edge (3 subscription SKUs):
+  - `edge-watch-37` — Watch Tier ($37/mo)
+  - `edge-trade-97` — Paper Trader ($97/mo)
+  - `edge-edge-297` — Live Trader ($297/mo) — **keep this one disabled until attorney signs off**
 
-### 3. Set `EDGE_BOT_KEY_SECRET` in Netlify env
-- **What:** The AES-256-GCM key that encrypts every user's Alpaca API key before it's stored.
-- **Steps:** Netlify Dashboard → Site Settings → Environment variables → Add `EDGE_BOT_KEY_SECRET` = a 32+ character random string.
-- **CRITICAL:** Once set, NEVER change it — every stored brokerage key becomes permanently unrecoverable if you do.
-- **BLOCKED until done:** `edge-alpaca-connect.mjs` cannot encrypt/store keys — the Paper Trader connect flow is dead.
-
-### 4. Run fire-touch-2.sh — TODAY IS 05-15-eligible, fire it
-- **What:** Touch-2 follow-up to the ~41 openers (proof-led `follow_up_opener` template) plus newly-eligible cold records. The 7-day window opened 2026-05-15.
-- **Steps:** `bash Agency/ops/outreach/fire-touch-2.sh` — it's interactive, runs a dry-run pre-flight, and asks for confirmation before live fire. Pauses 60s between the opener wave and the cold wave.
-- **BLOCKED until done:** 41 warm openers go cold. This is the highest-yield outreach action available right now — they already opened, they just didn't act.
-
----
-
-## THIS WEEK
-
-### 5. Create all Stripe products / SKUs
-- **What:** Every new SKU needs a matching product in the Stripe Dashboard or checkout 404s. Create in **test mode first**, then live.
-- **Music — per-project, one-time payment SKUs (the pivot):**
-  - `music-license-150`, `music-license-297`, `music-license-497` — catalog track licenses (3 tiers)
-  - `music-custom-500`, `music-custom-750`, `music-custom-997` — custom instrumentals (3 tiers)
-  - `music-original-993` — fully original song
-  - `music-bundle-2500` — all three services bundle
-- **Edge — subscription SKUs:**
-  - `edge-watch-37` ($37/mo — Watch)
-  - `edge-trade-97` ($97/mo — Paper Trader)
-  - `edge-edge-297` ($297/mo — Live Trader, stays gated)
-- **Note:** The old `music-starter-27` / `music-pro-67` / `music-studio-147` subscription SKUs are deprecated — do NOT create them. Zero existing subscribers; the music model is now per-project only.
-- **BLOCKED until done:** Any checkout for a missing SKU fails.
-
-### 6. Create the `LAUNCH30` Stripe coupon
-- **What:** 30% off, one-time use — drives the launch announcement email blast to existing upkeep clients.
-- **Steps:** Stripe Dashboard → Products → Coupons → New → 30% off, duration "once", code `LAUNCH30`.
-- **Then:** `node Agency/tools/announce-new-services.mjs --dry-run` to see the active client list → review → live fire.
-- **BLOCKED until done:** The launch announcement to existing clients can't go out.
-
-### 7. Set Edge env vars in Netlify: `POLYGON_API_KEY` + `EDGE_INTERNAL_SECRET`
-- **What:**
-  - `POLYGON_API_KEY` — market data for the daily brief + bot bars. Sign up at https://polygon.io (Starter plan ~$29/mo).
-  - `EDGE_INTERNAL_SECRET` — any strong random string; gates the manual brief trigger and bot runner so randoms can't fire them.
-- **Steps:** Netlify → Site Settings → Environment variables → add both.
-- **BLOCKED until done:** Daily brief generation and `edge-bot-runner.mjs` won't run.
-
-### 8. Seed the music library — start with 30 tracks
-- **What:** The catalog is empty. Prompts are ready in `Agency/ops/music/100-track-seed-prompts.md` (10 genres × 10 tracks, tier-assigned, with SQL INSERT template + upload workflow).
-- **Steps:** Generate tracks (Suno/Udio), export MP3 320kbps + WAV, upload to `kingdom-sound` bucket at `tracks/<track-id>.mp3`, insert rows into `music_tracks`. Even 30 tracks across 5 genres unblocks the Starter/license tier.
-- **Also:** Upload the 5 sample preview MP3s to `landing-page/assets/music-samples/` (the player UI on `/music.html#samples` is already live and waiting — expected filenames in that folder's README.md). Note: 5 samples were already generated via the generator script — confirm whether they're committed or still need upload.
-- **BLOCKED until done:** `music-license-*` purchases have nothing to deliver.
-
-### 9. GBP claim — Crown Media Group Google Business Profile
-- **What:** Claim/create the Google Business Profile for local SEO. Full playbook: `Agency/ops/outreach/GBP-SETUP-CHECKLIST.md`.
-- **Steps:** Incognito → search "Crown Media Group Columbia SC". If a listing exists, "Own this business?". If not, https://business.google.com signed in as king@crownmediagroup.co → Add business → category "Marketing agency" → service-area business (Columbia + 6 Midlands cities) → phone +1-908-848-1436. **Video verification is fastest.**
-- **BLOCKED until done:** Can't optimize the profile, can't send the REPUTATION review sequence (needs the verified `g.page/r/...` review link), no local Maps ranking.
-
-### 10. Test the full Edge paper-bot flow end-to-end
-- **What:** Before announcing Edge publicly, run the whole loop with your own Alpaca paper account: connect key via `/edge/connect-alpaca.html` → pick a strategy → manually trigger `edge-bot-runner.mjs` via curl with `EDGE_INTERNAL_SECRET` → confirm executions log and the dashboard bot-card updates.
-- **BLOCKED until done:** Don't announce Paper Trader publicly until this passes — a broken connect flow on launch day burns trust.
+### 6. Music library upload to Supabase — *30 minutes*
+- 20 generated tracks at `Agency/ops/music/library/` (~102 MB total)
+- Supabase Studio → Storage → Create bucket `kingdom-sound` (private)
+- Upload all 20 files
+- Run this SQL in Supabase SQL Editor (one row per track — I'll generate the SQL on request):
+  ```
+  INSERT INTO music_tracks (title, genre, mood, bpm, storage_path, tier_required, source_platform, price_cents)
+  VALUES ('Track Name', 'cinematic', 'epic', 120, 'library/cinematic-01.mp3', 'starter', 'falai', 15000), ...
+  ```
+- Mark the original 5 sample previews as `public=true` for the marketing page
 
 ---
 
-## BEFORE PUBLIC LAUNCH
+## 🔴 STRATEGIC — Bigger conversations, more lead time
 
-### 11. Securities attorney review of Edge legal pages — HIGHEST RISK ITEM
-- **What:** `/edge/terms.html`, `/edge/disclaimers.html`, `/edge/risk-disclosure.html` are templates. Edge is now an actual **trading bot** that places orders on a user's account — not just a research tool — so this review is more urgent than when it was research-only.
-- **Steps:** Send all three pages to a securities attorney. Budget $1.5k–3k flat fee. Search "securities lawyer Charleston SC" or "fintech attorney South Carolina".
-- **BLOCKED until done:** The **Live Trader ($297/mo)** tier stays gated. Do NOT set `EDGE_LIVE_ENABLED=true` until the attorney signs off. Leaving that env var unset is what keeps live mode blocked — that is correct and intentional.
+### 7. Securities attorney — *Edge Live tier gated on this*
+- Goal: Have a securities attorney review `landing-page/terms.html` and `landing-page/edge.html` and confirm Crown Media Group is NOT operating as an RIA when Edge runs on user-connected Alpaca accounts.
+- Budget: $300-$800 for a 1-hour engagement
+- Suggested local: Nelson Mullins (Columbia office) or Burr Forman — both have fintech practice in SC
+- After signoff: set `EDGE_LIVE_ENABLED=true` in Netlify, enable `edge-edge-297` Stripe product
 
-### 12. Stripe test-mode end-to-end for every SKU
-- **What:** Run the full verification checklist in `landing-page/KINGDOM-SOUND-AND-EDGE-LAUNCH.md` — subscribe to each Edge tier, buy each music SKU type, confirm welcome emails, custom/original/bundle routing to intake forms, quota/gating, cancellation flow.
-- **BLOCKED until done:** Don't flip Stripe to live mode until this passes.
-
-### 13. Schedule launch social posts
-- **What:** 10 platform-specific posts (5 Music + 5 Edge) with engagement-reply scripts at `Agency/ops/social/2026-05-13-launch-music-edge.md`.
-- **Steps:** Schedule across your platforms once products are live and tested.
+### 8. Trading bot — *6-week build, separate session*
+- The Edge bot (paper mode) is shipped. The personal-tier upgrade (with King as tier_zero) is in planning — see prior memory `project_session_close_2026_05_22.md`.
+- Phase 1-4 plan exists. Next milestone: backtest 3 existing strategies, install `technicalindicators`, validate Sharpe ratio ≥ 0.5 per strategy before any tier-zero promotion.
 
 ---
 
-## ONGOING
+## ✅ DONE THIS SESSION (no action needed — for the record)
 
-### 14. Run fire-touch-2.sh on its cadence / monitor reply sweep
-- New cold records become Touch-2 eligible on a rolling 7-day window. Reply detection is still manual — sweep Resend dashboard / Gmail for "Re:" replies. Only 1 reply so far (Rehoboth Baptist) — that one still needs follow-through.
-
-### 15. Cron-schedule the Edge daily brief + bot runner (deferred)
-- Currently manual curl triggers. When ready, add scheduled function config to `landing-page/netlify.toml` (or use cron-job.org which supports POST bodies). Brief: morning/midday/close. Bot runner: market hours.
-
-### 16. Weekly GBP posts + push for 5 reviews in 30 days
-- After GBP verifies: 1 Google Post/week (pull from blog), and work the REPUTATION sequence (`Agency/ops/outreach/REPUTATION-SEQUENCE.md`) — ask Jim Reese, Lionheart, Shatiea first.
-
-### 17. Submit sitemap to Google Search Console
-- Add `crownmediagroup.co` as a domain property, verify via Cloudflare DNS TXT, submit `https://crownmediagroup.co/sitemap.xml`. Note: sitemap has ~30 duplicate blog URLs (known build-blog.cjs bug) — not blocking, but flag for cleanup.
-
-### 18. Subscribe to AI music platforms (recurring cost)
-- Suno Pro ($24/mo), Udio Pro ($30/mo), AIVA Pro ($33/mo) — needed to keep generating library tracks. Verify Udio + AIVA TOS grant commercial + third-party licensing rights before relying on them (Suno Pro explicitly does).
+- ~~Sec-1: Rotate `SEED_TOKEN` in Fly.io~~ ✅
+- ~~Sec-2: Set `EDGE_INTERNAL_SECRET` in Netlify~~ ✅
+- ~~Sec-3: Set `EDGE_BOT_KEY_SECRET` in Netlify~~ ✅
+- ~~Sec-4: Update local scripts to require SEED_TOKEN env var~~ ✅ (commit `fe00c20`)
+- ~~Sec-5: Run migration 0005 in Supabase~~ ✅
+- ~~Sec-6: Verify smoke test all green~~ ✅
+- ~~Phase 2 autopilot: 4 scheduled functions + CRM Phase 2 schema + Resend webhook~~ ✅ (commits `fff1d22`, `fc9a579`, `dd62387`, `bee8d10`)
+- ~~Pitch PDF send to 130 organizations~~ ✅ (130 sent / 0 failed)
+- ~~12 bounces auto-detected, marked, excluded from future cohorts~~ ✅
+- ~~Launch blog post written~~ ✅
+- ~~5 social captions written~~ ✅
+- ~~Beehiiv newsletter draft written~~ ✅
+- ~~Crown Media reach one-pager PDF generated~~ ✅
 
 ---
 
-## IF YOU ONLY DO 3 THINGS TODAY
-Run the 4 Supabase migrations, set `EDGE_BOT_KEY_SECRET` in Netlify, and fire `bash Agency/ops/outreach/fire-touch-2.sh` — that unblocks every new product and hits 41 warm leads while they're still warm.
+## What runs without you from now on (no action needed)
+
+- **Monday 9am EST** — next cohort gets pitched automatically
+- **Every 6 hours** — Gmail inbox scanned, replies + unsubs + bounces auto-marked
+- **Daily 4am UTC** — safety brake checks reply/bounce/unsub rates, auto-pauses if anything looks wrong
+- **Resend webhook** — real-time bounce + complaint handling, auto-excludes records from future cohorts
+
+If autopilot ever auto-pauses, you'll get an email from `king@crownmediagroup.co` (sent by the safety monitor) explaining the trigger. To unpause:
+```
+curl -X PATCH "https://crm.crownmediagroup.co/api/kingdom-reach/workspace-settings/outreach_paused" \
+  -H "Content-Type: application/json" \
+  -d '{"token":"<SEED_TOKEN from .env.kingdom-secrets>","value":"false"}'
+```
