@@ -14,7 +14,7 @@ const PRODUCTS = {
   'music-custom-750':   { name: 'Kingdom Sound — Custom Instrumental (Extended)', amount: 75000, desc: 'Extended-length custom instrumental + alternate mix. 7 business day delivery. 2 rounds revisions.' },
   'music-custom-997':   { name: 'Kingdom Sound — Custom Instrumental (Multi-Version)', amount: 99700, desc: 'Custom instrumental with 3 mix variations + stems. 7 business day delivery. 2 rounds revisions.' },
   'music-original-993': { name: 'Kingdom Sound — Fully Original Song',          amount: 99300, desc: 'Original song — lyrics, melody, production, vocals — written for one story, person, or brand. 14 business day delivery.' },
-  'music-bundle-2500':  { name: 'Kingdom Sound — All Three Services Bundle',    amount: 250000, desc: '1 catalog license + 1 custom instrumental + 1 fully original song. Saves $487 vs. piecemeal.' },
+  'music-bundle-1997':  { name: 'Kingdom Sound — All Three Services Bundle',    amount: 199700, desc: '1 Signature catalog license + 1 Multi-Version custom instrumental + 1 fully original song. Saves $490 (33% off) vs. piecemeal.' },
 };
 
 export default async (req) => {

@@ -39,7 +39,7 @@ const SKUS = [
   { id: 'music-custom-997',   name: 'Kingdom Sound — Custom Instrumental Pro',        price_cents: 99700,  recurring: false, active: true,  category: 'music' },
   { id: 'music-original-993', name: 'Kingdom Sound — Custom Original Song (Lyrics)',  price_cents: 99300,  recurring: false, active: true,  category: 'music' },
   { id: 'music-original-1497', name: 'Kingdom Sound — Original Song Premium',         price_cents: 149700, recurring: false, active: true,  category: 'music' },
-  { id: 'music-bundle-2500',  name: 'Kingdom Sound — Full Catalog Bundle',            price_cents: 250000, recurring: false, active: true,  category: 'music' },
+  { id: 'music-bundle-1997',  name: 'Kingdom Sound — All Three Services Bundle',      price_cents: 199700, recurring: false, active: true,  category: 'music' },
   // Edge — 3 subscriptions (Live tier gated)
   { id: 'edge-watch-37',      name: 'Kingdom Edge — Watch Tier',                      price_cents: 3700,   recurring: 'month', active: true,  category: 'edge' },
   { id: 'edge-trade-97',      name: 'Kingdom Edge — Paper Trader',                    price_cents: 9700,   recurring: 'month', active: true,  category: 'edge' },
