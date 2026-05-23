@@ -2,6 +2,35 @@
 # ALL GLORY TO JESUS GLOBAL LLC — .gitignore
 # ============================================================
 
+# --- Shell-paste artifacts (JS code accidentally piped into the shell) ---
+# Block files matching JS-syntax-fragment patterns from being created at root
+/!*
+/(*
+/)*
+/{*
+/?*
+/c.*
+/`*
+/console.log*
+/process.env*
+/db.prepare*
+/console.error*
+/setTimeout*
+/hasOfferCatalog*
+/allowed.includes*
+/k.includes*
+/el.tags*
+/city.includes*
+/Crown
+/OVERBOUGHT
+/Request
+/[0-9]
+/[0-9])
+/s
+
+# --- Personal/private content (out of repo) ---
+/Agency/personal/private/
+
 # --- Environment & Secrets (NEVER commit these) ---
 .env
 .env.*
@@ -87,6 +116,16 @@ uploads/
 # --- Blog video output (large renders, never commit) ---
 landing-page/content/blog/video-output/
 *.mp3
+
+# --- Audio transcripts (King's lyrics — keep local) ---
+tools/audio/transcripts/
+tools/audio/cache/
+tools/audio/pdfs/
+tools/audio/inbox/
+tools/audio/.tmp/
+tools/audio/analysis/
+tools/audio/.suno-corpus.md
+tools/audio/.*.log
 
 # --- CRM local db ---
 tools/crm/crm.db
