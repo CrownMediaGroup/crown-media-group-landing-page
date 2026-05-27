@@ -151,12 +151,30 @@ export async function runScoringViaAPI({ crmUrl, token }) {
   for (const c of churches) {
     const { score, tier } = computeLeadScore(c);
     tierCounts[tier]++;
-    const patchRes = await fetch(`${crmUrl}/api/kingdom-reach/churches/${c.id}`, {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ token, lead_score: score }),
-    });
-    if (patchRes.ok) updated++;
+    // Throttle to avoid Fly.io rate limit (~200/min observed)
+    if (updated > 0 && updated % 50 === 0) {
+      await new Promise(r => setTimeout(r, 5000));  // 5s breather every 50 records
+    }
+    let patchRes;
+    for (let attempt = 0; attempt < 3; attempt++) {
+      try {
+        patchRes = await fetch(`${crmUrl}/api/kingdom-reach/churches/${c.id}`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ token, lead_score: score }),
+        });
+        if (patchRes.status === 429) {
+          await new Promise(r => setTimeout(r, 30000));  // backoff on rate-limit
+          continue;
+        }
+        break;
+      } catch (err) {
+        if (attempt === 2) console.error(`PATCH failed ${c.id}: ${err.message}`);
+      }
+    }
+    if (patchRes && patchRes.ok) updated++;
+    // Standard inter-call gap
+    await new Promise(r => setTimeout(r, 200));
   }
 
   appendEvent({
