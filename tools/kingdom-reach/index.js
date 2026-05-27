@@ -818,7 +818,7 @@ export function mountKingdomReach(app, db, { validateSession, getCookie } = {}) 
       if (!session) return res.status(401).json({ error: 'Unauthorized' });
     }
 
-    const { template = 'no_website', filter = 'not_sent', church_ids, org_type: orgTypeFilter, dry_run = false } = req.body || {};
+    const { template = 'no_website', filter = 'not_sent', church_ids, org_type: orgTypeFilter, dry_run = false, text_only = false } = req.body || {};
     const proto   = req.headers['x-forwarded-proto'] || 'https';
     const host    = req.headers['x-forwarded-host'] || req.headers.host || 'crm.crownmediagroup.co';
     const baseUrl = `${proto}://${host}`;
@@ -873,7 +873,12 @@ export function mountKingdomReach(app, db, { validateSession, getCookie } = {}) 
     for (const church of churches) {
       try {
         const { subject, html, text } = buildCampaignEmail(church, template, baseUrl, false);
-        const result = await sendViaResend({ to: church.email, subject, html, text });
+        // Plain-text first variant: ship only the text body, no HTML, no tracking pixel.
+        // Lemlist 2026: cold B2B plain-text gets 2x reply rate vs HTML.
+        const sendPayload = text_only
+          ? { to: church.email, subject, text }
+          : { to: church.email, subject, html, text };
+        const result = await sendViaResend(sendPayload);
         if (!result.ok) {
           failed++;
           errors.push({ church: church.name, error: result.error });
