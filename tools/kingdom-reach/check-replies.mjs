@@ -143,6 +143,36 @@ try {
     } else if (action.alert_king) {
       console.log(`       → ${action.route}  [ALERTED]`);
     }
+
+    // Y1 — Auto-GBP detection. Breakup_warm template offered "reply GBP" for free audit.
+    // If body contains "GBP" as a token, fire gbp-audit.js immediately and alert King.
+    if (/\bGBP\b/i.test(bodyMatch) || /google business profile/i.test(bodyMatch)) {
+      try {
+        const { generateRecommendations, buildPdf, fetchChurch } = await import('./gbp-audit.js');
+        const churchFull = await fetchChurch(church.id);
+        const recs = await generateRecommendations(churchFull);
+        const pdfOut = await buildPdf(churchFull, recs);
+        emit({
+          agent: 'WHISPER',
+          severity: 'P0',
+          action: `🔔 GBP audit request from ${church.name}`,
+          detail: `Auto-generated PDF at ${pdfOut.path} (${recs.length} tailored recommendations). Attach to your reply manually.`,
+          next: `Open Gmail thread, reply with: "Here's the audit I promised — attached. Zero ask, just the gift. — King" + attach PDF`,
+          data: { church_id: church.id, pdf_path: pdfOut.path, sender: fromEmail },
+        });
+        appendEvent({
+          agent: 'WHISPER',
+          entity_type: 'church',
+          entity_id: church.id,
+          action: 'gbp_auto_triggered',
+          fields: { trigger: 'reply_keyword_GBP', pdf_path: pdfOut.path, recommendations_count: recs.length },
+          source: 'check-replies.mjs',
+        });
+        console.log(`       🔔 GBP TRIGGER — PDF generated at ${pdfOut.path}`);
+      } catch (gbpErr) {
+        console.log(`       GBP auto-generate failed: ${gbpErr.message}`);
+      }
+    }
   }
 
   console.log('\n─── Summary ───');
