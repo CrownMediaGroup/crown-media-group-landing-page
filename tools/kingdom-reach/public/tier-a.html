@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Tier A Prospects — Kingdom Reach</title>
+<style>
+:root{--bg:#0d0d14;--card:#16161f;--border:#252535;--text:#e8e8f0;--mid:#8888aa;--gold:#C9A84C;--gold-light:#E8B832;--green:#43d692;--red:#fb4c2f;--blue:#4a86e8}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,Segoe UI,Roboto,sans-serif;background:var(--bg);color:var(--text);padding:32px;min-height:100vh}
+.wrap{max-width:1100px;margin:0 auto}
+header{display:flex;justify-content:space-between;align-items:baseline;padding-bottom:24px;border-bottom:1px solid var(--border);margin-bottom:24px}
+h1{font-size:1.8rem;font-weight:800}
+h1 span{color:var(--gold)}
+.meta{color:var(--mid);font-size:.85rem}
+.refresh{background:var(--gold);color:#000;border:0;padding:8px 16px;font-weight:700;cursor:pointer;font-size:.8rem;letter-spacing:.06em;text-transform:uppercase}
+.refresh:hover{background:var(--gold-light)}
+.stats{display:flex;gap:24px;margin-bottom:24px;flex-wrap:wrap}
+.stat{background:var(--card);border:1px solid var(--border);padding:14px 20px;border-radius:6px;border-left:3px solid var(--green)}
+.stat-n{font-size:1.4rem;font-weight:800}
+.stat-l{color:var(--mid);font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;margin-top:4px}
+.filter-bar{margin-bottom:16px;display:flex;gap:8px;flex-wrap:wrap}
+.chip{background:var(--card);border:1px solid var(--border);color:var(--mid);padding:5px 12px;font-size:.8rem;cursor:pointer;border-radius:14px;transition:all .15s}
+.chip.active{background:var(--gold);color:#000;border-color:var(--gold)}
+.chip:hover{border-color:var(--gold)}
+table{width:100%;background:var(--card);border-collapse:collapse;border-radius:6px;overflow:hidden}
+th,td{padding:10px 14px;text-align:left;font-size:.88rem;border-bottom:1px solid var(--border)}
+th{background:#1a1a26;color:var(--mid);font-size:.7rem;letter-spacing:.08em;text-transform:uppercase;font-weight:600}
+tr:last-child td{border-bottom:0}
+tr:hover td{background:#1c1c28}
+.score{display:inline-block;background:var(--green);color:#000;font-weight:700;padding:2px 8px;border-radius:10px;font-size:.78rem;min-width:32px;text-align:center}
+.score.b{background:var(--gold)}
+.tag{display:inline-block;background:#1a1a26;color:var(--mid);padding:2px 8px;font-size:.7rem;border-radius:4px;letter-spacing:.04em}
+.tag.sent{background:#252537;color:var(--mid)}
+.tag.replied{background:var(--green);color:#000}
+.tag.no-email{background:var(--red);color:#fff}
+.btn{background:var(--blue);color:#fff;border:0;padding:5px 10px;font-size:.74rem;font-weight:600;cursor:pointer;border-radius:4px;letter-spacing:.04em}
+.btn:hover{background:#5c95ed}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+.empty{text-align:center;padding:40px;color:var(--mid)}
+footer{margin-top:32px;color:#555570;font-size:.78rem;text-align:center}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <div>
+    <h1>Tier <span>A</span> Prospects</h1>
+    <p class="meta" id="meta">Loading…</p>
+  </div>
+  <button class="refresh" onclick="load()">↻ Refresh</button>
+</header>
+
+<div class="stats" id="stats"></div>
+<div class="filter-bar" id="filters"></div>
+
+<table>
+  <thead><tr><th>Score</th><th>Name</th><th>Type</th><th>City</th><th>Pastor</th><th>Email</th><th>Status</th><th>Action</th></tr></thead>
+  <tbody id="rows"></tbody>
+</table>
+
+<footer>
+  Tier A = lead_score ≥ 80 · sorted by score DESC<br>
+  GAUGE (Agent 43) computes scores · LinkedIn queue persists to localStorage + future sync to /api/kingdom-reach/linkedin-queue.json
+</footer>
+</div>
+
+<script>
+let TOKEN = new URLSearchParams(location.search).get('token') || localStorage.getItem('kr_token') || '';
+if (TOKEN) localStorage.setItem('kr_token', TOKEN);
+let DATA = [];
+let FILTER = 'all';
+
+function el(tag, attrs={}, ...kids){
+  const e = document.createElement(tag);
+  for (const [k,v] of Object.entries(attrs)) {
+    if (k === 'class') e.className = v;
+    else if (k.startsWith('on')) e.addEventListener(k.slice(2).toLowerCase(), v);
+    else e.setAttribute(k, v);
+  }
+  for (const k of kids) e.append(k instanceof Node ? k : document.createTextNode(k));
+  return e;
+}
+
+async function load() {
+  document.getElementById('meta').textContent = 'Loading…';
+  if (!TOKEN) {
+    const t = prompt('SEED_TOKEN (saved locally):');
+    if (t) { TOKEN = t; localStorage.setItem('kr_token', t); } else return;
+  }
+  const res = await fetch(`/api/kingdom-reach/churches?token=${encodeURIComponent(TOKEN)}`);
+  if (res.status === 401) { localStorage.removeItem('kr_token'); TOKEN=''; document.getElementById('meta').textContent='Unauthorized — refresh to enter token'; return; }
+  const data = await res.json();
+  DATA = (data.churches || []).filter(x => (x.lead_score || 0) >= 80).sort((a,b) => (b.lead_score||0) - (a.lead_score||0));
+  render();
+}
+
+function addToQueue(rec) {
+  const q = JSON.parse(localStorage.getItem('li_queue_state') || '{"queue":[],"completed":[]}');
+  // dedupe
+  if (q.queue.find(x => x.crm_id === rec.id) || q.completed.find(x => x.crm_id === rec.id)) {
+    alert('Already in queue or completed.');
+    return;
+  }
+  q.queue.push({
+    crm_id: rec.id, name: rec.name, tier: 'A', lead_score: rec.lead_score,
+    role: rec.pastor || 'pastor/leader',
+    suggested_message: `Hi ${(rec.pastor||'').split(' ')[0]||'Pastor'}, just sent you a note about Crown Media Group + a free first project for ${rec.name}. Reaching out here too in case email lands wrong. No pressure — happy to connect either way.`,
+    context: `${rec.org_type || 'church'} in ${rec.city || 'Columbia'} · score ${rec.lead_score} · ${rec.email_sent ? 'email sent' : 'cold'}`,
+    linkedin_url: '',  // King fills in via search
+    queued_at: new Date().toISOString(),
+  });
+  localStorage.setItem('li_queue_state', JSON.stringify(q));
+  alert(`✓ Added "${rec.name}" to LinkedIn queue.\n\nOpen /kingdom-reach/linkedin-queue to see it.`);
+}
+
+function render() {
+  const total = DATA.length;
+  const emailed = DATA.filter(x => x.email_sent).length;
+  const noemail = DATA.filter(x => !x.email || !x.email.trim()).length;
+  const replied = DATA.filter(x => x.replied).length;
+  document.getElementById('meta').textContent = `${total} A-tier records · ${emailed} emailed · ${replied} replied · updated ${new Date().toLocaleTimeString()}`;
+
+  const sEl = document.getElementById('stats');
+  sEl.innerHTML = '';
+  for (const s of [
+    {n: total, l: 'Tier A total'},
+    {n: emailed, l: 'Touch-1 sent'},
+    {n: replied, l: 'Replied'},
+    {n: total - emailed, l: 'Never contacted'},
+    {n: noemail, l: 'Need enrichment'},
+  ]) sEl.append(el('div', {class:'stat'}, el('div', {class:'stat-n'}, String(s.n)), el('div', {class:'stat-l'}, s.l)));
+
+  const fEl = document.getElementById('filters');
+  fEl.innerHTML = '';
+  const filters = [['all','All'],['unsent','Never contacted'],['sent','Already pitched'],['has_email','Reachable now'],['no_email','Need email'],['has_website','Has website'],['no_website','No website']];
+  for (const [k, label] of filters) {
+    const chip = el('span', {class:'chip' + (FILTER===k?' active':''), onclick: () => { FILTER=k; render(); }}, label);
+    fEl.append(chip);
+  }
+
+  const filtered = DATA.filter(x => {
+    if (FILTER === 'unsent') return !x.email_sent;
+    if (FILTER === 'sent') return x.email_sent;
+    if (FILTER === 'has_email') return x.email && x.email.trim();
+    if (FILTER === 'no_email') return !x.email || !x.email.trim();
+    if (FILTER === 'has_website') return x.has_website || x.website;
+    if (FILTER === 'no_website') return !x.has_website && !x.website;
+    return true;
+  });
+
+  const tb = document.getElementById('rows');
+  tb.innerHTML = '';
+  if (!filtered.length) { tb.append(el('tr', {}, el('td', {colspan:'8', class:'empty'}, 'No records match filter'))); return; }
+  for (const r of filtered) {
+    const tr = el('tr');
+    const scoreClass = r.lead_score >= 90 ? 'score' : 'score b';
+    tr.append(
+      el('td', {}, el('span', {class: scoreClass}, String(r.lead_score))),
+      el('td', {}, r.name),
+      el('td', {}, el('span', {class:'tag'}, r.org_type || 'church')),
+      el('td', {}, r.city || '—'),
+      el('td', {}, r.pastor || '—'),
+      el('td', {}, r.email || el('span', {class:'tag no-email'}, 'missing')),
+      el('td', {}, statusBadge(r)),
+      el('td', {}, el('button', {class:'btn', onclick: () => addToQueue(r)}, '+ LinkedIn')),
+    );
+    tb.append(tr);
+  }
+}
+
+function statusBadge(r) {
+  if (r.replied) return el('span', {class:'tag replied'}, 'REPLIED');
+  if (r.email_bounced) return el('span', {class:'tag no-email'}, 'BOUNCED');
+  if (r.breakup_sent) return el('span', {class:'tag sent'}, 'T3 breakup');
+  if (r.follow_up_sent) return el('span', {class:'tag sent'}, 'T2 done');
+  if (r.email_sent) return el('span', {class:'tag sent'}, 'T1 sent');
+  return el('span', {class:'tag'}, 'cold');
+}
+
+load();
+</script>
+</body>
+</html>

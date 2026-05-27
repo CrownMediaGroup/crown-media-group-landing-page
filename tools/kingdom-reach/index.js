@@ -294,6 +294,7 @@ export function mountKingdomReach(app, db, { validateSession, getCookie } = {}) 
   app.get('/kingdom-reach/dashboard',requireAuth, (req, res) => res.sendFile(join(PUBLIC_DIR, 'kingdom-dashboard.html')));
   app.get('/kingdom-reach/funnel',                (req, res) => res.sendFile(join(PUBLIC_DIR, 'funnel.html')));
   app.get('/kingdom-reach/linkedin-queue',        (req, res) => res.sendFile(join(PUBLIC_DIR, 'linkedin-queue.html')));
+  app.get('/kingdom-reach/tier-a',                (req, res) => res.sendFile(join(PUBLIC_DIR, 'tier-a.html')));
   app.get('/kingdom-reach/linkedin-queue.json',   (req, res) => {
     const queuePath = join(__dirname, '..', '..', 'Agency', 'ops', 'outreach', 'linkedin-queue.json');
     if (existsSync(queuePath)) return res.sendFile(queuePath);
@@ -854,7 +855,7 @@ export function mountKingdomReach(app, db, { validateSession, getCookie } = {}) 
       if (!session) return res.status(401).json({ error: 'Unauthorized' });
     }
 
-    const { template = 'no_website', filter = 'not_sent', church_ids, org_type: orgTypeFilter, dry_run = false, text_only = false } = req.body || {};
+    const { template = 'no_website', filter = 'not_sent', church_ids, org_type: orgTypeFilter, dry_run = false, text_only = false, inkwell_enabled = false } = req.body || {};
     const proto   = req.headers['x-forwarded-proto'] || 'https';
     const host    = req.headers['x-forwarded-host'] || req.headers.host || 'crm.crownmediagroup.co';
     const baseUrl = `${proto}://${host}`;
@@ -938,12 +939,37 @@ export function mountKingdomReach(app, db, { validateSession, getCookie } = {}) 
       return null;
     }
 
+    // INKWELL (Agent 55) — Self-Refine pass, opt-in via inkwell_enabled flag.
+    // Lazy-loaded so we don't import the Gemini SDK on every cold-template send.
+    let inkwellRefine = null;
+    if (inkwell_enabled) {
+      try {
+        const mod = await import('./inkwell.js');
+        inkwellRefine = mod.refine;
+      } catch (e) {
+        console.warn('[INKWELL load failed]', e.message);
+      }
+    }
+
     for (const church of churches) {
       try {
         const built = buildCampaignEmail(church, template, baseUrl, false);
         let { subject, html, text } = built;
         const variant = pickVariant(template, church);
         if (variant) subject = variant.subject;   // body stays from buildCampaignEmail; only subject A/B for now
+
+        // INKWELL Self-Refine pass (cold templates only — preserve already-tuned follow-up voice)
+        const COLD_TEMPLATES = new Set(['no_website', 'social_media', 'ministry_org']);
+        if (inkwellRefine && COLD_TEMPLATES.has(template)) {
+          try {
+            const refined = await inkwellRefine({ subject, body: text, agent_origin: 'WORDSMITH', context: `church=${church.name} city=${church.city||'Columbia'}` });
+            if (refined.revised_body && refined.revised_body.length > 50) {
+              subject = refined.revised_subject || subject;
+              text    = refined.revised_body;
+              // Note: html block keeps original — King's voice rules dominate plain text
+            }
+          } catch (e) { console.warn('[INKWELL refine err]', e.message); }
+        }
 
         // Plain-text first variant: ship only the text body, no HTML, no tracking pixel.
         // Lemlist 2026: cold B2B plain-text gets 2x reply rate vs HTML.
