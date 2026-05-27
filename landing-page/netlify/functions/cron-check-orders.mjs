@@ -97,11 +97,15 @@ export default async () => {
   }
 
   // ── 2. Logos pending King review ─────────────────────────────────────────────
+  // Excludes test records (business_name containing "test", or email == king's own) —
+  // zombie test rows kept spamming King daily.
   const { data: pendingReview } = await supabase
     .from('ai_orders')
     .select('*')
     .eq('status', 'logos_ready')
-    .lt('status_updated_at', cutoff);
+    .lt('status_updated_at', cutoff)
+    .not('business_name', 'ilike', '%test%')
+    .neq('email', 'king@crownmediagroup.co');
 
   for (const order of (pendingReview || [])) {
     await resend.emails.send({
