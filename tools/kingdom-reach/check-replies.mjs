@@ -14,6 +14,8 @@ import { readFileSync } from 'fs';
 import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
 import { classifyReply, classificationToCrmAction } from './reply-classifier.js';
+import { emit } from './herald.js';
+import { appendEvent } from './archive.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
@@ -151,6 +153,25 @@ try {
   for (const [cat, n] of Object.entries(results.by_category).sort((a,b)=>b[1]-a[1])) {
     console.log(`  ${cat.padEnd(25)} ${n}`);
   }
+
+  // HERALD + ARCHIVE — log sweep completion (Constitutional Laws 11 + 14)
+  try {
+    appendEvent({
+      agent: 'RADAR',
+      entity_type: 'reply_sweep',
+      entity_id: `gmail-sweep-${new Date().toISOString().slice(0,10)}`,
+      action: 'classify_batch',
+      fields: { matched: results.matched, classified: results.classified, hot_leads: results.hot_leads, by_category: results.by_category, mode: DRY_RUN ? 'dry-run' : 'live' },
+      source: 'check-replies.mjs',
+    });
+    emit({
+      agent: 'RADAR',
+      severity: results.hot_leads > 0 ? 'P0' : (results.classified > 0 ? 'P1' : 'P3'),
+      action: `Gmail sweep — ${results.classified} classified, ${results.hot_leads} hot leads`,
+      detail: results.hot_leads > 0 ? '🔔 POSITIVE INTEREST detected — CLOSER prep queue' : `By category: ${Object.entries(results.by_category).map(([k,v])=>`${k}=${v}`).join(', ')}`,
+      next: results.hot_leads > 0 ? 'CLOSER drafts response within 4 hrs' : 'Standby — next sweep in 4 hrs',
+    });
+  } catch (e) { console.warn('[HERALD/ARCHIVE wire-up failed]', e.message); }
 
 } finally {
   lock.release();

@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>LinkedIn Queue — Kingdom Reach | Crown Media Group</title>
+<style>
+:root{--bg:#0d0d14;--card:#16161f;--border:#252535;--text:#e8e8f0;--mid:#8888aa;--gold:#C9A84C;--gold-light:#E8B832;--green:#43d692;--blue:#4a86e8}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,Segoe UI,Roboto,sans-serif;background:var(--bg);color:var(--text);padding:32px;min-height:100vh}
+.wrap{max-width:980px;margin:0 auto}
+header{display:flex;justify-content:space-between;align-items:baseline;padding-bottom:24px;border-bottom:1px solid var(--border);margin-bottom:32px}
+h1{font-size:1.8rem;font-weight:800}
+h1 span{color:var(--gold)}
+.meta{color:var(--mid);font-size:.85rem}
+.refresh{background:var(--gold);color:#000;border:0;padding:8px 16px;font-weight:700;cursor:pointer;font-size:.8rem;letter-spacing:.06em;text-transform:uppercase}
+.refresh:hover{background:var(--gold-light)}
+section{margin-bottom:40px}
+h2{font-size:1.1rem;color:var(--gold);margin-bottom:16px;letter-spacing:.04em}
+
+.task{background:var(--card);border:1px solid var(--border);border-left:3px solid var(--blue);padding:20px;margin-bottom:16px;border-radius:6px}
+.task.tier-A{border-left-color:var(--green)}
+.task.completed{border-left-color:#555570;opacity:.45}
+.task-head{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:12px}
+.task-name{font-size:1.1rem;font-weight:700}
+.task-tier{font-size:.7rem;color:var(--gold);letter-spacing:.12em;text-transform:uppercase}
+.task-msg{background:#1a1a26;padding:12px 14px;border-radius:4px;color:var(--mid);font-size:.92rem;margin:12px 0;font-style:italic;border-left:2px solid var(--gold)}
+.task-meta{display:flex;gap:16px;font-size:.78rem;color:var(--mid);flex-wrap:wrap}
+.task-meta span{display:inline-flex;align-items:center;gap:4px}
+.task-actions{margin-top:14px;display:flex;gap:8px;flex-wrap:wrap}
+.task-actions a, .task-actions button{padding:6px 14px;font-size:.78rem;font-weight:600;text-decoration:none;border:0;cursor:pointer;letter-spacing:.04em;text-transform:uppercase}
+.btn-open{background:var(--blue);color:#fff}
+.btn-done{background:var(--green);color:#000}
+.btn-skip{background:transparent;color:var(--mid);border:1px solid var(--border)}
+
+.empty{text-align:center;padding:48px 24px;color:var(--mid);background:var(--card);border-radius:6px}
+
+footer{margin-top:48px;padding-top:24px;border-top:1px solid var(--border);color:#555570;font-size:.78rem;text-align:center}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <div>
+    <h1>LinkedIn <span>Queue</span></h1>
+    <p class="meta" id="meta">Loading…</p>
+  </div>
+  <button class="refresh" onclick="load()">↻ Refresh</button>
+</header>
+
+<section>
+  <h2>Open queue (manual touches owed)</h2>
+  <div id="queue"></div>
+</section>
+
+<section>
+  <h2>Recently completed</h2>
+  <div id="completed"></div>
+</section>
+
+<footer>
+  WHISPER (40) + BLUEPRINT (5) append A-tier prospects here. King does the manual touch (LinkedIn doesn't allow automation).<br>
+  Mark done locally → queue persists across sessions via localStorage.
+</footer>
+</div>
+
+<script>
+const QUEUE_URL = '/kingdom-reach-queue.json';  // served from public dir
+let queue = JSON.parse(localStorage.getItem('li_queue_state') || '{"queue":[],"completed":[]}');
+
+async function load() {
+  document.getElementById('meta').textContent = 'Loading…';
+  try {
+    // Try fetching from file (will fallback to localStorage)
+    const res = await fetch('/kingdom-reach/linkedin-queue.json').catch(() => null);
+    if (res && res.ok) {
+      const data = await res.json();
+      // Merge: server queue + locally-marked completions
+      const localCompleted = new Set(queue.completed.map(c => c.crm_id));
+      queue.queue = (data.queue || []).filter(t => !localCompleted.has(t.crm_id));
+      // Keep completed in localStorage (server doesn't track those)
+    }
+  } catch { /* fall through to localStorage state */ }
+
+  document.getElementById('meta').textContent = `${queue.queue.length} open · ${queue.completed.length} done · updated ${new Date().toLocaleTimeString()}`;
+  render();
+}
+
+function el(tag, attrs={}, ...kids){
+  const e = document.createElement(tag);
+  for (const [k,v] of Object.entries(attrs)) {
+    if (k === 'class') e.className = v;
+    else if (k.startsWith('on')) e.addEventListener(k.slice(2).toLowerCase(), v);
+    else e.setAttribute(k, v);
+  }
+  for (const k of kids) e.append(k instanceof Node ? k : document.createTextNode(k));
+  return e;
+}
+
+function markDone(idx) {
+  const t = queue.queue.splice(idx, 1)[0];
+  if (t) {
+    t.completed_at = new Date().toISOString();
+    queue.completed.unshift(t);
+    queue.completed = queue.completed.slice(0, 50);
+  }
+  localStorage.setItem('li_queue_state', JSON.stringify(queue));
+  render();
+}
+
+function skip(idx) {
+  const t = queue.queue.splice(idx, 1)[0];
+  if (t) queue.queue.push(t);
+  localStorage.setItem('li_queue_state', JSON.stringify(queue));
+  render();
+}
+
+function render() {
+  const qEl = document.getElementById('queue');
+  qEl.innerHTML = '';
+  if (!queue.queue.length) {
+    qEl.append(el('div', {class:'empty'},
+      'Queue empty. WHISPER/BLUEPRINT will append A-tier prospects as warm replies arrive.'
+    ));
+  } else {
+    queue.queue.forEach((t, idx) => {
+      const card = el('div', {class:'task tier-' + (t.tier || 'B')});
+      card.append(
+        el('div', {class:'task-head'},
+          el('div', {class:'task-name'}, t.name || 'Unknown'),
+          el('div', {class:'task-tier'}, `${t.tier || 'B'}-tier · score ${t.lead_score || '—'}`)
+        )
+      );
+      if (t.role) card.append(el('div', {class:'task-meta'}, el('span', {}, '👤 ' + t.role)));
+      if (t.suggested_message) card.append(el('div', {class:'task-msg'}, t.suggested_message));
+      const meta = el('div', {class:'task-meta'});
+      if (t.context) meta.append(el('span', {}, '💡 ' + t.context));
+      if (t.queued_at) meta.append(el('span', {}, '🕐 ' + new Date(t.queued_at).toLocaleDateString()));
+      if (meta.children.length) card.append(meta);
+
+      const actions = el('div', {class:'task-actions'});
+      if (t.linkedin_url) actions.append(el('a', {href:t.linkedin_url, target:'_blank', class:'btn-open'}, 'Open LinkedIn ↗'));
+      actions.append(
+        el('button', {class:'btn-done', onclick: () => markDone(idx)}, '✓ Marked sent'),
+        el('button', {class:'btn-skip', onclick: () => skip(idx)}, 'Skip'),
+      );
+      card.append(actions);
+      qEl.append(card);
+    });
+  }
+
+  const cEl = document.getElementById('completed');
+  cEl.innerHTML = '';
+  if (!queue.completed.length) {
+    cEl.append(el('div', {class:'empty'}, 'Nothing done yet.'));
+  } else {
+    queue.completed.slice(0, 10).forEach(t => {
+      cEl.append(el('div', {class:'task completed'},
+        el('div', {class:'task-head'},
+          el('div', {class:'task-name'}, t.name),
+          el('div', {class:'task-tier'}, t.completed_at ? new Date(t.completed_at).toLocaleString() : '')
+        )
+      ));
+    });
+  }
+}
+
+load();
+</script>
+</body>
+</html>

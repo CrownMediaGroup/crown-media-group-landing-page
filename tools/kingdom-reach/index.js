@@ -292,6 +292,13 @@ export function mountKingdomReach(app, db, { validateSession, getCookie } = {}) 
   // ── PAGES ─────────────────────────────────────────────────────────────────
   app.get('/kingdom-reach',          requireAuth, (req, res) => res.sendFile(join(PUBLIC_DIR, 'dispatch.html')));
   app.get('/kingdom-reach/dashboard',requireAuth, (req, res) => res.sendFile(join(PUBLIC_DIR, 'kingdom-dashboard.html')));
+  app.get('/kingdom-reach/funnel',                (req, res) => res.sendFile(join(PUBLIC_DIR, 'funnel.html')));
+  app.get('/kingdom-reach/linkedin-queue',        (req, res) => res.sendFile(join(PUBLIC_DIR, 'linkedin-queue.html')));
+  app.get('/kingdom-reach/linkedin-queue.json',   (req, res) => {
+    const queuePath = join(__dirname, '..', '..', 'Agency', 'ops', 'outreach', 'linkedin-queue.json');
+    if (existsSync(queuePath)) return res.sendFile(queuePath);
+    return res.json({ queue: [], completed: [] });
+  });
 
   // ── DISPATCH (kick off pipeline) ──────────────────────────────────────────
   app.post('/api/kingdom-reach/dispatch', requireAuth, async (req, res) => {

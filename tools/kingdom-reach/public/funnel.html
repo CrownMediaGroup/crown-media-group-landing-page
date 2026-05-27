@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Funnel — Kingdom Reach | Crown Media Group</title>
+<style>
+:root{--bg:#0d0d14;--card:#16161f;--border:#252535;--text:#e8e8f0;--mid:#8888aa;--dim:#555570;--gold:#C9A84C;--gold-light:#E8B832;--green:#43d692;--red:#fb4c2f;--blue:#4a86e8}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,Segoe UI,Roboto,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;padding:32px}
+.wrap{max-width:1200px;margin:0 auto}
+header{display:flex;justify-content:space-between;align-items:baseline;padding-bottom:24px;border-bottom:1px solid var(--border);margin-bottom:32px}
+h1{font-size:1.8rem;font-weight:800}
+h1 span{color:var(--gold)}
+.meta{color:var(--mid);font-size:.85rem}
+.refresh{background:var(--gold);color:#000;border:0;padding:8px 16px;font-weight:700;cursor:pointer;font-size:.8rem;letter-spacing:.06em;text-transform:uppercase}
+.refresh:hover{background:var(--gold-light)}
+section{margin-bottom:48px}
+section h2{font-size:1.2rem;margin-bottom:16px;color:var(--gold);font-weight:700;letter-spacing:.04em}
+
+/* Funnel waterfall */
+.funnel{display:grid;grid-template-columns:repeat(5,1fr);gap:8px}
+.stage{background:var(--card);border:1px solid var(--border);padding:20px;text-align:center;border-radius:6px;position:relative}
+.stage-label{color:var(--mid);font-size:.7rem;letter-spacing:.12em;text-transform:uppercase;margin-bottom:8px}
+.stage-num{font-size:2rem;font-weight:800;color:var(--text)}
+.stage-pct{font-size:.85rem;color:var(--mid);margin-top:4px}
+.stage-bar{height:4px;background:var(--gold);margin-top:12px;border-radius:2px;transition:width .3s}
+
+/* Tier breakdown */
+.tier-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.tier-card{background:var(--card);border:1px solid var(--border);padding:24px;border-radius:6px;border-left:3px solid var(--gold)}
+.tier-card.A{border-left-color:var(--green)}
+.tier-card.B{border-left-color:var(--gold)}
+.tier-card.C{border-left-color:var(--dim)}
+.tier-name{font-size:.75rem;color:var(--mid);letter-spacing:.12em;text-transform:uppercase}
+.tier-count{font-size:1.8rem;font-weight:800;margin:8px 0}
+.tier-range{font-size:.85rem;color:var(--mid)}
+
+/* Variants table */
+.variants-tbl{background:var(--card);border:1px solid var(--border);border-radius:6px;overflow:hidden;width:100%}
+.variants-tbl th,.variants-tbl td{padding:12px 16px;text-align:left;font-size:.88rem;border-bottom:1px solid var(--border)}
+.variants-tbl th{background:#1a1a26;color:var(--mid);font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;font-weight:600}
+.variants-tbl tr:last-child td{border-bottom:0}
+.variants-tbl .v-sent{color:var(--mid)}
+.variants-tbl .v-rate{font-weight:600;color:var(--gold)}
+.variants-tbl .v-winner{color:var(--green);font-weight:700}
+
+/* Cohort breakdown */
+.cohort-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px}
+.cohort{background:var(--card);border:1px solid var(--border);padding:16px;border-radius:6px}
+.cohort-name{color:var(--mid);font-size:.7rem;letter-spacing:.1em;text-transform:uppercase;margin-bottom:6px}
+.cohort-val{font-size:1.4rem;font-weight:700}
+.cohort-sub{color:var(--mid);font-size:.78rem;margin-top:4px}
+
+.empty{text-align:center;padding:48px 24px;color:var(--mid)}
+.benchmark{display:inline-block;margin-left:8px;color:var(--green);font-size:.7rem}
+.benchmark.warn{color:var(--gold)}
+.benchmark.bad{color:var(--red)}
+
+footer{margin-top:48px;padding-top:24px;border-top:1px solid var(--border);color:var(--dim);font-size:.78rem;text-align:center}
+@media (max-width:720px){
+  .funnel{grid-template-columns:1fr;gap:8px}
+  .tier-grid{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <div>
+    <h1>Kingdom Reach <span>Funnel</span></h1>
+    <p class="meta" id="meta">Loading…</p>
+  </div>
+  <button class="refresh" onclick="load()">↻ Refresh</button>
+</header>
+
+<section>
+  <h2>Funnel waterfall</h2>
+  <div class="funnel" id="funnel"></div>
+</section>
+
+<section>
+  <h2>Tier distribution (GAUGE)</h2>
+  <div class="tier-grid" id="tiers"></div>
+</section>
+
+<section>
+  <h2>A/B variant performance (LABS)</h2>
+  <div id="variants"></div>
+</section>
+
+<section>
+  <h2>Per-cohort cuts</h2>
+  <div class="cohort-grid" id="cohorts"></div>
+</section>
+
+<footer>
+  Kingdom Reach Funnel · Crown Media Group · All Glory to Jesus Global LLC<br>
+  POLARIS master metric: <strong>paying clients per month</strong> · Updated weekly by DRUMBEAT
+</footer>
+</div>
+
+<script>
+let TOKEN = new URLSearchParams(location.search).get('token') || localStorage.getItem('kr_token') || '';
+if (TOKEN) localStorage.setItem('kr_token', TOKEN);
+
+function el(tag, attrs={}, ...kids){
+  const e = document.createElement(tag);
+  for (const [k,v] of Object.entries(attrs)) {
+    if (k === 'class') e.className = v;
+    else if (k.startsWith('on')) e.addEventListener(k.slice(2).toLowerCase(), v);
+    else e.setAttribute(k, v);
+  }
+  for (const k of kids) e.append(k instanceof Node ? k : document.createTextNode(k));
+  return e;
+}
+
+function pct(num, den) {
+  if (!den) return 0;
+  return Math.round((num/den)*1000)/10;
+}
+
+function benchmark(rate, low, target) {
+  if (rate >= target) return el('span', {class:'benchmark'}, `✓ above ${target}%`);
+  if (rate >= low) return el('span', {class:'benchmark warn'}, `~ near ${low}%`);
+  return el('span', {class:'benchmark bad'}, `↓ below ${low}%`);
+}
+
+async function load() {
+  document.getElementById('meta').textContent = 'Loading…';
+  if (!TOKEN) {
+    const t = prompt('SEED_TOKEN (paste once, saved locally):');
+    if (t) { TOKEN = t; localStorage.setItem('kr_token', t); }
+    else return;
+  }
+  try {
+    const [churchesRes, variantsRes] = await Promise.all([
+      fetch(`/api/kingdom-reach/churches?token=${encodeURIComponent(TOKEN)}`),
+      fetch(`/api/kingdom-reach/variants/stats?token=${encodeURIComponent(TOKEN)}`),
+    ]);
+    if (churchesRes.status === 401) {
+      localStorage.removeItem('kr_token'); TOKEN = '';
+      document.getElementById('meta').textContent = 'Unauthorized — click Refresh to enter token';
+      return;
+    }
+    const churchesData = await churchesRes.json();
+    const variantsData = variantsRes.ok ? await variantsRes.json() : { variants: [] };
+    render(churchesData, variantsData);
+  } catch (err) {
+    document.getElementById('meta').textContent = 'Error: ' + err.message;
+  }
+}
+
+function render(churchesData, variantsData) {
+  const c = churchesData.churches || [];
+  const tot = churchesData.totals || {};
+  document.getElementById('meta').textContent = `Updated ${new Date().toLocaleString()} · ${c.length} records loaded`;
+
+  // ── Funnel waterfall ──
+  const sent = c.filter(x => x.email_sent).length;
+  const opened = c.filter(x => x.email_opened).length;
+  const replied = c.filter(x => x.replied).length;
+  const pitched = c.filter(x => (x.status||'').includes('Pitched') || (x.status||'').includes('Hot') || (x.status||'').includes('Proposal')).length;
+  const client  = c.filter(x => (x.status||'').includes('Client')).length;
+
+  const stages = [
+    { label: 'Sent', n: sent, of: c.length },
+    { label: 'Opened', n: opened, of: sent, bench: benchmark(pct(opened, sent), 30, 45) },
+    { label: 'Replied', n: replied, of: sent, bench: benchmark(pct(replied, sent), 2, 8) },
+    { label: 'Pitched/Hot', n: pitched, of: sent },
+    { label: 'Client', n: client, of: sent },
+  ];
+  const fEl = document.getElementById('funnel');
+  fEl.innerHTML = '';
+  for (const s of stages) {
+    const card = el('div', {class:'stage'});
+    card.append(
+      el('div', {class:'stage-label'}, s.label),
+      el('div', {class:'stage-num'}, String(s.n)),
+      el('div', {class:'stage-pct'}, s.of ? `${pct(s.n, s.of)}% of ${s.of}` : ''),
+    );
+    if (s.bench) card.querySelector('.stage-pct').append(' ', s.bench);
+    fEl.append(card);
+  }
+
+  // ── Tier breakdown (GAUGE) ──
+  const tierA = c.filter(x => x.lead_score >= 80).length;
+  const tierB = c.filter(x => x.lead_score >= 55 && x.lead_score < 80).length;
+  const tierC = c.filter(x => x.lead_score > 0 && x.lead_score < 55).length;
+  const scored = c.filter(x => x.lead_score > 0).length;
+  const tEl = document.getElementById('tiers');
+  tEl.innerHTML = '';
+  tEl.append(
+    el('div', {class:'tier-card A'},
+      el('div', {class:'tier-name'}, 'Tier A · Full multi-channel'),
+      el('div', {class:'tier-count'}, String(tierA)),
+      el('div', {class:'tier-range'}, 'lead_score ≥ 80'),
+    ),
+    el('div', {class:'tier-card B'},
+      el('div', {class:'tier-name'}, 'Tier B · Email + LinkedIn'),
+      el('div', {class:'tier-count'}, String(tierB)),
+      el('div', {class:'tier-range'}, 'lead_score 55–79'),
+    ),
+    el('div', {class:'tier-card C'},
+      el('div', {class:'tier-name'}, 'Tier C · Email only'),
+      el('div', {class:'tier-count'}, String(tierC)),
+      el('div', {class:'tier-range'}, 'lead_score < 55'),
+    ),
+  );
+  if (scored < c.length) {
+    tEl.append(el('div', {class:'tier-card', style:'grid-column:1/-1;text-align:center;border-left:3px solid #555570'},
+      el('div', {class:'tier-name'}, 'Awaiting GAUGE'),
+      el('div', {class:'tier-count'}, String(c.length - scored)),
+      el('div', {class:'tier-range'}, 'records not yet scored — run lead-score.js'),
+    ));
+  }
+
+  // ── Variants table (LABS) ──
+  const vEl = document.getElementById('variants');
+  vEl.innerHTML = '';
+  const variants = (variantsData.variants || []).filter(v => v.active);
+  if (!variants.length) {
+    vEl.append(el('div', {class:'empty'}, 'No variants registered yet.'));
+  } else {
+    // Group by template, find winner
+    const byTemplate = {};
+    for (const v of variants) { (byTemplate[v.template] = byTemplate[v.template] || []).push(v); }
+
+    const tbl = el('table', {class:'variants-tbl'});
+    tbl.append(el('thead', {},
+      el('tr', {},
+        el('th', {}, 'Template'),
+        el('th', {}, 'Variant'),
+        el('th', {}, 'Subject'),
+        el('th', {}, 'Sent'),
+        el('th', {}, 'Open rate'),
+        el('th', {}, 'Reply rate'),
+      )
+    ));
+    const tbody = el('tbody');
+    for (const [tpl, vs] of Object.entries(byTemplate)) {
+      // Find leader (highest open_rate with >=10 sent)
+      const eligible = vs.filter(v => v.sent_count >= 10);
+      const leader = eligible.length ? eligible.reduce((a,b) => (b.open_rate > (a.open_rate||0) ? b : a), null) : null;
+      for (const v of vs) {
+        const isLeader = leader && v.variant_id === leader.variant_id;
+        const tr = el('tr');
+        tr.append(
+          el('td', {}, tpl),
+          el('td', {class: isLeader ? 'v-winner' : ''}, v.variant_id + (isLeader ? ' ★' : '')),
+          el('td', {}, v.subject),
+          el('td', {class:'v-sent'}, String(v.sent_count || 0)),
+          el('td', {class:'v-rate'}, v.open_rate != null ? `${(v.open_rate*100).toFixed(1)}%` : '—'),
+          el('td', {class:'v-rate'}, v.reply_rate != null ? `${(v.reply_rate*100).toFixed(1)}%` : '—'),
+        );
+        tbody.append(tr);
+      }
+    }
+    tbl.append(tbody);
+    vEl.append(tbl);
+  }
+
+  // ── Per-cohort cuts ──
+  const cEl = document.getElementById('cohorts');
+  cEl.innerHTML = '';
+  const cohorts = [
+    { name: 'Touch-1 (pitch)',    val: sent,   sub: 'total ever emailed' },
+    { name: 'Touch-2 (follow-up)', val: c.filter(x => x.follow_up_sent).length, sub: 'touch-2 sent' },
+    { name: 'Touch-3 (breakup)',   val: c.filter(x => x.breakup_sent).length,   sub: 'breakup_warm sent' },
+    { name: 'No website',          val: c.filter(x => !x.has_website).length,   sub: 'best service target' },
+    { name: 'Bounces',             val: c.filter(x => x.email_bounced).length,  sub: 'suppressed' },
+    { name: 'Unsubscribed',        val: c.filter(x => x.unsubscribed).length,   sub: 'suppressed' },
+    { name: 'Has email',           val: c.filter(x => x.email && x.email.trim()).length, sub: 'reachable' },
+    { name: 'Unsent w/ email',     val: c.filter(x => x.email && !x.email_sent && !x.unsubscribed).length, sub: 'ready to fire' },
+  ];
+  for (const co of cohorts) {
+    cEl.append(el('div', {class:'cohort'},
+      el('div', {class:'cohort-name'}, co.name),
+      el('div', {class:'cohort-val'}, String(co.val)),
+      el('div', {class:'cohort-sub'}, co.sub),
+    ));
+  }
+}
+
+load();
+</script>
+</body>
+</html>
