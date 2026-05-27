@@ -90,6 +90,8 @@ Noticed you took a peek at my note from last week — appreciated you giving it 
 
 Quick context on why I reached out: I just helped a Columbia organization rebuild their full digital presence — new website + social system — live in 14 days. Made me think of ${name}.
 
+If you want to see real work + past client results, here's the proof: https://crownmediagroup.co/proof.html
+
 I'd rather not push a call on you. If easier, I can send a 1-page concept built specifically for ${name} — what a refreshed presence could look like and what it would take to get live fast.
 
 Want me to send it over?
@@ -102,6 +104,7 @@ crownmediagroup.co`;
       bodyLines: [
         `Noticed you took a peek at my note from last week — appreciated you giving it a moment.`,
         `Quick context on why I reached out: I just helped a Columbia organization rebuild their full digital presence — new website + social system — live in 14 days. Made me think of <strong>${esc(name)}</strong>.`,
+        `Real client work + results: <a href="https://crownmediagroup.co/proof.html" style="color:#1a3a8e;font-weight:600">crownmediagroup.co/proof.html</a>`,
         `I'd rather not push a call on you. If easier, I can send a 1-page concept built specifically for <strong>${esc(name)}</strong> — what a refreshed presence could look like and what it would take to get live fast.`,
         `Want me to send it over?`,
       ]
@@ -166,6 +169,8 @@ Before I go, two small gifts:
 
 2. The standing offer doesn't expire. If anything changes in 3 months, 6 months, or 3 years, my email and number below still reach me.
 
+If you ever want to see what we've actually built — proof, case studies, real numbers — it's all here: https://crownmediagroup.co/proof.html
+
 Continuing to pray for ${name}'s reach this season.
 
 In Christ,
@@ -179,6 +184,7 @@ Crown Media Group | king@crownmediagroup.co
         `Before I go, two small gifts:`,
         `<strong>1.</strong> A free Google Business Profile audit specific to <strong>${esc(name)}</strong>. If you reply "GBP," I'll send the one-pager — 10 minutes to read, zero ask. It will help people find you faster on Google whether or not we ever work together.`,
         `<strong>2.</strong> The standing offer doesn't expire. If anything changes in 3 months, 6 months, or 3 years, my email and number below still reach me.`,
+        `If you ever want to see what we've actually built — <a href="https://crownmediagroup.co/proof.html" style="color:#1a3a8e;font-weight:600">crownmediagroup.co/proof.html</a> has the case studies + numbers.`,
         `Continuing to pray for <strong>${esc(name)}</strong>'s reach this season.`,
       ]
     });
