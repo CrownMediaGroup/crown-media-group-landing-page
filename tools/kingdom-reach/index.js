@@ -791,9 +791,32 @@ export function mountKingdomReach(app, db, { validateSession, getCookie } = {}) 
     if (id) {
       db.prepare(`UPDATE churches SET email_opened=1, email_opened_at=COALESCE(email_opened_at,datetime('now'))
         WHERE id=? AND email_opened=0`).run(id);
+      // LABS — attribute open to most recent send for this church (variant tracking)
+      const lastSend = db.prepare(`SELECT id, template, variant_id FROM email_sends WHERE church_id = ? AND opened_at IS NULL ORDER BY sent_at DESC LIMIT 1`).get(id);
+      if (lastSend) {
+        db.prepare(`UPDATE email_sends SET opened_at = datetime('now') WHERE id = ?`).run(lastSend.id);
+        db.prepare(`UPDATE email_variants SET open_count = open_count + 1 WHERE template = ? AND variant_id = ?`).run(lastSend.template, lastSend.variant_id);
+      }
     }
     res.set({ 'Content-Type':'image/gif', 'Cache-Control':'no-cache,no-store,must-revalidate', 'Pragma':'no-cache' });
     res.send(PIXEL);
+  });
+
+  // ── LABS — A/B variant stats endpoint ───────────────────────────────────────
+  app.get('/api/kingdom-reach/variants/stats', (req, res) => {
+    const SEED_TOKEN = process.env.SEED_TOKEN;
+    if (!(SEED_TOKEN && req.query.token === SEED_TOKEN) && !req.kingdomUser) {
+      const session = validateSession && getCookie ? validateSession(getCookie(req, 'crm_session')) : null;
+      if (!session) return res.status(401).json({ error: 'Unauthorized' });
+    }
+    const rows = db.prepare(`
+      SELECT template, variant_id, subject, weight, sent_count, open_count, reply_count, active,
+             CASE WHEN sent_count > 0 THEN ROUND(open_count*1.0/sent_count, 4) ELSE NULL END as open_rate,
+             CASE WHEN sent_count > 0 THEN ROUND(reply_count*1.0/sent_count, 4) ELSE NULL END as reply_rate
+      FROM email_variants
+      ORDER BY template, sent_count DESC, variant_id ASC
+    `).all();
+    res.json({ ok: true, variants: rows });
   });
 
   // ── CAMPAIGN PREVIEW (generate personalized email HTML for a church) ─────
@@ -837,6 +860,8 @@ export function mountKingdomReach(app, db, { validateSession, getCookie } = {}) 
       if (filter === 'tier_ab')       sql += " AND tier IN ('A','B')";
       if (filter === 'orgs_only')     sql += " AND org_type != 'church'";
       if (filter === 'churches_only') sql += " AND (org_type = 'church' OR org_type IS NULL)";
+      if (filter === 'tier_a_high_score') sql += ' AND lead_score >= 80';   // GAUGE A-tier
+      if (filter === 'tier_ab_score')     sql += ' AND lead_score >= 55';   // GAUGE A+B tier
       if (filter === 'follow_up')         sql = `SELECT * FROM churches WHERE email IS NOT NULL AND email != '' AND email_sent=1 AND replied=0 AND email_sent_at < datetime('now','-7 days') AND follow_up_sent=0` + UNSUB_CLAUSE;
       if (filter === 'follow_up_openers') sql = `SELECT * FROM churches WHERE email IS NOT NULL AND email != '' AND email_sent=1 AND replied=0 AND email_opened=1 AND email_sent_at < datetime('now','-7 days') AND follow_up_sent=0` + UNSUB_CLAUSE;
       if (filter === 'follow_up_cold')    sql = `SELECT * FROM churches WHERE email IS NOT NULL AND email != '' AND email_sent=1 AND replied=0 AND (email_opened=0 OR email_opened IS NULL) AND email_sent_at < datetime('now','-7 days') AND follow_up_sent=0` + UNSUB_CLAUSE;
@@ -852,7 +877,12 @@ export function mountKingdomReach(app, db, { validateSession, getCookie } = {}) 
         }
         // unknown org_type → silently ignored (do not splice user input into SQL)
       }
-      sql += ' ORDER BY tier ASC, name ASC LIMIT 100';
+      // GAUGE A-tier filters use lead_score sort order; others use tier+name
+      if (filter === 'tier_a_high_score' || filter === 'tier_ab_score') {
+        sql += ' ORDER BY lead_score DESC, name ASC LIMIT 100';
+      } else {
+        sql += ' ORDER BY tier ASC, name ASC LIMIT 100';
+      }
       churches = orgTypeParam ? db.prepare(sql).all(orgTypeParam) : db.prepare(sql).all();
     }
 
@@ -870,9 +900,38 @@ export function mountKingdomReach(app, db, { validateSession, getCookie } = {}) 
       (typeof template === 'string' && template.startsWith('follow_up'))
     );
 
+    // LABS (Agent 38) — variant selector. Weighted-random pick from active variants per template.
+    // Falls through to hardcoded buildCampaignEmail subject if no DB variants exist for this template.
+    function pickVariant(templateName, churchObj) {
+      const variants = db.prepare(
+        `SELECT * FROM email_variants WHERE template = ? AND active = 1 ORDER BY id ASC`
+      ).all(templateName);
+      if (!variants.length) return null;
+      const totalWeight = variants.reduce((acc, v) => acc + (v.weight || 0), 0);
+      if (totalWeight === 0) return null;
+      let r = Math.random() * totalWeight;
+      for (const v of variants) {
+        r -= (v.weight || 0);
+        if (r <= 0) {
+          // Interpolate ${name} / ${city} / ${first} placeholders in subject
+          const first = (churchObj.pastor ? churchObj.pastor.split(' ')[0] : 'Pastor');
+          const subject = String(v.subject || '')
+            .replace(/\$\{name\}/g, churchObj.name || 'your church')
+            .replace(/\$\{city\}/g, churchObj.city || 'Columbia')
+            .replace(/\$\{first\}/g, first);
+          return { ...v, subject };
+        }
+      }
+      return null;
+    }
+
     for (const church of churches) {
       try {
-        const { subject, html, text } = buildCampaignEmail(church, template, baseUrl, false);
+        const built = buildCampaignEmail(church, template, baseUrl, false);
+        let { subject, html, text } = built;
+        const variant = pickVariant(template, church);
+        if (variant) subject = variant.subject;   // body stays from buildCampaignEmail; only subject A/B for now
+
         // Plain-text first variant: ship only the text body, no HTML, no tracking pixel.
         // Lemlist 2026: cold B2B plain-text gets 2x reply rate vs HTML.
         const sendPayload = text_only
@@ -890,6 +949,11 @@ export function mountKingdomReach(app, db, { validateSession, getCookie } = {}) 
           db.prepare(`UPDATE churches SET follow_up_sent=1, follow_up_sent_at=datetime('now') WHERE id=?`).run(church.id);
         } else {
           db.prepare(`UPDATE churches SET email_sent=1, email_sent_at=datetime('now') WHERE id=?`).run(church.id);
+        }
+        // LABS — record per-send variant tracking for attribution
+        if (variant) {
+          db.prepare(`INSERT INTO email_sends (church_id, template, variant_id) VALUES (?, ?, ?)`).run(church.id, template, variant.variant_id);
+          db.prepare(`UPDATE email_variants SET sent_count = sent_count + 1 WHERE id = ?`).run(variant.id);
         }
         sent++;
         // Brief delay to stay within Resend rate limits
