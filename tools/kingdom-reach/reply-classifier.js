@@ -5,7 +5,7 @@
 
 import { GoogleGenerativeAI } from '@google/generative-ai';
 
-const MODEL = 'gemini-2.0-flash-001';  // Free tier — higher RPM than flash-latest
+const MODEL = 'gemini-flash-latest';  // Free tier on this account — 5 RPM / 1500 RPD
 
 const SYSTEM_PROMPT = `You classify cold-outreach email replies for Crown Media Group, a faith-aligned marketing agency cold-emailing churches and Christian organizations in South Carolina.
 

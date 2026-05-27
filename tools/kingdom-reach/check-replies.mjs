@@ -103,6 +103,9 @@ try {
 
     process.stdout.write(`  [${results.matched}] ${church.name.slice(0,40).padEnd(40)} ← ${fromEmail.slice(0,35).padEnd(35)} `);
 
+    // Throttle BEFORE call — free tier: 5 RPM for flash-latest → 13 sec/call safe
+    if (results.matched > 1) await new Promise(r => setTimeout(r, 13000));
+
     let classification;
     try {
       classification = await classifyReply({
@@ -112,7 +115,7 @@ try {
         recipient: GMAIL_USER,
       });
     } catch (err) {
-      console.log(`CLASSIFY ERR: ${err.message.slice(0,60)}`);
+      console.log(`CLASSIFY ERR: ${(err.message||String(err)).slice(0,300)}`);
       continue;
     }
 
