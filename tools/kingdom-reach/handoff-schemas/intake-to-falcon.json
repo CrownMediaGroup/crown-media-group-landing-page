@@ -1,0 +1,40 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "INTAKE → FALCON",
+  "description": "INTAKE (raw input processor) hands structured leads to FALCON.",
+  "type": "object",
+  "required": ["from", "to", "source", "leads", "ts"],
+  "properties": {
+    "from": { "const": "INTAKE" },
+    "to":   { "const": "FALCON" },
+    "ts":   { "type": "string", "format": "date-time" },
+    "source": {
+      "type": "object",
+      "required": ["type"],
+      "properties": {
+        "type":      { "type": "string", "enum": ["call_transcript","csv_import","scraped","manual","trigger_signal"] },
+        "filename":  { "type": "string" },
+        "campaign":  { "type": "string" }
+      }
+    },
+    "leads": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["name"],
+        "properties": {
+          "name":       { "type": "string" },
+          "email":      { "type": "string" },
+          "phone":      { "type": "string" },
+          "website":    { "type": "string" },
+          "address":    { "type": "string" },
+          "city":       { "type": "string" },
+          "org_type":   { "type": "string" },
+          "pastor":     { "type": "string" },
+          "notes":      { "type": "string" },
+          "dedupe_key": { "type": "string" }
+        }
+      }
+    }
+  }
+}

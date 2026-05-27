@@ -1,0 +1,30 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "FALCON → WORDSMITH",
+  "description": "FALCON (lead finder) hands a qualified lead to WORDSMITH (outreach writer).",
+  "type": "object",
+  "required": ["from", "to", "lead", "ts"],
+  "properties": {
+    "from": { "const": "FALCON" },
+    "to":   { "const": "WORDSMITH" },
+    "ts":   { "type": "string", "format": "date-time" },
+    "lead": {
+      "type": "object",
+      "required": ["crm_id", "name", "email", "org_type"],
+      "properties": {
+        "crm_id":         { "type": "integer" },
+        "name":           { "type": "string" },
+        "email":          { "type": "string", "format": "email" },
+        "pastor":         { "type": "string" },
+        "city":           { "type": "string" },
+        "org_type":       { "type": "string", "enum": ["church","school","nonprofit","missions","recovery","prison","men","women","mixed","network","media","youth","business"] },
+        "has_website":    { "type": "boolean" },
+        "website":        { "type": "string" },
+        "lead_score":     { "type": "integer", "minimum": 0, "maximum": 100 },
+        "tier":           { "type": "string", "enum": ["A","B","C"] },
+        "signals":        { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "suggested_template": { "type": "string", "enum": ["pitch_pdf","no_website","ministry_org","social_media","follow_up","follow_up_opener","follow_up_cold","breakup_warm"] }
+  }
+}

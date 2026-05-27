@@ -1,0 +1,36 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "CLOSER → BLUEPRINT",
+  "description": "CLOSER (call prep / attended call) hands intel to BLUEPRINT (proposal builder).",
+  "type": "object",
+  "required": ["from", "to", "prospect", "call_intel", "ts"],
+  "properties": {
+    "from": { "const": "CLOSER" },
+    "to":   { "const": "BLUEPRINT" },
+    "ts":   { "type": "string", "format": "date-time" },
+    "prospect": {
+      "type": "object",
+      "required": ["crm_id", "name"],
+      "properties": {
+        "crm_id":      { "type": "integer" },
+        "name":        { "type": "string" },
+        "decision_maker_name":   { "type": "string" },
+        "decision_maker_email":  { "type": "string" }
+      }
+    },
+    "call_intel": {
+      "type": "object",
+      "properties": {
+        "pain_points":        { "type": "array", "items": { "type": "string" } },
+        "buying_signals":     { "type": "array", "items": { "type": "string" } },
+        "objections_raised":  { "type": "array", "items": { "type": "string" } },
+        "key_quotes":         { "type": "array", "items": { "type": "string" } },
+        "church_dna":         { "type": "string" },
+        "budget_signal":      { "type": "string" },
+        "timeline_signal":    { "type": "string" },
+        "decision_process":   { "type": "string" },
+        "recommended_tier":   { "type": "string", "enum": ["starter","growth","premium"] }
+      }
+    }
+  }
+}

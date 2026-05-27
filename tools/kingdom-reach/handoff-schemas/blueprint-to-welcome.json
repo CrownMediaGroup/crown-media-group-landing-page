@@ -1,0 +1,27 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "BLUEPRINT → WELCOME",
+  "description": "BLUEPRINT (proposal) hands a signed deal to WELCOME (onboarding).",
+  "type": "object",
+  "required": ["from", "to", "deal", "ts"],
+  "properties": {
+    "from": { "const": "BLUEPRINT" },
+    "to":   { "const": "WELCOME" },
+    "ts":   { "type": "string", "format": "date-time" },
+    "deal": {
+      "type": "object",
+      "required": ["crm_id", "tier", "monthly_amount"],
+      "properties": {
+        "crm_id":              { "type": "integer" },
+        "client_name":         { "type": "string" },
+        "tier":                { "type": "string", "enum": ["starter","growth","premium"] },
+        "monthly_amount":      { "type": "number" },
+        "first_project":       { "type": "string" },
+        "signed_at":           { "type": "string", "format": "date-time" },
+        "deliverables":        { "type": "array", "items": { "type": "string" } },
+        "kickoff_date":        { "type": "string" },
+        "stripe_subscription_id": { "type": "string" }
+      }
+    }
+  }
+}
