@@ -170,9 +170,9 @@ export function generateScoreboard(eventLimit = 1000) {
   return { scoreboard_path: SCOREBOARD_PATH, summary: scored.slice(0, 10) };
 }
 
-// CLI usage — guarded for import-as-module
+// CLI usage — Windows-safe guard (endsWith filename instead of URL compare)
 const argv1 = process.argv[1] || '';
-if (argv1 && import.meta.url === `file://${argv1.replace(/\\/g, '/')}`) {
+if (argv1 && (argv1.endsWith('witness.js') || argv1.endsWith('witness.mjs'))) {
   const result = generateScoreboard();
   console.log(`Scoreboard written: ${result.scoreboard_path}`);
   console.log(`Lowest-scoring agents:`, result.summary.slice(0, 5));

@@ -179,9 +179,9 @@ export async function runScoringViaAPI({ crmUrl, token }) {
   return { updated, tierCounts };
 }
 
-// CLI usage
+// CLI usage — Windows-safe guard (endsWith filename instead of URL compare)
 const argv1 = process.argv[1] || '';
-if (argv1 && import.meta.url === `file://${argv1.replace(/\\/g, '/')}`) {
+if (argv1 && (argv1.endsWith('lead-score.js') || argv1.endsWith('lead-score.mjs'))) {
   const crmUrl = process.env.CRM_URL || 'https://crm.crownmediagroup.co';
   const token = process.env.SEED_TOKEN;
   if (!token) { console.error('SEED_TOKEN env var not set'); process.exit(1); }
