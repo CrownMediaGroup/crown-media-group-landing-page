@@ -151,6 +151,37 @@ crownmediagroup.co`;
         `If you're open to it, visit us at <a href="https://crownmediagroup.co" style="color:#1a3a8e;font-weight:600">crownmediagroup.co</a> or reply to this email.`,
       ]
     });
+  } else if (template === 'breakup_warm') {
+    // Touch-3 — warm pull-back. Highest reply rate (8-12% per Hormozi). No ask, one specific gift.
+    subject = `One last note for ${name} — and a small gift on the way out`;
+    bodyText = `Hi ${first},
+
+I've reached out a couple times about a free first project for ${name} and haven't heard back, which I completely understand — ministry schedules are full and unsolicited offers can feel like noise.
+
+I'm going to stop reaching out after this one. No hard feelings.
+
+Before I go, two small gifts:
+
+1. A free Google Business Profile audit specific to ${name}. If you reply "GBP," I'll send the one-pager — 10 minutes to read, zero ask. It will help people find you faster on Google whether or not we ever work together.
+
+2. The standing offer doesn't expire. If anything changes in 3 months, 6 months, or 3 years, my email and number below still reach me.
+
+Continuing to pray for ${name}'s reach this season.
+
+In Christ,
+King
+Crown Media Group | king@crownmediagroup.co
+(908) 848-1436 | crownmediagroup.co`;
+    bodyHtml = campaignHtml({ first, name, city, pixel, unsubUrl, subject,
+      bodyLines: [
+        `I've reached out a couple times about a free first project for <strong>${esc(name)}</strong> and haven't heard back, which I completely understand — ministry schedules are full and unsolicited offers can feel like noise.`,
+        `I'm going to stop reaching out after this one. No hard feelings.`,
+        `Before I go, two small gifts:`,
+        `<strong>1.</strong> A free Google Business Profile audit specific to <strong>${esc(name)}</strong>. If you reply "GBP," I'll send the one-pager — 10 minutes to read, zero ask. It will help people find you faster on Google whether or not we ever work together.`,
+        `<strong>2.</strong> The standing offer doesn't expire. If anything changes in 3 months, 6 months, or 3 years, my email and number below still reach me.`,
+        `Continuing to pray for <strong>${esc(name)}</strong>'s reach this season.`,
+      ]
+    });
   } else if (template === 'social_media') {
     subject = `How ${name} could reach more families in ${city}`;
     bodyText = `Hi ${first},
@@ -809,6 +840,7 @@ export function mountKingdomReach(app, db, { validateSession, getCookie } = {}) 
       if (filter === 'follow_up')         sql = `SELECT * FROM churches WHERE email IS NOT NULL AND email != '' AND email_sent=1 AND replied=0 AND email_sent_at < datetime('now','-7 days') AND follow_up_sent=0` + UNSUB_CLAUSE;
       if (filter === 'follow_up_openers') sql = `SELECT * FROM churches WHERE email IS NOT NULL AND email != '' AND email_sent=1 AND replied=0 AND email_opened=1 AND email_sent_at < datetime('now','-7 days') AND follow_up_sent=0` + UNSUB_CLAUSE;
       if (filter === 'follow_up_cold')    sql = `SELECT * FROM churches WHERE email IS NOT NULL AND email != '' AND email_sent=1 AND replied=0 AND (email_opened=0 OR email_opened IS NULL) AND email_sent_at < datetime('now','-7 days') AND follow_up_sent=0` + UNSUB_CLAUSE;
+      if (filter === 'breakup_warm')      sql = `SELECT * FROM churches WHERE email IS NOT NULL AND email != '' AND email_sent=1 AND follow_up_sent=1 AND replied=0 AND (breakup_sent=0 OR breakup_sent IS NULL) AND follow_up_sent_at < datetime('now','-7 days')` + UNSUB_CLAUSE;
       // Whitelist + param-bind to defeat SQL injection (org_type is a fixed enum from import scripts)
       const ALLOWED_ORG_TYPES = ['nonprofit','school','youth','business','network','missions','media','recovery','prison','men','women','church','mixed'];
       let orgTypeParam = null;
@@ -828,11 +860,15 @@ export function mountKingdomReach(app, db, { validateSession, getCookie } = {}) 
     if (dry_run) return res.json({ ok: true, dry_run: true, count: churches.length, churches: churches.map(c => ({ id:c.id, name:c.name, email:c.email, template })) });
 
     let sent = 0, failed = 0, errors = [];
-    const isFollowUp =
+    const isBreakup =
+      filter === 'breakup_warm' ||
+      (typeof template === 'string' && template === 'breakup_warm');
+    const isFollowUp = !isBreakup && (
       filter === 'follow_up' ||
       filter === 'follow_up_openers' ||
       filter === 'follow_up_cold' ||
-      (typeof template === 'string' && template.startsWith('follow_up'));
+      (typeof template === 'string' && template.startsWith('follow_up'))
+    );
 
     for (const church of churches) {
       try {
@@ -843,7 +879,9 @@ export function mountKingdomReach(app, db, { validateSession, getCookie } = {}) 
           errors.push({ church: church.name, error: result.error });
           continue;
         }
-        if (isFollowUp) {
+        if (isBreakup) {
+          db.prepare(`UPDATE churches SET breakup_sent=1, breakup_sent_at=datetime('now') WHERE id=?`).run(church.id);
+        } else if (isFollowUp) {
           db.prepare(`UPDATE churches SET follow_up_sent=1, follow_up_sent_at=datetime('now') WHERE id=?`).run(church.id);
         } else {
           db.prepare(`UPDATE churches SET email_sent=1, email_sent_at=datetime('now') WHERE id=?`).run(church.id);
