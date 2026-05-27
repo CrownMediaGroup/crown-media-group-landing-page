@@ -393,7 +393,7 @@ export function mountKingdomReach(app, db, { validateSession, getCookie } = {}) 
       if (!session) return res.status(401).json({ error: 'Unauthorized' });
       req.kingdomUser = session;
     }
-    const allowed = ['status','recommended_tier','follow_up_date','notes','phone','email','pastor','website','has_website','pipeline_value','name','address','email_sent','email_sent_at','email_opened','email_opened_at','follow_up_sent','follow_up_sent_at','replied','replied_at'];
+    const allowed = ['status','recommended_tier','follow_up_date','notes','phone','email','pastor','website','has_website','pipeline_value','name','address','email_sent','email_sent_at','email_opened','email_opened_at','follow_up_sent','follow_up_sent_at','replied','replied_at','email_bounced','email_bounced_at','breakup_sent','breakup_sent_at','unsubscribed','unsubscribed_at','lead_score','lead_score_at','tier','org_type'];
     const fields  = Object.keys(req.body || {}).filter(k => allowed.includes(k) && k !== 'token');
     if (!fields.length) return res.status(400).json({ error: 'No valid fields' });
     const sets = fields.map(f => `${f} = ?`).join(', ');
