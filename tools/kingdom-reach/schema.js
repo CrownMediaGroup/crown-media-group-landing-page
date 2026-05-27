@@ -69,6 +69,8 @@ export function ensureSchema(db) {
   if (!cc.includes('unsubscribed_at'))    db.exec('ALTER TABLE churches ADD COLUMN unsubscribed_at DATETIME');
   if (!cc.includes('email_bounced'))      db.exec('ALTER TABLE churches ADD COLUMN email_bounced INTEGER DEFAULT 0');
   if (!cc.includes('email_bounced_at'))   db.exec('ALTER TABLE churches ADD COLUMN email_bounced_at DATETIME');
+  if (!cc.includes('breakup_sent'))       db.exec('ALTER TABLE churches ADD COLUMN breakup_sent INTEGER DEFAULT 0');
+  if (!cc.includes('breakup_sent_at'))    db.exec('ALTER TABLE churches ADD COLUMN breakup_sent_at DATETIME');
 
   // ── Workspace-level settings (single-tenant: key/value pairs) ──────────────
   db.exec(`
