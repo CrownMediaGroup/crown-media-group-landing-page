@@ -133,7 +133,9 @@ async function main() {
         if (seen.has(key)) continue;
 
         const affinity = scoreFaithAffinity(el);
-        if (affinity.score < 60) continue;  // skip non-faith businesses
+        // King's directive: "faith-based businesses from ANY background" — faith framing
+        // is in OUR messaging, not their branding. Keep all SMBs with names + flag the
+        // explicit-Christian ones with score >= 60 for prioritization downstream.
 
         seen.add(key);
         matches.push({
