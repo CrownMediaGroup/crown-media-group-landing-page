@@ -188,6 +188,32 @@ Crown Media Group | king@crownmediagroup.co
         `Continuing to pray for <strong>${esc(name)}</strong>'s reach this season.`,
       ]
     });
+  } else if (template === 'business_christian') {
+    // SMB owner Touch-1 — Daniel Fazio cold-email-wizard pattern: <80 words, soft CTA,
+    // faith framing as shared values not church-speak. King's voice.
+    subject = `small q about ${name}`;
+    bodyText = `Hi ${first === 'Pastor' ? 'there' : first},
+
+Other Columbia-area businesses owned by believers are partnering with us right now — we help with the marketing side so they can focus on the work.
+
+I built a free 14-day project for ${name} — a video reel, a landing page, or a social system. Your pick. Zero ask after.
+
+If it serves ${name}, we talk. If not, you keep the work.
+
+Worth 10 minutes?
+
+In service,
+King
+Crown Media Group · Columbia, SC
+king@crownmediagroup.co  ·  crownmediagroup.co/proof.html`;
+    bodyHtml = campaignHtml({ first: (first === 'Pastor' ? 'there' : first), name, city, pixel, unsubUrl, subject,
+      bodyLines: [
+        `Other Columbia-area businesses owned by believers are partnering with us right now — we handle the marketing side so they can focus on the work.`,
+        `I built a free 14-day project for <strong>${esc(name)}</strong>: a video reel, a landing page, or a social system. Your pick. Zero ask after.`,
+        `If it serves <strong>${esc(name)}</strong>, we talk. If not, you keep the work.`,
+        `Worth 10 minutes? Real client work: <a href="https://crownmediagroup.co/proof.html" style="color:#1a3a8e;font-weight:600">crownmediagroup.co/proof.html</a>`,
+      ]
+    });
   } else if (template === 'social_media') {
     subject = `How ${name} could reach more families in ${city}`;
     bodyText = `Hi ${first},
