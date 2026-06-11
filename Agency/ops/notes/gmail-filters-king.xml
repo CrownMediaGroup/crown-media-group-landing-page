@@ -1,0 +1,136 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<feed xmlns='http://www.w3.org/2005/Atom' xmlns:apps='http://schemas.google.com/apps/2006'>
+  <title>King's Gmail Filters — Crown Media Group + Personal</title>
+  <updated>2026-06-11T15:00:00Z</updated>
+  <author>
+    <name>David King</name>
+    <email>king@crownmediagroup.co</email>
+  </author>
+
+  <!-- ════════════════════════════════════════════════════════════════ -->
+  <!--   CRM CONVERSION — never miss a prospect reply                   -->
+  <!-- ════════════════════════════════════════════════════════════════ -->
+
+  <!-- Hot CRM replies — re:"free first project" → STAR + label "🔥 Hot Lead" -->
+  <entry>
+    <category term='filter'></category>
+    <title>HOT LEAD — re:free first project</title>
+    <content/>
+    <apps:property name='subject' value='"free first project"'/>
+    <apps:property name='shouldStar' value='true'/>
+    <apps:property name='shouldMarkAsImportant' value='true'/>
+    <apps:property name='label' value='🔥 Hot Lead'/>
+  </entry>
+
+  <!-- CRM replies — Re: helping/reaching online → label "Crown CRM/Replies" -->
+  <entry>
+    <category term='filter'></category>
+    <title>CRM Replies (Crown outreach)</title>
+    <content/>
+    <apps:property name='subject' value='"Re: Helping" OR "Re: A free first project" OR "Re: Crown Media"'/>
+    <apps:property name='shouldMarkAsImportant' value='true'/>
+    <apps:property name='label' value='Crown CRM/Replies'/>
+  </entry>
+
+  <!-- Bounces — auto-archive into a label so they're tracked but out of inbox -->
+  <entry>
+    <category term='filter'></category>
+    <title>Auto-archive bounces</title>
+    <content/>
+    <apps:property name='from' value='mailer-daemon@googlemail.com OR postmaster@'/>
+    <apps:property name='shouldArchive' value='true'/>
+    <apps:property name='label' value='Crown CRM/Bounces'/>
+  </entry>
+
+  <!-- ════════════════════════════════════════════════════════════════ -->
+  <!--   NOISE — auto-archive newsletters + vendor marketing             -->
+  <!-- ════════════════════════════════════════════════════════════════ -->
+
+  <!-- Etsy / Suno / HeyGen / xAI / Workspace announcements → auto-archive -->
+  <entry>
+    <category term='filter'></category>
+    <title>Auto-archive marketing newsletters</title>
+    <content/>
+    <apps:property name='from' value='email@seller.etsy.com OR email@email.etsy.com OR suno@creators.suno.com OR no_reply@email.heygen.com OR noreply@x.ai OR workspace-noreply@google.com OR updates@product.exa.ai'/>
+    <apps:property name='shouldArchive' value='true'/>
+    <apps:property name='shouldMarkAsRead' value='true'/>
+    <apps:property name='label' value='Vendor Noise'/>
+  </entry>
+
+  <!-- Resend / Stripe / Cloudflare / Fly / Netlify operational → label only, keep in inbox -->
+  <entry>
+    <category term='filter'></category>
+    <title>Ops alerts (keep in inbox + labelled)</title>
+    <content/>
+    <apps:property name='from' value='noreply@resend.com OR notifications@stripe.com OR noreply@cloudflare.com OR noreply@fly.io OR notifications@netlify.com'/>
+    <apps:property name='label' value='Ops'/>
+  </entry>
+
+  <!-- ════════════════════════════════════════════════════════════════ -->
+  <!--   CLIENTS — protect client communications                        -->
+  <!-- ════════════════════════════════════════════════════════════════ -->
+
+  <!-- Client emails (Jim Reese campaign, Shatiea archive) → STAR + label -->
+  <entry>
+    <category term='filter'></category>
+    <title>Active client: Jim Reese</title>
+    <content/>
+    <apps:property name='hasTheWord' value='Jim Reese OR Richland County Council'/>
+    <apps:property name='shouldStar' value='true'/>
+    <apps:property name='shouldMarkAsImportant' value='true'/>
+    <apps:property name='label' value='Crown Clients/Jim Reese'/>
+  </entry>
+
+  <!-- ════════════════════════════════════════════════════════════════ -->
+  <!--   AI TOOLS — Logo Review / Stripe order alerts                   -->
+  <!-- ════════════════════════════════════════════════════════════════ -->
+
+  <!-- Real customer orders (NOT the test record) → STAR + label -->
+  <entry>
+    <category term='filter'></category>
+    <title>AI Tools real orders (not test)</title>
+    <content/>
+    <apps:property name='subject' value='"Logo Review Overdue" OR "New order"'/>
+    <apps:property name='doesNotHaveTheWord' value='Final Verify Test'/>
+    <apps:property name='shouldStar' value='true'/>
+    <apps:property name='label' value='Crown AI Tools/Orders'/>
+  </entry>
+
+  <!-- Test records → auto-archive (the daily "Logo Review Overdue" spam) -->
+  <entry>
+    <category term='filter'></category>
+    <title>AI Tools TEST records auto-archive</title>
+    <content/>
+    <apps:property name='subject' value='"Logo Review Overdue"'/>
+    <apps:property name='hasTheWord' value='"Final Verify Test"'/>
+    <apps:property name='shouldArchive' value='true'/>
+    <apps:property name='shouldMarkAsRead' value='true'/>
+    <apps:property name='label' value='Crown AI Tools/Test Spam'/>
+  </entry>
+
+  <!-- ════════════════════════════════════════════════════════════════ -->
+  <!--   PERSONAL ldavid226@gmail.com — same rules but personal-tuned   -->
+  <!-- ════════════════════════════════════════════════════════════════ -->
+
+  <!-- Banking + financial → label keep in inbox -->
+  <entry>
+    <category term='filter'></category>
+    <title>Personal: Banking + financial</title>
+    <content/>
+    <apps:property name='from' value='alerts@navyfederal.org OR statements@chase.com OR notifications@plaid.com OR no-reply@alpaca.markets OR @stripe.com'/>
+    <apps:property name='shouldStar' value='true'/>
+    <apps:property name='label' value='💰 Money'/>
+  </entry>
+
+  <!-- Family + close contacts → STAR + never archive -->
+  <entry>
+    <category term='filter'></category>
+    <title>Personal: Family + close (manual: add their emails here)</title>
+    <content/>
+    <apps:property name='from' value='dr.alicia@example.com OR mom@example.com'/>
+    <apps:property name='shouldStar' value='true'/>
+    <apps:property name='shouldNeverSpam' value='true'/>
+    <apps:property name='label' value='👨‍👩‍👧 Family'/>
+  </entry>
+
+</feed>
