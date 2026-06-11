@@ -1,0 +1,159 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<feed xmlns='http://www.w3.org/2005/Atom' xmlns:apps='http://schemas.google.com/apps/2006'>
+  <title>King's Gmail Filters v2 — Crown + Personal + Jobs + Extended Spam</title>
+  <updated>2026-06-11T17:00:00Z</updated>
+  <author>
+    <name>David King</name>
+    <email>king@crownmediagroup.co</email>
+  </author>
+
+  <!-- ════════════════════════════════════════════════════════════════ -->
+  <!--   JOB OFFERS — label "💼 Job Offers" + keep in inbox             -->
+  <!-- ════════════════════════════════════════════════════════════════ -->
+
+  <entry>
+    <category term='filter'></category>
+    <title>Job offers — LinkedIn alerts</title>
+    <content/>
+    <apps:property name='from' value='jobalerts-noreply@linkedin.com OR notifications-noreply@linkedin.com OR jobs-noreply@linkedin.com'/>
+    <apps:property name='label' value='💼 Job Offers/LinkedIn'/>
+  </entry>
+
+  <entry>
+    <category term='filter'></category>
+    <title>Job offers — Indeed</title>
+    <content/>
+    <apps:property name='from' value='donotreply@indeed.com OR alert@indeed.com OR matchassistant@indeed.com OR @indeed.com'/>
+    <apps:property name='label' value='💼 Job Offers/Indeed'/>
+  </entry>
+
+  <entry>
+    <category term='filter'></category>
+    <title>Job offers — Nexxt / ZipRecruiter / Glassdoor / Monster</title>
+    <content/>
+    <apps:property name='from' value='alert@email.nexxt.com OR notify@ziprecruiter.com OR jobs@ziprecruiter.com OR noreply@glassdoor.com OR jobs@monster.com OR @ziprecruiter.com'/>
+    <apps:property name='label' value='💼 Job Offers/Other'/>
+  </entry>
+
+  <entry>
+    <category term='filter'></category>
+    <title>Job offers — Data Entry / Remote work platforms</title>
+    <content/>
+    <apps:property name='from' value='listings@newjobpursuit.co.uk OR @hired.com OR @upwork.com'/>
+    <apps:property name='hasTheWord' value='hiring OR "we are hiring" OR "job opportunity" OR "open position"'/>
+    <apps:property name='label' value='💼 Job Offers/Other'/>
+  </entry>
+
+  <!-- ════════════════════════════════════════════════════════════════ -->
+  <!--   EXTENDED VENDOR NOISE — auto-archive Chess.com, HeyGen, etc    -->
+  <!-- ════════════════════════════════════════════════════════════════ -->
+
+  <entry>
+    <category term='filter'></category>
+    <title>Auto-archive — Chess.com</title>
+    <content/>
+    <apps:property name='from' value='hello@chess.com OR coach@chess.com OR streaks@chess.com OR @chess.com'/>
+    <apps:property name='shouldArchive' value='true'/>
+    <apps:property name='shouldMarkAsRead' value='true'/>
+    <apps:property name='label' value='Vendor Noise'/>
+  </entry>
+
+  <entry>
+    <category term='filter'></category>
+    <title>Auto-archive — More vendor newsletters</title>
+    <content/>
+    <apps:property name='from' value='info@recraft.ai OR no_reply@learn.heygen.com OR ajay@wordzen.com OR noreply@skool.com OR streaks@'/>
+    <apps:property name='shouldArchive' value='true'/>
+    <apps:property name='shouldMarkAsRead' value='true'/>
+    <apps:property name='label' value='Vendor Noise'/>
+  </entry>
+
+  <entry>
+    <category term='filter'></category>
+    <title>Auto-archive — Loan/mortgage/insurance/weight-loss spam</title>
+    <content/>
+    <apps:property name='subject' value='"You&apos;re Approved" OR "House payment" OR "PersonalLoan" OR "LoanManager" OR "HomeProtect" OR "ProtectYourHome" OR "Bye bye fat" OR "end of obesity" OR "Natural Pain Relief" OR "ADT Premier"'/>
+    <apps:property name='shouldArchive' value='true'/>
+    <apps:property name='shouldMarkAsRead' value='true'/>
+    <apps:property name='shouldTrash' value='true'/>
+    <apps:property name='label' value='💩 Spam Trash'/>
+  </entry>
+
+  <entry>
+    <category term='filter'></category>
+    <title>Auto-archive — Etsy + Suno + Workspace + Apple news</title>
+    <content/>
+    <apps:property name='from' value='news@insideapple.apple.com OR notifications@fountain.com OR @medallia.com OR survey@hm.com'/>
+    <apps:property name='shouldArchive' value='true'/>
+    <apps:property name='shouldMarkAsRead' value='true'/>
+    <apps:property name='label' value='Vendor Noise'/>
+  </entry>
+
+  <!-- ════════════════════════════════════════════════════════════════ -->
+  <!--   YOUTUBE TV / streaming services → label, archive after 30 days -->
+  <!-- ════════════════════════════════════════════════════════════════ -->
+
+  <entry>
+    <category term='filter'></category>
+    <title>YouTube / streaming receipts</title>
+    <content/>
+    <apps:property name='from' value='noreply-purchases@youtube.com OR @netflix.com OR @hulu.com'/>
+    <apps:property name='label' value='Receipts/Streaming'/>
+  </entry>
+
+  <!-- ════════════════════════════════════════════════════════════════ -->
+  <!--   GOOGLE PAYMENTS — STAR them (you have a billing crisis)        -->
+  <!-- ════════════════════════════════════════════════════════════════ -->
+
+  <entry>
+    <category term='filter'></category>
+    <title>Google Workspace billing — STAR + label URGENT</title>
+    <content/>
+    <apps:property name='from' value='payments-noreply@google.com'/>
+    <apps:property name='shouldStar' value='true'/>
+    <apps:property name='shouldMarkAsImportant' value='true'/>
+    <apps:property name='label' value='🚨 URGENT/Billing'/>
+  </entry>
+
+  <!-- ════════════════════════════════════════════════════════════════ -->
+  <!--   Microsoft Clarity (Jim Reese analytics) → client analytics    -->
+  <!-- ════════════════════════════════════════════════════════════════ -->
+
+  <entry>
+    <category term='filter'></category>
+    <title>Microsoft Clarity (client analytics)</title>
+    <content/>
+    <apps:property name='from' value='maccount@microsoft.com'/>
+    <apps:property name='hasTheWord' value='Clarity'/>
+    <apps:property name='label' value='Crown Clients/Analytics'/>
+  </entry>
+
+  <!-- ════════════════════════════════════════════════════════════════ -->
+  <!--   Security alerts → STAR + keep in inbox                        -->
+  <!-- ════════════════════════════════════════════════════════════════ -->
+
+  <entry>
+    <category term='filter'></category>
+    <title>Security alerts (Google + new sign-ins)</title>
+    <content/>
+    <apps:property name='from' value='no-reply@accounts.google.com OR security@google.com'/>
+    <apps:property name='subject' value='"Security alert" OR "new sign-in" OR "suspicious activity"'/>
+    <apps:property name='shouldStar' value='true'/>
+    <apps:property name='shouldMarkAsImportant' value='true'/>
+    <apps:property name='label' value='🔐 Security'/>
+  </entry>
+
+  <!-- ════════════════════════════════════════════════════════════════ -->
+  <!--   Bulk-delete known spam senders (from your blocked list)       -->
+  <!-- ════════════════════════════════════════════════════════════════ -->
+
+  <entry>
+    <category term='filter'></category>
+    <title>Bulk delete — known spam domains</title>
+    <content/>
+    <apps:property name='from' value='@gread.victoriaproco.com OR @manofmany.tyt OR @nm3-etouches.paperial.net OR @half-644.againsthim.net OR @soncezsol.net OR @disk-com.infrequentlyan.com OR @sbiksla.quechoisir.org OR @superbking.net OR @aeroflot.ru OR @bankmobilewebemail.com OR @contorted.penphase.com OR @ermatat.com OR @it3184.shitside.com OR @tsvangirai.ranllczid.store OR @finalcall.com OR @culets-a897.validcove.com OR @public-osi.buildstrike.com OR @mail-hfvezoe.c5cjq50kbv.smartweak.com OR @pliant.hexawalk.com OR @comingsweet.com OR @value-now.focusshapes.net OR @hurtfulmono.com OR @paidweave.us OR @essinflammable.net OR @propet.worfive.com OR @site.bothextra.eu'/>
+    <apps:property name='shouldTrash' value='true'/>
+    <apps:property name='label' value='💩 Spam Trash'/>
+  </entry>
+
+</feed>
