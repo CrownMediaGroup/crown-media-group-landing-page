@@ -205,6 +205,82 @@
   @keyframes fadeUp { from { opacity:0; transform:translateY(22px); } to { opacity:1; transform:translateY(0); } }
   .fade { animation: fadeUp 0.7s ease forwards; }
   .d1{animation-delay:0.1s;} .d2{animation-delay:0.25s;} .d3{animation-delay:0.4s;}
+
+  /* ── KILL THE WHITE-SCREEN-AT-BOTTOM (iOS rubber-band) ── */
+  html { background: #1C0620; min-height: 100%; }
+  body { background-color: #1C0620; }
+  /* solid dark base under the gradient so over-scroll never shows white */
+
+  /* ── MOBILE OPTIMIZATION ── */
+  @media (max-width: 700px) {
+    .page { padding: 0 16px 72px; }
+    .hero { padding: 48px 0 36px; }
+    .hero::after { margin-top: 36px; }
+    .from-tag { padding: 6px 16px; font-size: 9px; letter-spacing: 4px; margin-bottom: 22px; }
+    .hero-name-display { letter-spacing: -1px; margin-bottom: 12px; }
+    .hero-full { margin-bottom: 22px; }
+    .pill-row { margin-bottom: 24px; gap: 8px; }
+    .pill { padding: 7px 16px; font-size: 10px; }
+    .hero-intro { font-size: 15px; line-height: 1.85; }
+
+    .section { margin: 44px 0; }
+    .section-h { margin-bottom: 20px; }
+    .letter { padding: 26px 22px; }
+    .letter::before { font-size: 80px; top: -4px; left: 16px; }
+    .letter p { line-height: 1.85; }
+
+    .card { padding: 22px 22px; }
+    .card-ico { font-size: 26px; }
+
+    .tl-item { gap: 16px; padding-bottom: 28px; }
+    .tl-dot { width: 40px; height: 40px; font-size: 16px; }
+    .tl-title { font-size: 18px; }
+    .tl-body { line-height: 1.75; }
+
+    .vase-box { padding: 20px 18px; gap: 12px; }
+    .vase-ico { font-size: 26px; }
+    .vase-text { font-size: 14px; line-height: 1.8; }
+
+    .honor-box { padding: 24px 20px; margin-bottom: 18px; }
+    .honor-body { font-size: 15px; line-height: 1.85; }
+
+    .pricing-wrap { gap: 14px; }
+    .price-card { padding: 28px 22px; }
+    .pc-name { font-size: 18px; }
+    .pc-amt { font-size: 46px; }
+    .pc-list li { font-size: 13px; line-height: 1.65; }
+
+    .next-grid { gap: 12px; }
+    .next-card { padding: 18px 20px; }
+
+    .promise { padding: 32px 24px; }
+    .promise-body { font-size: 14px; line-height: 1.85; }
+
+    .cta-block { margin-top: 40px; }
+    .cta-label { margin-bottom: 14px; }
+    .cta-line { font-size: 14px; line-height: 1.8; margin-bottom: 22px; padding: 0 8px; }
+    .cta-btn-row { flex-direction: column; align-items: center; gap: 10px; margin-bottom: 18px; }
+    .cta-btn { width: 100%; max-width: 320px; text-align: center; padding: 15px 24px; font-size: 12px; letter-spacing: 2px; }
+    .cta-talk { font-size: 13px; margin-top: 6px; padding: 0 12px; }
+    .cta-sub { font-size: 12px; padding: 0 8px; line-height: 1.7; }
+
+    /* Lighter orbs on mobile — saves blur perf, keeps the glow */
+    .orb { filter: blur(60px); }
+    .o1 { width: 380px; height: 380px; top: -120px; right: -120px; }
+    .o2 { width: 280px; height: 280px; }
+    .o3 { width: 220px; height: 220px; }
+  }
+
+  /* ── iPhone SE / small Android ── */
+  @media (max-width: 380px) {
+    .page { padding: 0 14px 64px; }
+    .hero-name-display { font-size: 54px; }
+    .letter { padding: 22px 18px; }
+    .price-card { padding: 24px 18px; }
+    .pc-amt { font-size: 42px; }
+    .honor-box { padding: 20px 16px; }
+    .promise { padding: 28px 20px; }
+  }
 </style>
 </head>
 <body>
