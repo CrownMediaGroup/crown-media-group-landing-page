@@ -321,6 +321,7 @@ export function mountKingdomReach(app, db, { validateSession, getCookie } = {}) 
   app.get('/kingdom-reach/funnel',                (req, res) => res.sendFile(join(PUBLIC_DIR, 'funnel.html')));
   app.get('/kingdom-reach/linkedin-queue',        (req, res) => res.sendFile(join(PUBLIC_DIR, 'linkedin-queue.html')));
   app.get('/kingdom-reach/tier-a',                (req, res) => res.sendFile(join(PUBLIC_DIR, 'tier-a.html')));
+  app.get('/kingdom-reach/ranked-targets',        (req, res) => res.sendFile(join(PUBLIC_DIR, 'ranked-targets.html')));
   app.get('/kingdom-reach/linkedin-queue.json',   (req, res) => {
     const queuePath = join(__dirname, '..', '..', 'Agency', 'ops', 'outreach', 'linkedin-queue.json');
     if (existsSync(queuePath)) return res.sendFile(queuePath);

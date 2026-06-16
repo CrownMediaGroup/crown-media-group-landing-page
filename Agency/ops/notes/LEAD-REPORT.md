@@ -1,6 +1,6 @@
-# Lead Gen Report — 2026-05-03
+# Lead Gen Report — 2026-06-16
 
-**Total found:** 47 | **Hot (70+):** 0 | **Warm (50–69):** 47
+**Total found:** 48 | **Hot (70+):** 0 | **Warm (50–69):** 48
 
 ## Hot Leads (Score 70+) — Priority Outreach
 
@@ -9,53 +9,55 @@ _None this run_
 ## Warm Leads (Score 50–69)
 
 - **Hendrix Restaurant & Rooftop Bar | Columbia, SC** (50) — Unknown | 
-- **Hendrix - Fine Dining Restaurant in Columbia, SC | Exquisite Flavors Await** (50) — Unknown | 
-- **Turn moments into memories!** (50) — Unknown | 
-- **Palmetto Pig BBQ — Seriously Good BBQ in Columbia SC** (50) — Unknown | 
-- **Columbia, SC Southern Food | Tupelo Honey Southern Kitchen & Bar** (50) — Unknown | 
 - **Best Korean food in Columbia, SC | MOA Korean BBQ & Bar - Columbia | Korean food near me** (50) — Unknown | 
-- **Skeet & Ro's Seasoned with Soul - Columbia, SC** (50) — Unknown | 
-- **The War Mouth** (50) — Unknown | 
+- **Home | Columbo's** (50) — Unknown | 
+- **Best Korean food in Columbia, SC | 929 Kitchen & Bar | Korean food near me** (50) — Unknown | 
+- **Saluda's Restaurant** (50) — Unknown | 
+- **Hendrix - Fine Dining Restaurant in Columbia, SC | Exquisite Flavors Await** (50) — Unknown | 
+- **MILLENNIUM BUFFET Restaurant - Columbia, SC | Order Online | Chinese Takeout** (50) — Unknown | 
+- **Brunch, Bar & Lounge in Columbia, SC | Barcode 2.0** (50) — Unknown | 
 - **Lavish Hair Studios by Lena pink | The South Carolina Salon of Choice** (50) — Unknown | 
-- **Hairstylist | The Blonde Magnolia | Columbia, SC** (50) — Unknown | 
-- **Shine** (50) — Unknown | 
-- **P-818** (50) — Unknown | 
-- **3 Beauties Salon, LLC | Hair Salon in Columbia, SC** (50) — Unknown | 
 - **Metropolis Salon** (50) — Unknown | 
-- **Hair Salon - Gracefull Escape Salon & Spa** (50) — Unknown | 
-- **Cleaning Services & House Cleaning in Columbia, SC - Deserved Comfort** (50) — Unknown | 
+- **Moss & Moon HairLoft | Hair Salon Near Me** (50) — Unknown | 
+- **Vivid** (50) — Unknown | 
+- **Just Divine Hair Studio & Spa** (50) — Unknown | 
+- **BOMBSHELL BEAUTY** (50) — Unknown | 
+- **ICONIC salon & blow dry | Hair Salon in Columbia, SC | Hair Treatments, Silk Press, & Head Spa** (50) — Unknown | 
+- **Shine** (50) — Unknown | 
+- **Spring & Deep House Cleaning in Columbia, SC | Renwick** (50) — Unknown | 
+- **Cleaning Service | Columbia SC | The Dirty Work of SC** (50) — Unknown | 
 - **Home Cleaning in Columbia, SC | Serene Spaces Home Cleaning** (50) — Unknown | 
-- **Columbia House Cleanings | The Cleaning Authority - West Columbia** (50) — Unknown | 
-- **House Cleaning Service In Columbia SC » 🙌 House Cleaning Service In Columbia, SC | The Cleaning Club** (50) — Unknown | 
-- **House Cleaning Services in Columbia , SC 29210** (50) — Unknown | 
-- **Residential Cleaning Company | Columbia, SC - Maria’s House Cleaning** (50) — Unknown | 
-- **Marks Maids - House Cleaning Services in Columbia, SC, Lexington, SC, and Surrounding Areas** (50) — Unknown | 
-- **Columbias Cleaning Machine | Professional Cleaning Services in Columbia, SC - Columbias Cleaning Machine, LLC** (50) — Unknown | 
-- **SOCIAL + CORPORATE EVENT PLANNING AND MANAGEMENT** (50) — Unknown | 
-- **Always  
-Eventful** (50) — Unknown | 
-- **Best of Both Worlds Catering** (50) — Unknown | 
-- **Annette's Events Columbia, SC - Event Planning and Management** (50) — Unknown | 
-- **Columbia SC Wedding Planner | Balazs Events** (50) — Unknown | 
-- **Kreations By Bella | Columbia Event Planner** (50) — Unknown | 
-- **Loosh Culinaire Fine Catering: Gourmet Catering, Columbia SC** (50) — Unknown | 
+- **Ready2Clean** (50) — Unknown | 
+- **PreVent Cleaning Service - Duct Cleaning, Mold Removal, & More** (50) — Unknown | 
+- **Sunflower Cleaning Group - Residential & Commercial Cleaning Services** (50) — Unknown | 
+- **House & Commercial Cleaning in Irmo, Lexington, SC | Edima** (50) — Unknown | 
+- **Gamble Pro Cleaning Services – The Cleaning Company That Cares** (50) — Unknown | 
+- **Catering | Columbia, SC | Clarrisa's Kitchen** (50) — Unknown | 
 - **Premiere Catering and Venues Columbia SC • Dupre Catering & Events** (50) — Unknown | 
-- **Preserve & Co. — A Clothing & Keepsake Boutique in Columbia, SC** (50) — Unknown | 
+- **Events R Us by A &amp; E** (50) — Unknown | 
+- **Eleven Services LLC - Boutique Event Planning for Columbia, SC** (50) — Unknown | 
+- **Wedding Event Planner & Coordinator Columbia SC | Florals Services for Weddings, Parties, Corporate Events | 3G Event Design** (50) — Unknown | 
+- **France’s Catering | Columbia, Lexington & Charleston SC Caterer** (50) — Unknown | 
+- **Annette's Events Columbia, SC - Event Planning and Management** (50) — Unknown | 
+- **https://www.iacofanos.com/catering-columbia-sc/** (50) — Unknown | 
+- **Novaluxe Boutique** (50) — Unknown | 
+- **MONKEE'S | Shop Clothing & Accessories Online - Columbia, SC
+– Monkee's of Columbia** (50) — Unknown | 
+- **Imagine This Boutique** (50) — Unknown | 
+- **Preserve & Co. | Columbia, SC Boutique | Timeless Style + Keepsakes** (50) — Unknown | 
+- **Just the Thing** (50) — Unknown | 
 - **Handmade Clothing | Columbia, SC | Anton & Maxine** (50) — Unknown | 
-- **Tall Oaks Boutique** (50) — Unknown | 
-- **Fashion Boutique | Columbia, SC | Venue517 & Co.** (50) — Unknown | 
-- **Whimsical, bold, playful clothes for women - Shop LaRoque** (50) — Unknown | 
-- **preserve & co. – a heritage-inspired boutique in west columbia, sc** (50) — Unknown | 
-- **Women's Clothing Boutique in Columbia, SC | Copper Penny Boutique** (50) — Unknown | 
-- **APB Columbia** (50) — Unknown | 
-- **Personal Trainer and Nutritionist in Columbia, SC** (50) — Unknown | 
-- **Tamara D. Brown - Personal Trainer Columbia SC |Nonprofit Wellness| REALTOR® | personal trainer Columbia South Carolina | South Carolina, USA** (50) — Unknown | 
-- **Site is undergoing maintenance** (50) — Unknown | 
+- **About Us
+– Monkee's of Columbia** (50) — Unknown | 
+- **The Collective a Small Business Boutique** (50) — Unknown | 
+- **Angela Yong — Fit Columbia • Personal Trainer, Aerial Yoga, Wall Yoga, Yoga, Bungee, Stretching, Columbia SC** (50) — Unknown | 
+- **Next Level Performance | Brandon Sistrunk |  Next Level Performance | Columbia Fitness Trainer** (50) — Unknown | 
 - **Yoga & Pilates with Ivory Howard** (50) — Unknown | 
-- **Fitness | Www.nlfbyandrecollum.com | Columbia** (50) — Unknown | 
-- **Shalama Jackson, Personal Trainer in Columbia, South Carolina | Fyt Personal Training** (50) — Unknown | 
-- **Health Optimization Coach Columbia SC | Optimal Health & Vitality** (50) — Unknown | 
-- **Meet T.J. Lyerly | Personal Trainer Columbia SC** (50) — Unknown | 
+- **Home Page - Reese Woods Fitness** (50) — Unknown | 
+- **About Jamie** (50) — Unknown | 
+- **About Certified Personal Trainer TJ Lyerly | Lyerly Fitness** (50) — Unknown | 
+- **Home | 3 Fold Fitness** (50) — Unknown | 
+- **Dubose Fitness** (50) — Unknown | 
 
 ---
-_Generated by nightly-lead-gen.js — 2026-05-03T04:19:32.974Z_
+_Generated by nightly-lead-gen.js — 2026-06-16T04:00:50.087Z_
