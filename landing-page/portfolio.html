@@ -374,9 +374,11 @@ function applyFilter(f) {
   const del  = getDeletedIds();
   let base = adminMode ? allItems : allItems.filter(i => !del.includes(String(i.id || i.file)));
 
+  // ponytail: videos gitignored → 404 on Netlify. Hide until externally hosted (Cloudflare Stream / YouTube).
+  base = base.filter(i => i.type !== 'video');
   if (f === 'all')      filtered = base;
   else if (f === 'new') filtered = base.filter(i => i.source === 'crm');
-  else if (f === 'video') filtered = base.filter(i => i.type === 'video');
+  else if (f === 'video') filtered = [];
   else if (f === 'image') filtered = base.filter(i => i.type === 'image');
   else                  filtered = base.filter(i => getCategory(i) === f);
 
