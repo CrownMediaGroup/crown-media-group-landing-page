@@ -328,7 +328,10 @@ async function loadPortfolio() {
   try {
     const r = await fetch('assets/portfolio/manifest.json');
     const d = await r.json();
-    localItems = d.map(i => ({ ...i, source: 'local' }));
+    // ponytail: videos aren't deployed to Netlify (.gitignore blocks *.mp4/*.mov).
+    // Hide them until we host on Cloudflare Stream / YouTube. Upgrade path:
+    // rewrite manifest.json src fields to external URLs, then remove this filter.
+    localItems = d.filter(i => i.type !== 'video').map(i => ({ ...i, source: 'local' }));
   } catch (_) {}
 
   allItems = [...crmItems, ...localItems];
