@@ -279,7 +279,8 @@
     .n-date{font-size:.83rem;font-weight:600;color:var(--gray-600);margin-bottom:8px}
     .n-card h3{font-family:var(--font-h);font-size:1.1rem;font-weight:700;color:var(--text);margin-bottom:10px;line-height:1.35}
     .n-card p{font-size:.95rem;color:var(--text-mid);line-height:1.65;margin-bottom:18px}
-    .n-link{font-size:.88rem;font-weight:700;color:var(--red);text-transform:uppercase;letter-spacing:.07em;display:inline-flex;align-items:center;gap:6px;transition:gap var(--ease)}
+    .n-link{font-size:.88rem;font-weight:700;color:var(--red);text-transform:uppercase;letter-spacing:.07em;display:inline-flex;align-items:center;gap:6px;transition:gap var(--ease);min-height:44px;padding:10px 0}
+    .v-link{min-height:44px;display:inline-flex;align-items:center;padding:10px 0}
     .n-link:hover{gap:10px}
 
     /* ============================================================
@@ -536,8 +537,8 @@
         <div class="cd-inner">
           <!-- Countdown -->
           <div class="cd-left">
-            <p class="cd-lbl" id="cd-label">Countdown to the Campaign Cookout</p>
-            <p class="cd-event" id="cd-event">Jim's Backyard Cookout — April 18th, 6:30 PM</p>
+            <p class="cd-lbl" id="cd-label">Countdown to General Election Day</p>
+            <p class="cd-event" id="cd-event">General Election Day — November 3, 2026</p>
           </div>
           <div class="cd-units" aria-live="polite" aria-label="Countdown timer">
             <div class="cd-unit"><span class="cd-num" id="cd-days">--</span><span class="cd-name">Days</span></div>
@@ -549,7 +550,6 @@
             <div class="cd-unit"><span class="cd-num" id="cd-secs">--</span><span class="cd-name">Secs</span></div>
           </div>
           <!-- Email Signup -->
-          <!-- FUTURE: Migrate to Mailchimp or Kit (ConvertKit) for automated email sequences. Excellent agency upsell for Jim. -->
           <div class="cd-right">
             <form class="email-form" id="emailForm" onsubmit="handleEmailSignup(event)" aria-label="Email signup">
               <input type="email" id="emailInput" placeholder="Your email address" required aria-label="Email address" autocomplete="email">
@@ -638,7 +638,7 @@
     ============================================================ -->
     <div style="background:var(--red);padding:20px 0;text-align:center" aria-label="Voter registration">
       <div class="wrap" style="display:flex;align-items:center;justify-content:center;gap:20px;flex-wrap:wrap">
-        <p style="color:var(--white);font-size:1rem;font-weight:700">Make sure you're registered to vote for the June 9th primary!</p>
+        <p style="color:var(--white);font-size:1rem;font-weight:700">Make sure you're registered to vote for the November 3rd general election!</p>
         <a href="https://scvotes.gov" target="_blank" rel="noopener" class="btn btn-white" style="padding:10px 24px;font-size:.85rem">Check Registration at scvotes.gov</a>
       </div>
     </div>
@@ -662,7 +662,7 @@
           <div class="v-card anim d1">
             <a href="https://www.instagram.com/reel/DWCjRrzCACL/" target="_blank" rel="noopener" aria-label="Watch Jim's campaign announcement on Instagram">
               <div class="v-thumb" aria-hidden="true" style="background:none">
-                <img src="images/campaign-graphic-blazer-circle.png" alt="Jim Reese campaign graphic" style="width:100%;height:100%;object-fit:cover;position:absolute;top:0;left:0">
+                <img src="images/ig-thumb-announcement.png" alt="Jim Reese files for Richland County Council District 1 — family at I Filed screen" style="width:100%;height:100%;object-fit:cover;position:absolute;top:0;left:0">
                 <div class="v-play"><svg viewBox="0 0 24 24" aria-hidden="true"><polygon points="5 3 19 12 5 21 5 3"/></svg></div>
               </div>
             </a>
@@ -675,7 +675,7 @@
           <div class="v-card anim d2">
             <a href="https://www.instagram.com/p/DWHMqJzjqAk/" target="_blank" rel="noopener" aria-label="Watch Jim's vision for District 1 on Instagram">
               <div class="v-thumb" aria-hidden="true" style="background:none">
-                <img src="images/campaign-graphic-blazer-vote.png" alt="Jim Reese campaign graphic" style="width:100%;height:100%;object-fit:cover;position:absolute;top:0;left:0">
+                <img src="images/ig-thumb-vision.png" alt="Jim's Why — Jim Reese on running for Richland County Council" style="width:100%;height:100%;object-fit:cover;position:absolute;top:0;left:0">
                 <div class="v-play"><svg viewBox="0 0 24 24" aria-hidden="true"><polygon points="5 3 19 12 5 21 5 3"/></svg></div>
               </div>
             </a>
@@ -688,7 +688,7 @@
           <div class="v-card anim d3">
             <a href="https://www.instagram.com/reel/DWU98SZiC0B/" target="_blank" rel="noopener" aria-label="Watch Jim talk about community on Instagram">
               <div class="v-thumb" aria-hidden="true" style="background:none">
-                <img src="images/campaign-graphic-blue-shirt-vote.png" alt="Jim Reese campaign graphic" style="width:100%;height:100%;object-fit:cover;position:absolute;top:0;left:0">
+                <img src="images/ig-thumb-community.png" alt="Jim Reese thanks the community — Irmo, Dutch Fork, Ballentine, Chapin" style="width:100%;height:100%;object-fit:cover;position:absolute;top:0;left:0">
                 <div class="v-play"><svg viewBox="0 0 24 24" aria-hidden="true"><polygon points="5 3 19 12 5 21 5 3"/></svg></div>
               </div>
             </a>
@@ -720,10 +720,10 @@
             </div>
             <div class="n-body">
               <span class="n-badge-press">In the Press</span>
-              <p class="n-date">April 2026 &bull; The Post and Courier</p>
-              <h3>Jim Reese Featured in The Post and Courier</h3>
-              <p>Jim Reese is among the Richland County Council candidates profiled by The Post and Courier ahead of the June 2026 Republican primary. Read where he stands on growth, taxes, and the priorities of District 1 families.</p>
-              <a href="https://www.postandcourier.com/columbia/news/richland-county-sc-council-candidates-2026-election/article_80fde573-5d50-462e-b966-2eb38fe6c224.html" class="n-link" target="_blank" rel="noopener">Read the Full Article →</a>
+              <p class="n-date">June 8, 2026 &bull; The Post and Courier</p>
+              <h3>Richland County Council Candidates Talk Smart Growth and Public Safety</h3>
+              <p>Jim Reese, the sole Republican candidate for District 1, calls for "responsible growth anchored in tradition" — pushing transparency on development, prioritizing first responders and infrastructure, and pressing hard questions about traffic, schools, stormwater, and long-term community impact before major projects are approved.</p>
+              <a href="https://www.postandcourier.com/columbia/news/richland-county-council-candidates-growth-safety/article_f1dea3bc-9d26-4c77-8d4a-178a94bd00a7.html" class="n-link" target="_blank" rel="noopener">Read the Full Article →</a>
             </div>
           </article>
         </div>
@@ -740,22 +740,22 @@
             </div>
           </article>
           <article class="n-card anim d3">
-            <div class="n-img"><img src="images/jim-cookout.jpg" alt="Backyard cookout grill — Jim's Campaign Cookout April 18th" loading="lazy"></div>
+            <div class="n-img"><img src="images/post-and-courier-richland-council.png" alt="Richland County Council candidates 2026 — The Post and Courier" loading="lazy"></div>
             <div class="n-body">
-              <span class="n-badge">Upcoming Event</span>
-              <p class="n-date">Saturday, April 18th &bull; 6:30–8:30 PM</p>
-              <h3>Jim's Backyard Campaign Cookout</h3>
-              <p>Come hang out and kick the campaign into high gear! Kids and families welcome. Meet Jim, get plugged in, and be part of something real.</p>
-              <a href="https://docs.google.com/forms/d/e/1FAIpQLScczEVYCx8NIzD_1l_o0RBkaj6DfMqiN2hI0b2JSVzcaQek8w/viewform?pli=1" class="n-link" target="_blank" rel="noopener">RSVP Now →</a>
+              <span class="n-badge">In the Press</span>
+              <p class="n-date">April 2026 &bull; The Post and Courier</p>
+              <h3>Jim Reese Featured in The Post and Courier</h3>
+              <p>Jim Reese is among the Richland County Council candidates profiled by The Post and Courier ahead of the 2026 election. Read where he stands on growth, taxes, and the priorities of District 1 families.</p>
+              <a href="https://www.postandcourier.com/columbia/news/richland-county-sc-council-candidates-2026-election/article_80fde573-5d50-462e-b966-2eb38fe6c224.html" class="n-link" target="_blank" rel="noopener">Read the Full Article →</a>
             </div>
           </article>
           <article class="n-card anim d4">
             <div class="n-img"><img src="images/jim-voting.jpg" alt="Person casting a ballot on Election Day" loading="lazy"></div>
             <div class="n-body">
               <span class="n-badge">Mark Your Calendar</span>
-              <p class="n-date">Tuesday, June 9, 2026</p>
-              <h3>Statewide Primary Election Day — Go Vote!</h3>
-              <p>The Republican primary is June 9th. Mark your calendar, register to vote, and get your neighbors to the polls for Richland County District 1.</p>
+              <p class="n-date">Tuesday, November 3, 2026</p>
+              <h3>General Election Day — Go Vote!</h3>
+              <p>The general election is November 3rd. Mark your calendar, register to vote, and get your neighbors to the polls for Richland County District 1.</p>
               <a href="https://scvotes.gov" class="n-link" target="_blank" rel="noopener">Register to Vote →</a>
             </div>
           </article>
@@ -959,7 +959,7 @@
             </button>
             <div class="faq-body" role="region" aria-label="When is the election?">
               <div class="faq-body-inner">
-                The Republican primary is <strong>Tuesday, June 9, 2026</strong>. The general election is in November 2026 (date TBD). Mark your calendar, get registered, and make sure your friends and neighbors in District 1 do too!
+                The general election is <strong>Tuesday, November 3, 2026</strong>. Jim is running unopposed on the Republican side and will appear on the November ballot. Mark your calendar, get registered, and make sure your friends and neighbors in District 1 do too!
               </div>
             </div>
           </div>
@@ -1007,7 +1007,7 @@
             </button>
             <div class="faq-body" role="region" aria-label="Where can I meet Jim?">
               <div class="faq-body-inner">
-                <strong>Jim's Backyard Campaign Cookout</strong> is April 18th from 6:30–8:30 PM. Kids and families welcome! <a href="https://docs.google.com/forms/d/e/1FAIpQLScczEVYCx8NIzD_1l_o0RBkaj6DfMqiN2hI0b2JSVzcaQek8w/viewform?pli=1" target="_blank" rel="noopener">Sign up here</a>. Follow Jim on <a href="https://www.facebook.com/profile.php?id=61580771050300" target="_blank" rel="noopener">Facebook</a> and <a href="https://www.instagram.com/jimreeseforrichlandcounty" target="_blank" rel="noopener">Instagram</a> for more event announcements.
+                Follow Jim on <a href="https://www.facebook.com/profile.php?id=61580771050300" target="_blank" rel="noopener">Facebook</a> and <a href="https://www.instagram.com/jimreeseforrichlandcounty" target="_blank" rel="noopener">Instagram</a> for upcoming events, meet-and-greets, and community stops across District 1.
               </div>
             </div>
           </div>
@@ -1111,28 +1111,20 @@
     document.querySelectorAll('.anim').forEach(el => observer.observe(el));
 
     // --- Countdown Timer ---
-    // Targets: Cookout April 18 2026 6:30 PM EST → then Primary June 9 2026 7 AM EST (polls open)
-    const cookout  = new Date('2026-04-18T22:30:00Z'); // 6:30 PM EDT (UTC-4 in April)
-    const primary  = new Date('2026-06-09T11:00:00Z'); // 7:00 AM EDT (UTC-4 in June)
+    // Target: General Election November 3, 2026 7 AM EST (polls open)
+    const general = new Date('2026-11-03T12:00:00Z'); // 7:00 AM EST (UTC-5 in November)
 
     function pad(n) { return String(n).padStart(2,'0'); }
 
     function updateCountdown() {
       const now = new Date();
-      let target, label, event;
-
-      if (now < cookout) {
-        target = cookout;
-        label  = 'Countdown to the Campaign Cookout';
-        event  = "Jim's Backyard Cookout — April 18th, 6:30 PM";
-      } else if (now < primary) {
-        target = primary;
-        label  = 'Countdown to Primary Election Day';
-        event  = 'Primary Election Day — June 9, 2026';
-      } else {
+      if (now >= general) {
         document.getElementById('countdown-bar').style.display = 'none';
         return;
       }
+      const target = general;
+      const label  = 'Countdown to General Election Day';
+      const event  = 'General Election Day — November 3, 2026';
 
       document.getElementById('cd-label').textContent = label;
       document.getElementById('cd-event').textContent = event;
@@ -1156,26 +1148,6 @@
       e.preventDefault();
       window.open('https://docs.google.com/forms/d/e/1FAIpQLSczX8uhw9S1uXDzRudFQx6ehHUB-STDL-oS-VljG8c59S94gA/viewform', '_blank', 'noopener');
     }
-
-    // --- Family Photo Slideshow ---
-    (function() {
-      const inner = document.getElementById('famInner');
-      const dots  = document.querySelectorAll('#famDots .slideshow-dot');
-      let cur = 0, timer;
-      const total = dots.length;
-      function goTo(idx) {
-        cur = (idx + total) % total;
-        inner.style.transform = 'translateX(-' + (cur * 100) + '%)';
-        dots.forEach((d, i) => d.classList.toggle('active', i === cur));
-      }
-      function next() { goTo(cur + 1); }
-      function startAuto() { timer = setInterval(next, 4500); }
-      function stopAuto()  { clearInterval(timer); }
-      document.getElementById('famPrev').addEventListener('click', () => { stopAuto(); goTo(cur - 1); startAuto(); });
-      document.getElementById('famNext').addEventListener('click', () => { stopAuto(); goTo(cur + 1); startAuto(); });
-      dots.forEach((d, i) => d.addEventListener('click', () => { stopAuto(); goTo(i); startAuto(); }));
-      startAuto();
-    })();
 
     // --- FAQ Accordion ---
     document.querySelectorAll('.faq-q').forEach(btn => {
